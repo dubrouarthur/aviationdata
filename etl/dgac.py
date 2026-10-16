@@ -22,13 +22,28 @@ SERIES: dict[str, dict[str, list[str]]] = {
         "pax_dep": ["APT_PAX_DEP"],
         "pax_arr": ["APT_PAX_ARR"],
         "pax_tr": ["APT_PAX_TR"],
+        "mvt": ["APT_NMVT_MXT"],
+        "mvt_cgo": ["APT_NMVT_CGO"],
+        "frp_dep": ["APT_FRP_DEP"],
+        "frp_arr": ["APT_FRP_ARR"],
     },
     "lsn": {
         "seg": ["LSN_SEG"],
         "fsc": ["LSN_FSC"],
         "pax": ["LSN_PAX"],
         "pkt": ["LSN_PKT"],
+        "frp": ["LSN_FRP"],
         "cont": ["LSN_2_CONT", "LSN_CONT", "LSN_2_CONTINENT"],
+        "origin": ["LSN_1"],
+        "dest": ["LSN_2"],
+    },
+    "pap": {
+        "pair": ["PAP"],
+        "name1": ["PAP1_LABEL"],
+        "name2": ["PAP2_LABEL"],
+        "dist": ["PAP_DIST"],
+        "pax": ["PAP_PAX"],
+        "mvt": ["PAP_MVT"],
     },
     "cie": {
         "name": ["CIE_NOM"],
@@ -36,7 +51,13 @@ SERIES: dict[str, dict[str, list[str]]] = {
         "pax": ["CIE_PAX"],
     },
 }
-OPTIONAL = {"apt": {"pax_tr", "zone"}, "lsn": {"pkt", "cont"}, "cie": {"nat"}}
+OPTIONAL = {
+    "apt": {"pax_tr", "zone", "mvt", "mvt_cgo", "frp_dep", "frp_arr"},
+    "lsn": {"pkt", "cont", "origin", "dest", "frp"},
+    "cie": {"nat"},
+    "pap": {"mvt", "dist"},
+}
+NUMERIC = {"pax", "pax_dep", "pax_arr", "pax_tr", "pkt", "dist", "mvt", "mvt_cgo", "frp", "frp_dep", "frp_arr"}
 # a column that, when present, identifies the series of a file
 SIGNATURE = {"apt": "APT_PAX_DEP", "lsn": "LSN_PAX", "cie": "CIE_PAX", "pap": "PAP_PAX"}
 
@@ -159,7 +180,7 @@ def records(table: Table, series: str, rank: int) -> list[dict]:
         rec = {"month": month, "_rank": rank}
         for field, idx in cols.items():
             raw = r[idx] if idx is not None and idx < len(r) else None
-            rec[field] = to_num(raw) if field.startswith(("pax", "pkt")) else (raw or "").strip()
+            rec[field] = to_num(raw) if field in NUMERIC else (raw or "").strip()
         out.append(rec)
     return out
 

@@ -301,12 +301,14 @@ def test_co2_without_total_fails_loudly(tmp_path):
 
 # ---------------------------------------------------------------- contract
 CONTRACT = {
-    "meta": {"generated_at", "demo", "coverage", "sources", "missing_coords"},
-    "fracture": {"months", "faisceaux", "annual", "continents"},
-    "aeroports": {"months", "airports", "aggregates", "missing_coords"},
+    "meta": {"generated_at", "demo", "coverage", "sources", "missing_coords", "warnings"},
+    "fracture": {"months", "faisceaux", "annual", "continents", "par_faisceau"},
+    "aeroports": {"months", "years", "airports", "aggregates", "national", "missing_coords"},
     "compagnies": {"years", "carriers", "rest", "aggregated", "total", "lowcost_share"},
     "prix": {"months", "base", "series", "sources"},
-    "co2": {"years", "segments", "mt", "g_peqkm", "pax"},
+    "co2": {"years", "segments", "mt", "g_peqkm", "pax", "decomp"},
+    "monde": {"months", "origin", "countries", "autres"},
+    "routes": {"years", "airports", "pairs"},
 }
 
 

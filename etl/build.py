@@ -18,6 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import dgac
+import world
 
 ROOT = Path(__file__).resolve().parent.parent
 REF_AIRPORTS = ROOT / "data" / "ref" / "airports_fr.csv"
@@ -191,7 +192,8 @@ def is_metro(lat: float, lon: float) -> bool:
 def load_traffic(raw: Path) -> dict[str, list[dict]]:
     """All traffic records per series, most recent file wins for a given month."""
     files = sorted((raw / "trafic").glob("*.csv")) if (raw / "trafic").exists() else []
-    recs: dict[str, list[dict]] = {"apt": [], "lsn": [], "cie": []}
+    recs: dict[str, list[dict]] = {"apt": [], "lsn": [], "cie": [], "pap": []}
+    required = ("apt", "lsn", "cie")  # PAP only feeds the route maps
     loaded = []
     for path in files:
         table = dgac.read_table(path)
@@ -207,7 +209,9 @@ def load_traffic(raw: Path) -> dict[str, list[dict]]:
         recs[s].extend(rows)
     for s in recs:
         if not recs[s]:
-            raise dgac.SchemaError(f"no {s.upper()} file found in {raw / 'trafic'}")
+            if s in required:
+                raise dgac.SchemaError(f"no {s.upper()} file found in {raw / 'trafic'}")
+            continue
         recs[s] = dgac.latest_per_month(recs[s])
     return recs
 
@@ -219,12 +223,17 @@ def build_fracture(lsn: list[dict]) -> dict:
     seen_fsc: set[str] = set()
     annual = defaultdict(lambda: defaultdict(float))  # seg -> year -> pax
     cont = defaultdict(lambda: defaultdict(float))
+    by_fsc_year = defaultdict(lambda: defaultdict(lambda: [0.0, 0.0, 0.0]))  # fsc -> year -> [pax, pkt, frp]
     present = set()
     for r in lsn:
         pax = r["pax"] or 0.0
         code = (r["fsc"] or "AUTRE").upper()
         seen_fsc.add(code)
         fsc[code][idx[r["month"]]] += pax
+        acc = by_fsc_year[code][int(r["month"][:4])]
+        acc[0] += pax
+        acc[1] += r.get("pkt") or 0.0
+        acc[2] += r.get("frp") or 0.0
         present.add(r["month"])
         seg = "NAT" if (r["seg"] or "").upper().startswith("NAT") else "INTL"
         annual[seg][int(r["month"][:4])] += pax
@@ -245,25 +254,56 @@ def build_fracture(lsn: list[dict]) -> dict:
             "years": years,
             "series": {c: [round(v[y]) for y in years] for c, v in sorted(cont.items()) if "AUTRE" not in c},
         },
+        # yearly passengers, passenger-km and freight (t) per faisceau: average trip length = pkt / pax
+        "par_faisceau": {
+            f: {
+                "pax": [round(by_fsc_year[f][y][0]) for y in years],
+                "pkt": [round(by_fsc_year[f][y][1]) for y in years],
+                "fret": [round(by_fsc_year[f][y][2]) for y in years],
+            }
+            for f in order
+        },
     }
 
 
 def build_airports(apt: list[dict], ref: dict[str, dict]) -> dict:
     months = month_range(min(r["month"] for r in apt), max(r["month"] for r in apt))
     idx = {m: i for i, m in enumerate(months)}
+    n = len(months)
     series: dict[str, list] = {}
+    flights: dict[str, list] = {}
+    freight: dict[str, list] = {}
     names: dict[str, str] = {}
-    zones: dict[str, str] = {}
+    national = {"pax": [0.0] * n, "vols": [0.0] * n, "vols_cargo": [0.0] * n, "fret": [0.0] * n}
     for r in apt:
         code = (r["code"] or "").strip().upper()
         if not code:
             continue
-        pax = (r["pax_dep"] or 0.0) + (r["pax_arr"] or 0.0)
-        s = series.setdefault(code, [None] * len(months))
         i = idx[r["month"]]
+        pax = (r["pax_dep"] or 0.0) + (r["pax_arr"] or 0.0)
+        fret = (r.get("frp_dep") or 0.0) + (r.get("frp_arr") or 0.0)
+        s = series.setdefault(code, [None] * n)
         s[i] = (s[i] or 0) + pax
+        fl = flights.setdefault(code, [None] * n)
+        if r.get("mvt") is not None:
+            fl[i] = (fl[i] or 0) + r["mvt"]
+        fr = freight.setdefault(code, [None] * n)
+        fr[i] = (fr[i] or 0) + fret
         names[code] = r["name"] or names.get(code, code)
-        zones[code] = (r.get("zone") or "").upper()
+        national["pax"][i] += pax
+        national["vols"][i] += r.get("mvt") or 0.0
+        national["vols_cargo"][i] += r.get("mvt_cgo") or 0.0
+        national["fret"][i] += fret
+    years = complete_years(set(months))
+
+    def annual(arr: list) -> list:
+        out = []
+        for y in years:
+            vals = [arr[idx[f"{y}-{m:02d}"]] for m in range(1, 13)]
+            vals = [v for v in vals if v is not None]
+            out.append(round(sum(vals)) if vals else None)
+        return out
+
     airports, aggregates, missing = [], [], []
     for code, s in series.items():
         pax = [None if v is None else round(v) for v in s]
@@ -285,13 +325,17 @@ def build_airports(apt: list[dict], ref: dict[str, dict]) -> dict:
                 "lat": lat,
                 "lon": lon,
                 "pax": pax,
+                "vols": annual(flights[code]),
+                "fret": annual(freight[code]),
             }
         )
     airports.sort(key=lambda a: -sum(v or 0 for v in a["pax"][-12:]))
     return {
         "months": months,
+        "years": years,
         "airports": airports,
         "aggregates": aggregates,
+        "national": {k: [round(v) for v in arr] for k, arr in national.items()},
         "missing_coords": sorted(missing),
     }
 
@@ -476,6 +520,16 @@ def build(raw: Path, out: Path, demo: bool = False, ref: dict | None = None) -> 
     years = fracture["annual"]["years"]
     tot = dict(zip(years, fracture["annual"]["TOTAL"]))
     co2["pax"] = [tot.get(y) for y in co2["years"]]
+    co2["decomp"] = world.co2_decomposition(co2)
+    world_airports = world.load_airports()
+    # French names for foreign hubs come from the DGAC pair labels when available ("LISBONNE-...")
+    for r in traffic["pap"]:
+        _, _, b = (r.get("pair") or "").partition("_")
+        label = r.get("name2") or ""
+        if b in world_airports and label and not world_airports[b].get("_dgac"):
+            world_airports[b] = {**world_airports[b], "municipality": label.split("-")[0].strip(), "_dgac": True}
+    monde, w1 = world.build_monde(traffic["lsn"], world_airports, world.load_countries(), pretty_name)
+    routes, w2 = world.build_routes(traffic["pap"], world_airports, pretty_name)
     meta = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "demo": demo,
@@ -487,6 +541,7 @@ def build(raw: Path, out: Path, demo: bool = False, ref: dict | None = None) -> 
         },
         "sources": manifest_sources(raw),
         "missing_coords": airports["missing_coords"],
+        "warnings": w1 + w2,
     }
     out.mkdir(parents=True, exist_ok=True)
     outputs = {
@@ -496,6 +551,8 @@ def build(raw: Path, out: Path, demo: bool = False, ref: dict | None = None) -> 
         "compagnies": carriers,
         "prix": prices,
         "co2": co2,
+        "monde": monde,
+        "routes": routes,
     }
     for name, payload in outputs.items():
         (out / f"{name}.json").write_text(
@@ -524,6 +581,8 @@ def main(argv: list[str] | None = None) -> int:
     outputs = build(raw, args.out, demo=args.demo)
     m = outputs["meta"]
     print(f"built {', '.join(outputs)} -> {args.out}  (demo={m['demo']}, trafic {m['coverage']['trafic']})")
+    for w in m["warnings"]:
+        print(f"WARNING {w}")
     if m["missing_coords"]:
         print(f"WARNING airports without coordinates (not on the map): {', '.join(m['missing_coords'])}")
     return 0

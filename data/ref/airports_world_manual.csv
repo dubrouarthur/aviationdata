@@ -1,0 +1,8 @@
+code,name,municipality,lat,lon,country,note
+EDDT,Berlin-Tegel (fermé en 2020),Berlin,52.5597,13.2877,DE,code DGAC historique
+EFHF,Helsinki-Malmi,Helsinki,60.2546,25.0428,FI,code DGAC historique
+GMMC,Casablanca-Anfa (fermé),Casablanca,33.5574,-7.6600,MA,code DGAC historique
+HLLT,Tripoli,Tripoli,32.6635,13.1590,LY,code DGAC historique
+KCHI,Chicago,Chicago,41.9786,-87.9048,US,code de ville DGAC placé sur O'Hare
+SPJC,Lima-Jorge Chávez,Lima,-12.0219,-77.1143,PE,ancien code OACI de Lima
+UZTT,Tachkent,Tachkent,41.2579,69.2812,UZ,code DGAC historique (UTTT)
