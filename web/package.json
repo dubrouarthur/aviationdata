@@ -1,15 +1,16 @@
 {
-  "name": "web",
+  "name": "ciel-deux-vitesses",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Le ciel à deux vitesses — dashboard interactif sur les données DGAC",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "format": "prettier --write src index.html"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
     "d3": "^7.9.0"
   },
   "devDependencies": {
@@ -17,5 +18,7 @@
     "prettier": "^3.9.10",
     "vite": "^7.3.7",
     "vitest": "^3.2.7"
-  }
+  },
+  "private": true,
+  "type": "module"
 }

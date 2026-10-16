@@ -21,6 +21,7 @@ import dgac
 
 ROOT = Path(__file__).resolve().parent.parent
 REF_AIRPORTS = ROOT / "data" / "ref" / "airports_fr.csv"
+MANUAL_AIRPORTS = ROOT / "data" / "ref" / "airports_manual.csv"
 FSC_ORDER = ["MET_RAD", "MET_TRA", "MET_OM", "OM_OM", "MET_INTL", "OM_INTL"]
 IPTAP_COLS = [
     "MET_INTER_MET",
@@ -81,6 +82,55 @@ def complete_years(months: set[str]) -> list[int]:
     return sorted(y for y, ms in by_year.items() if len(ms) == 12)
 
 
+# DGAC names are upper-case without accents; restore the common ones (word level)
+ACCENTS = {
+    "aeroport": "Aéroport",
+    "aime": "Aimé",
+    "algerie": "Algérie",
+    "bale": "Bâle",
+    "barthelemy": "Barthélemy",
+    "beziers": "Béziers",
+    "boutheon": "Bouthéon",
+    "caraibes": "Caraïbes",
+    "cesaire": "Césaire",
+    "chateauroux": "Châteauroux",
+    "conde": "Condé",
+    "cote": "Côte",
+    "deols": "Déols",
+    "eboue": "Éboué",
+    "ecole": "École",
+    "etienne": "Étienne",
+    "exupery": "Exupéry",
+    "fecamp": "Fécamp",
+    "felix": "Félix",
+    "hyeres": "Hyères",
+    "ile": "Île",
+    "iles": "Îles",
+    "lezignan": "Lézignan",
+    "mare": "Maré",
+    "mediterranee": "Méditerranée",
+    "merignac": "Mérignac",
+    "metropole": "Métropole",
+    "nimes": "Nîmes",
+    "noumea": "Nouméa",
+    "orleans": "Orléans",
+    "ouvea": "Ouvéa",
+    "perigord": "Périgord",
+    "pyrenees": "Pyrénées",
+    "region": "Région",
+    "reunion": "Réunion",
+    "tille": "Tillé",
+    "vallee": "Vallée",
+}
+PARTICLES = {"de", "du", "des", "la", "le", "les", "sur", "en", "et", "d", "l", "aux"}
+ELIDED = {"d", "l"}  # d'Azur, l'Oyapock: capital after the apostrophe
+SAINTS = {"st": "Saint", "ste": "Sainte"}
+
+
+def _word(w: str) -> str:
+    return ACCENTS.get(w.lower(), w)
+
+
 def brand(name: str) -> str:
     up = name.upper().strip()
     for pat, label in BRANDS:
@@ -94,86 +144,33 @@ def brand(name: str) -> str:
         elif len(w) <= 3 and w.isalpha() and w not in {"AIR", "SKY", "SUN", "JET"}:
             words.append(w)  # acronyms: KLM, TAP, SAS, ASL
         else:
-            words.append(w.capitalize())
+            words.append(_word(w.capitalize()))
     return " ".join(words)
 
 
-PARTICLES = {"de", "du", "des", "la", "le", "les", "sur", "en", "et", "d", "l", "aux"}
-ACCENTS = {  # DGAC names are upper-case without accents; restore the common ones
-    "cote": "Côte",
-    "exupery": "Exupéry",
-    "merignac": "Mérignac",
-    "bale": "Bâle",
-    "reunion": "Réunion",
-    "conde": "Condé",
-    "perigord": "Périgord",
-    "tille": "Tillé",
-    "mediterranee": "Méditerranée",
-    "pyrenees": "Pyrénées",
-    "eboue": "Éboué",
-    "felix": "Félix",
-    "orleans": "Orléans",
-    "beziers": "Béziers",
-    "nimes": "Nîmes",
-    "hyeres": "Hyères",
-    "saint-etienne": "Saint-Étienne",
-    "etienne": "Étienne",
-    "bouthéon": "Bouthéon",
-    "boutheon": "Bouthéon",
-    "lorraine": "Lorraine",
-    "rochelle": "Rochelle",
-    "ile": "Île",
-    "iles": "Îles",
-    "aeroport": "Aéroport",
-    "dole": "Dole",
-    "tavaux": "Tavaux",
-    "deols": "Déols",
-    "chateauroux": "Châteauroux",
-    "levaldigi": "Levaldigi",
-    "ste": "Ste",
-    "lezignan": "Lézignan",
-    "cayenne": "Cayenne",
-    "garons": "Garons",
-    "tarbes": "Tarbes",
-    "lourdes": "Lourdes",
-    "pyrenees-": "Pyrénées",
-    "metropole": "Métropole",
-    "fecamp": "Fécamp",
-    "neant": "Néant",
-    "region": "Région",
-    "auvergne": "Auvergne",
-    "lesquin": "Lesquin",
-    "pierrefonds": "Pierrefonds",
-    "aime": "Aimé",
-    "cesaire": "Césaire",
-    "premier": "Premier",
-    "ventes": "Ventes",
-    "cezanne": "Cézanne",
-    "vallee": "Vallée",
-    "ecole": "École",
-}
-MANUAL_AIRPORTS = ROOT / "data" / "ref" / "airports_manual.csv"
-
-
 def pretty_name(raw: str) -> str:
-    """'NICE-COTE D'AZUR' -> "Nice-Côte d'Azur"; 'PARIS-CHARLES DE GAULLE' -> 'Paris-Charles de Gaulle'."""
+    """'NICE-COTE D'AZUR' -> "Nice-Côte d'Azur"; 'ST-BARTHELEMY' -> 'Saint-Barthélemy'; "FAA'A" -> "Faa'a"."""
     parts = re.split(r"([\s\-/'()])", raw.strip().lower())
     out: list[str] = []
-    first = True
-    for p in parts:
+    prev_word: str | None = None
+    for i, p in enumerate(parts):
         if not p or re.fullmatch(r"[\s\-/'()]", p):
             out.append(p)
             continue
-        prev_apostrophe = len(out) > 0 and out[-1] == "'"
-        if p in PARTICLES and not first and not prev_apostrophe:
+        after_apostrophe = i >= 1 and parts[i - 1] == "'"
+        if after_apostrophe and prev_word not in ELIDED:
+            out.append(p)  # Faa'a, not Faa'A
+        elif p in SAINTS and i + 1 < len(parts) and parts[i + 1] == "-":
+            out.append(SAINTS[p])
+        elif p in PARTICLES and prev_word is not None and not after_apostrophe:
             out.append(p)
         elif p in ACCENTS:
             out.append(ACCENTS[p])
-        elif re.fullmatch(r"[ivx]+", p) and not first:
+        elif re.fullmatch(r"[ivx]+", p) and prev_word is not None:
             out.append(p.upper())
         else:
             out.append(p[:1].upper() + p[1:])
-        first = False
+        prev_word = p
     return "".join(out)
 
 

@@ -224,6 +224,8 @@ def test_annual_totals_only_for_complete_years():
         ("TRANSAVIA FRANCE", "Transavia"),
         ("MALTA AIR", "Ryanair"),
         ("AIR FRANCE", "Air France"),
+        ("AIR ALGERIE", "Air Algérie"),
+        ("AIR CARAIBES", "Air Caraïbes"),
         ("ROYAL AIR MAROC", "Royal Air Maroc"),
     ],
 )
@@ -338,8 +340,12 @@ def test_demo_has_map_ready_airports(demo_outputs):
     [
         ("PARIS-CHARLES DE GAULLE", "Paris-Charles de Gaulle"),
         ("NICE-COTE D'AZUR", "Nice-Côte d'Azur"),
-        ("LYON-ST-EXUPERY", "Lyon-St-Exupéry"),
+        ("LYON-ST-EXUPERY", "Lyon-Saint-Exupéry"),
         ("LA REUNION-ROLAND GARROS", "La Réunion-Roland Garros"),
+        ("TAHITI FAA'A", "Tahiti Faa'a"),
+        ("ST-BARTHELEMY", "Saint-Barthélemy"),
+        ("ST-GEORGES-DE-L'OYAPOCK", "Saint-Georges-de-l'Oyapock"),
+        ("NOUMEA LA TONTOUTA", "Nouméa la Tontouta"),
     ],
 )
 def test_pretty_airport_names(raw, expected):

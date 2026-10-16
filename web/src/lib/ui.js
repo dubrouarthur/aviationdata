@@ -1,0 +1,156 @@
+// Small UI helpers shared by every module. All text goes through textContent.
+
+export const $ = (sel, root = document) => root.querySelector(sel);
+
+export function el(tag, attrs = {}, children = []) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "text") n.textContent = v;
+    else if (k === "class") n.className = v;
+    else if (k === "style") n.style.cssText = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of [].concat(children)) if (c !== null && c !== undefined) n.append(c);
+  return n;
+}
+
+/** Inline text with <strong class="num"> parts: rich(["Le trafic a ", {b: "+7 %"}, "."]) */
+export function rich(parts) {
+  const frag = document.createDocumentFragment();
+  for (const p of parts) frag.append(typeof p === "string" ? p : el("strong", { class: "num", text: p.b }));
+  return frag;
+}
+
+export const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+/** Segmented control: buttons with data-v (or data-mode/data-theme); calls onChange(value). */
+export function segmented(root, initial, onChange, attr = "v") {
+  const buttons = [...root.querySelectorAll("button")];
+  const set = (v, fire = true) => {
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[attr] === v)));
+    if (fire) onChange(v);
+  };
+  buttons.forEach((b) => b.addEventListener("click", () => set(b.dataset[attr])));
+  set(initial, false);
+  return { set };
+}
+
+/** Toggle chips doubling as the legend. items: [{key, label, color, dashed, on}] */
+export function chips(root, items, onChange) {
+  root.replaceChildren();
+  const state = new Map(items.map((d) => [d.key, d.on !== false]));
+  for (const d of items) {
+    const key = el("span", { class: `key${d.dashed ? " dashed" : ""}`, style: `--c:${d.color}` });
+    const b = el("button", { type: "button", class: "chip", "aria-pressed": String(state.get(d.key)) }, [
+      key,
+      d.label,
+    ]);
+    b.addEventListener("click", () => {
+      const on = !state.get(d.key);
+      // never allow an empty chart
+      if (!on && [...state.values()].filter(Boolean).length === 1) return;
+      state.set(d.key, on);
+      b.setAttribute("aria-pressed", String(on));
+      onChange(new Set([...state].filter(([, v]) => v).map(([k]) => k)));
+    });
+    root.append(b);
+  }
+  return new Set([...state].filter(([, v]) => v).map(([k]) => k));
+}
+
+/* ------------------------------------------------------------------ tooltip */
+const tip = () => document.getElementById("tooltip");
+
+/** rows: [{label, value, color, dashed}] ; title: string */
+export function showTip(event, title, rows) {
+  const t = tip();
+  if (!t) return;
+  t.replaceChildren();
+  if (title) t.append(el("div", { class: "t-title", text: title }));
+  for (const r of rows) {
+    t.append(
+      el("div", { class: "t-row" }, [
+        el("span", {
+          class: "t-key",
+          style: `--c:${r.color || "transparent"};${r.dashed ? "border-top-style:dashed" : ""}`,
+        }),
+        el("span", { class: "t-val", text: r.value }),
+        el("span", { class: "t-lab", text: r.label }),
+      ]),
+    );
+  }
+  t.classList.add("on");
+  placeTip(event);
+}
+
+export function placeTip(event) {
+  const t = tip();
+  if (!t) return;
+  const pad = 14;
+  let x;
+  let y;
+  if (event && "clientX" in event && event.clientX) {
+    x = event.clientX;
+    y = event.clientY;
+  } else if (event?.anchor) {
+    const r = event.anchor.getBoundingClientRect();
+    x = r.left + r.width / 2;
+    y = r.top;
+  } else return;
+  const w = t.offsetWidth;
+  const h = t.offsetHeight;
+  let left = x + pad;
+  if (left + w > window.innerWidth - 8) left = x - pad - w;
+  let top = y - h - pad;
+  if (top < 8) top = y + pad;
+  t.style.left = `${Math.max(8, left)}px`;
+  t.style.top = `${Math.max(8, top)}px`;
+}
+
+export function hideTip() {
+  tip()?.classList.remove("on");
+}
+
+/* ------------------------------------------------------------------ data table */
+export function dataTable(details, columns, rows) {
+  details.querySelector(".table-scroll")?.remove();
+  const thead = el(
+    "thead",
+    {},
+    el(
+      "tr",
+      {},
+      columns.map((c) => el("th", { scope: "col", text: c })),
+    ),
+  );
+  const tbody = el(
+    "tbody",
+    {},
+    rows.map((r) =>
+      el(
+        "tr",
+        {},
+        r.map((v, i) => el(i ? "td" : "th", i ? { text: v } : { scope: "row", text: v })),
+      ),
+    ),
+  );
+  details.append(el("div", { class: "table-scroll" }, el("table", {}, [thead, tbody])));
+}
+
+/** Re-render on width change (debounced via rAF). */
+export function onResize(node, fn) {
+  let w = 0;
+  let raf = 0;
+  const ro = new ResizeObserver((entries) => {
+    const nw = Math.round(entries[0].contentRect.width);
+    if (nw === w || nw === 0) return;
+    w = nw;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => fn(nw));
+  });
+  ro.observe(node);
+}
+
+export const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
