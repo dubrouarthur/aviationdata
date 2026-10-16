@@ -60,7 +60,7 @@ with sync_playwright() as p:
     page.locator("#rank-list li").nth(2).click()
     page.wait_for_timeout(600)
     check("rank click selects airport", "Nice" in page.locator("#airport-card h3").first.inner_text())
-    check("hash follows selection", "aeroport=LFMN" in page.evaluate("location.hash"))
+    check("hash follows selection", "aeroport-LFMN" in page.evaluate("location.hash"))
 
     # --- search
     page.locator("#apt-input").fill("Bergerac-Dordogne-Périgord (LFBE)")
@@ -132,7 +132,7 @@ with sync_playwright() as p:
     # --- deep link
     page2 = ctx.new_page()
     page2.on("pageerror", lambda e: errors.append(str(e)))
-    page2.goto(url + "#aeroport=LFLC", wait_until="networkidle")
+    page2.goto(url + "#aeroport-LFLC", wait_until="networkidle")
     page2.wait_for_timeout(1200)
     check("deep link opens Clermont-Ferrand", "Clermont" in page2.locator("#airport-card h3").first.inner_text())
 

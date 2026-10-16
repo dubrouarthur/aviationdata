@@ -26,7 +26,7 @@ export const EVENTS = [
 
 export const eventMarks = () => EVENTS.map((e) => ({ date: toDate(e.date), label: e.label, short: e.short }));
 
-/** Shared state: the selected airport, mirrored in the URL hash (#aeroport=LFBE). */
+/** Shared state: the selected airport, mirrored in the URL hash as a plain anchor (#aeroport-LFBE). */
 const listeners = new Set();
 let selected = null;
 
@@ -36,7 +36,7 @@ export const selection = {
     if (code === selected) return;
     selected = code;
     try {
-      history.replaceState(null, "", code ? `#aeroport=${code}` : location.pathname + location.search);
+      history.replaceState(null, "", code ? `#aeroport-${code}` : location.pathname + location.search);
     } catch {
       /* sandboxed frames may refuse history access */
     }
@@ -44,7 +44,7 @@ export const selection = {
   },
   on: (fn) => listeners.add(fn),
   fromHash() {
-    const m = /aeroport=([A-Z]{4})/.exec(location.hash || "");
+    const m = /aeroport[-=]([A-Z]{4})/.exec(location.hash || "");
     return m ? m[1] : null;
   },
 };

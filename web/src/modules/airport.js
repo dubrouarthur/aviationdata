@@ -72,7 +72,8 @@ export function initAirport(data) {
     const selA = yearSelect(0);
     const selB = yearSelect(1);
     const preview = el("div", { class: "share-preview" });
-    const copyBtn = el("button", { type: "button", class: "btn", text: "Copier le lien" });
+    const framed = window.self !== window.top;
+    const copyBtn = el("button", { type: "button", class: "btn", text: "Copier le lien", hidden: framed || null });
     const shareBtn = el("button", { type: "button", class: "btn primary", text: "Créer l'image à partager" });
 
     root.replaceChildren(
@@ -145,7 +146,7 @@ export function initAirport(data) {
     }
 
     copyBtn.addEventListener("click", async () => {
-      const url = `${location.origin}${location.pathname}#aeroport=${a.code}`;
+      const url = `${location.origin}${location.pathname}#aeroport-${a.code}`;
       try {
         await navigator.clipboard.writeText(url);
         copyBtn.textContent = "Lien copié";
@@ -308,10 +309,12 @@ export function initAirport(data) {
         el("img", {
           src: url,
           alt: `Fiche partageable : ${a.nom}`,
+          title: file,
           style: "width:min(600px,100%);margin-top:16px;border:1px solid var(--hairline);border-radius:8px",
         }),
-        el("p", {}, el("a", { href: url, download: file, class: "btn", text: "Télécharger l'image" })),
+        el("p", { class: "note", text: "Pour l'enregistrer : clic droit sur l'image, ou appui long sur mobile." }),
       );
+
     };
     img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   }

@@ -131,7 +131,8 @@ a:hover {
 .wrap {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
 }
 
 .num {
@@ -193,7 +194,9 @@ a:hover {
   background: var(--s-rad);
   color: #fff;
   font-weight: 650;
-  padding: 10px 24px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
   text-align: center;
 }
 
@@ -891,7 +894,8 @@ details.data td:first-child {
 
 @media (max-width: 640px) {
   .wrap {
-    padding: 0 16px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
 
   .topnav {
