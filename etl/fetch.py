@@ -5,6 +5,9 @@ because the DGAC replaces files when it publishes a new year. Documentation
 resources (PDF/XLSX notices) are skipped. A manifest records what was fetched.
 
 Needs network access to data.gouv.fr: run it locally or in GitHub Actions.
+Where data.gouv.fr is unreachable, a relay can be used: set DGAC_RELAY_URL,
+DGAC_RELAY_TOKEN and DGAC_RELAY_KEY (an HTTP endpoint answering ?a=datasets and
+?a=file&u=<data.gouv.fr url>, e.g. a temporary edge function). Never commit them.
 """
 
 from __future__ import annotations
@@ -12,8 +15,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import time
+import urllib.parse
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -28,17 +33,27 @@ KEEP_FORMATS = {"csv", "zip"}
 UA = {"User-Agent": "aviationdata-etl (+https://github.com/dubrouarthur/aviationdata)"}
 
 
+RELAY = {k: os.environ.get(f"DGAC_RELAY_{k}") for k in ("URL", "TOKEN", "KEY")}
+
+
 def _get(url: str, retries: int = 3) -> bytes:
+    headers = dict(UA)
+    if RELAY["URL"]:
+        query = {"t": RELAY["TOKEN"] or "", "a": "file", "u": url}
+        url = f"{RELAY['URL']}?{urllib.parse.urlencode(query)}"
+        if RELAY["KEY"]:
+            headers |= {"Authorization": f"Bearer {RELAY['KEY']}", "apikey": RELAY["KEY"]}
     last: Exception | None = None
     for attempt in range(retries):
         try:
-            req = urllib.request.Request(url, headers=UA)
+            req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=120) as resp:
                 return resp.read()
         except Exception as exc:  # network errors are retried, then re-raised
             last = exc
             time.sleep(2 * (attempt + 1))
-    raise RuntimeError(f"download failed after {retries} tries: {url}: {last}")
+    shown = url.split("?")[0]
+    raise RuntimeError(f"download failed after {retries} tries: {shown}: {last}")
 
 
 def fetch(out: Path) -> dict:

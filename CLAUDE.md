@@ -20,4 +20,9 @@ Dashboard interactif sur le transport aérien français, construit uniquement su
 - Les lignes sous seuil de diffusion (aéroports < 1 000 pax/mois, compagnies < 10 000) restent dans les totaux, jamais dans les classements.
 - Un petit aéroport peut passer sous le seuil certains mois : afficher le trou, ne pas interpoler.
 - La série PAP (paires d'aéroports) exclut les liaisons à moins de 3 opérateurs : inutilisable pour le domestique, non utilisée.
-- Les fichiers DGAC peuvent être en `;` et en cp1252 : `etl/schema.py` normalise, et échoue bruyamment si une colonne attendue manque.
+- Les fichiers DGAC peuvent être en `;` et en cp1252 : `etl/dgac.py` normalise, et échoue bruyamment si une colonne attendue manque.
+- data.gouv.fr est injoignable depuis la session cloud Claude (connexion coupée après le CONNECT) : passer par un relais `DGAC_RELAY_URL/TOKEN/KEY` (voir `etl/fetch.py`), jamais commité.
+- Les CSV CO2 (EMI_TOT, EMI_UNI) sont au format large, une ligne par segment, sans unité dans l'en-tête : Mt vs g/Peq-km se distinguent par l'ordre de grandeur.
+- Dans LSN, le domestique n'existe qu'agrégé par faisceau (MET_RAD, MET_TRA, MET_OM, OM_OM), pas par liaison.
+- Les noms DGAC sont en majuscules sans accents : `pretty_name()` + table `ACCENTS` dans `etl/build.py`.
+- Aéroports fermés absents d'OurAirports : coordonnées dans `data/ref/airports_manual.csv`.

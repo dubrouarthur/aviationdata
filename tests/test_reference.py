@@ -56,3 +56,7 @@ def test_co2_starts_2000(out):
 def test_major_airports_on_map(out):
     codes = {a["code"] for a in out["aeroports"]["airports"]}
     assert {"LFPG", "LFPO", "LFMN", "LFLL", "LFML", "LFBO"} <= codes
+
+
+def test_every_real_airport_is_on_the_map(out):
+    assert out["aeroports"]["missing_coords"] == []

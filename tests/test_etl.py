@@ -258,28 +258,43 @@ def test_iptap_without_base_2023_fails(tmp_path):
 
 
 # ---------------------------------------------------------------- CO2
-def test_co2_kinds_by_header(tmp_path):
-    write(
-        tmp_path / "co2" / "a.csv",
-        "Année;Emissions nettes (Mt)\n2019;23,6\n2024;22,4\n",
-        "cp1252",
-    )
-    write(
-        tmp_path / "co2" / "b.csv",
-        "Année;Emissions nettes (g CO2/Peq-km)\n2019;89\n2024;83\n",
-        "cp1252",
-    )
-    out = build.build_co2(tmp_path)
-    assert out["years"] == [2019, 2024] and out["mt"] == [23.6, 22.4] and out["g_peqkm"] == [89.0, 83.0]
+DGAC_CO2_HEAD = "AN;2019;2020;2021;2022;2023;2024\n"
 
 
-def test_co2_wide_format_and_magnitude_fallback(tmp_path):
+def test_co2_real_dgac_shape_rows_per_segment_kind_by_magnitude(tmp_path):
+    # the real EMI_TOT / EMI_UNI files: wide, one row per segment, no unit in the header
     write(
-        tmp_path / "co2" / "a.csv",
-        "Indicateur;2019;2020;2021;2022;2023\nEmissions;23,6;10,4;13,2;19,8;21,6\n",
+        tmp_path / "co2" / "tot.csv",
+        DGAC_CO2_HEAD
+        + "MET_INTERIEUR;2,1;1,1;1,4;1,7;1,6;1,5\n"
+        + "INTL_LC;11,9;4,8;5,5;8,6;10,4;11,3\n"
+        + "FRANCE_TOT;23,6;10,2;12,4;19;21,3;22,2\n",
+    )
+    write(
+        tmp_path / "co2" / "uni.csv",
+        DGAC_CO2_HEAD
+        + "MET_INTERIEUR;125,3;140;132,1;123;119,2;117,2\n"
+        + "INTL_LC;70,8;70,2;70,2;69,3;70;69,6\n"
+        + "FRANCE_TOT;78,7;82,9;83,9;78,8;77,1;75,8\n",
     )
     out = build.build_co2(tmp_path)
-    assert out["mt"][0] == 23.6 and out["years"][0] == 2019
+    assert out["years"] == [2019, 2020, 2021, 2022, 2023, 2024]
+    assert out["segments"] == ["MET_INTERIEUR", "INTL_LC", "FRANCE_TOT"]
+    assert out["mt"]["FRANCE_TOT"][0] == 23.6 and out["mt"]["MET_INTERIEUR"][-1] == 1.5
+    assert out["g_peqkm"]["FRANCE_TOT"][-1] == 75.8 and out["g_peqkm"]["MET_INTERIEUR"][0] == 125.3
+
+
+def test_co2_long_format_with_units_maps_to_total(tmp_path):
+    write(tmp_path / "co2" / "a.csv", "Année;Emissions nettes (Mt)\n2019;23,6\n2024;22,4\n", "cp1252")
+    write(tmp_path / "co2" / "b.csv", "Année;Emissions nettes (g CO2/Peq-km)\n2019;89\n2024;83\n", "cp1252")
+    out = build.build_co2(tmp_path)
+    assert out["mt"]["FRANCE_TOT"] == [23.6, 22.4] and out["g_peqkm"]["FRANCE_TOT"] == [89.0, 83.0]
+
+
+def test_co2_without_total_fails_loudly(tmp_path):
+    write(tmp_path / "co2" / "tot.csv", DGAC_CO2_HEAD + "MET_INTERIEUR;2,1;1,1;1,4;1,7;1,6;1,5\n")
+    with pytest.raises(dgac.SchemaError, match="FRANCE_TOT"):
+        build.build_co2(tmp_path)
 
 
 # ---------------------------------------------------------------- contract
@@ -289,7 +304,7 @@ CONTRACT = {
     "aeroports": {"months", "airports", "aggregates", "missing_coords"},
     "compagnies": {"years", "carriers", "rest", "aggregated", "total", "lowcost_share"},
     "prix": {"months", "base", "series", "sources"},
-    "co2": {"years", "mt", "g_peqkm", "pax"},
+    "co2": {"years", "segments", "mt", "g_peqkm", "pax"},
 }
 
 
@@ -306,7 +321,8 @@ def test_series_lengths_are_aligned(demo_outputs):
     assert all(len(ap["pax"]) == len(a["months"]) for ap in a["airports"])
     assert all(len(cr["pax"]) == len(c["years"]) for cr in c["carriers"])
     assert all(len(v) == len(p["months"]) for v in p["series"].values())
-    assert len(co2["mt"]) == len(co2["years"]) == len(co2["pax"])
+    assert all(len(v) == len(co2["years"]) for v in co2["mt"].values())
+    assert len(co2["pax"]) == len(co2["years"])
 
 
 def test_demo_has_map_ready_airports(demo_outputs):
@@ -314,3 +330,25 @@ def test_demo_has_map_ready_airports(demo_outputs):
     assert airports[0]["code"] == "LFPG"
     assert all(-180 <= ap["lon"] <= 180 and -90 <= ap["lat"] <= 90 for ap in airports)
     assert not demo_outputs["aeroports"]["missing_coords"]
+
+
+# ---------------------------------------------------------------- names & references
+@pytest.mark.parametrize(
+    "raw,expected",
+    [
+        ("PARIS-CHARLES DE GAULLE", "Paris-Charles de Gaulle"),
+        ("NICE-COTE D'AZUR", "Nice-Côte d'Azur"),
+        ("LYON-ST-EXUPERY", "Lyon-St-Exupéry"),
+        ("LA REUNION-ROLAND GARROS", "La Réunion-Roland Garros"),
+    ],
+)
+def test_pretty_airport_names(raw, expected):
+    assert build.pretty_name(raw) == expected
+
+
+def test_manual_airports_complete_the_reference(tmp_path):
+    a = write(tmp_path / "a.csv", "code,name,municipality,lat,lon,country\nLFPG,CDG,Paris,49,2.5,FR\n")
+    m = write(
+        tmp_path / "m.csv", "code,name,municipality,lat,lon,country,note\nLFBV,Brive,Brive,45.15,1.47,FR,closed\n"
+    )
+    assert set(build.load_ref_airports(a, m)) == {"LFPG", "LFBV"}

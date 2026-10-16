@@ -98,11 +98,92 @@ def brand(name: str) -> str:
     return " ".join(words)
 
 
-def load_ref_airports(path: Path = REF_AIRPORTS) -> dict[str, dict]:
-    if not path.exists():
-        return {}
-    with path.open(encoding="utf-8") as f:
-        return {r["code"]: r for r in csv.DictReader(f)}
+PARTICLES = {"de", "du", "des", "la", "le", "les", "sur", "en", "et", "d", "l", "aux"}
+ACCENTS = {  # DGAC names are upper-case without accents; restore the common ones
+    "cote": "Côte",
+    "exupery": "Exupéry",
+    "merignac": "Mérignac",
+    "bale": "Bâle",
+    "reunion": "Réunion",
+    "conde": "Condé",
+    "perigord": "Périgord",
+    "tille": "Tillé",
+    "mediterranee": "Méditerranée",
+    "pyrenees": "Pyrénées",
+    "eboue": "Éboué",
+    "felix": "Félix",
+    "orleans": "Orléans",
+    "beziers": "Béziers",
+    "nimes": "Nîmes",
+    "hyeres": "Hyères",
+    "saint-etienne": "Saint-Étienne",
+    "etienne": "Étienne",
+    "bouthéon": "Bouthéon",
+    "boutheon": "Bouthéon",
+    "lorraine": "Lorraine",
+    "rochelle": "Rochelle",
+    "ile": "Île",
+    "iles": "Îles",
+    "aeroport": "Aéroport",
+    "dole": "Dole",
+    "tavaux": "Tavaux",
+    "deols": "Déols",
+    "chateauroux": "Châteauroux",
+    "levaldigi": "Levaldigi",
+    "ste": "Ste",
+    "lezignan": "Lézignan",
+    "cayenne": "Cayenne",
+    "garons": "Garons",
+    "tarbes": "Tarbes",
+    "lourdes": "Lourdes",
+    "pyrenees-": "Pyrénées",
+    "metropole": "Métropole",
+    "fecamp": "Fécamp",
+    "neant": "Néant",
+    "region": "Région",
+    "auvergne": "Auvergne",
+    "lesquin": "Lesquin",
+    "pierrefonds": "Pierrefonds",
+    "aime": "Aimé",
+    "cesaire": "Césaire",
+    "premier": "Premier",
+    "ventes": "Ventes",
+    "cezanne": "Cézanne",
+    "vallee": "Vallée",
+    "ecole": "École",
+}
+MANUAL_AIRPORTS = ROOT / "data" / "ref" / "airports_manual.csv"
+
+
+def pretty_name(raw: str) -> str:
+    """'NICE-COTE D'AZUR' -> "Nice-Côte d'Azur"; 'PARIS-CHARLES DE GAULLE' -> 'Paris-Charles de Gaulle'."""
+    parts = re.split(r"([\s\-/'()])", raw.strip().lower())
+    out: list[str] = []
+    first = True
+    for p in parts:
+        if not p or re.fullmatch(r"[\s\-/'()]", p):
+            out.append(p)
+            continue
+        prev_apostrophe = len(out) > 0 and out[-1] == "'"
+        if p in PARTICLES and not first and not prev_apostrophe:
+            out.append(p)
+        elif p in ACCENTS:
+            out.append(ACCENTS[p])
+        elif re.fullmatch(r"[ivx]+", p) and not first:
+            out.append(p.upper())
+        else:
+            out.append(p[:1].upper() + p[1:])
+        first = False
+    return "".join(out)
+
+
+def load_ref_airports(path: Path = REF_AIRPORTS, manual: Path = MANUAL_AIRPORTS) -> dict[str, dict]:
+    ref: dict[str, dict] = {}
+    for p in (path, manual):  # manual entries (closed airports) complete OurAirports
+        if p.exists():
+            with p.open(encoding="utf-8") as f:
+                ref |= {r["code"]: r for r in csv.DictReader(f)}
+    return ref
 
 
 def is_metro(lat: float, lon: float) -> bool:
@@ -201,7 +282,7 @@ def build_airports(apt: list[dict], ref: dict[str, dict]) -> dict:
         airports.append(
             {
                 "code": code,
-                "nom": name.strip().title(),
+                "nom": pretty_name(name),
                 "ville": geo.get("municipality") or "",
                 "zone": "MET" if is_metro(lat, lon) else "OM",
                 "lat": lat,
@@ -316,51 +397,65 @@ def build_prices(raw: Path) -> dict:
 
 
 # ---------------------------------------------------------------- CO2
-def _co2_series(table: dgac.Table) -> tuple[str, dict[int, float]]:
-    """Return (kind, {year: value}); kind is 'mt' or 'g' (g CO2 / passenger-eq-km)."""
+YEAR = re.compile(r"(19|20)\d{2}")
+CO2_TOTAL = "FRANCE_TOT"
+
+
+def _co2_table(table: dgac.Table) -> tuple[str, dict[str, dict[int, float]]]:
+    """Return (kind, {segment: {year: value}}); kind is 'mt' or 'g' (g CO2 / passenger-eq-km).
+
+    DGAC files are wide (years in the header, one row per segment, label in the
+    first column). A long file (year column + value column) is read as the total.
+    """
     head = " ".join(table.header).lower()
-    rows = [table.header] + table.rows
-    # long format: a year column + a value column; wide format: years in the header
-    years_in_header = [i for i, h in enumerate(table.header) if re.fullmatch(r"(19|20)\d{2}", h.strip())]
-    values: dict[int, float] = {}
-    if len(years_in_header) >= 5:
+    year_cols = [i for i, h in enumerate(table.header) if YEAR.fullmatch(h.strip())]
+    series: dict[str, dict[int, float]] = {}
+    if len(year_cols) >= 5:
         for r in table.rows:
-            nums = [dgac.to_num(r[i]) if i < len(r) else None for i in years_in_header]
-            if sum(v is not None for v in nums) >= 5:
-                values = {int(table.header[i]): v for i, v in zip(years_in_header, nums) if v is not None}
-                break
+            label = (r[0] if r else "").strip().upper() or CO2_TOTAL
+            vals = {int(table.header[i]): dgac.to_num(r[i]) for i in year_cols if i < len(r)}
+            vals = {y: v for y, v in vals.items() if v is not None}
+            if len(vals) >= 5:
+                series[label] = vals
     else:
-        for r in rows[1:]:
-            year = next((int(c) for c in r if re.fullmatch(r"(19|20)\d{2}", c.strip())), None)
-            nums = [dgac.to_num(c) for c in r if not re.fullmatch(r"(19|20)\d{2}", c.strip())]
+        total: dict[int, float] = {}
+        for r in table.rows:
+            year = next((int(c) for c in r if YEAR.fullmatch(c.strip())), None)
+            nums = [dgac.to_num(c) for c in r if not YEAR.fullmatch(c.strip())]
             nums = [n for n in nums if n is not None]
             if year and nums:
-                values[year] = nums[0]
-    if not values:
+                total[year] = nums[0]
+        if total:
+            series[CO2_TOTAL] = total
+    if not series:
         raise dgac.SchemaError(f"{table.path.name}: could not read CO2 values; header {table.header}")
     if re.search(r"gramme|g ?co2 ?/|/ ?p|pkt|peq|km", head):
         kind = "g"
     elif re.search(r"\bmt\b|million|mtco2|tonnes", head):
         kind = "mt"
-    else:  # fall back on magnitude: national totals are tens of Mt, intensities ~80-150 g
-        med = sorted(values.values())[len(values) // 2]
-        kind = "mt" if med < 60 else "g"
-    return kind, values
+    else:  # no unit in the header: national/segment totals are < 30 Mt, intensities 60-200 g
+        ref = series.get(CO2_TOTAL) or next(iter(series.values()))
+        vals = sorted(ref.values())
+        kind = "mt" if vals[len(vals) // 2] < 50 else "g"
+    return kind, series
 
 
 def build_co2(raw: Path) -> dict:
     files = sorted((raw / "co2").glob("*.csv")) if (raw / "co2").exists() else []
-    found: dict[str, dict[int, float]] = {}
+    found: dict[str, dict[str, dict[int, float]]] = {}
     for path in files:
-        kind, values = _co2_series(dgac.read_table(path))
-        found[kind] = values
-    if "mt" not in found:
-        raise dgac.SchemaError(f"no CO2 total (Mt) series found among {[p.name for p in files]}")
-    years = sorted(set(found["mt"]) | set(found.get("g", {})))
+        kind, series = _co2_table(dgac.read_table(path))
+        found[kind] = series
+    if CO2_TOTAL not in found.get("mt", {}):
+        raise dgac.SchemaError(f"no {CO2_TOTAL} row in a CO2 (Mt) file among {[p.name for p in files]}")
+    mt, g = found["mt"], found.get("g", {})
+    years = sorted({y for s in [*mt.values(), *g.values()] for y in s})
+    segments = list(dict.fromkeys([*mt, *g]))
     return {
         "years": years,
-        "mt": [found["mt"].get(y) for y in years],
-        "g_peqkm": [found.get("g", {}).get(y) for y in years],
+        "segments": segments,
+        "mt": {s: [mt[s].get(y) for y in years] for s in segments if s in mt},
+        "g_peqkm": {s: [g[s].get(y) for y in years] for s in segments if s in g},
     }
 
 
