@@ -1,0 +1,43 @@
+name: Fetch raw DGAC data
+
+# Downloads the DGAC datasets on GitHub's runners (data.gouv.fr is reachable here)
+# and publishes them on the orphan branch `data-raw`, so any environment that can
+# reach GitHub can build the site from the exact same files.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [etl/fetch.py, .github/workflows/fetch-raw.yml]
+  schedule:
+    - cron: "17 6 16 * *" # the 16th of each month, after the IPTAP release (15th)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-raw
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download from data.gouv.fr
+        run: python etl/fetch.py --out data/raw
+      - name: Publish to the data-raw branch
+        run: |
+          set -euo pipefail
+          cp -r data/raw /tmp/raw
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan data-raw-new
+          git rm -rq --cached .
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r /tmp/raw/. .
+          git add -A
+          git commit -qm "data: DGAC raw files $(date -u +%Y-%m-%d)"
+          git push -q --force origin HEAD:data-raw
