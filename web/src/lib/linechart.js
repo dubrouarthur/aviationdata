@@ -18,6 +18,9 @@ export function lineChart(node, initial) {
   let opts = { height: 360, endLabels: true, events: [], baseline: null, yZero: false, ...initial };
   let width = node.clientWidth || 800;
   let focusIndex = null;
+  // draw-in animation the first time the chart scrolls into view (opts.animate)
+  let revealed = !initial.animate;
+  let pendingReveal = null;
   const svg = d3.select(node).append("svg");
 
   function render() {
@@ -137,14 +140,60 @@ export function lineChart(node, initial) {
       .y((d) => y(d[1]));
 
     const g = svg.append("g");
+    if (opts.band) {
+      // shaded gap between two series (e.g. passengers vs flights)
+      const A = opts.series.find((s) => s.key === opts.band.a);
+      const B = opts.series.find((s) => s.key === opts.band.b);
+      if (A && B) {
+        const area = d3
+          .area()
+          .defined((i) => isNum(A.values[i]) && isNum(B.values[i]))
+          .x((i) => x(opts.dates[i]))
+          .y0((i) => y(B.values[i]))
+          .y1((i) => y(A.values[i]));
+        g.append("path").attr("d", area(idx)).style("fill", opts.band.color).style("opacity", 0.5);
+        if (opts.band.label) {
+          const k = idx[Math.floor(idx.length * 0.82)];
+          if (isNum(A.values[k]) && isNum(B.values[k]))
+            g.append("text")
+              .attr("class", "end-label")
+              .attr("x", x(opts.dates[k]))
+              .attr("y", (y(A.values[k]) + y(B.values[k])) / 2 + 4)
+              .attr("text-anchor", "middle")
+              .text(opts.band.label);
+        }
+      }
+    }
+    const drawn = [];
     for (const s of visible) {
       const pts = idx.map((i) => [opts.dates[i], s.values[i]]);
-      g.append("path")
-        .attr("class", "series-line")
-        .attr("d", line(pts))
-        .style("stroke", s.color)
-        .style("stroke-width", s.width || 2)
-        .style("stroke-dasharray", s.dashed ? "5 4" : null);
+      drawn.push(
+        g
+          .append("path")
+          .attr("class", "series-line")
+          .attr("d", line(pts))
+          .style("stroke", s.color)
+          .style("stroke-width", s.width || 2)
+          .style("stroke-dasharray", s.dashed ? "5 4" : null),
+      );
+    }
+    if (!revealed) {
+      for (const p of drawn) {
+        if (p.style("stroke-dasharray") !== "none" && p.style("stroke-dasharray")) continue;
+        const L = p.node().getTotalLength?.() || 0;
+        p.style("stroke-dasharray", `${L} ${L}`).style("stroke-dashoffset", L);
+      }
+      pendingReveal = () => {
+        revealed = true;
+        for (const p of drawn)
+          p.transition()
+            .duration(1600)
+            .ease(d3.easeCubicOut)
+            .style("stroke-dashoffset", 0)
+            .on("end", function () {
+              if (!d3.select(this).attr("data-dashed")) d3.select(this).style("stroke-dasharray", null);
+            });
+      };
     }
 
     if (showEnd) {
@@ -253,6 +302,18 @@ export function lineChart(node, initial) {
     render();
   });
   render();
+  if (!revealed) {
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        io.disconnect();
+        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+          revealed = true;
+          render();
+        } else pendingReveal?.();
+      }
+    }, { threshold: 0.35 });
+    io.observe(node);
+  }
   return {
     update(next) {
       opts = { ...opts, ...next };

@@ -57,13 +57,22 @@ export function initSources(data) {
         text: "Prix : indice IPTAP de la DGAC, calculé sur des billets aller-retour au départ de France, en base 100 en 2023. La série courante est complétée par la série 2012-2025 de même base.",
       }),
       el("li", {
-        text: "CO2 : émissions nettes, carburants d'aviation durables inclus, en millions de tonnes et en grammes par passager-équivalent-kilomètre. Le trafic du graphique trafic-CO2 est celui de la série LSN.",
+        text: "CO2 : émissions nettes, carburants d'aviation durables inclus, en millions de tonnes et en grammes par passager-équivalent-kilomètre.",
       }),
       el("li", {
         text: "Repères datés : triplement de la taxe de solidarité sur les billets d'avion (TSBA) au 1er mars 2025, fermeture du détroit d'Ormuz fin février 2026, retour de la TSBA à 2,63 € sur 26 liaisons intérieures au 1er juin 2026, interdiction de vols intérieurs courts en mai 2023. Ils situent les courbes dans le temps sans établir de lien de cause.",
       }),
       el("li", {
-        text: "Coordonnées des aéroports : OurAirports (domaine public), complétées à la main pour quatre aéroports fermés. Fond de carte : france-geojson (Grégoire David), d'après les contours administratifs de l'IGN.",
+        text: "Trajets : les arcs du globe relient Paris à l'aéroport principal de chaque pays de destination (série par liaison et par pays, LSN, complète). Les cartes de liaisons d'aéroport à aéroport utilisent la série PAP, qui ne détaille que les lignes exploitées par au moins trois compagnies, aucune ne dépassant 85 % du trafic.",
+      }),
+      el("li", {
+        text: "Passagers par vol : passagers des aéroports (arrivées et départs) divisés par leurs mouvements d'avions de passagers (série APT). Distance moyenne : passagers-kilomètres divisés par passagers (LSN).",
+      }),
+      el("li", {
+        text: "Décomposition du CO2 : méthode LMDI. Le trafic est déduit des séries DGAC elles-mêmes (émissions divisées par les émissions par passager-équivalent-kilomètre), si bien que l'effet du trafic et celui de l'efficacité s'additionnent exactement à la variation observée.",
+      }),
+      el("li", {
+        text: "Données ajoutées : coordonnées des aéroports d'OurAirports (domaine public), complétées à la main pour onze codes historiques ; contours du monde Natural Earth via world-atlas ; contour de la France métropolitaine via france-geojson (Grégoire David, d'après l'IGN) ; correspondance des noms de pays DGAC avec leurs codes ISO, établie pour ce projet.",
       }),
     ]),
     el("p", {}, [

@@ -1,6 +1,6 @@
 import { toDate } from "./series.js";
 
-const FILES = ["meta", "fracture", "aeroports", "compagnies", "prix", "co2"];
+const FILES = ["meta", "fracture", "aeroports", "compagnies", "prix", "co2", "monde", "routes"];
 
 export async function loadAll(base = "data/") {
   const entries = await Promise.all(

@@ -1,64 +1,60 @@
 import "@fontsource-variable/archivo/wdth.css";
+import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
-import { loadAll, selection } from "./lib/data.js";
-import { el, segmented } from "./lib/ui.js";
-import { initMap } from "./modules/map.js";
-import { initTrajectories } from "./modules/trajectories.js";
-import { initAirport } from "./modules/airport.js";
-import { initPrices } from "./modules/prices.js";
-import { initCarriers } from "./modules/carriers.js";
-import { initCo2 } from "./modules/co2.js";
-import { initSources } from "./modules/sources.js";
+import { loadAll } from "./lib/data.js";
+import { el } from "./lib/ui.js";
 
-function initTheme() {
-  const root = document.documentElement;
-  const current =
-    root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  segmented(
-    document.getElementById("theme-toggle"),
-    current,
-    (v) => {
-      root.dataset.theme = v;
-      try {
-        localStorage.setItem("theme", v);
-      } catch {
-        /* storage may be unavailable */
-      }
-    },
-    "theme",
-  );
-}
+const CHAPTERS = [
+  ["globe", () => import("./modules/globe.js").then((m) => m.initGlobe)],
+  ["spiral", () => import("./modules/spiral.js").then((m) => m.initSpiral)],
+  ["fill", () => import("./modules/fill.js").then((m) => m.initFill)],
+  ["covid", () => import("./modules/covid.js").then((m) => m.initCovid)],
+  ["france", () => import("./modules/france.js").then((m) => m.initFrance)],
+  ["distance", () => import("./modules/distance.js").then((m) => m.initDistance)],
+  ["airport", () => import("./modules/airport.js").then((m) => m.initAirport)],
+  ["race", () => import("./modules/race.js").then((m) => m.initRace)],
+  ["prices", () => import("./modules/prices.js").then((m) => m.initPrices)],
+  ["sources", () => import("./modules/sources.js").then((m) => m.initSources)],
+];
 
 async function main() {
-  initTheme();
   let data;
+  let geo;
   try {
-    data = await loadAll();
+    [data, geo] = await Promise.all([
+      loadAll(),
+      Promise.all(
+        ["geo/land-dots.json", "geo/world-110m.json", "geo/metropole.geojson"].map((u) =>
+          fetch(u).then((r) => {
+            if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`);
+            return r.json();
+          }),
+        ),
+      ),
+    ]);
   } catch (err) {
     document
       .querySelector("main")
       .prepend(
         el("p", {
-          class: "wrap lede",
+          class: "wrap prose",
           text: `Les données n'ont pas pu être chargées (${err.message}). Rechargez la page.`,
         }),
       );
     return;
   }
   if (data.meta.demo) document.getElementById("demo-banner").hidden = false;
-
-  initMap(data);
-  initTrajectories(data);
-  initAirport(data);
-  initPrices(data);
-  initCarriers(data);
-  initCo2(data);
-  initSources(data);
-
-  const fromHash = selection.fromHash();
-  const fallback = data.aeroports.airports[0]?.code;
-  selection.set(fromHash && data.aeroports.airports.some((a) => a.code === fromHash) ? fromHash : fallback);
-  if (fromHash) document.getElementById("aeroport")?.scrollIntoView();
+  const [dots, world, france] = geo;
+  const ctx = { dots, world, france };
+  for (const [name, load] of CHAPTERS) {
+    try {
+      const init = await load();
+      init(data, ctx);
+    } catch (err) {
+      // one broken chapter must not take the whole story down
+      console.error(`chapter ${name}:`, err);
+    }
+  }
 }
 
 main();
