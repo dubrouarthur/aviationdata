@@ -7,7 +7,8 @@ Dashboard interactif sur le transport aérien français, construit uniquement su
 - `python3 etl/fetch.py` : télécharge les 3 jeux DGAC dans `data/raw/` (data.gouv.fr doit être joignable : en local ou dans GitHub Actions, pas dans la session cloud Claude).
 - `python3 etl/build.py` : lit `data/raw/`, écrit `web/public/data/*.json`. `--demo` génère des données fictives clairement signalées.
 - `python3 -m pytest -q` : tests ETL (fixtures) + tests de référence (sautés si `data/raw/` est vide).
-- `cd web && npm run dev | build | test` : front Vite + Observable Plot + d3, tests vitest.
+- `cd web && npm run dev | build | test` : front Vite + d3 (vanilla), tests vitest.
+- `python3 web/scripts/interact.py` : parcours Playwright de toutes les interactions (servir `web/dist` sur 127.0.0.1:4173) ; `web/scripts/story_shots.py DIR "#sel,..." [--mobile]` pour les captures.
 
 ## Contrat de données
 
