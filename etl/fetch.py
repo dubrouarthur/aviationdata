@@ -89,9 +89,7 @@ def fetch(out: Path) -> dict:
         if kept == 0:
             raise RuntimeError(f"no csv/zip resource found for {key} ({slug})")
         print(f"{key}: {kept} resource(s)")
-    (out / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False)
-    )
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
     return manifest
 
 

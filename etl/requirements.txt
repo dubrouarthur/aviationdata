@@ -1,0 +1,4 @@
+# The ETL itself uses only the Python standard library (3.11+).
+# Dev / CI:
+pytest>=8
+ruff>=0.5

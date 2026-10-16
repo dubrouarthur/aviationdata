@@ -1,0 +1,598 @@
+code,name,municipality,lat,lon,country
+FM43,Antsiranana Andrakaka Airport,,-12.2561,49.2542,MG
+FMBI,Betainomby Airport,Betainomby,-18.1958,49.3485,MG
+FMCH,Prince Said Ibrahim International Airport,Moroni,-11.5337,43.2719,KM
+FMCI,Mohéli Bandar Es Eslam Airport,Fomboni,-12.2981,43.7665,KM
+FMCV,Ouani Airport,Ouani,-12.131,44.43,KM
+FMCZ,Dzaoudzi Pamandzi International Airport,Dzaoudzi,-12.8093,45.2818,YT
+FMEE,Roland Garros Airport,Sainte-Marie,-20.8901,55.5189,RE
+FMEP,Saint-Pierre Pierrefonds Airport,Saint-Pierre,-21.3194,55.4225,RE
+FMFE,Ambohibary Airport,Moramanga,-18.9175,48.2182,MG
+FMMA,Antananarivo Arivonimamo Airport,Arivonimamo,-19.029,47.1718,MG
+FMMC,Malaimbandy Airport,Malaimbandy,-20.3554,45.5434,MG
+FMME,Antsirabe Airport,Antsirabe,-19.8392,47.0637,MG
+FMMG,Antsalova Airport,Antsalova,-18.7013,44.6149,MG
+FMMH,Mahanoro Airport,Mahanoro,-19.833,48.8,MG
+FMMI,Ivato International Airport,Antananarivo,-18.7969,47.4788,MG
+FMMJ,Ambohijanahary Airport,Ambohijanahary,-17.4645,48.3267,MG
+FMMK,Ankavandra Airport,Ankavandra,-18.805,45.2735,MG
+FMML,Belo sur Tsiribihina Airport,Belo sur Tsiribihina,-19.6867,44.5419,MG
+FMMN,Miandrivazo Airport,Miandrivazo,-19.5628,45.4508,MG
+FMMO,Maintirano Airport,Maintirano,-18.05,44.033,MG
+FMMP,Amparafaravola Airport,Amparafaravola,-17.6546,48.2144,MG
+FMMQ,Atsinanana Airport,Ilaka,-19.583,48.803,MG
+FMMR,Morafenobe Airport,Morafenobe,-17.8501,44.9205,MG
+FMMS,Sainte Marie Airport,Vohilava,-17.0939,49.8158,MG
+FMMT,Toamasina Ambalamanasy Airport,Toamasina,-18.1135,49.3923,MG
+FMMU,Tambohorano Airport,Tambohorano,-17.4761,43.9728,MG
+FMMV,Morondava Airport,Morondava,-20.2847,44.3176,MG
+FMMX,Tsiroanomandidy Airport,Tsiroanomandidy,-18.7597,46.0541,MG
+FMMY,Vatomandry Airport,Vatomandry,-19.3833,48.95,MG
+FMMZ,Ambatondrazaka Airport,Ambatondrazaka,-17.7954,48.4426,MG
+FMNA,Arrachart Airport,Antisiranana,-12.3494,49.2917,MG
+FMNB,Ankaizina Airport,Bealanana,-14.5443,48.6914,MG
+FMNC,Mananara Nord Airport,Mananara Nord,-16.1639,49.7738,MG
+FMND,Andapa Airport,,-14.6517,49.6206,MG
+FMNE,Ambilobe Airport,,-13.1884,48.988,MG
+FMNF,Avaratra Airport,Befandriana,-15.2,48.483,MG
+FMNG,Port Bergé Airport,Port Bergé,-15.5843,47.6236,MG
+FMNH,Antsirabe Airport,Antsirabe,-14.9994,50.3202,MG
+FMNL,Analalava Airport,Analalava,-14.6295,47.7636,MG
+FMNM,Amborovy Airport,Mahajanga,-15.6668,46.3512,MG
+FMNN,Nosy Be International Airport,Nosy Be,-13.3121,48.3148,MG
+FMNO,Soalala Airport,Soalala,-16.1017,45.3588,MG
+FMNP,Mampikony Airport,Mampikony,-16.0719,47.643,MG
+FMNQ,Besalampy Airport,Besalampy,-16.7445,44.4825,MG
+FMNR,Maroantsetra Airport,Maroantsetra,-15.4377,49.6891,MG
+FMNS,Sambava Airport,Sambava,-14.2786,50.1747,MG
+FMNT,Tsaratanana Airport,Tsaratanana,-16.7511,47.619,MG
+FMNV,Vohemar Airport,Vohemar,-13.3758,50.0028,MG
+FMNW,Ambalabe Airport,Antsohihy,-14.8988,47.9939,MG
+FMNX,Mandritsara Airport,Mandritsara,-15.846,48.8347,MG
+FMNZ,Ampampamena Airport,,-13.4848,48.6327,MG
+FMSA,Ambalavao Airport,Ambalavao,-21.8149,46.914,MG
+FMSB,Antsoa Airport,Beroroha,-21.607,45.136,MG
+FMSC,Mandabe Airport,Mandabe,-21.0463,44.9404,MG
+FMSD,Tôlanaro Airport,Tôlanaro,-25.0381,46.9561,MG
+FMSE,Betroka Airport,Betroka,-23.2743,46.125,MG
+FMSF,Fianarantsoa Airport,Fianarantsoa,-21.4416,47.1117,MG
+FMSG,Farafangana Airport,Farafangana,-22.8053,47.8206,MG
+FMSI,Ihosy Airport,Ihosy,-22.4047,46.1649,MG
+FMSJ,Manja Airport,Manja,-21.4261,44.3165,MG
+FMSK,Manakara Airport,Manakara,-22.1197,48.0217,MG
+FMSL,Bekily Airport,Bekily,-24.2357,45.3045,MG
+FMSM,Mananjary Airport,Mananjary,-21.2018,48.3583,MG
+FMSN,Samangoky Airport,Tanandava,-21.7,43.733,MG
+FMSR,Morombe Airport,Morombe,-21.7538,43.3748,MG
+FMST,Toliara Airport,Toliara,-23.3834,43.7285,MG
+FMSU,Vangaindrano Airport,Vangaindrano,-23.3508,47.5817,MG
+FMSV,Betioky Airport,Betioky,-23.733,44.389,MG
+FMSY,Ampanihy Airport,Ampanihy,-24.6997,44.7342,MG
+FMSZ,Ankazoabo Airport,Ankazoabo,-22.2964,44.5315,MG
+FMZJ,Juan de Nova Airstrip,Juan de Nova,-17.054,42.7193,TF
+LF50,Aérodrome privé de Soucelles,Soucelles,47.5804,-0.4123,FR
+LF51,Plan-de-Dieu-Orange Airfield,"Travaillan, Vaucluse",44.18,4.9189,FR
+LFAB,Dieppe-Saint-Aubin Airport,Saint-Aubin-sur-Scie,49.8847,1.081,FR
+LFAC,Calais Marck Airport,Calais,50.9621,1.9548,FR
+LFAD,Compiègne Margny Airfield,Margny-lès-Compiègne,49.4312,2.8015,FR
+LFAE,Eu Mers-Le Tréport Airfield,Eu,50.0682,1.4247,FR
+LFAF,Laon-Chambry Airfield,"Laon, Aisne",49.5958,3.6317,FR
+LFAG,Péronne Saint-Quentin Airfield,"Monchy-Lagache, Somme",49.8689,3.0296,FR
+LFAI,Nangis-Les Loges Aerodrome,Clos-Fontaine,48.5962,3.0068,FR
+LFAJ,Argentan Airfield,"Argentan, Orne",48.7095,0.0029,FR
+LFAK,Dunkerque-Les Moëres Airfield,Ghyvelde,51.0396,2.5491,FR
+LFAL,La Flèche-Thorée-les-Pins Airfield,"La Flèche, Sarthe",47.6926,-0.0022,FR
+LFAM,Berck-sur-Mer Airfield,Berck-sur-Mer,50.4231,1.5919,FR
+LFAO,Bagnoles-Couterne Airfield,"Rives-d'Andaine, Orne",48.5458,-0.3874,FR
+LFAP,Rethel-Perthes Airfield,"Sault-lès-Rethel, Ardennes",49.481,4.3633,FR
+LFAQ,Albert Bray airport,Albert,49.97,2.6939,FR
+LFAR,Montdidier Airfield,Montdidier,49.6721,2.5678,FR
+LFAS,Falaise-Mont d'Eraines Airfield,"Damblainville, Calvados",48.9272,-0.1447,FR
+LFAT,Le Touquet-Côte d'Opale Airport,Le Touquet-Paris-Plage,50.5183,1.6217,FR
+LFAU,Aérodrome de Vauville,La Hague,49.6228,-1.8307,FR
+LFAV,Valenciennes-Denain Airfield,Prouvy,50.3278,3.4611,FR
+LFAW,Villerupt Aerodrome,"Errouville, Meurthe-et-Moselle",49.4104,5.8893,FR
+LFAX,Mortagne-au-Perche Airfield,"Saint-Hilaire-le-Châtel, Orne",48.5392,0.532,FR
+LFAY,Amiens Glisy Airfield,Amiens,49.873,2.3871,FR
+LFBA,Agen La Garenne airport,Agen,44.1742,0.5931,FR
+LFBC,Cazaux (BA 120) Air Base,Cazaux (La Teste-de-Buch),44.5333,-1.125,FR
+LFBD,Bordeaux–Mérignac Airport,Bordeaux,44.8287,-0.7154,FR
+LFBE,Bergerac Dordogne-Périgord airport,Bergerac,44.8253,0.5186,FR
+LFBF,Toulouse-Francazal (BA 101) Air Base,"Toulouse/Francazal, Haute-Garonne",43.5456,1.3675,FR
+LFBG,Cognac-Châteaubernard (BA 709) Air Base,Cognac/Châteaubernard,45.6583,-0.3175,FR
+LFBH,La Rochelle Île de Ré Airport,La Rochelle,46.1792,-1.1953,FR
+LFBI,Poitiers-Biard Airport,Poitiers/Biard,46.5877,0.3067,FR
+LFBJ,Aérodrome de Saint-Junien,"Poitiers, Vienne",45.9022,0.9182,FR
+LFBK,Montluçon-Guéret Airport,"Lépaud, Creuse",46.2226,2.364,FR
+LFBL,Limoges Airport,Limoges/Bellegarde,45.8628,1.1794,FR
+LFBM,Mont-de-Marsan (BA 118) Air Base,Mont-de-Marsan,43.9117,-0.5075,FR
+LFBN,Niort - Marais Poitevin Airport,Niort/Souché,46.3135,-0.3945,FR
+LFBO,Toulouse-Blagnac Airport,Toulouse/Blagnac,43.6291,1.3638,FR
+LFBP,Pau Pyrénées Airport,Pau/Pyrénées (Uzein),43.38,-0.4186,FR
+LFBR,Aérodrome de Muret - Lherm,"Muret/Lherm, Haute-Garonne",43.4489,1.2633,FR
+LFBS,Biscarrosse Parentis Airfield,"Biscarrosse, Landes",44.3676,-1.1339,FR
+LFBT,Tarbes-Lourdes-Pyrénées Airport,Tarbes/Lourdes/Pyrénées,43.1787,-0.0064,FR
+LFBU,Angoulême Brie-Champniers airport,Angoulême,45.7292,0.2215,FR
+LFBX,Périgueux-Bassillac Airport,Périgueux/Bassillac,45.1981,0.8156,FR
+LFBY,Dax Seyresse Airfield,"Perigueux, Dordogne",43.6892,-1.0689,FR
+LFBZ,Biarritz Pays Basque airport,Biarritz,43.4684,-1.5232,FR
+LFCA,Aérodrome de Châtellerault-Targé,"Châtellerault, Vienne",46.7826,0.5505,FR
+LFCB,Aérodrome de Bagnères de Luchon,,42.8,0.6,FR
+LFCC,Cahors Lalbenque airport,Cahors,44.3514,1.4753,FR
+LFCD,Aérodrome d'Andernos,Andernos-les-Bains,44.755,-1.065,FR
+LFCE,Guéret Saint-Laurent Airfield,"Saint-Laurent, Creuse",46.1761,1.9538,FR
+LFCF,Aérodrome de Figeac - Livernon,,44.6733,1.7892,FR
+LFCG,Aérodrome de Saint-Girons - Antichan,Saint-Girons/Antichan,43.0078,1.1032,FR
+LFCH,Aérodrome d'Arcachon-La Teste-de-Buch,Arcachon/La Teste-de-Buch,44.5964,-1.1108,FR
+LFCI,Albi Le Sequestre airport,Albi,43.9139,2.1131,FR
+LFCJ,Aérodrome de Jonzac Neulles,Albi,45.4842,-0.4214,FR
+LFCK,Castres Mazamet Airport,Castres,43.5563,2.2892,FR
+LFCL,Toulouse-Lasbordes Airfield,"Balma, Haute-Garonne",43.5868,1.4992,FR
+LFCM,Millau-Larzac Airfield,Millau/Larzac,43.9893,3.183,FR
+LFCN,Nogaro Airfield,,43.7697,-0.0328,FR
+LFCO,Oloron Herrere Airfield,,43.1635,-0.5615,FR
+LFCP,Pons Avy Airfield,,45.57,-0.515,FR
+LFCQ,Aérodrome de Graulhet-Montdragon,Graulhet/Montdragon,43.7711,2.0108,FR
+LFCR,Rodez–Aveyron Airport,Rodez/Marcillac,44.4079,2.4827,FR
+LFCS,Aérodrome de Bordeaux-Léognan-Saucats,Bordeaux-Saucats,44.7003,-0.5956,FR
+LFCT,Aérodrome de Thouars,Thouars,46.9619,-0.1528,FR
+LFCU,Ussel-Thalamy Airfield,"Ussel, Corrèze",45.5357,2.4245,FR
+LFCV,Aérodrome de Villefranche de Rouergue,Rodez,44.3695,2.0257,FR
+LFCW,Villeneuve-sur-Lot Airfield,Villeneuve-sur-Lot,44.3969,0.7589,FR
+LFCX,Aérodrome de Castelsarrasin Moissac,Moissac,44.0864,1.1272,FR
+LFCY,Royan-Médis Airport,Royan/Médis,45.6281,-0.9725,FR
+LFCZ,Aérodrome de Mimizan,Mimizan,44.1459,-1.1643,FR
+LFDA,Aire-sur-l'Adour Airfield,Aire-sur-Adour,43.7094,-0.2453,FR
+LFDB,Aérodrome Morin - Védrines,Montauban,44.0257,1.378,FR
+LFDC,Aérodrome de Montendre-Marcillac,,45.2744,-0.4522,FR
+LFDE,Aérodrome d'Égletons,,45.4214,2.0689,FR
+LFDF,Aérodrome de Sainte-Foy-la-Grande,,44.8536,0.1767,FR
+LFDG,Aérodrome de Gaillac - Lisle-sur-Tarn,Gaillac,43.8839,1.8756,FR
+LFDH,Auch Gers Airfield,Auch,43.6836,0.5997,FR
+LFDI,Libourne-Artigues-de-Lussac Airfield,Libourne/Artigues-de-Lussac,44.9835,-0.1384,FR
+LFDJ,Aérodrome de Pamiers - Les Pujols,Pamiers/Les Pujols,43.0906,1.6958,FR
+LFDK,Soulac Sur Mer Airfield,Pamiers,45.495,-1.0822,FR
+LFDL,Loudun Airfield,Pamiers,47.0359,0.1006,FR
+LFDM,Marmande – Virazeil Airfield,Marmande,44.499,0.2005,FR
+LFDN,Rochefort-Saint-Agnant (BA 721) Airport,Rochefort/Saint-Agnant,45.8878,-0.9831,FR
+LFDP,St Pierre d'Oléron Airfield,,45.9592,-1.3161,FR
+LFDQ,Castelnau Magnoac Airfield,,43.2794,0.5217,FR
+LFDR,La Réole Floudes Airfield,,44.5681,-0.0561,FR
+LFDS,Sarlat Domme Airfield,,44.7917,1.2471,FR
+LFDT,Aérodrome de Tarbes Laloubère,Tarbes,43.2153,0.0773,FR
+LFDU,Lesparre St Laurent Medoc Airfield,,45.1978,-0.8822,FR
+LFDV,Couhé Vérac Airfield,,46.2728,0.1906,FR
+LFDW,Chauvigny Airfield,,46.5836,0.6425,FR
+LFDX,Fumel Montayral Airfield,Rochefort,44.4609,1.0067,FR
+LFDY,Bordeaux Yvrac Airfield,,44.876,-0.4804,FR
+LFEA,Aérodrome de Belle Île,Bangor,47.3253,-3.2013,FR
+LFEB,Dinan-Trélivan Airfield,"Trélivan, Côtes-d'Armor",48.4434,-2.1031,FR
+LFEC,Ouessant Airport,Ushant,48.4632,-5.0636,FR
+LFED,Pontivy Airfield,Pontivy,48.0567,-2.9208,FR
+LFEF,Amboise Dierre Airfield,"Dierre, Indre-et-Loire",47.3398,0.9459,FR
+LFEG,Argenton-sur-Creuse Airfield,"Le Pêchereau, Indre",46.5963,1.6016,FR
+LFEH,Aubigny-sur-Nère Airfield,"Aubigny-sur-Nère, Cher",47.4799,2.3933,FR
+LFEI,Briare Châtillon Airfield,"Briare, Loiret",47.6144,2.7819,FR
+LFEJ,Châteauroux Villers Airfield,"Saint-Maur, Indre",46.8409,1.62,FR
+LFEK,Issoudun Le Fay Airfield,"Saint-Aubin, Indre",46.888,2.0399,FR
+LFEL,Le Blanc Airfield,,46.6208,1.0875,FR
+LFEM,Montargis Vimory Airfield,"Vimory, Loiret",47.9606,2.6858,FR
+LFEN,Tours Sorigny Airfield,"Sorigny, Indre-et-Loire",47.2661,0.6987,FR
+LFEP,Pouilly-Maconge Airfield,Meilly-sur-Rouvres,47.2214,4.5611,FR
+LFEQ,Quiberon Airfield,,47.4822,-3.1,FR
+LFER,Redon Bains-sur-Oust Airfield,Redon,47.6987,-2.0379,FR
+LFES,Guiscriff Scaer Airfield,Guiscriff,48.0525,-3.6647,FR
+LFET,Til Châtel Airfield,Til-Châtel,47.5463,5.2104,FR
+LFEU,Bar-le-Duc Airfield,Les Hauts-de-Chée,48.8675,5.1851,FR
+LFEV,Gray Saint-Adrien Airfield,Gray,47.4317,5.6178,FR
+LFEW,Saulieu-Liernais Airfield,"Liernais, Côte-d'Or",47.2393,4.2659,FR
+LFEX,Nancy Azelot Airfield,"Azelot, Meurthe-et-Moselle",48.5935,6.241,FR
+LFEY,Île d'Yeu Airport,Île d'Yeu,46.7176,-2.3925,FR
+LFEZ,Nancy-Malzéville Airfield,"Saint-Max, Meurthe-et-Moselle",48.7244,6.2078,FR
+LFFB,Buno-Bonnevaux Airfield,"Buno-Bonnevaux, Essonne",48.3501,2.4244,FR
+LFFC,Mantes-Chérence Airfield,"Chérence, Val-d'Oise",49.0788,1.6883,FR
+LFFD,Saint-André-de-l'Eure Airfield,"Saint-André-de-l'Eure, Eure",48.8977,1.2508,FR
+LFFE,Enghien-Moisselles Airfield,"Attainville, Val-d'Oise",49.046,2.354,FR
+LFFG,La Ferté-Gaucher Airfield,"La Ferté-Gaucher, Seine-et-Marne",48.757,3.2781,FR
+LFFH,Château-Thierry-Belleau Airfield,"Château-Thierry, Aisne",49.0668,3.3555,FR
+LFFI,Ancenis Airfield,Ancenis,47.4081,-1.1775,FR
+LFFJ,Joinville Mussey Airfield,Mussey-sur-Marne,48.3851,5.1435,FR
+LFFK,Fontenay Le Comte Airfield,Fontenay Le Comte,46.4414,-0.7928,FR
+LFFL,Bailleau Armenonville Airfield,,48.5158,1.64,FR
+LFFN,Brienne-le-Château Airfield,Saint-Christophe-Dodinicourt,48.4304,4.4725,FR
+LFFO,Beauvoir Fromentine Airfield,Fromentine,46.8904,-2.0885,FR
+LFFP,Pithiviers Airfield,"Pithiviers, Loiret",48.1552,2.1876,FR
+LFFQ,Cerny-La Ferté Alais Airfield,"Cerny, Essonne",48.4986,2.3369,FR
+LFFR,Bar-sur-Seine Airfield,"Celles-sur-Ource, Aube",48.0659,4.4124,FR
+LFFT,Neufchâteau Airfield,Neufchâteau,48.359,5.7196,FR
+LFFU,Châteauneuf Sur Cher Airfield,,46.8711,2.3769,FR
+LFFV,Vierzon-Méreau Airfield,"Vierzon, Cher",47.1941,2.0654,FR
+LFFW,Montaigu St Georges Airfield,Montaigu-Vendée,46.932,-1.3279,FR
+LFFX,Tournus Cuisery Airfield,"Cuisery, Saône-et-Loire",46.5621,4.9756,FR
+LFFY,Étrépagny Airfield,Étrépagny,49.3053,1.6379,FR
+LFFZ,Sézanne-Saint-Remy Airfield,"Saint-Remy-sous-Broyes, Marne",48.7096,3.7633,FR
+LFGA,Colmar Houssen airport,Colmar,48.1099,7.359,FR
+LFGB,Mulhouse-Habsheim Airfield,Mulhouse/Habsheim,47.7413,7.4322,FR
+LFGC,Strasbourg Neuhof Airfield,Strasbourg,48.5533,7.7766,FR
+LFGE,Avallon Airfield,"Avallon, Yonne",47.5038,3.901,FR
+LFGF,Beaune-Challanges Airfield,Beaune/Challanges,47.0066,4.8941,FR
+LFGG,Belfort Chaux Airfield,Chaux,47.7007,6.8313,FR
+LFGH,Cosne-sur-Loire Airfield,"Cosne-Cours-sur-Loire, Nièvre",47.3609,2.9159,FR
+LFGI,Dijon Darois Airfield,"Darois, Côte-d'Or",47.3853,4.9469,FR
+LFGJ,Dole Tavaux Airport,Dole,47.039,5.4276,FR
+LFGK,Joigny Airfield,"Joigny, Yonne",47.9945,3.3927,FR
+LFGL,Lons-le-Saunier Courlaoux Airfield,Courlaoux,46.675,5.4691,FR
+LFGM,Montceau-les-Mines Pouilloux Airfield,"Pouilloux, Saône-et-Loire",46.6032,4.3382,FR
+LFGN,Paray-le-Monial Airfield,"Paray-le-Monial, Saône-et-Loire",46.4658,4.1345,FR
+LFGO,Pont-sur-Yonne Airfield,"Gisy-les-Nobles, Yonne",48.2916,3.2457,FR
+LFGP,Saint-Florentin - Chéu Airfield,"Jaulges, Yonne",47.9802,3.7756,FR
+LFGQ,Semur-en-Auxois Airfield,"Semur-en-Auxois, Côte-d'Or",47.481,4.343,FR
+LFGR,Doncourt-lès-Conflans Airfield,Doncourt-lès-Conflans,49.1522,5.9334,FR
+LFGS,Longuyon Villette Airfield,"Longuyon, Meurthe-et-Moselle",49.4836,5.5719,FR
+LFGT,Sarrebourg Buhl Airfield,Buhl-Lorraine,48.7169,7.0743,FR
+LFGU,Sarreguemines Neunkirch Airfield,,49.1281,7.1083,FR
+LFGW,Verdun-Le Rozelier Airfield,"Sommedieue, Meuse",49.1224,5.4691,FR
+LFGX,Champagnole-Crotenay Airfield,"Crotenay, Jura",46.763,5.8197,FR
+LFGY,Saint-Dié-Remomeix Airfield,"Remomeix, Vosges",48.2665,7.0074,FR
+LFGZ,Nuits-Saint-Georges Airfield,"Nuits-Saint-Georges, Côte-d'Or",47.142,4.9685,FR
+LFHA,Issoire-Le Broc Airfield,"Le Broc, Alpes-Maritimes",45.515,3.2675,FR
+LFHC,Aérodrome de Pérouges - Meximieux,,45.8697,5.1872,FR
+LFHD,Pierrelatte Airfield,"La Garde-Adhémar, Drôme",44.3976,4.7176,FR
+LFHE,Aérodrome de Romans - Saint-Paul,,45.0661,5.1033,FR
+LFHF,Ruoms Airfield,Ruoms,44.4446,4.3328,FR
+LFHG,Saint-Chamond L'Horme Airfield,"L'Horme, Loire",45.4919,4.5344,FR
+LFHH,Vienne Reventin Airfield,"Reventin-Vaugris, Isère",45.4624,4.8281,FR
+LFHI,Morestel Airfield,"Arandon-Passins, Isère",45.6869,5.4522,FR
+LFHJ,Lyon Corbas Airfield,Corbas,45.6542,4.9136,FR
+LFHL,Langogne-Lespéron Airfield,"Lespéron, Ardèche",44.7036,3.8849,FR
+LFHM,Megève Altiport,Megève,45.823,6.6494,FR
+LFHN,Bellegarde-Vouvray Airfield,"Valserhône, Ain",46.1233,5.8049,FR
+LFHO,Aubenas-South Ardèche Airport,"Lanas, Ardèche",44.5444,4.3722,FR
+LFHP,Le Puy-Loudes Airfield,"Chaspuzac, Haute-Loire",45.0807,3.7629,FR
+LFHQ,Saint-Flour-Coltines Airfield,Saint-Flour/Coltines,45.0764,2.9936,FR
+LFHR,Brioude Beaumont Airfield,"Beaumont, Puy-de-Dôme",45.3199,3.3616,FR
+LFHS,Bourg-Ceyzériat Airfield,Bourg/Ceyzériat,46.2009,5.292,FR
+LFHT,Ambert - Le Poyet Airfield,"Ambert, Puy-de-Dôme",45.5162,3.7451,FR
+LFHU,L'Alpe d'Huez - Henri Giraud Altiport,"Huez, Isère",45.0874,6.0836,FR
+LFHV,Villefranche-Tarare Airfield,"Frontenas, Rhône",45.9183,4.6352,FR
+LFHW,Belleville Villié Morgon Airfield,"Belleville-en-Beaujolais, Rhône",46.1408,4.7138,FR
+LFHX,Lapalisse - Périgny Airfield,,46.2539,3.5886,FR
+LFHY,Moulins-Montbeugny Airfield,Toulon-sur-Allier,46.5346,3.4237,FR
+LFIB,Aérodrome de Belvès Saint-Pardoux,,44.7825,0.9589,FR
+LFID,Aérodrome de Condom - Valence-sur-Baïse,,43.9103,0.3872,FR
+LFIF,Saint-Affrique-Belmont Airfield,"Belmont-sur-Rance, Aveyron",43.8246,2.744,FR
+LFIG,Cassagnes-Bégonhès Airfield,Cassagnes-Bégonhès,44.1778,2.515,FR
+LFIH,Chalais Airfield,,45.2681,0.0169,FR
+LFIK,Aérodrome de Ribérac-Tourette,Ribérac,45.2387,0.2648,FR
+LFIL,Rion Des Landes Airfield,,43.9158,-0.9492,FR
+LFIM,Saint Gaudens Montréjeau Airfield,"Clarac, Hautes-Pyrénées",43.1074,0.6191,FR
+LFIP,Altiport de Peyresourde Balestas,,42.7967,0.4365,FR
+LFIR,Revel Montgey Airfield,,43.4814,1.98,FR
+LFIS,Saint-Inglevert Aerodrome,Saint-Inglevert,50.8826,1.7358,FR
+LFIT,Aérodrome de Toulouse Bourg-Saint-Bernard,,43.6122,1.7253,FR
+LFIV,Aérodrome de Vendays-Montalivet,,45.3806,-1.1158,FR
+LFIX,Itxassou Airfield,,43.3375,-1.4222,FR
+LFIY,St Jean d'Angély Airfield,,45.965,-0.5234,FR
+LFJA,Chaumont-Semoutiers Airfield,"Villiers-le-Sec, Haute-Marne",48.0807,5.0477,FR
+LFJB,Mauléon Airfield,Mauléon,46.9028,-0.6978,FR
+LFJC,Clamecy-Rix Airfield,"Clamecy, Nièvre",47.4376,3.5074,FR
+LFJD,Corlier Altiport,,46.0405,5.4945,FR
+LFJE,Altiport de La Motte Chalancon,,44.4958,5.4028,FR
+LFJF,Aérodrome d'Aubenasson,,44.6945,5.1511,FR
+LFJH,Aérodrome de Cazères - Palaminy,,43.2022,1.0511,FR
+LFJI,Aérodrome de Marennes - Le Bournet,,45.825,-1.0767,FR
+LFJL,Metz-Nancy-Lorraine Airport,Goin,48.9821,6.2513,FR
+LFJR,Angers Marcé airport,Angers,47.5603,-0.3122,FR
+LFJS,Soissons-Courmelles Airfield,"Soissons, Aisne",49.345,3.2827,FR
+LFJT,Tours Le Louroux Airfield,Angers,47.1493,0.7111,FR
+LFJU,Lurcy-Lévis Airfield,"Lurcy-Lévis, Allier",46.7123,2.9448,FR
+LFJV,Aérodrome de Lasclaveries,Lasclaveries,43.4253,-0.2869,FR
+LFJY,Chambley airfield,Chambley-Bussières,49.0255,5.8761,FR
+LFKA,Albertville General Pierre Delachenal Airfield,Tournon,45.626,6.3281,FR
+LFKB,Bastia-Poretta International airport,Bastia,42.5527,9.4837,FR
+LFKC,Calvi Sainte Catherine Airport,Calvi,42.5304,8.793,FR
+LFKD,Sollières Sardières Airfield,Val-Cenis,45.2538,6.8011,FR
+LFKE,Saint-Jean-en-Royans Airfield,,45.0278,5.31,FR
+LFKF,Figari Sud-Corse Airport,Figari,41.5018,9.0971,FR
+LFKG,Aérodrome de Ghisonaccia - Alzitone,GHISONACCIA,42.0534,9.4002,FR
+LFKH,St Jean D'avelanne Airfield,Figari/Sud Corse,45.5167,5.6806,FR
+LFKJ,Ajaccio Napoléon Bonaparte airport,Ajaccio,41.9236,8.8029,FR
+LFKL,Lyon Brindas Airfield,"Brindas, Rhône",45.7105,4.6967,FR
+LFKM,St Galmier Airfield,,45.6072,4.3058,FR
+LFKO,Propriano Airport,Propriano,41.6606,8.8897,FR
+LFKP,La Tour-de-Pin Airfield,"Cessieu, Isère",45.5549,5.3859,FR
+LFKS,Solenzara (BA 126) Air Base,Solenzara,41.9244,9.406,FR
+LFKT,Aérodrome de Corte,Corte,42.2919,9.189,FR
+LFKX,Méribel Altiport,Les Allues,45.4075,6.5776,FR
+LFKY,Belley-Peyrieu Airfield,"Peyrieu, Ain",45.6941,5.6915,FR
+LFLA,Auxerre Branches airport,Auxerre,47.8502,3.4971,FR
+LFLB,Chambéry Aix les Bains airport,Chambéry,45.6381,5.8802,FR
+LFLC,Clermont-Ferrand Auvergne airport,Clermont-Ferrand,45.7867,3.1692,FR
+LFLD,Bourges airport,Bourges,47.0602,2.3696,FR
+LFLE,Chambéry Challes-les-Eaux Airfield,Barby,45.5611,5.9758,FR
+LFLG,Grenoble Le Versoud Airfield,"Le Versoud, Isère",45.218,5.8483,FR
+LFLH,Chalon Champforgeuil Airfield,Châlon sur Saône,46.8258,4.8176,FR
+LFLI,Annemasse Airfield,Annemasse,46.192,6.2684,FR
+LFLJ,Courchevel Altiport,Saint-Bon,45.3975,6.635,FR
+LFLL,Lyon Saint-Exupéry Airport,"Colombier-Saugnieu, Rhône",45.726,5.0901,FR
+LFLM,Mâcon-Charnay Airfield,"Charnay-lès-Mâcon, Saône-et-Loire",46.2951,4.796,FR
+LFLN,Saint-Yan Airport,"L'Hôpital-le-Mercier, Saône-et-Loire",46.414,4.0142,FR
+LFLO,Roanne-Renaison Airport,Saint-Léger-sur-Roanne,46.0538,3.999,FR
+LFLP,Annecy Meythet airport,Annecy,45.9289,6.0987,FR
+LFLQ,Montélimar-Ancône Airfield,"Montélimar, Drôme",44.5799,4.7388,FR
+LFLR,Saint-Rambert-d'Albon Airfield,"Albon, Drôme",45.2515,4.8264,FR
+LFLS,Grenoble Alpes Isère Airport,Grenoble,45.3629,5.3294,FR
+LFLT,Montluçon-Domérat Airfield,"Domérat, Allier",46.3528,2.5705,FR
+LFLU,Valence-Chabeuil Airport,"Chabeuil, Drôme",44.9216,4.9699,FR
+LFLV,Vichy-Charmeil Airport,"Charmeil, Allier",46.1697,3.4036,FR
+LFLW,Aurillac airport,Aurillac,44.8914,2.4219,FR
+LFLX,Châteauroux Déols airport,Châteauroux,46.8602,1.7283,FR
+LFLY,Lyon Bron Airport,"Chassieu, Lyon",45.7279,4.944,FR
+LFLZ,Aérodrome de Feurs - Chambéon,,45.7062,4.1973,FR
+LFMA,Aix Les Milles airport,Aix en Provence,43.5063,5.3664,FR
+LFMC,Le Luc-Le Cannet Airfield,"Le Cannet-des-Maures, Var",43.3847,6.3871,FR
+LFMD,Cannes Mandelieu Airport,Cannes,43.548,6.9552,FR
+LFME,Nîmes Courbessac Airfield,Nîmes,43.8539,4.4136,FR
+LFMF,Fayence-Tourrettes Airfield,"Fayence, Var",43.6096,6.6974,FR
+LFMG,Aérodrome de la Montagne Noire,Revel,43.4075,1.9903,FR
+LFMH,Saint-Étienne-Bouthéon Airport,"Andrézieux-Bouthéon, Loire",45.5406,4.2964,FR
+LFMI,Istres-Le Tubé Air Base,"Istres, Bouches-du-Rhône",43.5227,4.9238,FR
+LFMK,Carcassonne Salvaza Airport,Carcassonne,43.216,2.3063,FR
+LFML,Marseille Provence Airport,"Marignane, Bouches-du-Rhône",43.4381,5.2125,FR
+LFMN,Nice-Côte d'Azur Airport,"Nice, Alpes-Maritimes",43.6584,7.2159,FR
+LFMO,Orange-Caritat (BA 115) Air Base,"Orange, Vaucluse",44.1405,4.8667,FR
+LFMP,Perpignan-Rivesaltes (Llabanère) Airport,Perpignan/Rivesaltes,42.7404,2.8707,FR
+LFMQ,Le Castellet Airport,"Le Castellet, Var",43.2525,5.7852,FR
+LFMR,Barcelonnette - Saint-Pons Airfield,"Saint-Pons, Alpes-de-Haute-Provence",44.3872,6.6088,FR
+LFMS,Aérodrome d'Alès Cévennes,Alès/Deaux,44.0697,4.1421,FR
+LFMT,Montpellier-Méditerranée Airport,Montpellier/Méditerranée,43.5762,3.963,FR
+LFMU,Béziers Vias airport,Béziers,43.3235,3.3539,FR
+LFMV,Avignon Caumont airport,Avignon,43.9073,4.9018,FR
+LFMW,Aérodrome de Castelnaudary-Villeneuve,Castelnaudary Villeneuve,43.3122,1.9211,FR
+LFMX,Château-Arnoux-Saint-Auban Airfield,"Château-Arnoux-Saint-Auban, Alpes-de-Haute-Provence",44.06,5.9914,FR
+LFMY,Salon-de-Provence (BA 701) Air Base,Salon,43.6064,5.1093,FR
+LFMZ,Lézignan-Corbières Airfield,Lézignan-Corbières,43.1758,2.7342,FR
+LFNA,Gap-Tallard Airfield,"Tallard, Hautes-Alpes",44.455,6.0378,FR
+LFNB,Mende-Brenoux Airfield,Mende/Brénoux,44.5021,3.5328,FR
+LFNC,Mont-Dauphin Saint-Crépin Airfield,"Saint-Crépin, Hautes-Alpes",44.7017,6.6003,FR
+LFNE,Aérodrome d'Eyguières,,43.6583,5.0136,FR
+LFNF,Vinon Airfield,"Vinon-sur-Verdon, Var",43.7378,5.7842,FR
+LFNG,Aérodrome de Montpellier - Candillargues,,43.6103,4.0703,FR
+LFNH,Edgar Soumille Airfield,"Carpentras, Vaucluse",44.0277,5.0843,FR
+LFNJ,Aspres-sur-Buëch Airfield,"Aspres-sur-Buëch, Hautes-Alpes",44.5175,5.7357,FR
+LFNL,Aérodrome de Saint-Martin-de-Londres,,43.8008,3.7825,FR
+LFNO,Florac Ste Enimie Airfield,,44.2864,3.4667,FR
+LFNQ,Mont Louis La Quillane Airfield,,42.5436,2.12,FR
+LFNR,Berre-la-Fare Airfield,"Berre-l'Étang, Bouches-du-Rhône",43.5367,5.1774,FR
+LFNS,Sistéron-Vaumeilh Airfield,"Vaumeilh, Alpes-de-Haute-Provence",44.2865,5.9291,FR
+LFNT,Avignon-Pujaut Airfield,"Pujaut, Gard",43.9969,4.7556,FR
+LFNU,Uzès-Belvezet Airfield,"Mont-Lozère-et-Goulet, Lozère",44.0821,4.3939,FR
+LFNV,Valréas Visan Airfield,Visan,44.3357,4.9069,FR
+LFNW,Puivert Airfield,,42.9114,2.0561,FR
+LFNX,Bédarieux La Tour Airfield,,43.6408,3.1456,FR
+LFNZ,Le Mazet De Romanin Airfield,,43.7689,4.8936,FR
+LFOA,Avord (BA 702) Air Base,Avord,47.0533,2.6325,FR
+LFOB,Beauvais-Tillé airport,Beauvais,49.4544,2.1128,FR
+LFOC,Châteaudun Airfield,"Châteaudun, Eure-et-Loir",48.0579,1.3793,FR
+LFOD,Aérodrome de Saumur - Saint-Florent,Saumur/Saint-Florent,47.2568,-0.1151,FR
+LFOE,Évreux-Fauville (BA 105) Air Base,"Fauville, Eure",49.0287,1.2199,FR
+LFOF,Alençon-Valframbert Airfield,"Alençon, Orne",48.4466,0.108,FR
+LFOG,Aérodrome de Flers Saint-Paul,Flers,48.75,-0.5939,FR
+LFOH,Le Havre-Octeville Airport,Le Havre,49.534,0.0884,FR
+LFOI,Abbeville-Buigny Baie de Somme Airfield,Buigny-Saint-Maclou,50.1435,1.8319,FR
+LFOJ,Orléans-Bricy (BA 123) Air Base,"Boulay-les-Barres, Loiret",47.9878,1.7606,FR
+LFOK,Chalons Vatry airport,Chalons en Champagne,48.7733,4.2061,FR
+LFOL,L'Aigle-Saint-Michel Airfield,"Saint-Sulpice-sur-Risle, Orne",48.7585,0.6566,FR
+LFOM,Lessay Airfield,"Lessay, Basse-Normandie",49.2023,-1.508,FR
+LFON,Dreux Vernouillet Airfield,"Vernouillet, Yvelines",48.7054,1.3612,FR
+LFOO,Les Sables-d'Olonne Talmont Airport,Les Sables-d'Olonne,46.4769,-1.7228,FR
+LFOP,Rouen Vallée de Seine Airport,Boos,49.3849,1.1791,FR
+LFOQ,Blois Le Breuil Airfield,Blois,47.6785,1.2088,FR
+LFOR,Chartres-Métropole Airfield,"Chartres, Eure-et-Loir",48.4575,1.5198,FR
+LFOS,Saint-Valery-Vittefleur Airfield,Saint-Sylvain,49.8352,0.6553,FR
+LFOT,Tours Val de Loire Airport,"Tours, Indre-et-Loire",47.4322,0.7276,FR
+LFOU,Cholet Le Pontreau airfield,Cholet,47.0821,-0.8771,FR
+LFOV,Laval-Entrammes Airport,"Laval, Mayenne",48.0322,-0.744,FR
+LFOW,Saint-Quentin-Roupy Airfield,"Fontaine-lès-Clercs, Aisne",49.8161,3.2057,FR
+LFOX,Étampes-Mondésir Airfield,"Guillerval, Essonne",48.3819,2.0753,FR
+LFOY,Havre-Saint-Romain-de-Colbosc Airfield,Gommerville,49.5447,0.3604,FR
+LFOZ,Orléans–Saint-Denis-de-l'Hôtel Airport,"Saint-Denis-de-l'Hôtel, Loiret",47.8978,2.1645,FR
+LFPA,Persan-Beaumont Airfield,"Bernes-sur-Oise, Val-d'Oise",49.1658,2.3131,FR
+LFPB,Paris-Le Bourget International Airport,Paris,48.9623,2.4365,FR
+LFPC,Creil Air Base,Creil,49.2535,2.5191,FR
+LFPD,Bernay-Saint-Martin Airfield,"Bernay, Eure",49.1024,0.5659,FR
+LFPE,Meaux-Esbly Airfield,"Isles-lès-Villenoy, Seine-et-Marne",48.9275,2.8335,FR
+LFPF,Beynes Thiverval Airfield,"Beynes, Yvelines",48.8432,1.9063,FR
+LFPG,Charles de Gaulle International Airport,"Paris (Roissy-en-France, Val-d'Oise)",49.009,2.5541,FR
+LFPH,Chelles-le-Pin Airfield,"Chelles, Seine-et-Marne",48.8966,2.6062,FR
+LFPI,Paris Issy-les-Moulineaux Heliport,"Issy-les-Moulineaux, Hauts-de-Seine",48.833,2.273,FR
+LFPK,Coulommiers-Voisins Aerodrome,"Pommeuse, Seine-et-Marne",48.8396,3.0087,FR
+LFPL,Lognes Emerainville Airfield,"Lognes, Seine-et-Marne",48.821,2.626,FR
+LFPM,Melun-Villaroche Airfield,"Moissy-Cramayel, Seine-et-Marne",48.6047,2.6711,FR
+LFPN,Toussus-le-Noble Airport,"Toussus-le-Noble, Yvelines",48.7519,2.1062,FR
+LFPO,Paris-Orly Airport,"Paris (Orly, Val-de-Marne)",48.7295,2.359,FR
+LFPP,Le Plessis-Belleville Airfield,Le Plessis-Belleville,49.1088,2.7361,FR
+LFPQ,Fontenay-Trésigny Aerodrome,Fontenay-Trésigny,48.7063,2.9028,FR
+LFPT,Pontoise-Cormeilles Aerodrome,"Cormeilles-en-Vexin, Val-d'Oise",49.0961,2.0355,FR
+LFPU,Moret-Episy Airfield,"Moret-Loing-et-Orvanne, Seine-et-Marne",48.3412,2.7985,FR
+LFPV,Vélizy-Villacoublay Air Base,"Vélizy-Villacoublay, Yvelines",48.7744,2.2031,FR
+LFPX,Chavenay-Villepreux Airfield,"Chavenay, Yvelines",48.8423,1.9805,FR
+LFPZ,Saint-Cyr-l'École Airport,"Saint-Cyr-l'École, Yvelines",48.8125,2.0675,FR
+LFQA,Reims-Prunay Airfield,"Prunay, Marne",49.2087,4.1566,FR
+LFQB,Troyes-Barberey Airport,"Barberey-Saint-Sulpice, Aube",48.3221,4.0167,FR
+LFQC,Lunéville-Croismare Airfield,Chanteheux,48.5933,6.5454,FR
+LFQD,Arras-Roclincourt Airfield,Saint-Laurent-Blangy,50.3239,2.8028,FR
+LFQE,Lieutenant Étienne Mantoux Air Base,Rouvres-en-Woëvre,49.2269,5.6722,FR
+LFQF,Autun-Bellevue Airfield,"Autun, Saône-et-Loire",46.9673,4.2609,FR
+LFQG,Nevers-Fourchambault Airport,"Marzy, Nièvre",47.0029,3.1131,FR
+LFQH,Châtillon-sur-Seine Airfield,Châtillon-sur-Seine,47.8439,4.58,FR
+LFQJ,Maubeuge-Élesmes Airfield,"Vieux-Reng, Nord",50.3105,4.0331,FR
+LFQK,Châlons - Écury-sur-Coole Airfield,Écury-sur-Coole,48.9051,4.3527,FR
+LFQL,Lens-Bénifontaine Airfield,"Bénifontaine, Pas-de-Calais",50.4664,2.8197,FR
+LFQM,Besançon La Vèze Airfield,Besançon,47.2066,6.0832,FR
+LFQN,Saint-Omer Wizernes Airfield,"Longuenesse, Pas-de-Calais",50.7275,2.2326,FR
+LFQO,Marcq-en-Baroeul Airfield,Bondues,50.6872,3.0756,FR
+LFQP,Phalsbourg-Bourscheid Air Base,Bourscheid,48.7662,7.2006,FR
+LFQQ,Lille Airport,Lesquin,50.5666,3.1024,FR
+LFQS,Vitry-en-Artois Airfield,"Vitry-en-Artois, Pas-de-Calais",50.3379,2.9907,FR
+LFQT,Merville-Calonne Airport,"Merville, Nord",50.6184,2.6422,FR
+LFQU,Sarre-Union Airfield,Sarre-Union,48.9509,7.0785,FR
+LFQV,Charleville-Mézières Ardennes-Etienne Riché Airfield,Charleville-Mézières,49.7839,4.6471,FR
+LFQW,Vesoul-Frotey Airfield,"Frotey-lès-Vesoul, Haute-Saône",47.6386,6.2044,FR
+LFQX,Juvancourt Aerodrome,"Juvancourt, Aube",48.114,4.8194,FR
+LFQY,Saverne Steinbourg Airfield,Saverne,48.7534,7.4254,FR
+LFQZ,Dieuze-Guéblange Airfield,Gelucourt,48.7744,6.7141,FR
+LFRB,Brest Bretagne airport,Brest,48.4479,-4.4185,FR
+LFRC,Cherbourg Manche airport,Cherbourg,49.6501,-1.4703,FR
+LFRD,Dinard Pleurtuit Saint-Malo airport,Dinard,48.5877,-2.08,FR
+LFRE,La Baule-Escoublac Airport,La Baule-Escoublac,47.2894,-2.3464,FR
+LFRF,Granville Airport,"Bréville-sur-Mer, Manche",48.8831,-1.5642,FR
+LFRG,Deauville Normandie airport,Deauville,49.3652,0.1545,FR
+LFRH,Lorient South Brittany (Bretagne Sud) Airport,Lorient/Lann/Bihoué,47.7606,-3.44,FR
+LFRI,La Roche-sur-Yon Les Ajoncs Airport,La Roche-sur-Yon,46.7019,-1.3786,FR
+LFRJ,Landivisiau Air Base,Landivisiau,48.5303,-4.1516,FR
+LFRK,Caen Carpiquet airport,Caen,49.1768,-0.4549,FR
+LFRL,Lanvéoc-Poulmic Air Base,Lanvéoc/Poulmic,48.2817,-4.445,FR
+LFRM,Le Mans-Arnage Airport,"Le Mans, Sarthe",47.9486,0.2017,FR
+LFRN,Rennes-Saint-Jacques Airport,"Saint-Jacques-de-la-Lande, Ille-et-Vilaine",48.0695,-1.7348,FR
+LFRO,Lannion Airport,Lannion,48.7544,-3.4717,FR
+LFRP,Ploërmel Loyat Airfield,Rennes,48.0028,-2.3772,FR
+LFRQ,Quimper-Cornouaille Airport,Quimper/Pluguffan,47.973,-4.1697,FR
+LFRS,Nantes Atlantique Airport,Nantes,47.1532,-1.6107,FR
+LFRT,Saint-Brieuc-Armor Airport,"Trémuson, Côtes-d'Armor",48.5386,-2.8535,FR
+LFRU,Morlaix-Ploujean Airport,Morlaix/Ploujean,48.6032,-3.8158,FR
+LFRV,Vannes-Meucon Airport,Vannes/Meucon,47.7233,-2.7186,FR
+LFRW,Avranches Le Val-Saint-Père Airfield,"Le Val-Saint-Père, Manche",48.6623,-1.4037,FR
+LFRZ,Saint-Nazaire-Montoir Airport,Saint-Nazaire/Montoir,47.3114,-2.1526,FR
+LFSA,Besançon-Thise Airfield,Thise,47.2731,6.0829,FR
+LFSB,EuroAirport Basel–Mulhouse–Freiburg,Bâle / Mulhouse,47.6007,7.5211,FR
+LFSD,Dijon Longvic airport,Dijon,47.2689,5.09,FR
+LFSE,Épinal Dogneville Airfield,Dogneville,48.2119,6.4492,FR
+LFSG,Épinal Mirecourt Airport,Épinal,48.325,6.07,FR
+LFSH,Haguenau Airfield,Haguenau,48.7948,7.8161,FR
+LFSI,Saint-Dizier – Robinson Air Base,Saint-Dizier,48.636,4.8994,FR
+LFSJ,Sédan Douzy Airfield,Douzy,49.6597,5.0378,FR
+LFSK,Vitry-le-François Vauclerc Airfield,Vauclerc,48.7024,4.6831,FR
+LFSL,Brive Souillac airport,Brive,45.0397,1.4856,FR
+LFSM,Montbéliard-Courcelles Airfield,Courcelles-lès-Montbéliard,47.487,6.7905,FR
+LFSN,Nancy-Essey Airport,"Tomblaine, Meurthe-et-Moselle",48.6921,6.2305,FR
+LFSO,Nancy-Ochey (BA 133) Air Base,Thuilley-aux-Groseilles,48.5831,5.955,FR
+LFSP,Pontarlier Airfield,"Pontarlier, Doubs",46.904,6.3268,FR
+LFSS,Saint Sulpice des Landes,,47.7917,-1.6436,FR
+LFST,Strasbourg Airport,Strasbourg,48.5383,7.6282,FR
+LFSU,Langres-Rolampont Airfield,"Rolampont, Haute-Marne",47.9648,5.2937,FR
+LFSV,Pont-Saint-Vincent Airfield,"Pont-Saint-Vincent, Meurthe-et-Moselle",48.6001,6.0565,FR
+LFSW,Épernay Plivot Airfield,"Plivot, Marne",49.0045,4.0853,FR
+LFSX,Luxeuil-Saint-Sauveur (BA 116) Air Base,Saint-Sauveur,47.7877,6.3534,FR
+LFSY,Cessey-Baigneux-les-Juffs Airfield,"Baigneux-les-Juffs, Côte-d'Or",47.6094,4.6182,FR
+LFTF,Cuers-Pierrefeu Airfield,"Pierrefeu-du-Var, Var",43.2476,6.1267,FR
+LFTH,Toulon-Hyères Airport,"Hyères, Var",43.0973,6.146,FR
+LFTM,Serres - La Bâtie-Montsaléon Airfield,,44.4583,5.7283,FR
+LFTN,La Grand'combe Airfield,,44.2444,4.0122,FR
+LFTP,Puimoisson Airfield,"Puimoisson, Alpes de Haute-Provence",43.8689,6.1628,FR
+LFTQ,Châteaubriant Pouancé Airfield,,47.7396,-1.1895,FR
+LFTR,Toulon Navy Air Base,"Saint-Mandrier-sur-Mer, Var",43.0827,5.9338,FR
+LFTW,Nîmes-Arles-Camargue Airport,Nîmes/Garons,43.7574,4.4164,FR
+LFTZ,La Môle Airport,Saint-Tropez,43.2054,6.482,FR
+LFVM,Miquelon Airport,Miquelon,47.0955,-56.3803,PM
+LFVP,Saint-Pierre Pointe-Blanche Airport,Saint-Pierre,46.7627,-56.175,PM
+LFXA,Ambérieu Air Base (BA 278),Ambérieu,45.9873,5.3284,FR
+LFXB,Saintes Thénac Airfield,,45.7019,-0.6361,FR
+LFXQ,Coëtquidan Air Base,Guer,47.9431,-2.1859,FR
+LFXU,Les Mureaux Airfield,"Les Mureaux, Yvelines",48.9983,1.9428,FR
+LFYG,Cambrai Niergnies Airfield,"Niergnies, Nord",50.1405,3.2632,FR
+LFYR,Romorantin Pruniers Airbase,"Gièvres, Loir-et-Cher",47.3175,1.691,FR
+LFYS,Ste Léocadie Airfield,,42.4472,2.0108,FR
+LFYV,Yvetot Lucien Camu Airfield,Baons-le-Comte,49.6383,0.7285,FR
+NLWF,Pointe Vele Airport,Futuna Island,-14.3116,-178.0665,WF
+NLWW,Hihifo Airport,Wallis Island,-13.2394,-176.1986,WF
+NTAA,Fa'a'ā International Airport,Papeete,-17.5535,-149.6069,PF
+NTAM,Rimatara Airport,Rimatara Island,-22.6373,-152.8059,PF
+NTAR,Rurutu Airport,,-22.4341,-151.361,PF
+NTAT,Tubuai Airport,,-23.3654,-149.524,PF
+NTAV,Raivavae Airport,,-23.8852,-147.662,PF
+NTGA,Anaa Airport,Anaa,-17.3526,-145.51,PF
+NTGB,Fangatau Airport,Fangatau,-15.82,-140.8881,PF
+NTGC,Tikehau Airport,Tuherahera,-15.1196,-148.231,PF
+NTGD,Apataki Airport,Apataki,-15.5736,-146.415,PF
+NTGE,Reao Airport,Reao,-18.4665,-136.4385,PF
+NTGF,Fakarava Airport,,-16.0541,-145.657,PF
+NTGG,Nengo-Nengo Airport,Nengonengo Atoll,-18.7506,-141.7591,PF
+NTGH,Hikueru Airport,Hikueru,-17.5483,-142.612,PF
+NTGI,Manihi Airport,,-14.4368,-146.07,PF
+NTGJ,Totegegie Airport,,-23.0799,-134.89,PF
+NTGK,Kaukura Airport,Raitahiti,-15.6633,-146.885,PF
+NTGM,Makemo Airport,Makemo,-16.5839,-143.658,PF
+NTGN,Napuka Island Airport,Napuka Island,-14.1774,-141.2661,PF
+NTGO,Tatakoto Airport,Tatakoto,-17.3552,-138.4473,PF
+NTGP,Puka Puka Airport,,-14.8095,-138.8126,PF
+NTGQ,Pukaruha Airport,Pukaruha,-18.2957,-137.0163,PF
+NTGR,Aratika-Perles Airport,Aratika Atoll,-15.6229,-145.4966,PF
+NTGS,Marutea Airport,Auorotini,-21.4822,-135.6371,PF
+NTGT,Takapoto Airport,,-14.7095,-145.246,PF
+NTGU,Arutua Airport,,-15.2483,-146.617,PF
+NTGV,Mataiva Airport,,-14.8681,-148.717,PF
+NTGW,Nukutavake Airport,Nukutavake,-19.2846,-138.7684,PF
+NTGY,Tureia Airport,Tureia,-20.7843,-138.568,PF
+NTHE,Ahe Airport,Ahe Atoll,-14.4281,-146.257,PF
+NTKA,Kauehi Airport,Kauehi,-15.7806,-145.1284,PF
+NTKF,Faaite Airport,Faaite,-16.6866,-145.3294,PF
+NTKH,Fakahina Airport,Fakahina,-15.9923,-140.1642,PF
+NTKK,Aratika Nord Airport,,-15.4857,-145.4648,PF
+NTKM,Takume Airport,Takume,-15.8574,-142.2665,PF
+NTKN,Naiu Airport,Naiu Atoll,-16.1193,-146.3688,PF
+NTKO,Raroia Airport,Raroia,-16.0505,-142.4766,PF
+NTKR,Takaroa Airport,,-14.4558,-145.025,PF
+NTKT,Katiu Airport,Katiu,-16.3397,-144.408,PF
+NTKU,Nukutepipi Airport,Nukutepipi,-20.7001,-143.0459,PF
+NTMD,Nuku Hiva Airport,Nuku Hiva,-8.7956,-140.229,PF
+NTMN,Hiva Oa-Atuona Airport,Hiva Oa Island,-9.7688,-139.011,PF
+NTMP,Ua Pou Airport,Ua Pou,-9.3517,-140.078,PF
+NTMU,Ua Huka Airport,Ua Huka,-8.9362,-139.5541,PF
+NTTB,Bora Bora Airport,Motu Mute,-16.4444,-151.751,PF
+NTTE,Tetiaroa Airport,Tetiaroa,-17.0151,-149.5894,PF
+NTTG,Rangiroa Airport,,-14.9543,-147.661,PF
+NTTH,Huahine-Fare Airport,Fare,-16.6871,-151.0216,PF
+NTTM,Moorea Temae Airport,Moorea-Maiao,-17.4898,-149.7618,PF
+NTTO,Hao Airport,Otepa,-18.0748,-140.946,PF
+NTTP,Maupiti Airport,,-16.4265,-152.244,PF
+NTTR,Raiatea Airport,Uturoa,-16.7229,-151.466,PF
+NTTU,Tupai Airport,Tupai Atoll,-16.2423,-151.8338,PF
+NTTX,Moruroa Airport,Moruroa Atoll,-21.8098,-138.8134,PF
+NTUV,Vahitahi Airport,Vahitahi,-18.7807,-138.8557,PF
+NWWA,Tiga Airport,Tiga,-21.0964,167.8038,NC
+NWWB,Bourail - Poé Airport,Poé,-21.6096,165.3971,NC
+NWWC,Île Art - Waala Airport,Waala,-19.7205,163.6611,NC
+NWWD,Koné Airport,Koné,-21.0536,164.8388,NC
+NWWE,Île des Pins Airport,Île des Pins,-22.5889,167.456,NC
+NWWH,Nesson Airport,Houailou,-21.2573,165.6182,NC
+NWWI,Hienghène Airport,Hienghène,-20.6945,164.9925,NC
+NWWK,Koumac Airport,Koumac,-20.5463,164.2556,NC
+NWWL,Lifou Airport,Lifou,-20.7746,167.2393,NC
+NWWM,Nouméa Magenta Airport,Nouméa,-22.2577,166.4728,NC
+NWWP,Poum / Malabou Airport,Malabou,-20.2892,164.0993,NC
+NWWQ,Mueo Airport,Népoui,-21.3165,164.9994,NC
+NWWR,Maré Airport,Maré,-21.4824,168.0385,NC
+NWWT,Oua Tom Airport,La Foa,-21.8197,165.861,NC
+NWWU,Touho Airport,Touho,-20.7901,165.2595,NC
+NWWV,Ouvéa Airport,Ouvéa,-20.6409,166.573,NC
+NWWW,La Tontouta International Airport,Nouméa (La Tontouta),-22.0146,166.213,NC
+NWWY,Ouaco Airport,Ouaco,-20.8555,164.5355,NC
+SOCA,Cayenne – Félix Eboué Airport,Matoury,4.82,-52.3613,GF
+SOGS,Grand-Santi Airport,Grand-Santi,4.2858,-54.3731,GF
+SOML,Malin Airport,Malin,-7.6333,-78.65,PE
+SOOA,Maripasoula Airport,Maripasoula,3.6559,-54.0394,GF
+SOOG,Saint-Georges-de-l'Oyapock Airport,Saint-Georges-de-l'Oyapock,3.8976,-51.8041,GF
+SOOM,Saint-Laurent-du-Maroni Airport,Saint-Laurent-du-Maroni,5.4819,-54.035,GF
+SOOR,Régina Airport,Régina,4.3134,-52.1327,GF
+SOOS,Saül Airport,Saül,3.6136,-53.2042,GF
+SOOY,Sinnamary Airport,Sinnamary,5.3735,-52.9456,GF
+TFFA,La Désirade Airport,Grande Anse,16.2969,-61.0844,GP
+TFFB,Basse-Terre Baillif Airport,Basse-Terre,16.0136,-61.7429,GP
+TFFC,St-François Airport,St-François,16.2578,-61.2625,GP
+TFFF,Martinique Aimé Césaire International Airport,Fort-de-France,14.591,-61.0032,MQ
+TFFG,Grand Case-l'Espérance Airport,Grand Case,18.1001,-63.0474,MF
+TFFJ,St. Jean Airport,Gustavia,17.9044,-62.8433,BL
+TFFM,Marie-Galante Airport,Grand-Bourg,15.8689,-61.2701,GP
+TFFR,Maryse Condé International Airport,Pointe-à-Pitre,16.2654,-61.5328,GP
+TFFS,Terre-de-Haut Airport,Les Saintes,15.8644,-61.5806,GP
