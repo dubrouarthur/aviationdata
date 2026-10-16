@@ -1,6 +1,6 @@
-"""Drive every interaction of the built site and assert visible effects. Exit 1 on any failure.
+"""Drive every interaction of the built story and assert visible effects. Exit 1 on any failure.
 
-python3 web/scripts/interact.py [--url http://127.0.0.1:4173/] [--shots DIR]
+python3 web/scripts/interact.py [--url http://127.0.0.1:4173/]
 """
 
 import sys
@@ -8,8 +8,8 @@ import sys
 from playwright.sync_api import sync_playwright
 
 url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
-shots = sys.argv[sys.argv.index("--shots") + 1] if "--shots" in sys.argv else None
 failures = []
+LAUNCH = ["--use-gl=swiftshader", "--enable-unsafe-swiftshader"]
 
 
 def check(name, cond, detail=""):
@@ -18,9 +18,32 @@ def check(name, cond, detail=""):
         failures.append(name)
 
 
+def scroll_to(page, sel, wait=900):
+    page.evaluate(
+        "s => { const r = document.querySelector(s).getBoundingClientRect();"
+        " window.scrollTo(0, window.scrollY + r.top - window.innerHeight / 2 + 40); }",
+        sel,
+    )
+    page.wait_for_timeout(wait)
+
+
+def seek(page, slider, output, target):
+    """Move an index-based range input until its <output> reads `target`."""
+    return page.evaluate(
+        """([s, o, t]) => { const r = document.querySelector(s), out = document.querySelector(o);
+           for (let i = 0; i <= +r.max; i++) { r.value = i; r.dispatchEvent(new Event('input'));
+             if (out.textContent.trim() === t) return true; } return false; }""",
+        [slider, output, target],
+    )
+
+
+def fills(page, sel):
+    return page.locator(f"{sel} path").evaluate_all("ps => ps.slice(0, 400).map(p => p.style.fill).join('|')")
+
+
 with sync_playwright() as p:
-    b = p.chromium.launch()
-    ctx = b.new_context(viewport={"width": 1440, "height": 900}, color_scheme="dark")
+    b = p.chromium.launch(args=LAUNCH)
+    ctx = b.new_context(viewport={"width": 1440, "height": 900})
     page = ctx.new_page()
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
@@ -29,112 +52,163 @@ with sync_playwright() as p:
     page.wait_for_timeout(1500)
     tip = page.locator("#tooltip")
 
-    # --- map: hover a dot shows the tooltip
-    dot = page.locator("#map circle.airport-dot").first
-    dot.hover(force=True)
-    page.wait_for_timeout(200)
-    check("map hover shows tooltip", "passagers" in tip.inner_text() and "on" in (tip.get_attribute("class") or ""))
+    def tip_on():
+        return "on" in (tip.get_attribute("class") or "")
 
-    # --- map: year slider + play
-    page.locator("#year").fill("2000")
-    page.locator("#year").dispatch_event("input")
+    check("light theme only", page.evaluate("getComputedStyle(document.body).backgroundColor") == "rgb(246, 248, 246)")
+    check("demo banner hidden on real data", page.locator("#demo-banner").is_hidden())
+    check("hero sentence computed", "millions de passagers" in page.locator("#hero-dek").inner_text())
+
+    # --- globe: canvas painted, slider, scroll steps, explorer
+    painted = page.evaluate(
+        """() => { const c = document.querySelector('#globe canvas'); const g = c.getContext('2d');
+           const d = g.getImageData(0, 0, c.width, c.height).data; let n = 0;
+           for (let i = 3; i < d.length; i += 4 * 97) if (d[i] > 0) n++; return n; }"""
+    )
+    check("globe canvas is painted", painted > 200, f"samples={painted}")
+    check("globe slider reaches 2000", seek(page, "#globe-slider", "#globe-out", "2000"))
     page.wait_for_timeout(300)
-    check("slider sets year", page.locator("#map-year").inner_text() == "2000")
-    page.locator("#play").click()
-    page.wait_for_timeout(1300)
-    y = int(page.locator("#map-year").inner_text())
-    check("play advances years", y > 2000, f"year={y}")
-    page.locator("#play").click()
-
-    # --- map: delta mode recolours dots
-    before = page.locator("#map circle.airport-dot").nth(3).evaluate("e => e.style.fill")
-    page.locator('#map-mode button[data-mode="delta"]').click()
+    check("globe overlay follows slider", page.locator("#globe-year").inner_text().startswith("2000"))
+    page.locator("#globe-play").click()
+    page.wait_for_timeout(1600)
+    played = page.locator("#globe-out").inner_text()
+    check("globe play advances years", played.isdigit() and int(played) > 2000, played)
+    page.locator("#globe-play").click()
+    scroll_to(page, "#step-2020", 1500)
+    check("April 2020 step switches to month mode", "2020" in page.locator("#globe-out").inner_text())
+    scroll_to(page, "#step-explore", 1500)
+    n_all = page.locator("#country-list li").count()
+    page.locator("#globe-cont button", has_text="Afrique").click()
     page.wait_for_timeout(300)
-    after = page.locator("#map circle.airport-dot").nth(3).evaluate("e => e.style.fill")
-    check("delta mode recolours", before != after, f"{before} -> {after}")
-    check("delta legend shown", "Recul" in page.locator("#map-legend").inner_text())
+    first_africa = page.locator("#country-list li .n").first.inner_text()
+    check(
+        "continent filter changes the list",
+        n_all > 20 and first_africa in {"Maroc", "Algérie", "Tunisie"},
+        first_africa,
+    )
+    page.locator("#country-list li").first.click()
+    page.wait_for_timeout(300)
+    check("clicking a country selects it", page.locator('#country-list li[aria-selected="true"]').count() == 1)
 
-    # --- rank list click selects the airport card
-    page.locator("#year").fill("2025")
-    page.locator("#year").dispatch_event("input")
-    page.locator("#rank-list li").nth(2).click()
-    page.wait_for_timeout(600)
-    check("rank click selects airport", "Nice" in page.locator("#airport-card h3").first.inner_text())
-    check("hash follows selection", "aeroport-LFMN" in page.evaluate("location.hash"))
+    # --- spiral: mode switch recolours, hover shows month
+    scroll_to(page, "#chart-spirale", 2500)
+    before = fills(page, "#chart-spirale")
+    page.locator('#spirale-mode button[data-v="nat"]').click()
+    page.wait_for_timeout(300)
+    check("spiral mode recolours", fills(page, "#chart-spirale") != before)
+    page.locator("#chart-spirale path").nth(300).hover(force=True)
+    page.wait_for_timeout(150)
+    check("spiral hover tooltip", tip_on() and "passagers" in tip.inner_text())
 
-    # --- search
-    page.locator("#apt-input").fill("Bergerac-Dordogne-Périgord (LFBE)")
-    page.locator("#apt-input").press("Enter")
-    page.wait_for_timeout(500)
-    check("search selects Bergerac", "Bergerac" in page.locator("#airport-card h3").first.inner_text())
+    # --- fuller planes
+    scroll_to(page, "#chart-rempl")
+    check("passengers-per-flight figure", page.locator("#rempl-figure").inner_text().strip().isdigit())
+    check("dumbbell drawn", page.locator("#chart-rempl-apt circle").count() >= 20)
+
+    # --- covid: chip toggles a line
+    scroll_to(page, "#chart-covid")
+    n0 = page.locator("#chart-covid path.series-line").count()
+    page.locator("#chips-covid .chip").nth(2).click()
+    page.wait_for_timeout(300)
+    n1 = page.locator("#chart-covid path.series-line").count()
+    check("covid chip removes a series", n1 == n0 - 1, f"{n0} -> {n1}")
+    check("covid text computed", "avril 2020" in page.locator("#covid-text").inner_text())
+
+    # --- France: scroll steps and timeline
+    scroll_to(page, "#fr-step-0", 1400)
+    check("France step 0 shows the peak year", page.locator("#france-out").inner_text() == "2000")
+    scroll_to(page, "#fr-step-3", 1400)
+    check("France delta legend", "recul" in page.locator("#france-legend").inner_text())
+    check("France focus labels", "Bergerac" in page.locator("#france-map").inner_text())
+    check("France slider reaches 2010", seek(page, "#france-slider", "#france-out", "2010"))
+    page.wait_for_timeout(700)
+    check("France routes drawn", page.locator("#france-map path").count() > 20)
+    scroll_to(page, "#chart-tsba")
+    page.locator("#chart-tsba rect").nth(5).hover(force=True)
+    page.wait_for_timeout(150)
+    check("TSBA bars tooltip", tip_on() and "sur un an" in tip.inner_text())
+
+    # --- distance and CO2
+    scroll_to(page, "#chart-dist")
+    n0 = page.locator("#chart-dist path.series-line").count()
+    page.locator("#chips-dist .chip").nth(4).click()
+    page.wait_for_timeout(300)
+    check("distance chip adds Outre-mer", page.locator("#chart-dist path.series-line").count() == n0 + 1)
+    scroll_to(page, "#chart-waterfall")
+    check("waterfall has 7 bars", page.locator("#chart-waterfall g.step rect").count() == 7)
+    page.locator('#co2-period button[data-v="seg"]').click()
+    page.wait_for_timeout(300)
+    check("CO2 per-segment view", "International" in page.locator("#chart-waterfall").inner_text())
+
+    # --- airport explorer
+    scroll_to(page, "#apt-input")
     page.locator("#apt-input").fill("lfst")
     page.locator("#apt-input").press("Enter")
     page.wait_for_timeout(500)
-    check("search by ICAO code", "Strasbourg" in page.locator("#airport-card h3").first.inner_text())
+    check("search by ICAO code", "Strasbourg" in page.locator("#apt-head h3").inner_text())
+    check("hash follows selection", "aeroport-LFST" in page.evaluate("location.hash"))
+    page.locator("#apt-input").fill("Paris-Charles de Gaulle")
+    page.locator("#apt-input").press("Enter")
+    page.wait_for_timeout(500)
+    head = page.locator("#apt-head h3").inner_text()
+    check("search by name", "Gaulle" in head or "Roissy" in head, head)
+    n_routes = page.locator("#apt-routes svg g path").count()
+    check("spider map draws routes", n_routes > 50, f"routes={n_routes}")
+    page.locator("#apt-year").select_option("2019")
+    page.wait_for_timeout(400)
+    check("route year select", "2019" in page.locator("#apt-routes-title").inner_text())
+    page.locator("#apt-routes svg g path").last.hover(force=True)
+    page.wait_for_timeout(150)
+    check("route hover tooltip", tip_on() and "distance" in tip.inner_text())
 
-    # --- seasonality year change redraws
-    sel = page.locator("#airport-card select").first
-    sel.select_option("2010")
-    page.wait_for_timeout(300)
-    check("seasonality legend updates", "2010" in page.locator("#airport-card .map-legend").last.inner_text())
-
-    # --- share image
-    page.get_by_role("button", name="Créer l'image à partager").click()
+    # --- carriers race
+    scroll_to(page, "#chart-race", 1200)
+    page.locator("#race-play").click()  # pause the autoplay if it started, or start it
+    page.wait_for_timeout(200)
+    check("race slider reaches 2015", seek(page, "#race-slider", "#race-out", "2015"))
     page.wait_for_timeout(800)
-    src = page.locator("#airport-card img").first.get_attribute("src") or ""
-    check("share image generated", src.startswith("data:image/png"), f"{len(src)} chars")
-
-    # --- trajectories: chips, mode, keyboard
-    page.locator("#chips-traj .chip").nth(1).click()
-    n_lines = page.locator("#chart-traj path.series-line").count()
-    check("chip toggles a series", n_lines == 3, f"lines={n_lines}")
-    page.locator('#traj-mode button[data-v="pax"]').click()
-    page.locator('#traj-range button[data-v="2018"]').click()
-    page.locator("#chart-traj").focus()
-    page.keyboard.press("ArrowLeft")
-    page.wait_for_timeout(200)
-    check("keyboard crosshair shows tooltip", "on" in (tip.get_attribute("class") or "") and "M" in tip.inner_text())
-    page.locator("#chart-traj").hover(position={"x": 600, "y": 200})
-    page.wait_for_timeout(200)
-    rows = page.locator("#tooltip .t-row").count()
-    check("one tooltip lists every visible series", rows == 3, f"rows={rows}")
+    check("race shows 2015", "2015" in page.locator("#chart-race .race-year").text_content())
+    check("race bars", page.locator("#chart-race .race-bar").count() >= 10)
 
     # --- prices
-    page.locator('#prix-mode button[data-v="index"]').click()
-    page.locator("#chart-prix").hover(position={"x": 700, "y": 200})
-    page.wait_for_timeout(200)
-    check("prices tooltip", "indice 2023" in tip.inner_text())
-    check("prices lede computed", "%" in page.locator("#lede-prix").inner_text())
-
-    # --- carriers: hover highlight + mode switch
-    page.locator("#chart-bump svg").hover(position={"x": 700, "y": 60})
-    page.wait_for_timeout(200)
-    faded = page.locator("#chart-bump path.is-faded").count()
-    check("bump hover fades other carriers", faded > 3, f"faded={faded}")
-    page.locator('#cie-mode button[data-v="pax"]').click()
-    page.wait_for_timeout(200)
-    check("carriers passenger mode draws axis", page.locator("#chart-bump .axis").count() >= 2)
-
-    # --- CO2 slider
-    page.locator("#co2-year").fill("2020")
-    page.locator("#co2-year").dispatch_event("input")
-    page.wait_for_timeout(200)
-    check("CO2 readout follows slider", page.locator("#co2-readout").inner_text().startswith("2020"))
-
-    # --- theme toggle
-    page.locator('#theme-toggle button[data-theme="light"]').click()
+    scroll_to(page, "#chart-heat")
+    before = page.locator("#chart-heat rect").evaluate_all("rs => rs.slice(0, 60).map(r => r.style.fill).join('|')")
+    page.locator('#heat-series button[data-v="MET_INTER_MET"]').click()
     page.wait_for_timeout(300)
-    bg = page.evaluate("getComputedStyle(document.body).backgroundColor")
-    check("theme toggle switches to day", bg == "rgb(246, 248, 246)", bg)
-    if shots:
-        page.screenshot(path=f"{shots}/after-interactions.png", full_page=False)
+    after = page.locator("#chart-heat rect").evaluate_all("rs => rs.slice(0, 60).map(r => r.style.fill).join('|')")
+    check("heatmap series switch", before != after)
+    scroll_to(page, "#chart-pxt")
+    check("scatter slider reaches janv. 2019", seek(page, "#pxt-slider", "#pxt-out", "janv. 2019"))
+    page.wait_for_timeout(300)
+    n0 = page.locator("#chart-pxt path").count()
+    page.locator("#chips-pxt .chip").nth(0).click()
+    page.wait_for_timeout(300)
+    check("scatter chip removes a trail", page.locator("#chart-pxt path").count() < n0)
+    check("prices text computed", "%" in page.locator("#prix-text").inner_text())
+    check("sources listed", page.locator("#sources-body a").count() >= 4)
 
     # --- deep link
     page2 = ctx.new_page()
     page2.on("pageerror", lambda e: errors.append(str(e)))
     page2.goto(url + "#aeroport-LFLC", wait_until="networkidle")
-    page2.wait_for_timeout(1200)
-    check("deep link opens Clermont-Ferrand", "Clermont" in page2.locator("#airport-card h3").first.inner_text())
+    page2.wait_for_timeout(1500)
+    check("deep link opens Clermont-Ferrand", "Clermont" in page2.locator("#apt-head h3").inner_text())
+
+    # --- mobile: no horizontal scroll anywhere
+    m = b.new_page(viewport={"width": 390, "height": 844})
+    m.on("pageerror", lambda e: errors.append(str(e)))
+    m.goto(url, wait_until="networkidle")
+    m.wait_for_timeout(1200)
+    widest = m.evaluate(
+        """() => { let w = 0, who = ''; for (const e of document.querySelectorAll('body *')) {
+             const r = e.getBoundingClientRect(); if (r.width && r.right > w && !e.closest('.seg, .scroll-list'))
+             { w = r.right; who = e.tagName + '#' + e.id + '.' + e.className; } } return [w, who]; }"""
+    )
+    check(
+        "mobile: no horizontal overflow",
+        m.evaluate("document.documentElement.scrollWidth") <= 390 and widest[0] <= 391,
+        f"widest={widest}",
+    )
 
     check("no console errors", not errors, "; ".join(errors[:3]))
     b.close()
