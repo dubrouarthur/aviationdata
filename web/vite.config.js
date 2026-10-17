@@ -1,5 +1,10 @@
 import { defineConfig } from "vite";
 
+// Absolute site URL for social previews (og:image must be absolute). Vercel exposes the production domain at
+// build time; elsewhere the tags fall back to relative paths.
+const host = process.env.SITE_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || "";
+process.env.VITE_SITE_URL = host ? `${host.startsWith("http") ? host : `https://${host}`}`.replace(/\/?$/, "/") : "";
+
 export default defineConfig(({ mode }) => ({
   base: "./",
   build: {
