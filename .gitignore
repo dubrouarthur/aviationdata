@@ -9,3 +9,7 @@ __pycache__/
 data/demo-raw/
 dist-artifact/
 promo/out/
+.env
+.env.local
+web/.env.local
+.vercel

@@ -1,0 +1,12 @@
+# Vercel only needs web/ (sources + precomputed data) and vercel.json to build the site.
+data/raw
+data/demo-raw
+etl
+tests
+promo
+scripts
+.github
+.claude
+**/node_modules
+web/dist
+web/dist-artifact

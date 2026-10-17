@@ -37,7 +37,7 @@ Le dépôt contient `vercel.json`. Rien n'est à configurer à la main.
    - sortie : `web/dist`.
 3. Cliquer sur **Deploy**.
 
-Chaque push sur `main` redéploie le site. Les balises de partage (aperçu LinkedIn, X, etc.) utilisent automatiquement le domaine de production Vercel. Avec un domaine personnalisé, définir la variable d'environnement `SITE_URL` (par exemple `https://ciel.exemple.fr`) dans les réglages du projet Vercel.
+Node 22 est fixé par le `package.json` racine (et `.nvmrc` en local). Les commits qui ne touchent ni `web/` ni la configuration de déploiement ne relancent pas de build. Chaque push sur `main` qui modifie le site le redéploie. Les balises de partage (aperçu LinkedIn, X, etc.) utilisent automatiquement le domaine de production Vercel. Avec un domaine personnalisé, définir la variable d'environnement `SITE_URL` (par exemple `https://ciel.exemple.fr`) dans les réglages du projet Vercel.
 
 ## Vérifier
 
