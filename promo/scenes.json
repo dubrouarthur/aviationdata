@@ -3,7 +3,7 @@
   "scenes": [
     {
       "id": "title",
-      "dur": 4.3,
+      "dur": 4.0,
       "eyebrow": "Données publiques DGAC · 1990–2025",
       "sub": "Trente-cinq ans de transport aérien français, racontés par les chiffres de la DGAC.",
       "author": "Arthur Dubrou",
@@ -253,28 +253,32 @@
     {
       "id": "co2",
       "order": 7,
-      "target": "#chart-waterfall svg",
-      "css": "#chart-waterfall { width: 680px !important; }",
-      "reveal": "wipe",
+      "target": "#chart-co2-index svg",
+      "css": "#chart-co2-index { width: 820px !important; }",
       "dur": 4.8,
       "settle": 60,
       "accent": "teal",
       "eyebrow": "Climat",
       "headline": [
-        "Des vols plus sobres ont évité ",
+        "Trafic ",
         {
-          "n": 7.6,
-          "dec": 1
+          "n": 63,
+          "sign": "+"
         },
-        " Mt de CO2"
+        " %, CO2 ",
+        {
+          "n": 11,
+          "sign": "+"
+        },
+        " %"
       ],
-      "sub": "entre 2000 et 2019, quand la hausse du trafic en ajoutait 11,2. Depuis 2019, les émissions reculent : −1,4 Mt.",
-      "kicker": "Émissions de CO2 du transport aérien, en millions de tonnes",
-      "beatLabel": "millions de tonnes de CO2 évitées par des vols plus sobres, de 2000 à 2019"
+      "sub": "depuis 2000. Chaque passager-kilomètre émet 32 % de CO2 en moins, et chaque vol emporte 83 % de passagers en plus.",
+      "kicker": "Indice 100 en 2000",
+      "beatLabel": "de trafic aérien depuis 2000, pour 11 % de CO2 en plus"
     },
     {
       "id": "end",
-      "dur": 8.4,
+      "dur": 7.8,
       "sub": "Un ciel international qui bat des records, un ciel intérieur qui se vide.",
       "cta": "Explorez toutes les données",
       "url": "aviationdata.vercel.app",

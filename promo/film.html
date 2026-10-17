@@ -581,8 +581,8 @@
       const $ = (s) => document.querySelector(s);
 
       let FPS, SCENES, TOTAL;
-      const BEAT = 1.0; // seconds of number alone at the start of a scene
-      const BEAT_TRIM = 0.3; // taken back from the end of the scene's own time
+      const BEAT = 1.6; // seconds of number alone at the start of a scene: count, hold to read, leave
+      const BEAT_TRIM = 0.8; // taken back from the end of the scene's own time, so the film keeps its length
       const ready = fetch("scenes.json")
         .then((r) => r.json())
         .then((d) => {
@@ -914,18 +914,18 @@
           const part = sc.headline.find((x) => typeof x === "object" && x.n !== undefined);
           const next = sc.headline[sc.headline.indexOf(part) + 1];
           const pct = typeof next === "string" && /^\s*%/.test(next) ? " %" : "";
-          const c = outCubic(lin(u, 0.12, beat - 0.15));
+          const c = outCubic(lin(u, 0.1, 0.65));
           const from = part.from ?? 0;
           const big = beatEl.querySelector("b");
           big.textContent = fr(`${part.sign || ""}${num(from + (part.n - from) * c, part.dec)}${pct}`);
           beatEl.style.setProperty("--c", COLORS[sc.accent] || COLORS.blue);
           beatEl.querySelector(".eyebrow span").textContent = fr(sc.eyebrow || "");
           beatEl.querySelector(".label").textContent = fr(sc.beatLabel || "");
-          inout(beatEl.querySelector(".label"), u, 0.25, 99, 0.45, 0.3, 24);
+          inout(beatEl.querySelector(".label"), u, 0.3, 99, 0.45, 0.3, 24);
           beatEl.querySelector(".eyebrow").style.setProperty("--c", COLORS[sc.accent] || COLORS.blue);
           const inK = outCubic(lin(u, 0.0, 0.35));
-          const go = inOut(lin(u, beat - 0.3, beat + 0.3)); // shrinks and slides toward the headline column
-          beatEl.style.opacity = (inK * (1 - lin(u, beat - 0.05, beat + 0.35))).toFixed(3);
+          const go = inOut(lin(u, beat - 0.35, beat + 0.25)); // shrinks and slides toward the headline column
+          beatEl.style.opacity = (inK * (1 - lin(u, beat - 0.15, beat + 0.25))).toFixed(3);
           beatEl.style.transform = `translate(${(-560 * go).toFixed(1)}px, ${(-120 * go).toFixed(1)}px) scale(${(
             (0.9 + 0.1 * inK) *
             (1 - 0.7 * go)
@@ -961,7 +961,7 @@
             w.style.transform = `translateY(${((1 - kq) * 110 - o * 30).toFixed(1)}%)`;
             w.style.opacity = (1 - o).toFixed(3);
           });
-          inout(q.querySelector("p"), u, 1.5, leave, 0.6, 0.3, 40);
+          inout(q.querySelector("p"), u, 1.2, leave, 0.6, 0.3, 40);
         }
         $("#foot").style.opacity =
           sc.id === "title" || sc.id === "question" ? 0 : sc.id === "end" ? 1 - lin(u, 0, 0.4) : lin(u, 0, 0.5);
