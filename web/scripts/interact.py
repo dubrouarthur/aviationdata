@@ -266,6 +266,16 @@ with sync_playwright() as p:
     check("prices vs traffic tooltip", tip_on() and "2019 = 100" in tip.inner_text())
     check("prices text computed", "%" in page.locator("#prix-text").inner_text())
     check("sources listed", page.locator("#sources-body a").count() >= 4)
+    # every chart, map and globe carries a link to its DGAC dataset
+    unsourced = page.evaluate(
+        """() => [...document.querySelectorAll('.chart, .graphic')].filter((n) => {
+             const box = n.closest('[data-source]');
+             const link = box && box.querySelector(':scope > .source-line a[href*="data.gouv.fr"]');
+             return !link;
+           }).map((n) => n.id)"""
+    )
+    check("every chart links to its data source", not unsourced, unsourced)
+    check("source links open the dataset", page.locator(".source-line a").count() >= 22)
     check("table views", page.locator("details.data").count() >= 6)
     page.locator("#chart-waterfall + details.data summary").click()
     check("waterfall table opens", page.locator("#chart-waterfall + details.data tbody tr").count() == 7)

@@ -1,19 +1,5 @@
 import { $, el } from "../lib/ui.js";
-
-const DATASETS = {
-  trafic: {
-    label: "Trafic aérien commercial mensuel français",
-    url: "https://www.data.gouv.fr/datasets/trafic-aerien-commercial-mensuel-francais-par-paire-daeroports-par-sens-depuis-1990",
-  },
-  iptap: {
-    label: "Indices des prix du transport aérien de passagers (IPTAP)",
-    url: "https://www.data.gouv.fr/datasets/indices-des-prix-du-transport-aerien-de-passagers",
-  },
-  co2: {
-    label: "Émissions nettes annuelles de CO2 du trafic aérien commercial en France",
-    url: "https://www.data.gouv.fr/datasets/emissions-nettes-annuelles-de-co2-du-trafic-aerien-commercial-en-france",
-  },
-};
+import { DATASETS } from "../lib/datasets.js";
 
 const fmtDate = (iso) =>
   iso

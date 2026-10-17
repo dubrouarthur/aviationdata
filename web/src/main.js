@@ -3,6 +3,7 @@ import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import { loadAll } from "./lib/data.js";
 import { el } from "./lib/ui.js";
+import { addSourceLines } from "./lib/datasets.js";
 
 const CHAPTERS = [
   ["globe", () => import("./modules/globe.js").then((m) => m.initGlobe)],
@@ -45,6 +46,7 @@ async function main() {
     return;
   }
   if (data.meta.demo) document.getElementById("demo-banner").hidden = false;
+  addSourceLines(); // a link to its DGAC dataset under every chart
   const [dots, world, france] = geo;
   const ctx = { dots, world, france };
   for (const [name, load] of CHAPTERS) {

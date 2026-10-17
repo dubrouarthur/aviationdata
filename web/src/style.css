@@ -1165,6 +1165,27 @@ details.data td:first-child {
   margin: 0 0 12px;
 }
 
+/* data source under every chart */
+.source-line {
+  margin: 12px 0 0;
+  font-family: var(--f-ui);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.source-line a {
+  color: inherit;
+  text-decoration-color: var(--axis);
+  text-underline-offset: 2px;
+}
+
+.source-line a:hover,
+.source-line a:focus-visible {
+  color: var(--blue-text);
+  text-decoration-color: currentColor;
+}
+
 /* author credit, top of the footer */
 .credit {
   display: flex;

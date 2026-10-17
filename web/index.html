@@ -91,7 +91,7 @@
             </div>
             <div class="kpis" id="hero-kpis"></div>
           </div>
-          <div class="hero-globe">
+          <div class="hero-globe" data-source="trafic" data-series="par pays">
             <div class="graphic" id="globe">
               <div class="overlay-year" id="globe-year"></div>
               <div class="overlay-legend" id="globe-legend"></div>
@@ -113,7 +113,7 @@
             <div class="moment-card" id="globe-caption" aria-live="polite"></div>
           </div>
         </div>
-        <div class="panel explorer">
+        <div class="panel explorer" data-source="trafic" data-series="par pays">
           <div class="explorer-head">
             <h3 id="explorer-title">Les 30 premiers pays</h3>
             <div class="seg" role="group" aria-label="Continent" id="globe-cont"></div>
@@ -146,7 +146,9 @@
               mois a compté de passagers.
             </p>
           </div>
-          <div class="chart" id="chart-spirale"></div>
+          <div data-source="trafic" data-series="par liaison">
+            <div class="chart" id="chart-spirale"></div>
+          </div>
         </div>
       </section>
 
@@ -160,7 +162,7 @@
           <aside class="keyfig" id="kf-rempl" aria-label="Chiffre clé"></aside>
         </div>
         <div class="grid-2" style="margin-top: 22px">
-          <div class="panel">
+          <div data-source="trafic" data-series="par aéroport" class="panel">
             <h3>Depuis 2000 : plus de passagers, moins de vols</h3>
             <p class="note">
               Évolution par rapport à 2000, en %. Trafic des aéroports français : passagers (arrivées et
@@ -174,7 +176,7 @@
               aria-label="Évolution des passagers et des vols depuis 2000"
             ></div>
           </div>
-          <div class="panel">
+          <div data-source="trafic" data-series="par aéroport" class="panel">
             <h3>Passagers par vol</h3>
             <div class="big-figure" id="rempl-figure"></div>
             <div class="figure-caption" id="rempl-caption"></div>
@@ -194,7 +196,7 @@
           </div>
           <aside class="keyfig" id="kf-covid" aria-label="Chiffre clé"></aside>
         </div>
-        <div class="panel" style="margin-top: 22px">
+        <div data-source="trafic" data-series="par aéroport" class="panel" style="margin-top: 22px">
           <h3>Passagers, vols et fret, mois par mois</h3>
           <p class="note">
             Indice 100 = même mois de 2019. Cliquez sur une série pour l'afficher ou la masquer.
@@ -221,7 +223,7 @@
           <aside class="keyfig" id="kf-fret" aria-label="Chiffre clé"></aside>
         </div>
         <div class="grid-2" style="margin-top: 22px">
-          <div class="panel">
+          <div data-source="trafic" data-series="par liaison et par aéroport" class="panel">
             <h3>Fret et courrier par continent</h3>
             <p class="note">
               Tonnes transportées par avion entre la France et chaque continent, et à l'intérieur du pays (kt
@@ -229,7 +231,7 @@
             </p>
             <div class="chart" id="chart-fret"></div>
           </div>
-          <div class="panel">
+          <div data-source="trafic" data-series="par aéroport" class="panel">
             <h3>Les aéroports du fret</h3>
             <p class="note" id="fret-apt-note"></p>
             <div class="chart" id="chart-fret-apt"></div>
@@ -247,7 +249,7 @@
           <aside class="keyfig" id="kf-france" aria-label="Chiffre clé"></aside>
         </div>
         <div class="story-grid">
-          <div class="story-graphic">
+          <div class="story-graphic" data-source="trafic" data-series="par aéroport et par paire d'aéroports">
             <div class="graphic" id="france-map">
               <div class="overlay-year" id="france-year"></div>
               <div class="overlay-legend" id="france-legend"></div>
@@ -269,7 +271,7 @@
             <div class="moment-card" id="france-caption" aria-live="polite"></div>
           </div>
         </div>
-        <div class="panel" style="margin-top: 32px">
+        <div data-source="trafic" data-series="par liaison" class="panel" style="margin-top: 32px">
           <h3>Après la hausse de la taxe sur les billets (mars 2025)</h3>
           <p class="note">Évolution du trafic par rapport au même mois de l'année précédente, par segment.</p>
           <div class="chart" id="chart-tsba"></div>
@@ -285,7 +287,7 @@
           </div>
           <aside class="keyfig" id="kf-dist" aria-label="Chiffre clé"></aside>
         </div>
-        <div class="panel" style="margin-top: 22px">
+        <div data-source="trafic" data-series="par liaison" class="panel" style="margin-top: 22px">
           <h3>Distance moyenne parcourue par passager</h3>
           <p class="note">
             Passagers-kilomètres divisés par passagers, par segment. Cliquez sur un segment pour l'afficher ou
@@ -306,7 +308,7 @@
           <aside class="keyfig" id="kf-co2" aria-label="Chiffre clé"></aside>
         </div>
         <div class="grid-2" style="margin-top: 22px">
-          <div class="panel">
+          <div data-source="co2" class="panel">
             <h3>D'où viennent les émissions</h3>
             <p class="note">
               Émissions nettes de CO2 par segment, en millions de tonnes. Intérieur : vols en métropole.
@@ -315,7 +317,7 @@
             </p>
             <div class="chart" id="chart-co2-seg"></div>
           </div>
-          <div class="panel">
+          <div data-source="co2" class="panel">
             <h3>CO2 par passager et par kilomètre</h3>
             <p class="note">
               Grammes de CO2 par passager-kilomètre (le fret est compté en équivalent passager).
@@ -323,7 +325,7 @@
             <div class="chart" id="chart-co2-g" tabindex="0" aria-label="CO2 par passager-kilomètre"></div>
           </div>
         </div>
-        <div class="panel" style="margin-top: 22px">
+        <div data-source="co2" class="panel" style="margin-top: 22px">
           <h3>Pourquoi les émissions ont monté, puis baissé</h3>
           <p class="note">
             On part des émissions d'une année et on ajoute deux effets. Effet trafic : ce qu'auraient changé
@@ -360,7 +362,7 @@
           aria-label="Accès rapide aux plus grands aéroports"
         ></div>
         <div class="grid-2" style="align-items: start">
-          <div class="panel">
+          <div data-source="trafic" data-series="par aéroport" class="panel">
             <div id="apt-head"></div>
             <div class="facts" id="apt-facts"></div>
             <h3 style="margin-top: 8px">Passagers par mois</h3>
@@ -371,7 +373,7 @@
               aria-label="Passagers mensuels de l'aéroport"
             ></div>
           </div>
-          <div class="panel">
+          <div data-source="trafic" data-series="par paire d'aéroports" class="panel">
             <h3 id="apt-routes-title">Ses liaisons</h3>
             <p class="note" id="apt-routes-note"></p>
             <div class="chart" id="apt-routes"></div>
@@ -388,7 +390,7 @@
           </div>
           <aside class="keyfig" id="kf-cie" aria-label="Chiffre clé"></aside>
         </div>
-        <div class="panel" style="margin-top: 22px">
+        <div data-source="trafic" data-series="par compagnie" class="panel" style="margin-top: 22px">
           <div class="timebar">
             <button
               class="play"
@@ -415,7 +417,7 @@
           <aside class="keyfig" id="kf-pav" aria-label="Chiffre clé"></aside>
         </div>
         <div class="grid-2" style="margin-top: 22px">
-          <div class="panel">
+          <div data-source="trafic" data-series="par compagnie" class="panel">
             <h3>Passagers des compagnies françaises et étrangères</h3>
             <p class="note">
               Millions de passagers au départ et à l'arrivée de la France, selon la nationalité de la
@@ -428,7 +430,7 @@
               aria-label="Passagers des compagnies françaises et étrangères"
             ></div>
           </div>
-          <div class="panel">
+          <div data-source="trafic" data-series="par compagnie" class="panel">
             <h3>Les compagnies étrangères, par pays</h3>
             <p class="note">
               Passagers des compagnies de chaque pays, en millions : les trois premiers pays en 2025 et le
@@ -453,12 +455,12 @@
           </div>
           <aside class="keyfig" id="kf-prix" aria-label="Chiffre clé"></aside>
         </div>
-        <div class="panel" style="margin-top: 22px">
+        <div data-source="iptap" class="panel" style="margin-top: 22px">
           <h3>Évolution des prix sur un an, mois par mois</h3>
           <div class="seg" role="group" aria-label="Destinations" id="heat-series"></div>
           <div class="chart" id="chart-heat"></div>
         </div>
-        <div class="panel" style="margin-top: 22px">
+        <div data-source="iptap trafic" class="panel" style="margin-top: 22px">
           <h3>Prix des billets et passagers depuis 2019</h3>
           <p class="note">
             Moyennes annuelles, en base 100 en 2019. Prix : indice des prix des billets au départ de la France
