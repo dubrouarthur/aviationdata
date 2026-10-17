@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, segmented, showTip, hideTip, onResize, reducedMotion } from "../lib/ui.js";
+import { $, el, rich, segmented, showTip, hideTip, onResize, reducedMotion, dataTable } from "../lib/ui.js";
 import { whileVisible } from "../lib/scrolly.js";
 import { yoy, isNum, pctChange } from "../lib/series.js";
 import { fmtPct, fmtPctAbs, fmtNum, fmtMonth, monthShort } from "../lib/format.js";
@@ -408,7 +408,7 @@ export function initPrices(data) {
       .attr("class", "end-label")
       .attr("x", width - m.right + 6)
       .attr("y", (e) => e.py + 4)
-      .style("fill", (e) => e.color)
+      .style("fill", "var(--ink)")
       .style("font-weight", 700)
       .text((e) => e.text);
     const dots = svg
@@ -484,4 +484,11 @@ export function initPrices(data) {
   );
   onResize(sNode, () => drawScissors(false));
   drawScissors(false);
+  dataTable(sNode, {
+    head: ["Année (2019 = 100)", ...panels.flatMap((q) => [`${q.label} : prix`, `${q.label} : passagers`])],
+    rows: span.map((yr, k) => [
+      String(yr),
+      ...panels.flatMap((q) => [fmtNum(q.pIdx[k], 0), fmtNum(q.tIdx[k], 0)]),
+    ]),
+  });
 }

@@ -77,6 +77,11 @@ export function initCovid(data) {
     ],
     height: 380,
     animate: true,
+    table: {
+      head: "Mois (100 = même mois de 2019)",
+      date: (d) => fmtMonth(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`),
+      value: (v) => fmtNum(v, 0),
+    },
   });
   const chart = lineChart(node, opts());
   on = chips(

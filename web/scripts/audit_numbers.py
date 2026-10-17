@@ -133,11 +133,11 @@ with sync_playwright() as p:
         page.wait_for_timeout(250)
 
     check(
-        "hero",
-        text("#hero-dek"),
-        f"{fr(fa['TOTAL'][iL] / 1e6, 1)} millions",
-        f"{fr(abs(pct(fa['INTL'][i19], fa['INTL'][iL])), 1)} %",
-        f"{fr(abs(pct(fa['NAT'][i19], fa['NAT'][iL])), 1)} %",
+        "hero key figures",
+        text("#hero-kpis"),
+        f"{fr(fa['TOTAL'][iL] / 1e6, 1)} M",
+        f"+{fr(pct(fa['INTL'][i19], fa['INTL'][iL]), 1)} %",
+        f"−{fr(abs(pct(fa['NAT'][i19], fa['NAT'][iL])), 1)} %",
     )
     tab("globe-moments", str(last))
     check("globe, last year", text("#globe-caption"), f"{fr(intl_year[last] / 1e6, 1)} millions", *top3)

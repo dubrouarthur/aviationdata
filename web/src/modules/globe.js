@@ -484,18 +484,24 @@ export function initGlobe(data, { dots }) {
     return d <= -99.5 ? `${c.nom} (plus aucun passager)` : `${c.nom} (${fmtPct(d, 0)})`;
   };
 
+  const dIntl = pctChange(f.INTL[i19], f.INTL[iL]);
+  const dNat = pctChange(f.NAT[i19], f.NAT[iL]);
   $("#hero-dek").replaceChildren(
     el(
       "p",
       {},
-      rich([
-        `En ${lastYear}, ${fmtNum(f.TOTAL[iL] / 1e6, 1)} millions de passagers ont décollé ou atterri en France, un record. Mais la reprise avance à deux vitesses : le trafic international a gagné `,
-        { b: fmtPctAbs(pctChange(f.INTL[i19], f.INTL[iL])) },
-        ` depuis 2019, le trafic intérieur en a perdu `,
-        { b: fmtPctAbs(pctChange(f.NAT[i19], f.NAT[iL])) },
-        `.`,
-      ]),
+      `Jamais autant de passagers n'avaient décollé ou atterri en France qu'en ${lastYear}. Mais la reprise avance à deux vitesses : les vols internationaux battent des records, les vols intérieurs se vident.`,
     ),
+  );
+  const kpi = (value, label, color) =>
+    el("div", { class: "kpi" }, [
+      el("b", { text: value }),
+      el("span", {}, [el("i", { style: `--c:${color}` }), label]),
+    ]);
+  $("#hero-kpis").replaceChildren(
+    kpi(`${fmtNum(f.TOTAL[iL] / 1e6, 1)} M`, `passagers en ${lastYear}, un record`, "var(--ink)"),
+    kpi(fmtPct(dIntl), `vols internationaux depuis 2019`, "var(--blue)"),
+    kpi(fmtPct(dNat), `vols intérieurs depuis 2019`, "var(--magenta)"),
   );
   $("#hero-kicker").textContent = `Données publiques DGAC, ${y0}–${lastYear}`;
 

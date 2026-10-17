@@ -40,6 +40,13 @@ export function initRace(data) {
   $("#cie-note").textContent =
     "Compagnies regroupées par marque (Malta Air avec Ryanair, par exemple). Classées à bas coûts : easyJet, Ryanair, Transavia, Volotea, Vueling, Wizz Air, Eurowings, Norwegian, Jet2 (choix éditorial). Source : DGAC, trafic par compagnie au départ et à l'arrivée de la France.";
 
+  $("#race-legend").replaceChildren(
+    el("span", { class: "lg" }, [
+      el("i", { class: "sq", style: "--c:var(--teal)" }),
+      "Compagnie à bas coûts",
+    ]),
+    el("span", { class: "lg" }, [el("i", { class: "sq", style: "--c:var(--blue)" }), "Autre compagnie"]),
+  );
   const node = $("#chart-race");
   let width = node.clientWidth || 900;
   let current = L;
@@ -53,7 +60,7 @@ export function initRace(data) {
     .style("font-size", "14px");
 
   function frame(i, dur) {
-    const h = 44 + TOP * 38;
+    const h = 44 + TOP * 34;
     svg.attr("viewBox", `0 0 ${width} ${h}`).attr("height", h);
     const m = { top: 10, right: 110, bottom: 10, left: 10 };
     const rows = carriers
@@ -63,7 +70,7 @@ export function initRace(data) {
       .scaleLinear()
       .domain([0, d3.max(rows, (c) => c.pax[i]) || 1])
       .range([m.left, width - m.right]);
-    const y = (r) => m.top + (r - 1) * 38;
+    const y = (r) => m.top + (r - 1) * 34;
     const t = svg.transition().duration(dur).ease(d3.easeLinear);
     const color = (c) => (c.lowcost ? "var(--teal)" : "var(--blue)");
 
@@ -78,11 +85,11 @@ export function initRace(data) {
       .append("rect")
       .attr("class", "race-bar")
       .attr("x", m.left)
-      .attr("height", 30)
-      .attr("rx", 6)
+      .attr("height", 24)
+      .attr("rx", 4)
       .attr("width", 0);
-    enter.append("text").attr("class", "race-label").attr("y", 20);
-    enter.append("text").attr("class", "race-value").attr("y", 20);
+    enter.append("text").attr("class", "race-label").attr("y", 16.5);
+    enter.append("text").attr("class", "race-value").attr("y", 16.5);
     const all = enter.merge(g);
     all.select("rect").style("fill", color);
     all

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, showTip, hideTip, onResize } from "../lib/ui.js";
+import { $, el, rich, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, pctChange, isNum } from "../lib/series.js";
 import { fmtPax, fmtPct, fmtPctAbs, fmtNum } from "../lib/format.js";
@@ -57,6 +57,11 @@ export function initFill(data) {
     title: (i) => `${years[i]} (indice 2000 = 100)`,
     height: 300,
     animate: true,
+    table: {
+      head: "Année (indice 2000 = 100)",
+      date: (d) => String(d.getUTCFullYear()),
+      value: (v) => fmtNum(v, 0),
+    },
   });
 
   $("#rempl-figure").textContent = fmtNum(ratio[last], 0);
@@ -191,4 +196,8 @@ export function initFill(data) {
   }
   onResize(node, draw);
   draw(node.clientWidth || 500);
+  dataTable(node, {
+    head: ["Aéroport", "Passagers par vol en 2000", `en ${years[last]}`],
+    rows: rows.map((r) => [r.a.nom, fmtNum(r.from, 0), fmtNum(r.to, 0)]),
+  });
 }

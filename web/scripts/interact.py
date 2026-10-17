@@ -57,7 +57,14 @@ with sync_playwright() as p:
 
     check("light theme only", page.evaluate("getComputedStyle(document.body).backgroundColor") == "rgb(246, 248, 246)")
     check("demo banner hidden on real data", page.locator("#demo-banner").is_hidden())
-    check("hero sentence computed", "millions de passagers" in page.locator("#hero-dek").inner_text())
+    check(
+        "hero key figures",
+        page.locator("#hero-kpis .kpi").count() == 3 and " M" in page.locator("#hero-kpis").inner_text(),
+    )
+    check(
+        "sticky nav marks the first chapter",
+        page.locator('.topnav a[aria-current="true"]').get_attribute("href") == "#monde",
+    )
 
     # --- globe: canvas painted, slider, scroll steps, explorer
     painted = page.evaluate(
@@ -181,6 +188,17 @@ with sync_playwright() as p:
     check("search by name", "Gaulle" in head or "Roissy" in head, head)
     n_routes = page.locator("#apt-routes svg g path").count()
     check("spider map draws routes", n_routes > 50, f"routes={n_routes}")
+    page.locator("#apt-picks button", has_text="Nice").click()
+    page.wait_for_timeout(400)
+    check("airport quick pick", "Nice" in page.locator("#apt-head h3").inner_text())
+    check("quick pick marked", page.locator('#apt-picks [aria-pressed="true"]').inner_text() == "Nice")
+    check(
+        "sticky nav follows the scroll",
+        page.locator('.topnav a[aria-current="true"]').get_attribute("href") == "#aeroport",
+    )
+    page.locator("#apt-input").fill("Paris-Charles de Gaulle")
+    page.locator("#apt-input").press("Enter")
+    page.wait_for_timeout(400)
     page.locator("#apt-year").select_option("2019")
     page.wait_for_timeout(400)
     check("route year select", "2019" in page.locator("#apt-routes-title").inner_text())
@@ -217,6 +235,9 @@ with sync_playwright() as p:
     check("prices vs traffic tooltip", tip_on() and "2019 = 100" in tip.inner_text())
     check("prices text computed", "%" in page.locator("#prix-text").inner_text())
     check("sources listed", page.locator("#sources-body a").count() >= 4)
+    check("table views", page.locator("details.data").count() >= 6)
+    page.locator("#chart-waterfall + details.data summary").click()
+    check("waterfall table opens", page.locator("#chart-waterfall + details.data tbody tr").count() == 7)
 
     # --- deep link
     page2 = ctx.new_page()
@@ -233,7 +254,7 @@ with sync_playwright() as p:
     widest = m.evaluate(
         """() => { let w = 0, who = ''; for (const e of document.querySelectorAll('body *')) {
              const r = e.getBoundingClientRect();
-             if (r.width && r.right > w && !e.closest('.seg, .scroll-list, .moments')) {
+             if (r.width && r.right > w && !e.closest('.seg, .scroll-list, .moments, .table-scroll, .topnav')) {
                w = r.right; who = e.tagName + '#' + e.id + '.' + e.className; } }
            return [w, who]; }"""
     )

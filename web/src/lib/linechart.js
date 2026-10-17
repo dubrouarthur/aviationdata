@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { showTip, hideTip, placeTip, onResize } from "./ui.js";
+import { showTip, hideTip, placeTip, onResize, dataTable } from "./ui.js";
 import { isNum } from "./series.js";
 
 /**
@@ -297,11 +297,28 @@ export function lineChart(node, initial) {
     };
   }
 
+  // optional table view of the visible series (opts.table = {date: d => string, value: v => string})
+  function renderTable() {
+    if (!opts.table) return;
+    const visible = opts.series.filter((s) => s.values.some(isNum));
+    const idx = opts.dates
+      .map((d, i) => (d >= opts.xDomain[0] && d <= opts.xDomain[1] ? i : -1))
+      .filter((i) => i >= 0);
+    dataTable(node, {
+      head: [opts.table.head || "", ...visible.map((s) => s.label)],
+      rows: idx.map((i) => [
+        opts.table.date(opts.dates[i]),
+        ...visible.map((s) => (isNum(s.values[i]) ? opts.table.value(s.values[i]) : "–")),
+      ]),
+    });
+  }
+
   onResize(node, (w) => {
     width = w;
     render();
   });
   render();
+  renderTable();
   if (!revealed) {
     const io = new IntersectionObserver(
       (entries) => {
@@ -321,6 +338,7 @@ export function lineChart(node, initial) {
     update(next) {
       opts = { ...opts, ...next };
       render();
+      renderTable();
     },
   };
 }

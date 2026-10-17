@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, chips, segmented, showTip, hideTip, onResize } from "../lib/ui.js";
+import { $, el, rich, chips, segmented, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, pctChange } from "../lib/series.js";
 import { fmtPct, fmtPctAbs, fmtNum } from "../lib/format.js";
@@ -82,6 +82,7 @@ export function initDistance(data) {
     height: 300,
     endLabels: false,
     animate: true,
+    table: { head: "Année", date: (d) => String(d.getUTCFullYear()), value: (v) => `${fmtNum(v)} km` },
   });
   const chart = lineChart(node, opts());
   on = chips(
@@ -126,6 +127,13 @@ export function initDistance(data) {
     effect("trafic", p2.trafic);
     effect("sobriété", p2.intensite);
     total(String(p2.to), p2.c1);
+    dataTable(wNode, {
+      head: ["Étape", "Mt de CO2"],
+      rows: steps.map((st) => [
+        st.kind === "total" ? `Émissions ${st.label}` : `Effet : ${st.label}`,
+        `${st.kind === "total" ? "" : st.v >= 0 ? "+" : "−"}${fmtNum(Math.abs(st.v), 1)}`,
+      ]),
+    });
     const m = { top: 24, right: 8, bottom: 46, left: 40 };
     const h = 300;
     const x = d3
@@ -162,14 +170,16 @@ export function initDistance(data) {
       .attr("y", 12)
       .style("font-weight", 500)
       .text("Mt de CO2");
-    const color = { total: "var(--ink)", up: "var(--magenta)", down: "var(--teal)" };
+    const color = { total: "var(--ink-2)", up: "var(--magenta)", down: "var(--teal)" };
+    const bw = Math.min(46, x.bandwidth());
+    const bx = (i) => x(i) + (x.bandwidth() - bw) / 2;
     const g = svg.selectAll("g.step").data(steps).join("g").attr("class", "step");
     g.append("rect")
-      .attr("x", (_, i) => x(i))
-      .attr("width", x.bandwidth())
+      .attr("x", (_, i) => bx(i))
+      .attr("width", bw)
       .attr("y", (s) => y(Math.max(s.y0, s.y1)))
-      .attr("height", (s) => Math.max(1, Math.abs(y(s.y0) - y(s.y1))))
-      .attr("rx", 3)
+      .attr("height", (s) => Math.max(2, Math.abs(y(s.y0) - y(s.y1))))
+      .attr("rx", 4)
       .style("fill", (s) => color[s.kind])
       .on("pointermove", (event, s) =>
         showTip(event, s.label, [
@@ -192,8 +202,8 @@ export function initDistance(data) {
     steps.slice(0, -1).forEach((s, i) => {
       svg
         .append("line")
-        .attr("x1", x(i) + x.bandwidth())
-        .attr("x2", x(i + 1))
+        .attr("x1", bx(i) + bw)
+        .attr("x2", bx(i + 1))
         .attr("y1", y(s.y1))
         .attr("y2", y(s.y1))
         .style("stroke", "var(--axis)")

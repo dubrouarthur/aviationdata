@@ -73,6 +73,47 @@ export function moments(root, items, onPick) {
   return { select, mark };
 }
 
+/**
+ * Table view of a chart ("Voir les chiffres"), placed right after the chart node; values stay reachable without
+ * hovering. Calling it again refreshes the table and keeps the open/closed state.
+ * head: column labels; rows: arrays of already formatted cells (first cell is the row label).
+ */
+export function dataTable(anchor, { head, rows, summary = "Voir les chiffres" }) {
+  let box = anchor._dataTable;
+  if (!box) {
+    box = el("details", { class: "data" }, [
+      el("summary", { text: summary }),
+      el("div", { class: "table-scroll" }),
+    ]);
+    anchor.after(box);
+    anchor._dataTable = box;
+  }
+  const table = el("table", {}, [
+    el(
+      "thead",
+      {},
+      el(
+        "tr",
+        {},
+        head.map((h) => el("th", { scope: "col", text: h })),
+      ),
+    ),
+    el(
+      "tbody",
+      {},
+      rows.map((r) =>
+        el(
+          "tr",
+          {},
+          r.map((c, k) => el(k ? "td" : "th", k ? { text: c } : { scope: "row", text: c })),
+        ),
+      ),
+    ),
+  ]);
+  box.lastElementChild.replaceChildren(table);
+  return box;
+}
+
 /** Toggle chips doubling as the legend. items: [{key, label, color, dashed, on}] */
 export function chips(root, items, onChange) {
   root.replaceChildren();
@@ -147,32 +188,6 @@ export function placeTip(event) {
 
 export function hideTip() {
   tip()?.classList.remove("on");
-}
-
-/* ------------------------------------------------------------------ data table */
-export function dataTable(details, columns, rows) {
-  details.querySelector(".table-scroll")?.remove();
-  const thead = el(
-    "thead",
-    {},
-    el(
-      "tr",
-      {},
-      columns.map((c) => el("th", { scope: "col", text: c })),
-    ),
-  );
-  const tbody = el(
-    "tbody",
-    {},
-    rows.map((r) =>
-      el(
-        "tr",
-        {},
-        r.map((v, i) => el(i ? "td" : "th", i ? { text: v } : { scope: "row", text: v })),
-      ),
-    ),
-  );
-  details.append(el("div", { class: "table-scroll" }, el("table", {}, [thead, tbody])));
 }
 
 /** Re-render on width change (debounced via rAF). */

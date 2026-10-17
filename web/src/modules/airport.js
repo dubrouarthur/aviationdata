@@ -45,6 +45,19 @@ export function initAirport(data, { world }) {
   };
   input.addEventListener("change", pick);
   input.addEventListener("keydown", (e) => e.key === "Enter" && pick());
+  // quick picks: the busiest airports, one click away
+  const busiest = [...airports]
+    .filter((a) => (yr(a, lastYear) ?? 0) > 0)
+    .sort((p, q) => yr(q, lastYear) - yr(p, lastYear))
+    .slice(0, 8);
+  const picks = busiest.map((a) =>
+    el("button", { type: "button", "data-code": a.code, "aria-pressed": "false", text: shortName(a) }),
+  );
+  picks.forEach((b) => b.addEventListener("click", () => selection.set(b.dataset.code)));
+  $("#apt-picks").replaceChildren(el("span", { text: "Les plus fréquentés :" }), ...picks);
+  const markPick = (code) =>
+    picks.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.code === code)));
+
   const yearSel = $("#apt-year");
   yearSel.replaceChildren(
     ...[...R.years]
@@ -272,7 +285,10 @@ export function initAirport(data, { world }) {
       .style("stroke-width", 2);
   }
 
-  selection.on((code, opts) => render(code, opts));
+  selection.on((code, opts) => {
+    markPick(code);
+    render(code, opts);
+  });
   onResize(mapNode, () => renderRoutes(selection.get()));
   const fromHash = selection.fromHash();
   selection.set(fromHash && byCode.has(fromHash) ? fromHash : "LFBO");

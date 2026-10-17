@@ -53,6 +53,7 @@
             <p class="kicker" id="hero-kicker">Données publiques DGAC</p>
             <h1 class="display" id="title">Le ciel à<br /><em>deux vitesses</em></h1>
             <div class="prose" id="hero-dek"></div>
+            <div class="kpis" id="hero-kpis"></div>
           </div>
           <div class="hero-globe">
             <div class="graphic" id="globe">
@@ -141,7 +142,11 @@
         </h2>
         <div class="prose" id="covid-text"></div>
         <div class="panel" style="margin-top: 22px">
-          <div class="controls" style="margin-top: 0">
+          <h3>Passagers, vols et fret, mois par mois</h3>
+          <p class="note">
+            Indice 100 = même mois de 2019. Cliquez sur une série pour l'afficher ou la masquer.
+          </p>
+          <div class="controls">
             <div class="chips" id="chips-covid" role="group" aria-label="Séries affichées"></div>
           </div>
           <div
@@ -219,6 +224,12 @@
           <datalist id="apt-list"></datalist>
           <select class="select" id="apt-year" aria-label="Année des liaisons"></select>
         </div>
+        <div
+          class="picks"
+          id="apt-picks"
+          role="group"
+          aria-label="Accès rapide aux plus grands aéroports"
+        ></div>
         <div class="grid-2" style="align-items: start">
           <div class="panel">
             <div id="apt-head"></div>
@@ -254,6 +265,7 @@
             <input type="range" id="race-slider" aria-label="Année de la course" />
             <output id="race-out" for="race-slider"></output>
           </div>
+          <div class="legend-row" id="race-legend"></div>
           <div class="chart" id="chart-race"></div>
           <p class="note" id="cie-note"></p>
         </div>

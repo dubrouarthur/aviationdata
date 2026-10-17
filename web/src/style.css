@@ -9,7 +9,8 @@
   --card: #ffffff;
   --ink: #0f1c2b;
   --ink-2: #3e4c5e;
-  --muted: #6f7c8b;
+  --muted: #5f6b79; /* 5.1:1 on paper (AA for small text) */
+  --blue-text: #1e62b5; /* blue for small text, 5.7:1 */
   --rule: #dbe2df;
   --grid: #e4e9e6;
   --axis: #b9c3be;
@@ -88,8 +89,27 @@ h3 {
 
 /* ------------------------------------------------------------------ masthead */
 .masthead {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 30;
   border-bottom: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 31;
   background: var(--paper);
+}
+
+main section[id],
+footer[id] {
+  scroll-margin-top: 70px;
 }
 
 .masthead .wrap {
@@ -122,10 +142,19 @@ h3 {
 
 .topnav a {
   text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
 }
 
 .topnav a:hover {
-  color: var(--blue);
+  color: var(--blue-text);
+}
+
+.topnav a[aria-current="true"] {
+  color: var(--ink);
+  font-weight: 650;
+  border-bottom-color: var(--blue);
 }
 
 .demo-banner {
@@ -207,7 +236,7 @@ h3 {
 }
 
 .ink-blue {
-  color: var(--blue);
+  color: var(--blue-text);
 }
 
 .ink-magenta {
@@ -283,6 +312,83 @@ h3 {
   font-weight: 600;
   color: var(--muted);
   margin: 0 0 10px;
+}
+
+/* hero key figures: value in ink, identity carried by a small swatch */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 22px;
+}
+
+.kpi {
+  padding: 12px 14px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.kpi b {
+  display: block;
+  font-family: var(--f-display);
+  font-stretch: 70%;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.kpi span {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--ink-2);
+}
+
+.kpi span i {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--c, var(--ink));
+  transform: translateY(1px);
+}
+
+/* quick picks under the airport search */
+.picks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 14px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.picks button {
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 4px 11px;
+  cursor: pointer;
+}
+
+.picks button:hover {
+  border-color: var(--axis);
+  color: var(--ink);
+}
+
+.picks button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
 }
 
 /* moments: preset views as tabs */
@@ -816,7 +922,7 @@ h3 {
 }
 
 .up {
-  color: var(--blue);
+  color: var(--blue-text);
 }
 
 .down {
@@ -896,6 +1002,12 @@ details.data td:first-child {
 
 .legend-row .lg i {
   height: 3px;
+}
+
+.legend-row .lg i.sq {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
 }
 
 .legend-row .lg i.area {
@@ -1036,8 +1148,38 @@ details.data td:first-child {
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
 
+  .masthead .wrap {
+    gap: 14px;
+    min-height: 48px;
+  }
+
+  .brand {
+    font-size: 0.95rem;
+  }
+
   .topnav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 14px;
+    font-size: 0.82rem;
+    mask-image: linear-gradient(to right, #000 85%, transparent);
+  }
+
+  .topnav::-webkit-scrollbar {
     display: none;
+  }
+
+  .kpis {
+    gap: 8px;
+  }
+
+  .kpi {
+    padding: 10px 10px;
+  }
+
+  .kpi span {
+    font-size: 0.74rem;
   }
 
   .chapter {

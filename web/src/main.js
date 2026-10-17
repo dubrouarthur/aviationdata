@@ -55,4 +55,24 @@ async function main() {
   }
 }
 
+/** Sticky chapter nav: the link of the chapter crossing the upper third of the screen is marked current. */
+function trackChapters() {
+  const links = new Map([...document.querySelectorAll(".topnav a")].map((a) => [a.hash.slice(1), a]));
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        links.forEach((a, id) => a.setAttribute("aria-current", String(id === e.target.id)));
+        const a = links.get(e.target.id);
+        const nav = a?.parentElement;
+        if (nav && nav.scrollWidth > nav.clientWidth)
+          nav.scrollTo({ left: a.offsetLeft - nav.offsetLeft - 24, behavior: "smooth" });
+      }
+    },
+    { rootMargin: "-30% 0px -65% 0px" },
+  );
+  links.forEach((_, id) => document.getElementById(id) && io.observe(document.getElementById(id)));
+}
+
+trackChapters();
 main();
