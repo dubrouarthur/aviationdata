@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Le ciel à deux vitesses, film</title>
+    <style>
+      /* Layout: 1920x1080 editorial stage. Headline column on the left, the chart itself laid
+         straight onto the paper on the right (no page, no window), two flight arcs (fast blue,
+         slow magenta) as the "deux vitesses" motif on the title and end cards. */
+      @font-face {
+        font-family: "Archivo Variable";
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        src: url(../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2) format("woff2-variations");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2212;
+      }
+      @font-face {
+        font-family: "Archivo Variable";
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        src: url(../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-ext-wdth-normal.woff2) format("woff2-variations");
+        unicode-range: U+0100-02AF, U+2190-21FF;
+      }
+      @font-face {
+        font-family: "Source Serif 4 Variable";
+        font-weight: 200 900;
+        src: url(../web/node_modules/@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2) format("woff2-variations");
+      }
+      :root {
+        --paper: #f6f8f6;
+        --ink: #0f1c2b;
+        --ink-2: #3e4c5e;
+        --muted: #6f7c8b;
+        --rule: #dbe2df;
+        --blue: #2a78d6;
+        --magenta: #b5267e;
+        --teal: #138a6e;
+        --f-display: "Archivo Variable", "Arial Narrow", sans-serif;
+        --f-text: "Source Serif 4 Variable", Georgia, serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--paper);
+      }
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--f-display);
+      }
+      #motif {
+        position: absolute;
+        inset: 0;
+      }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 19px;
+        font-weight: 650;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .eyebrow i {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--c, var(--blue));
+      }
+      .wordmark {
+        font-stretch: 66%;
+        font-weight: 820;
+        line-height: 0.84;
+        letter-spacing: -0.01em;
+      }
+      .wordmark em {
+        font-style: normal;
+        color: var(--blue);
+      }
+
+      /* title + end cards */
+      .card {
+        position: absolute;
+        left: 132px;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 34px;
+        width: 1100px;
+      }
+      .card h1 {
+        margin: 0;
+        font-size: 212px;
+      }
+      #end h1 {
+        font-size: 176px;
+      }
+      .card p {
+        margin: 0;
+        font-family: var(--f-text);
+        font-size: 38px;
+        line-height: 1.35;
+        color: var(--ink-2);
+        max-width: 900px;
+      }
+      .source {
+        font-size: 22px;
+        color: var(--muted);
+        font-weight: 550;
+        letter-spacing: 0.01em;
+      }
+
+      /* headline column */
+      #cap {
+        position: absolute;
+        left: 110px;
+        top: 0;
+        bottom: 0;
+        width: 470px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 26px;
+      }
+      #cap h2 {
+        margin: 0;
+        font-size: 88px;
+        font-stretch: 68%;
+        font-weight: 800;
+        line-height: 0.95;
+        letter-spacing: -0.005em;
+        text-wrap: balance;
+      }
+      #cap h2 .n,
+      #cap h2 .a {
+        color: var(--c);
+        font-variant-numeric: tabular-nums;
+      }
+      #cap p {
+        margin: 0;
+        font-family: var(--f-text);
+        font-size: 29px;
+        line-height: 1.42;
+        color: var(--ink-2);
+      }
+
+      /* the chart, straight on the paper */
+      #chart {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      #chart .frame {
+        position: absolute;
+        transform-origin: 50% 50%;
+      }
+      #chart img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #kicker {
+        position: absolute;
+        font-size: 21px;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+      }
+      #kicker::before {
+        content: "";
+        display: inline-block;
+        width: 26px;
+        height: 2px;
+        margin-right: 12px;
+        vertical-align: middle;
+        background: var(--rule);
+      }
+      #badge {
+        position: absolute;
+        font-stretch: 62%;
+        font-weight: 820;
+        line-height: 0.85;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+
+      #foot {
+        position: absolute;
+        left: 110px;
+        bottom: 70px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #foot .wordmark {
+        font-size: 32px;
+      }
+      #foot span {
+        font-size: 17px;
+        font-weight: 550;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <svg id="motif" viewBox="0 0 1920 1080" aria-hidden="true">
+        <path id="arc-fast" d="M 640 1180 Q 1240 -90 2060 250" fill="none" stroke="#2a78d6" stroke-width="2.5" />
+        <path id="arc-slow" d="M 860 1180 Q 1420 560 2060 730" fill="none" stroke="#b5267e" stroke-width="2.5" />
+        <g id="dots"></g>
+        <g id="tags" font-family="Archivo Variable" font-size="24" font-weight="650">
+          <text id="tag-fast" x="1555" y="182" fill="#2a78d6">international +7&#8239;% depuis 2019</text>
+          <text id="tag-slow" x="1520" y="640" fill="#b5267e">intérieur −21&#8239;%</text>
+        </g>
+      </svg>
+
+      <section class="card" id="title">
+        <div class="eyebrow"><i></i><span data-k="eyebrow"></span></div>
+        <h1 class="wordmark"><span class="l1">Le ciel à</span><br /><em class="l2">deux vitesses</em></h1>
+        <p data-k="sub"></p>
+      </section>
+
+      <section class="card" id="end">
+        <h1 class="wordmark"><span class="l1">Le ciel à</span><br /><em class="l2">deux vitesses</em></h1>
+        <p data-k="sub"></p>
+        <div class="source" data-k="source"></div>
+      </section>
+
+      <div id="chart">
+        <div class="frame" id="frame-a"><img alt="" /></div>
+        <div class="frame" id="frame-b"><img alt="" /></div>
+        <div id="kicker"></div>
+        <div id="badge"></div>
+      </div>
+
+      <section id="cap">
+        <div class="eyebrow"><i></i><span class="ey"></span></div>
+        <h2></h2>
+        <p></p>
+      </section>
+
+      <div id="foot">
+        <div class="wordmark">Le ciel à <em>deux vitesses</em></div>
+        <span>Données publiques DGAC, 1990–2025</span>
+      </div>
+    </div>
+
+    <script>
+      const COLORS = { blue: "#2a78d6", magenta: "#b5267e", teal: "#138a6e" };
+      const AREA = { x: 660, y: 120, w: 1180, h: 860 }; // where charts are laid out
+      // French typography: thin no-break spaces before % ? ! and no-break before :
+      const fr = (s) =>
+        s
+          .replace(/ %/g, " %")
+          .replace(/ \?/g, " ?")
+          .replace(/ !/g, " !")
+          .replace(/ :/g, " :");
+      const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+      const lin = (t, a, b) => clamp((t - a) / (b - a));
+      const outCubic = (t) => 1 - (1 - t) ** 3;
+      const inOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+      const $ = (s) => document.querySelector(s);
+
+      let FPS, SCENES, TOTAL;
+      const ready = fetch("scenes.json")
+        .then((r) => r.json())
+        .then((d) => {
+          FPS = d.fps;
+          let t = 0;
+          SCENES = d.scenes.map((s) => {
+            const sc = { ...s, start: t, frames: Math.round(s.dur * d.fps), film: !!s.target };
+            t += s.dur;
+            return sc;
+          });
+          TOTAL = t;
+          return Promise.all(
+            SCENES.filter((s) => s.film).map((s) =>
+              fetch(`out/raw/${s.id}/meta.json`)
+                .then((r) => r.json())
+                .then((m) => (s.meta = m)),
+            ),
+          );
+        })
+        .then(() => {
+          for (const id of ["title", "end"]) {
+            const s = SCENES.find((x) => x.id === id);
+            document.querySelectorAll(`#${id} [data-k]`).forEach((n) => (n.textContent = fr(s[n.dataset.k] || "")));
+          }
+          return document.fonts.ready;
+        })
+        .then(() => ({ total: TOTAL, fps: FPS }));
+
+      const frameSrc = (id, f) => `out/raw/${id}/${String(f).padStart(4, "0")}.png`;
+      const show = (node, o, dy = 0) => {
+        node.style.opacity = o;
+        node.style.transform = `translateY(${dy}px)`;
+      };
+      // element enters (rise + fade) between a and a+d, leaves (lift + fade) between b and b+e
+      const inout = (node, t, a, b, d = 0.55, e = 0.32, rise = 34) => {
+        const i = outCubic(lin(t, a, a + d));
+        const o = lin(t, b, b + e) ** 2;
+        show(node, i * (1 - o), (1 - i) * rise - o * 22);
+      };
+      const fit = (sc) => {
+        const k = Math.min(AREA.w / sc.meta.w, AREA.h / sc.meta.h);
+        const w = sc.meta.w * k;
+        const h = sc.meta.h * k;
+        return { x: AREA.x + (AREA.w - w) / 2, y: AREA.y + 30 + (AREA.h - h) / 2, w, h };
+      };
+      const num = (v, dec) => (dec ? v.toFixed(dec).replace(".", ",") : String(Math.round(v)));
+
+      function countText(part, u, sc) {
+        if (part.live && sc.meta.live) {
+          const f = Math.min(sc.meta.live.length - 1, Math.floor(u * FPS + 1e-6));
+          return `${part.sign || ""}${sc.meta.live[f] ?? part.n}`;
+        }
+        const k = outCubic(lin(u, 0.12, 0.95));
+        const from = part.from ?? 0;
+        return `${part.sign || ""}${num(from + (part.n - from) * k, part.dec)}`;
+      }
+
+      let capFor = null;
+      function caption(sc, u) {
+        const cap = $("#cap");
+        cap.style.setProperty("--c", COLORS[sc.accent] || COLORS.blue);
+        const h2 = cap.querySelector("h2");
+        if (capFor !== sc.id) {
+          capFor = sc.id;
+          const len = sc.headline.map((x) => (typeof x === "string" ? x : x.a || String(x.n))).join("").length;
+          h2.style.fontSize = len > 34 ? "76px" : len > 26 ? "82px" : "88px";
+          cap.querySelector("p").textContent = fr(sc.sub || "");
+          cap.querySelector(".ey").textContent = fr(sc.eyebrow);
+          h2.replaceChildren(
+            ...sc.headline.map((part) => {
+              if (typeof part === "string") return document.createTextNode(fr(part));
+              const span = document.createElement("span");
+              span.className = part.a ? "a" : "n";
+              span.textContent = fr(part.a || "");
+              return span;
+            }),
+          );
+        }
+        sc.headline.forEach((part, k) => {
+          if (typeof part === "object" && part.n !== undefined) h2.childNodes[k].textContent = countText(part, u, sc);
+        });
+        const end = sc.dur - 0.34;
+        inout(cap.querySelector(".eyebrow"), u, 0.1, end);
+        inout(h2, u, 0.18, end);
+        inout(cap.querySelector("p"), u, 0.32, end);
+      }
+
+      function motif(t, strength, tags) {
+        const fast = $("#arc-fast");
+        const slow = $("#arc-slow");
+        fast.style.opacity = slow.style.opacity = strength * 0.9;
+        const dots = [];
+        const run = (path, color, speed, n) => {
+          const L = path.getTotalLength();
+          for (let k = 0; k < n; k++) {
+            const p0 = (((t * speed + k / n) % 1) + 1) % 1;
+            for (let j = 0; j < 7; j++) {
+              const pt = path.getPointAtLength(clamp(p0 - j * 0.006) * L);
+              const r = j === 0 ? 7 : 5.2 - j * 0.6;
+              const a = (j === 0 ? 1 : 0.5 - j * 0.06) * strength;
+              dots.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}" fill="${color}" opacity="${a.toFixed(3)}"/>`);
+            }
+          }
+        };
+        run(fast, COLORS.blue, 0.21, 3);
+        run(slow, COLORS.magenta, 0.075, 3);
+        $("#dots").innerHTML = dots.join("");
+        $("#tag-fast").style.opacity = tags;
+        $("#tag-slow").style.opacity = tags;
+      }
+
+      function place(frameNode, sc, f, opacity, dy = 0, scale = 1, wipe = 1) {
+        if (!sc) {
+          frameNode.style.visibility = "hidden";
+          return null;
+        }
+        const box = fit(sc);
+        frameNode.style.visibility = "visible";
+        Object.assign(frameNode.style, {
+          left: `${box.x}px`,
+          top: `${box.y}px`,
+          width: `${box.w}px`,
+          height: `${box.h}px`,
+          opacity,
+          transform: `translateY(${dy}px) scale(${scale})`,
+          clipPath: wipe < 1 ? `inset(-2% ${((1 - wipe) * 102).toFixed(2)}% -2% -2%)` : "none",
+        });
+        const img = frameNode.querySelector("img");
+        const src = frameSrc(sc.id, Math.max(0, Math.min(sc.frames - 1, f)));
+        if (!img.src.endsWith(src)) {
+          img.src = src;
+          return img.decode().catch(() => {});
+        }
+        return null;
+      }
+
+      async function render(t) {
+        let k = SCENES.findIndex((s) => t < s.start + s.dur);
+        if (k < 0) k = SCENES.length - 1;
+        const sc = SCENES[k];
+        const u = t - sc.start;
+        const prev = SCENES[k - 1];
+        const loads = [];
+
+        // ------------------------------------------------ chart frames
+        const A = $("#frame-a");
+        const B = $("#frame-b");
+        const kicker = $("#kicker");
+        const badge = $("#badge");
+        if (sc.film) {
+          const f = Math.floor(u * FPS + 1e-6);
+          const enter = outCubic(lin(u, 0.05, 0.6));
+          const wipe = sc.reveal === "wipe" ? inOut(lin(u, 0.25, 1.9)) : 1;
+          loads.push(place(B, sc, f, enter, (1 - enter) * 26, 0.985 + 0.015 * enter, wipe));
+          if (prev && prev.film && u < 0.4) {
+            const out = 1 - lin(u, 0, 0.3);
+            loads.push(place(A, prev, prev.frames - 1, out, -14 * (1 - out)));
+          } else place(A, null);
+          const box = fit(sc);
+          kicker.textContent = fr(sc.kicker || "");
+          kicker.style.left = `${box.x}px`;
+          kicker.style.top = `${Math.max(48, box.y - 44)}px`;
+          inout(kicker, u, 0.25, sc.dur - 0.34);
+          if (sc.badge && sc.meta.live) {
+            const right = sc.id !== "france";
+            badge.textContent = sc.meta.live[Math.min(sc.meta.live.length - 1, f)];
+            badge.style.fontSize = right ? "64px" : "120px";
+            badge.style.textAlign = right ? "right" : "left";
+            badge.style.width = "420px";
+            badge.style.left = `${right ? box.x + box.w - 420 : box.x}px`;
+            badge.style.top = `${box.y + (right ? -70 : 6)}px`;
+            inout(badge, u, 0.2, sc.dur - 0.34);
+          } else badge.style.opacity = 0;
+        } else {
+          kicker.style.opacity = 0;
+          badge.style.opacity = 0;
+          place(B, null);
+          if (sc.id === "end" && prev && prev.film && u < 0.5) {
+            const out = 1 - lin(u, 0, 0.45);
+            loads.push(place(A, prev, prev.frames - 1, out, -14 * (1 - out)));
+          } else place(A, null);
+        }
+
+        // ------------------------------------------------ title card
+        const title = $("#title");
+        title.style.display = sc.id === "title" ? "flex" : "none";
+        if (sc.id === "title") {
+          const leave = sc.dur - 0.7;
+          inout(title.querySelector(".eyebrow"), u, 0.05, leave, 0.6);
+          inout(title.querySelector(".l1"), u, 0.12, leave, 0.7, 0.4, 60);
+          inout(title.querySelector(".l2"), u, 0.26, leave, 0.7, 0.4, 60);
+          inout(title.querySelector("p"), u, 0.55, leave, 0.6);
+          title.querySelector(".l1").style.display = title.querySelector(".l2").style.display = "inline-block";
+        }
+
+        // ------------------------------------------------ end card
+        const end = $("#end");
+        end.style.display = sc.id === "end" ? "flex" : "none";
+        if (sc.id === "end") {
+          inout(end.querySelector(".l1"), u, 0.4, 99, 0.7, 0.3, 60);
+          inout(end.querySelector(".l2"), u, 0.54, 99, 0.7, 0.3, 60);
+          inout(end.querySelector("p"), u, 0.85, 99);
+          inout(end.querySelector(".source"), u, 1.15, 99);
+          end.querySelector(".l1").style.display = end.querySelector(".l2").style.display = "inline-block";
+        }
+
+        // ------------------------------------------------ headline column and footer
+        const cap = $("#cap");
+        cap.style.display = sc.film ? "flex" : "none";
+        if (sc.film) caption(sc, u);
+        $("#foot").style.opacity =
+          sc.id === "title" ? lin(u, sc.dur - 0.5, sc.dur) : sc.id === "end" ? 1 - lin(u, 0, 0.4) : 1;
+
+        // ------------------------------------------------ motif: strong on the cards, gone behind charts
+        const strong =
+          sc.id === "title" ? 1 - inOut(lin(u, sc.dur - 0.8, sc.dur)) : sc.id === "end" ? inOut(lin(u, 0.2, 1.2)) : 0;
+        const tags = sc.id === "title" ? lin(u, 0.9, 1.4) * (1 - lin(u, sc.dur - 1.0, sc.dur - 0.6)) : 0;
+        motif(t, strong, tags);
+
+        await Promise.all(loads.filter(Boolean));
+      }
+      window.render = render;
+      window.ready = ready;
+    </script>
+  </body>
+</html>

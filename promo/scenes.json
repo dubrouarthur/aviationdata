@@ -1,0 +1,191 @@
+{
+  "fps": 30,
+  "scenes": [
+    {
+      "id": "title",
+      "dur": 3.6,
+      "eyebrow": "Données publiques DGAC · 1990–2025",
+      "sub": "Trente-cinq ans de transport aérien français, racontés par les chiffres de la DGAC."
+    },
+    {
+      "id": "globe",
+      "order": 1,
+      "target": "#globe canvas",
+      "before": [
+        "document.querySelector('#globe-moments [data-k=\"2025\"]').click()"
+      ],
+      "dur": 4.2,
+      "speed": 1.6,
+      "settle": 1600,
+      "accent": "blue",
+      "eyebrow": "Le monde vu de France",
+      "headline": [
+        {
+          "n": 183
+        },
+        " millions de passagers en 2025"
+      ],
+      "sub": "Jamais autant de voyageurs n'avaient décollé ou atterri en France.",
+      "kicker": "Passagers entre la France et chaque pays, en 2025"
+    },
+    {
+      "id": "delta",
+      "order": 2,
+      "target": "#globe canvas",
+      "before": [
+        "document.querySelector('#globe-moments [data-k=\"delta\"]').click()"
+      ],
+      "dur": 4.0,
+      "speed": 1.3,
+      "settle": 300,
+      "accent": "blue",
+      "eyebrow": "Le monde vu de France",
+      "headline": [
+        "Trafic international : ",
+        {
+          "n": 7,
+          "sign": "+"
+        },
+        " % depuis 2019"
+      ],
+      "sub": "En bleu, les pays qui gagnent des passagers, menés par l'Égypte (+61 %) et la Turquie (+51 %). En magenta, ceux qui en perdent.",
+      "kicker": "Évolution du trafic par pays entre 2019 et 2025"
+    },
+    {
+      "id": "france",
+      "order": 5,
+      "target": "#france-map svg",
+      "before": [
+        "document.querySelector('#france-moments [data-k=\"peak\"]').click()"
+      ],
+      "live": "document.querySelector('#france-out').textContent.trim()",
+      "badge": true,
+      "dur": 4.4,
+      "settle": 700,
+      "accent": "magenta",
+      "eyebrow": "La France",
+      "headline": [
+        "Trafic intérieur : ",
+        {
+          "n": 21,
+          "sign": "−"
+        },
+        " % depuis 2019"
+      ],
+      "sub": "Les lignes entre Paris et la province s'effacent peu à peu de la carte.",
+      "kicker": "Liaisons et aéroports de métropole"
+    },
+    {
+      "id": "spirale",
+      "order": 3,
+      "target": "#chart-spirale svg",
+      "css": "#chart-spirale { width: 600px !important; margin: 0 auto; }",
+      "dur": 4.0,
+      "settle": 60,
+      "accent": "blue",
+      "eyebrow": "Mois par mois",
+      "headline": [
+        {
+          "a": "35 ans"
+        },
+        " de ciel en un seul regard"
+      ],
+      "sub": "Un anneau par année, de 1990 au centre à 2025 au bord. Le trou de 2020 saute aux yeux.",
+      "kicker": "Passagers par mois, tous vols"
+    },
+    {
+      "id": "covid",
+      "order": 4,
+      "target": "#chart-covid svg",
+      "css": "#chart-covid { width: 640px !important; }",
+      "dur": 4.2,
+      "settle": 60,
+      "accent": "magenta",
+      "eyebrow": "Covid-19",
+      "headline": [
+        "Covid : ",
+        {
+          "n": 99,
+          "sign": "−"
+        },
+        " % de passagers en avril 2020"
+      ],
+      "sub": "Au premier confinement, le ciel se vide. Le fret, lui, ne recule que de 54 %.",
+      "kicker": "Passagers et fret, indice 100 = même mois de 2019",
+      "before": [
+        "document.querySelectorAll('#chips-covid .chip')[1].click()",
+        "document.querySelectorAll('#chips-covid .chip')[3].click()"
+      ],
+      "reveal": "wipe"
+    },
+    {
+      "id": "race",
+      "order": 7,
+      "target": "#chart-race svg",
+      "css": "#chart-race { width: 760px !important; }",
+      "live": "(() => { const t = [...document.querySelectorAll('#chart-race text')].map(e => e.textContent).find(x => /bas coûts/.test(x)); return t ? +t.match(/(\\d+)\\s*%/)[1] : null; })()",
+      "dur": 5.6,
+      "speed": 3.6,
+      "settle": 60,
+      "accent": "teal",
+      "eyebrow": "Compagnies",
+      "headline": [
+        "Low-cost : ",
+        {
+          "n": 41,
+          "live": true
+        },
+        " % des passagers"
+      ],
+      "sub": "en 2025, contre 18 % en 2010. Air France reste en tête.",
+      "kicker": "Passagers par compagnie, en France"
+    },
+    {
+      "id": "prix",
+      "order": 8,
+      "target": "#chart-scissors",
+      "css": "#chart-scissors { width: 700px !important; } #chart-scissors .sm[data-k=om] { display: none !important; }",
+      "dur": 4.8,
+      "settle": 60,
+      "accent": "magenta",
+      "eyebrow": "Prix des billets",
+      "headline": [
+        "Billets intérieurs : ",
+        {
+          "n": 53,
+          "sign": "+"
+        },
+        " % depuis 2019"
+      ],
+      "sub": "pendant que le nombre de passagers sur ces lignes reculait de 27 %. À l'international, les prix ont pris 30 %.",
+      "kicker": "Prix des billets et passagers, base 100 en 2019"
+    },
+    {
+      "id": "co2",
+      "order": 6,
+      "target": "#chart-waterfall svg",
+      "css": "#chart-waterfall { width: 560px !important; }",
+      "reveal": "wipe",
+      "dur": 4.6,
+      "settle": 60,
+      "accent": "teal",
+      "eyebrow": "Climat",
+      "headline": [
+        "Des avions plus sobres ont évité ",
+        {
+          "n": 7.6,
+          "dec": 1
+        },
+        " Mt de CO2"
+      ],
+      "sub": "entre 2000 et 2019. Mais la hausse du trafic en a ajouté 11,2 : au total, +3,6 Mt.",
+      "kicker": "Émissions de CO2 du transport aérien, en millions de tonnes"
+    },
+    {
+      "id": "end",
+      "dur": 4.4,
+      "sub": "Un ciel international qui bat des records, un ciel intérieur qui se vide.",
+      "source": "Source : DGAC, données publiques (data.gouv.fr)"
+    }
+  ]
+}

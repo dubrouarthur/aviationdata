@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Le ciel à deux vitesses, miniature</title>
+    <style>
+      /* Layout: 1920x1080 thumbnail. Title and the two numbers on the left, readable at LinkedIn feed size;
+         the 2019-2025 globe (blue gains, magenta losses) bleeding off the right edge. */
+      @font-face {
+        font-family: "Archivo Variable";
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        src: url(../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2) format("woff2-variations");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2212;
+      }
+      @font-face {
+        font-family: "Source Serif 4 Variable";
+        font-weight: 200 900;
+        src: url(../web/node_modules/@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2) format("woff2-variations");
+      }
+      :root {
+        --paper: #f6f8f6;
+        --ink: #0f1c2b;
+        --ink-2: #3e4c5e;
+        --muted: #6f7c8b;
+        --rule: #dbe2df;
+        --blue: #2a78d6;
+        --magenta: #b5267e;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--paper);
+      }
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(900px 900px at 1480px 540px, #ffffff 0%, rgba(255, 255, 255, 0) 70%), var(--paper);
+        font-family: "Archivo Variable", "Arial Narrow", sans-serif;
+        color: var(--ink);
+      }
+      #globe {
+        position: absolute;
+        width: 1120px;
+        height: 1120px;
+        left: 1010px;
+        top: -20px;
+      }
+      #text {
+        position: absolute;
+        left: 110px;
+        top: 0;
+        bottom: 0;
+        width: 1000px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 38px;
+      }
+      .kicker {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 26px;
+        font-weight: 650;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .kicker i {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--blue);
+      }
+      h1 {
+        margin: 0;
+        font-size: 178px;
+        font-stretch: 62%;
+        font-weight: 830;
+        line-height: 0.84;
+        letter-spacing: -0.012em;
+      }
+      h1 em {
+        font-style: normal;
+        color: var(--blue);
+      }
+      .stats {
+        display: flex;
+        gap: 56px;
+        margin-top: 6px;
+      }
+      .stat b {
+        display: block;
+        font-size: 150px;
+        font-stretch: 62%;
+        font-weight: 830;
+        line-height: 0.86;
+        font-variant-numeric: tabular-nums;
+      }
+      .stat span {
+        display: block;
+        margin-top: 12px;
+        font-family: "Source Serif 4 Variable", Georgia, serif;
+        font-size: 32px;
+        line-height: 1.25;
+        color: var(--ink-2);
+      }
+      .up b {
+        color: var(--blue);
+      }
+      .down b {
+        color: var(--magenta);
+      }
+      .foot {
+        font-size: 24px;
+        font-weight: 550;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <img id="globe" src="out/raw/delta/0119.png" alt="" />
+      <div id="text">
+        <div class="kicker"><i></i>Transport aérien français · 1990–2025</div>
+        <h1>Le ciel à<br /><em>deux vitesses</em></h1>
+        <div class="stats">
+          <div class="stat up"><b>+7&#8239;%</b><span>trafic international<br />depuis 2019</span></div>
+          <div class="stat down"><b>−21&#8239;%</b><span>trafic intérieur<br />depuis 2019</span></div>
+        </div>
+        <div class="foot">D'après les données publiques de la DGAC</div>
+      </div>
+    </div>
+  </body>
+</html>
