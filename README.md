@@ -6,8 +6,12 @@ Trente-cinq ans de transport aérien français racontés avec les seules donnée
 - la carte des liaisons intérieures ;
 - un explorateur par aéroport ;
 - la course des compagnies ;
+- les compagnies françaises face aux étrangères ;
 - les prix des billets face au trafic ;
-- les émissions de CO2.
+- le fret aérien ;
+- les émissions de CO2 et ce qui les fait bouger.
+
+Le site est en ligne sur [aviationdata.vercel.app](https://aviationdata.vercel.app/).
 
 ## Lancer en local
 
