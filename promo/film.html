@@ -102,8 +102,65 @@
         margin: 0;
         font-size: 212px;
       }
+      #end {
+        gap: 26px;
+        width: 1320px;
+      }
       #end h1 {
-        font-size: 176px;
+        font-size: 128px;
+      }
+      #end p {
+        font-size: 36px;
+        max-width: 1000px;
+      }
+      /* call to action: where to explore the data */
+      .cta {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 18px;
+      }
+      .cta .url {
+        position: relative;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 26px;
+        align-self: flex-start;
+        padding-bottom: 14px;
+        font-size: 112px;
+        font-stretch: 68%;
+        font-weight: 820;
+        line-height: 0.95;
+        letter-spacing: -0.005em;
+        white-space: nowrap;
+        color: var(--ink);
+      }
+      .cta .url b {
+        color: var(--blue);
+        font-weight: 700;
+      }
+      .cta .uline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 8px;
+        border-radius: 4px;
+        background: var(--blue);
+        transform-origin: 0 50%;
+      }
+      .cta .list {
+        font-family: var(--f-text);
+        font-size: 30px;
+        color: var(--ink-2);
+      }
+      #progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 6px;
+        background: var(--blue);
+        opacity: 0.85;
       }
       .card p {
         margin: 0;
@@ -236,6 +293,11 @@
       <section class="card" id="end">
         <h1 class="wordmark"><span class="l1">Le ciel à</span><br /><em class="l2">deux vitesses</em></h1>
         <p data-k="sub"></p>
+        <div class="cta">
+          <div class="eyebrow"><i></i><span data-k="cta"></span></div>
+          <div class="url"><span data-k="url"></span><b>→</b><i class="uline"></i></div>
+          <div class="list" data-k="list"></div>
+        </div>
         <div class="source" data-k="source"></div>
       </section>
 
@@ -254,8 +316,9 @@
 
       <div id="foot">
         <div class="wordmark">Le ciel à <em>deux vitesses</em></div>
-        <span>Données publiques DGAC, 1990–2025</span>
+        <span>Données publiques DGAC · aviationdata.vercel.app</span>
       </div>
+      <div id="progress"></div>
     </div>
 
     <script>
@@ -474,10 +537,15 @@
         const end = $("#end");
         end.style.display = sc.id === "end" ? "flex" : "none";
         if (sc.id === "end") {
-          inout(end.querySelector(".l1"), u, 0.4, 99, 0.7, 0.3, 60);
-          inout(end.querySelector(".l2"), u, 0.54, 99, 0.7, 0.3, 60);
-          inout(end.querySelector("p"), u, 0.85, 99);
-          inout(end.querySelector(".source"), u, 1.15, 99);
+          inout(end.querySelector(".l1"), u, 0.3, 99, 0.7, 0.3, 60);
+          inout(end.querySelector(".l2"), u, 0.42, 99, 0.7, 0.3, 60);
+          inout(end.querySelector("p"), u, 0.7, 99);
+          // the call to action lands once the closing line has been read, then holds still
+          inout(end.querySelector(".cta .eyebrow"), u, 1.7, 99);
+          inout(end.querySelector(".cta .url"), u, 1.85, 99, 0.6, 0.3, 46);
+          end.querySelector(".uline").style.transform = `scaleX(${inOut(lin(u, 2.3, 3.0)).toFixed(4)})`;
+          inout(end.querySelector(".cta .list"), u, 2.4, 99);
+          inout(end.querySelector(".source"), u, 2.7, 99);
           end.querySelector(".l1").style.display = end.querySelector(".l2").style.display = "inline-block";
         }
 
@@ -493,6 +561,9 @@
           sc.id === "title" ? 1 - inOut(lin(u, sc.dur - 0.8, sc.dur)) : sc.id === "end" ? inOut(lin(u, 0.2, 1.2)) : 0;
         const tags = sc.id === "title" ? lin(u, 0.9, 1.4) * (1 - lin(u, sc.dur - 1.0, sc.dur - 0.6)) : 0;
         motif(t, strong, tags);
+        // on the end card the arcs slide right, clear of the call to action
+        $("#motif").style.transform = sc.id === "end" ? "translateX(430px)" : "none";
+        $("#progress").style.width = `${((t / TOTAL) * 100).toFixed(3)}%`;
 
         await Promise.all(loads.filter(Boolean));
       }

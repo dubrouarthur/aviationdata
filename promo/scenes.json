@@ -53,7 +53,7 @@
     },
     {
       "id": "france",
-      "order": 5,
+      "order": 6,
       "target": "#france-map svg",
       "before": [
         "document.querySelector('#france-moments [data-k=\"peak\"]').click()"
@@ -119,8 +119,28 @@
       "reveal": "wipe"
     },
     {
+      "id": "fret",
+      "target": "#chart-fret",
+      "css": "#chart-fret { width: 780px !important; }",
+      "reveal": "wipe",
+      "dur": 4.6,
+      "settle": 60,
+      "accent": "blue",
+      "eyebrow": "Fret aérien",
+      "headline": [
+        {
+          "n": 2.23,
+          "dec": 2
+        },
+        " Mt de fret par avion en 2025"
+      ],
+      "sub": "8 % de moins qu'en 2019. L'Asie et l'Europe en pèsent chacune un tiers ; Roissy-CDG traite 80 % du fret des aéroports.",
+      "kicker": "Fret et courrier transportés par avion, par continent",
+      "order": 5
+    },
+    {
       "id": "race",
-      "order": 7,
+      "order": 8,
       "target": "#chart-race svg",
       "css": "#chart-race { width: 760px !important; }",
       "live": "(() => { const t = [...document.querySelectorAll('#chart-race text')].map(e => e.textContent).find(x => /bas coûts/.test(x)); return t ? +t.match(/(\\d+)\\s*%/)[1] : null; })()",
@@ -128,7 +148,7 @@
       "speed": 3.6,
       "settle": 60,
       "accent": "teal",
-      "eyebrow": "Compagnies",
+      "eyebrow": "Low-cost",
       "headline": [
         "Low-cost : ",
         {
@@ -141,8 +161,27 @@
       "kicker": "Passagers par compagnie, en France"
     },
     {
+      "id": "pavillon",
+      "target": "#chart-pav svg",
+      "css": "#chart-pav { width: 700px !important; }",
+      "dur": 4.6,
+      "settle": 60,
+      "accent": "blue",
+      "eyebrow": "Pavillon",
+      "headline": [
+        "Compagnies françaises : ",
+        {
+          "n": 38
+        },
+        " % des passagers"
+      ],
+      "sub": "en 2025, contre 49 % en 2010. Les compagnies étrangères ont progressé cinq fois plus vite.",
+      "kicker": "Passagers des compagnies françaises et étrangères, en millions",
+      "order": 9
+    },
+    {
       "id": "prix",
-      "order": 8,
+      "order": 10,
       "target": "#chart-scissors",
       "css": "#chart-scissors { width: 700px !important; } #chart-scissors .sm[data-k=om] { display: none !important; }",
       "dur": 4.8,
@@ -162,29 +201,32 @@
     },
     {
       "id": "co2",
-      "order": 6,
+      "order": 7,
       "target": "#chart-waterfall svg",
-      "css": "#chart-waterfall { width: 560px !important; }",
+      "css": "#chart-waterfall { width: 780px !important; }",
       "reveal": "wipe",
-      "dur": 4.6,
+      "dur": 5.0,
       "settle": 60,
       "accent": "teal",
       "eyebrow": "Climat",
       "headline": [
-        "Des avions plus sobres ont évité ",
+        "Des vols plus sobres ont évité ",
         {
           "n": 7.6,
           "dec": 1
         },
         " Mt de CO2"
       ],
-      "sub": "entre 2000 et 2019. Mais la hausse du trafic en a ajouté 11,2 : au total, +3,6 Mt.",
+      "sub": "entre 2000 et 2019, quand la hausse du trafic en ajoutait 11,2. Depuis 2019, les émissions reculent : −1,4 Mt.",
       "kicker": "Émissions de CO2 du transport aérien, en millions de tonnes"
     },
     {
       "id": "end",
-      "dur": 4.4,
+      "dur": 7.4,
       "sub": "Un ciel international qui bat des records, un ciel intérieur qui se vide.",
+      "cta": "Explorez toutes les données",
+      "url": "aviationdata.vercel.app",
+      "list": "Votre aéroport, vos lignes, les compagnies, les prix, le CO2",
       "source": "Source : DGAC, données publiques (data.gouv.fr)"
     }
   ]
