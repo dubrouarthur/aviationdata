@@ -10,6 +10,26 @@
       content="Trente-cinq ans de transport aérien français racontés par les données publiques de la DGAC : destinations, liaisons, aéroports, compagnies, prix, fret et CO2."
     />
     <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Le ciel à deux vitesses",
+        "description": "Trente-cinq ans de transport aérien français racontés par les données publiques de la DGAC.",
+        "inLanguage": "fr",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/",
+          "sameAs": ["https://www.linkedin.com/in/arthur-dubrou/"]
+        },
+        "isBasedOn": [
+          "https://www.data.gouv.fr/datasets/trafic-aerien-commercial-mensuel-francais-par-paire-daeroports-par-sens-depuis-1990",
+          "https://www.data.gouv.fr/datasets/indices-des-prix-du-transport-aerien-de-passagers",
+          "https://www.data.gouv.fr/datasets/emissions-nettes-annuelles-de-co2-du-trafic-aerien-commercial-en-france"
+        ]
+      }
+    </script>
     <meta name="theme-color" content="#f6f8f6" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
@@ -26,6 +46,7 @@
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <a class="skip-link" href="#monde">Aller au contenu</a>
     <header class="masthead">
       <div class="wrap">
         <a class="brand" href="#monde">Le ciel à <span>deux vitesses</span></a>
@@ -57,14 +78,17 @@
             <p class="kicker" id="hero-kicker">Données publiques DGAC</p>
             <h1 class="display" id="title">Le ciel à<br /><em>deux vitesses</em></h1>
             <div class="prose" id="hero-dek"></div>
-            <p class="byline">
-              Une enquête en données d'<a
-                href="https://www.linkedin.com/in/arthur-dubrou/"
-                target="_blank"
-                rel="noopener"
-                >Arthur Dubrou</a
-              >
-            </p>
+            <div class="byline">
+              <p>
+                Une enquête en données d'<a
+                  href="https://www.linkedin.com/in/arthur-dubrou/"
+                  target="_blank"
+                  rel="noopener"
+                  >Arthur Dubrou</a
+                >
+              </p>
+              <a class="hero-cta" href="#aeroport">Trouver mon aéroport <span aria-hidden="true">→</span></a>
+            </div>
             <div class="kpis" id="hero-kpis"></div>
           </div>
           <div class="hero-globe">
