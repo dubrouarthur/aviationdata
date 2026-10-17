@@ -119,7 +119,13 @@ with sync_playwright() as p:
         out.mkdir(parents=True)
         prepare(page, sc)
         page.clock.run_for(sc.get("settle", 120))
-        clip = clip_of(page, sc["target"])
+        # charts above may still resize after the scene CSS changed: centre again until the target sits in view
+        for _ in range(4):
+            center(page, sc["target"])
+            page.clock.run_for(150)
+            clip = clip_of(page, sc["target"])
+            if clip["y"] >= 0 and clip["y"] + clip["height"] <= page.viewport_size["height"]:
+                break
         n = round(dur * FPS)
         live = []
         for f in range(n):
