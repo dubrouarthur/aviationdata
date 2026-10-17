@@ -74,9 +74,33 @@ with sync_playwright() as p:
     played = page.locator("#globe-out").inner_text()
     check("globe play advances years", played.isdigit() and int(played) > 2000, played)
     page.locator("#globe-play").click()
-    scroll_to(page, "#step-2020", 1500)
-    check("April 2020 step switches to month mode", "2020" in page.locator("#globe-out").inner_text())
-    scroll_to(page, "#step-explore", 1500)
+    for key, title in (("2020-04", "Avril 2020"), ("1990", "1990"), ("delta", "Depuis 2019")):
+        page.click(f'#globe-moments [data-k="{key}"]')
+        page.wait_for_timeout(300)
+        check(
+            f"globe moment {key} updates the caption", page.locator("#globe-caption h3").inner_text().startswith(title)
+        )
+        if key == "2020-04":
+            check("April 2020 moment switches to month mode", "2020" in page.locator("#globe-out").inner_text())
+    check(
+        "only one moment selected",
+        page.locator('#globe-moments [aria-selected="true"]').count() == 1
+        and page.locator('#globe-moments [data-k="delta"]').get_attribute("aria-selected") == "true",
+    )
+    page.keyboard.press("ArrowLeft")
+    page.wait_for_timeout(200)
+    check(
+        "arrow keys move between moments",
+        page.locator('#globe-moments [data-k="2025"]').get_attribute("aria-selected") == "true",
+    )
+    seek(page, "#globe-slider", "#globe-out", "2010")
+    page.wait_for_timeout(200)
+    check(
+        "slider to a free year clears the moments and writes a caption",
+        page.locator('#globe-moments [aria-selected="true"]').count() == 0
+        and page.locator("#globe-caption h3").inner_text() == "2010",
+    )
+    scroll_to(page, "#explorer-title", 600)
     n_all = page.locator("#country-list li").count()
     page.locator("#globe-cont button", has_text="Afrique").click()
     page.wait_for_timeout(300)
@@ -114,15 +138,18 @@ with sync_playwright() as p:
     check("covid chip removes a series", n1 == n0 - 1, f"{n0} -> {n1}")
     check("covid text computed", "avril 2020" in page.locator("#covid-text").inner_text())
 
-    # --- France: scroll steps and timeline
-    scroll_to(page, "#fr-step-0", 1400)
-    check("France step 0 shows the peak year", page.locator("#france-out").inner_text() == "2000")
-    scroll_to(page, "#fr-step-3", 1400)
+    # --- France: moments and timeline
+    scroll_to(page, "#france-map", 900)
+    check("France opens on the peak year", page.locator("#france-out").inner_text() == "2000")
+    page.click('#france-moments [data-k="delta"]')
+    page.wait_for_timeout(700)
     check("France delta legend", "recul" in page.locator("#france-legend").inner_text())
     check("France focus labels", "Bergerac" in page.locator("#france-map").inner_text())
+    check("France delta caption", "Ryanair" in page.locator("#france-caption").inner_text())
     check("France slider reaches 2010", seek(page, "#france-slider", "#france-out", "2010"))
     page.wait_for_timeout(700)
     check("France routes drawn", page.locator("#france-map path").count() > 20)
+    check("France free year caption", page.locator("#france-caption h3").inner_text() == "2010")
     scroll_to(page, "#chart-tsba")
     page.locator("#chart-tsba rect").nth(5).hover(force=True)
     page.wait_for_timeout(150)
@@ -177,13 +204,17 @@ with sync_playwright() as p:
     page.wait_for_timeout(300)
     after = page.locator("#chart-heat rect").evaluate_all("rs => rs.slice(0, 60).map(r => r.style.fill).join('|')")
     check("heatmap series switch", before != after)
-    scroll_to(page, "#chart-pxt")
-    check("scatter slider reaches janv. 2019", seek(page, "#pxt-slider", "#pxt-out", "janv. 2019"))
-    page.wait_for_timeout(300)
-    n0 = page.locator("#chart-pxt path").count()
-    page.locator("#chips-pxt .chip").nth(0).click()
-    page.wait_for_timeout(300)
-    check("scatter chip removes a trail", page.locator("#chart-pxt path").count() < n0)
+    scroll_to(page, "#chart-scissors", 2200)
+    check("prices vs traffic: three panels", page.locator("#chart-scissors .sm svg").count() == 3)
+    ends = page.locator("#chart-scissors .sm").first.locator("text.end-label").all_text_contents()
+    check(
+        "prices vs traffic end labels",
+        any(t.startswith("prix +") for t in ends) and any(t.startswith("trafic") for t in ends),
+        str(ends),
+    )
+    page.locator("#chart-scissors .sm svg rect").first.hover(position={"x": 200, "y": 120})
+    page.wait_for_timeout(150)
+    check("prices vs traffic tooltip", tip_on() and "2019 = 100" in tip.inner_text())
     check("prices text computed", "%" in page.locator("#prix-text").inner_text())
     check("sources listed", page.locator("#sources-body a").count() >= 4)
 
@@ -201,8 +232,10 @@ with sync_playwright() as p:
     m.wait_for_timeout(1200)
     widest = m.evaluate(
         """() => { let w = 0, who = ''; for (const e of document.querySelectorAll('body *')) {
-             const r = e.getBoundingClientRect(); if (r.width && r.right > w && !e.closest('.seg, .scroll-list'))
-             { w = r.right; who = e.tagName + '#' + e.id + '.' + e.className; } } return [w, who]; }"""
+             const r = e.getBoundingClientRect();
+             if (r.width && r.right > w && !e.closest('.seg, .scroll-list, .moments')) {
+               w = r.right; who = e.tagName + '#' + e.id + '.' + e.className; } }
+           return [w, who]; }"""
     )
     check(
         "mobile: no horizontal overflow",
