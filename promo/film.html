@@ -290,15 +290,69 @@
         inset: 0;
         pointer-events: none;
       }
+      /* each chart lies on a sheet of paper that lifts in with a slight tilt, then drifts (slow camera push) */
       #chart .frame {
         position: absolute;
-        transform-origin: 50% 50%;
+        transform-origin: 50% 85%;
+        background: #ffffff;
+        border-radius: 26px;
+        box-shadow:
+          0 1px 3px rgba(15, 28, 43, 0.05),
+          0 26px 70px rgba(15, 28, 43, 0.12);
       }
       #chart img {
         position: absolute;
+      }
+      /* depth: a tinted light behind the chart and the scene's number, huge and faint, drifting slower */
+      #spot {
+        position: absolute;
+        width: 1500px;
+        height: 1500px;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      #bgnum {
+        position: absolute;
+        right: -40px;
+        bottom: -90px;
+        font-family: var(--f-display);
+        font-stretch: 62%;
+        font-weight: 850;
+        font-size: 640px;
+        line-height: 0.8;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #swoosh {
+        position: absolute;
         inset: 0;
-        width: 100%;
-        height: 100%;
+        pointer-events: none;
+      }
+      #counter {
+        position: absolute;
+        right: 110px;
+        top: 60px;
+        font-size: 20px;
+        font-weight: 650;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      #counter b {
+        color: var(--ink);
+      }
+      /* headline words rise from behind a mask, one after the other */
+      #cap h2 .w {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: top;
+        padding: 0.12em 0 0.1em;
+        margin: -0.12em 0 -0.1em;
+      }
+      #cap h2 .w > span {
+        display: inline-block;
       }
       #kicker {
         position: absolute;
@@ -365,6 +419,8 @@
   </head>
   <body>
     <div id="stage">
+      <div id="spot"></div>
+      <div id="bgnum"></div>
       <svg id="motif" viewBox="0 0 1920 1080" aria-hidden="true">
         <path id="arc-fast" d="M 640 1180 Q 1240 -90 2060 250" fill="none" stroke="#2a78d6" stroke-width="2.5" />
         <path id="arc-slow" d="M 860 1180 Q 1420 560 2060 730" fill="none" stroke="#b5267e" stroke-width="2.5" />
@@ -404,6 +460,10 @@
         <div class="hint" data-k="hint"></div>
       </aside>
 
+      <svg id="swoosh" viewBox="0 0 1920 1080" aria-hidden="true">
+        <path id="sw-path" fill="none" stroke-width="3" stroke-linecap="round" />
+        <circle id="sw-dot" r="8" />
+      </svg>
       <div id="chart">
         <div class="frame" id="frame-a"><img alt="" /></div>
         <div class="frame" id="frame-b"><img alt="" /></div>
@@ -425,6 +485,7 @@
         </div>
       </div>
       <div id="progress"></div>
+      <div id="counter"></div>
     </div>
 
     <script>
@@ -483,11 +544,21 @@
         const o = lin(t, b, b + e) ** 2;
         show(node, i * (1 - o), (1 - i) * rise - o * 22);
       };
+      const PAD = 38; // sheet margin around the chart
       const fit = (sc) => {
-        const k = Math.min(AREA.w / sc.meta.w, AREA.h / sc.meta.h);
+        const k = Math.min((AREA.w - 2 * PAD) / sc.meta.w, (AREA.h - 2 * PAD) / sc.meta.h);
         const w = sc.meta.w * k;
         const h = sc.meta.h * k;
         return { x: AREA.x + (AREA.w - w) / 2, y: AREA.y + 30 + (AREA.h - h) / 2, w, h };
+      };
+      // the scene's first number, as written in the headline ("183", "+7 %"), for the background
+      const bgText = (sc) => {
+        const k = (sc.headline || []).findIndex((x) => typeof x === "object" && x.n !== undefined);
+        if (k < 0) return "";
+        const part = sc.headline[k];
+        const next = sc.headline[k + 1];
+        const pct = typeof next === "string" && /^\s*%/.test(next) ? " %" : "";
+        return fr(`${part.sign || ""}${num(part.n, part.dec)}${pct}`);
       };
       const num = (v, dec) => (dec ? v.toFixed(dec).replace(".", ",") : String(Math.round(v)));
 
@@ -502,6 +573,42 @@
       }
 
       let capFor = null;
+      let capNums = [];
+      let capWords = [];
+      // one masked word; a token glued by a no-break space (" %") joins the previous word
+      function words(h2, parts) {
+        capNums = [];
+        capWords = [];
+        const out = [];
+        const add = (content) => {
+          const w = document.createElement("span");
+          w.className = "w";
+          const inner = document.createElement("span");
+          inner.append(content);
+          w.append(inner);
+          capWords.push(inner);
+          out.push(w);
+        };
+        parts.forEach((part) => {
+          if (typeof part === "string") {
+            fr(part)
+              .split(/( +)/)
+              .forEach((tok) => {
+                if (!tok) return;
+                if (/^ +$/.test(tok)) out.push(document.createTextNode(" "));
+                else if (/^[\u00a0\u202f]/.test(tok) && capWords.length) capWords.at(-1).append(tok);
+                else add(tok);
+              });
+          } else {
+            const span = document.createElement("span");
+            span.className = part.a ? "a" : "n";
+            span.textContent = fr(part.a || "");
+            if (part.n !== undefined) capNums.push([part, span]);
+            add(span);
+          }
+        });
+        h2.replaceChildren(...out);
+      }
       function caption(sc, u) {
         const cap = $("#cap");
         cap.style.setProperty("--c", COLORS[sc.accent] || COLORS.blue);
@@ -512,23 +619,18 @@
           h2.style.fontSize = len > 34 ? "76px" : len > 26 ? "82px" : "88px";
           cap.querySelector("p").textContent = fr(sc.sub || "");
           cap.querySelector(".ey").textContent = fr(sc.eyebrow);
-          h2.replaceChildren(
-            ...sc.headline.map((part) => {
-              if (typeof part === "string") return document.createTextNode(fr(part));
-              const span = document.createElement("span");
-              span.className = part.a ? "a" : "n";
-              span.textContent = fr(part.a || "");
-              return span;
-            }),
-          );
+          words(h2, sc.headline);
         }
-        sc.headline.forEach((part, k) => {
-          if (typeof part === "object" && part.n !== undefined) h2.childNodes[k].textContent = countText(part, u, sc);
-        });
+        capNums.forEach(([part, span]) => (span.textContent = countText(part, u, sc)));
         const end = sc.dur - 0.34;
         inout(cap.querySelector(".eyebrow"), u, 0.1, end);
-        inout(h2, u, 0.18, end);
-        inout(cap.querySelector("p"), u, 0.32, end);
+        capWords.forEach((w, i) => {
+          const k = outCubic(lin(u, 0.16 + i * 0.05, 0.7 + i * 0.05));
+          const o = lin(u, end, end + 0.3) ** 2;
+          w.style.transform = `translateY(${((1 - k) * 110 - o * 30).toFixed(1)}%)`;
+          w.style.opacity = (1 - o).toFixed(3);
+        });
+        inout(cap.querySelector("p"), u, 0.45, end);
       }
 
       function motif(t, strength, tags) {
@@ -555,7 +657,7 @@
         $("#tag-slow").style.opacity = tags;
       }
 
-      function place(frameNode, sc, f, opacity, dy = 0, scale = 1, wipe = 1) {
+      function place(frameNode, sc, f, opacity, dy = 0, scale = 1, wipe = 1, tilt = 0) {
         if (!sc) {
           frameNode.style.visibility = "hidden";
           return null;
@@ -563,15 +665,21 @@
         const box = fit(sc);
         frameNode.style.visibility = "visible";
         Object.assign(frameNode.style, {
-          left: `${box.x}px`,
-          top: `${box.y}px`,
-          width: `${box.w}px`,
-          height: `${box.h}px`,
+          left: `${box.x - PAD}px`,
+          top: `${box.y - PAD}px`,
+          width: `${box.w + 2 * PAD}px`,
+          height: `${box.h + 2 * PAD}px`,
           opacity,
-          transform: `translateY(${dy}px) scale(${scale})`,
-          clipPath: wipe < 1 ? `inset(-2% ${((1 - wipe) * 102).toFixed(2)}% -2% -2%)` : "none",
+          transform: `perspective(1800px) translateY(${dy.toFixed(1)}px) rotateX(${tilt.toFixed(2)}deg) scale(${scale.toFixed(4)})`,
         });
         const img = frameNode.querySelector("img");
+        Object.assign(img.style, {
+          left: `${PAD}px`,
+          top: `${PAD}px`,
+          width: `${box.w}px`,
+          height: `${box.h}px`,
+          clipPath: wipe < 1 ? `inset(-2% ${((1 - wipe) * 102).toFixed(2)}% -2% -2%)` : "none",
+        });
         const src = frameSrc(sc.id, Math.max(0, Math.min(sc.frames - 1, f)));
         if (!img.src.endsWith(src)) {
           img.src = src;
@@ -595,17 +703,54 @@
         const badge = $("#badge");
         if (sc.film) {
           const f = Math.floor(u * FPS + 1e-6);
-          const enter = outCubic(lin(u, 0.05, 0.6));
-          const wipe = sc.reveal === "wipe" ? inOut(lin(u, 0.25, 1.9)) : 1;
-          loads.push(place(B, sc, f, enter, (1 - enter) * 26, 0.985 + 0.015 * enter, wipe));
-          if (prev && prev.film && u < 0.4) {
-            const out = 1 - lin(u, 0, 0.3);
-            loads.push(place(A, prev, prev.frames - 1, out, -14 * (1 - out)));
+          const enter = outCubic(lin(u, 0.2, 1.0));
+          const wipe = sc.reveal === "wipe" ? inOut(lin(u, 0.35, 2.0)) : 1;
+          const push = 1 + 0.03 * inOut(lin(u, 0.6, sc.dur));
+          loads.push(place(B, sc, f, enter, (1 - enter) * 70, (0.94 + 0.06 * enter) * push, wipe, (1 - enter) * 14));
+          if (prev && prev.film && u < 0.36) {
+            const out = 1 - lin(u, 0, 0.32);
+            loads.push(place(A, prev, prev.frames - 1, out, -40 * (1 - out), 1.03 + 0.05 * (1 - out)));
           } else place(A, null);
           const box = fit(sc);
           kicker.textContent = fr(sc.kicker || "");
-          kicker.style.left = `${box.x}px`;
-          kicker.style.top = `${Math.max(48, box.y - 44)}px`;
+          kicker.style.left = `${box.x - PAD + 6}px`;
+          kicker.style.top = `${Math.max(48, box.y - PAD - 42)}px`;
+          // depth: tinted light behind the sheet, the scene's number huge and faint, drifting slower than the sheet
+          const tint = { blue: "42,120,214", magenta: "181,38,126", teal: "19,138,110" }[sc.accent] || "42,120,214";
+          const spot = $("#spot");
+          spot.style.background = `radial-gradient(closest-side, rgba(${tint},0.14), rgba(${tint},0) 72%)`;
+          spot.style.left = `${box.x + box.w / 2 - 750 + 40 * Math.sin(u * 0.6)}px`;
+          spot.style.top = `${box.y + box.h / 2 - 750 + 30 * Math.cos(u * 0.5)}px`;
+          spot.style.opacity = (enter * (1 - lin(u, sc.dur - 0.3, sc.dur))).toFixed(3);
+          const bg = $("#bgnum");
+          bg.textContent = bgText(sc);
+          bg.style.color = COLORS[sc.accent] || COLORS.blue;
+          bg.style.opacity = (0.07 * outCubic(lin(u, 0.2, 1.0)) * (1 - lin(u, sc.dur - 0.35, sc.dur))).toFixed(4);
+          bg.style.transform = `translateX(${(60 - 120 * (u / sc.dur)).toFixed(1)}px)`;
+          // a plane streaks across at the cut
+          const sw = lin(u, 0, 0.62);
+          const path = $("#sw-path");
+          const dot = $("#sw-dot");
+          if (sw < 1) {
+            const films = SCENES.filter((x) => x.film);
+            const k2 = films.indexOf(sc) % 2;
+            path.setAttribute("d", k2 ? "M -80 980 Q 900 120 2000 260" : "M -80 200 Q 1000 1040 2000 820");
+            const L = path.getTotalLength();
+            const pr = outCubic(sw);
+            path.style.stroke = COLORS[sc.accent] || COLORS.blue;
+            path.style.strokeDasharray = `${L * 0.28} ${L}`;
+            path.style.strokeDashoffset = `${(L * 0.28 - pr * L * 1.28).toFixed(1)}`;
+            const pt = path.getPointAtLength(Math.min(L, pr * L));
+            dot.setAttribute("cx", pt.x.toFixed(1));
+            dot.setAttribute("cy", pt.y.toFixed(1));
+            dot.style.fill = COLORS[sc.accent] || COLORS.blue;
+            path.style.opacity = dot.style.opacity = (1 - lin(u, 0.4, 0.62)).toFixed(3);
+          } else path.style.opacity = dot.style.opacity = 0;
+          // chapter counter
+          const films = SCENES.filter((x) => x.film);
+          const counter = $("#counter");
+          counter.innerHTML = `<b>${String(films.indexOf(sc) + 1).padStart(2, "0")}</b> / ${String(films.length).padStart(2, "0")}`;
+          inout(counter, u, 0.2, sc.dur - 0.34);
           inout(kicker, u, 0.25, sc.dur - 0.34);
           if (sc.badge && sc.meta.live) {
             const right = sc.id !== "france";
@@ -620,6 +765,10 @@
         } else {
           kicker.style.opacity = 0;
           badge.style.opacity = 0;
+          $("#spot").style.opacity = 0;
+          $("#bgnum").style.opacity = 0;
+          $("#counter").style.opacity = 0;
+          $("#sw-path").style.opacity = $("#sw-dot").style.opacity = 0;
           place(B, null);
           if (sc.id === "end" && prev && prev.film && u < 0.5) {
             const out = 1 - lin(u, 0, 0.45);

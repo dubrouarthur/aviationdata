@@ -3,7 +3,7 @@
   "scenes": [
     {
       "id": "title",
-      "dur": 4.6,
+      "dur": 4.3,
       "eyebrow": "Données publiques DGAC · 1990–2025",
       "sub": "Trente-cinq ans de transport aérien français, racontés par les chiffres de la DGAC.",
       "author": "Arthur Dubrou",
@@ -37,7 +37,7 @@
       "before": [
         "document.querySelector('#globe-moments [data-k=\"delta\"]').click()"
       ],
-      "dur": 4.0,
+      "dur": 3.8,
       "speed": 1.3,
       "settle": 300,
       "accent": "blue",
@@ -74,8 +74,39 @@
         },
         " % depuis 2019"
       ],
-      "sub": "Les lignes entre Paris et la province s'effacent peu à peu de la carte.",
+      "sub": "En gris, le réseau de 2000 : les lignes entre Paris et la province maigrissent, certaines disparaissent.",
       "kicker": "Liaisons et aéroports de métropole"
+    },
+    {
+      "id": "aeroports",
+      "target": "#chart-apt svg",
+      "css": "#aeroport .grid-2 { grid-template-columns: 1fr !important; } #chart-apt { width: 760px !important; }",
+      "before": [
+        "(() => { const i = document.querySelector('#apt-input'); i.value = 'LFOB'; i.dispatchEvent(new Event('change')); })()",
+        "(() => { const s = document.querySelector('#apt-compare'); s.value = 'LFBP'; s.dispatchEvent(new Event('change')); })()",
+        "document.querySelector('#apt-scale [data-v=\"idx\"]').click()"
+      ],
+      "reveal": "wipe",
+      "dur": 4.6,
+      "settle": 120,
+      "accent": "blue",
+      "eyebrow": "Les aéroports",
+      "headline": [
+        "Beauvais ",
+        {
+          "n": 68,
+          "sign": "+"
+        },
+        " %, Pau ",
+        {
+          "n": 61,
+          "sign": "−"
+        },
+        " %"
+      ],
+      "sub": "depuis 2019. Sur les 46 aéroports de plus de 200 000 passagers, 21 seulement ont retrouvé leur niveau d'avant.",
+      "kicker": "Passagers, moyenne sur 12 mois, indice 100 = 2019",
+      "order": 8
     },
     {
       "id": "spirale",
@@ -85,15 +116,18 @@
       "dur": 4.0,
       "settle": 60,
       "accent": "blue",
-      "eyebrow": "Mois par mois",
+      "eyebrow": "Trente-cinq ans",
       "headline": [
+        "Le trafic a été multiplié par ",
         {
-          "a": "35 ans"
+          "n": 2.9,
+          "dec": 1,
+          "from": 1
         },
-        " de ciel en un seul regard"
+        " depuis 1990"
       ],
-      "sub": "Un anneau par année, de 1990 au centre à 2025 au bord. Le trou de 2020 saute aux yeux.",
-      "kicker": "Passagers par mois, tous vols"
+      "sub": "62 millions de passagers en 1990, 183 millions en 2025. Un seul trou dans ces trente-cinq ans : le printemps 2020.",
+      "kicker": "Passagers par mois, de 1990 (au centre) à 2025 (au bord)"
     },
     {
       "id": "covid",
@@ -125,7 +159,7 @@
       "target": "#chart-fret",
       "css": "#fret .grid-2 { grid-template-columns: 1fr !important; } #chart-fret { width: 720px !important; }",
       "reveal": "wipe",
-      "dur": 4.6,
+      "dur": 4.4,
       "settle": 60,
       "accent": "blue",
       "eyebrow": "Fret aérien",
@@ -142,11 +176,11 @@
     },
     {
       "id": "race",
-      "order": 8,
+      "order": 9,
       "target": "#chart-race svg",
       "css": "#chart-race { width: 760px !important; }",
       "live": "(() => { const t = [...document.querySelectorAll('#chart-race text')].map(e => e.textContent).find(x => /bas coûts/.test(x)); return t ? +t.match(/(\\d+)\\s*%/)[1] : null; })()",
-      "dur": 5.6,
+      "dur": 5.0,
       "speed": 3.6,
       "settle": 60,
       "accent": "teal",
@@ -166,7 +200,7 @@
       "id": "pavillon",
       "target": "#chart-pav svg",
       "css": "#pavillon .grid-2 { grid-template-columns: 1fr !important; } #chart-pav { width: 700px !important; }",
-      "dur": 4.6,
+      "dur": 4.4,
       "settle": 60,
       "accent": "blue",
       "eyebrow": "Pavillon",
@@ -179,14 +213,14 @@
       ],
       "sub": "en 2025, contre 49 % en 2010. Les compagnies étrangères ont progressé cinq fois plus vite.",
       "kicker": "Passagers des compagnies françaises et étrangères, en millions",
-      "order": 9
+      "order": 10
     },
     {
       "id": "prix",
-      "order": 10,
+      "order": 11,
       "target": "#chart-scissors",
       "css": "#chart-scissors { width: 700px !important; } #chart-scissors .sm[data-k=om] { display: none !important; }",
-      "dur": 4.8,
+      "dur": 4.6,
       "settle": 60,
       "accent": "magenta",
       "eyebrow": "Prix des billets",
@@ -207,7 +241,7 @@
       "target": "#chart-waterfall svg",
       "css": "#chart-waterfall { width: 680px !important; }",
       "reveal": "wipe",
-      "dur": 5.0,
+      "dur": 4.8,
       "settle": 60,
       "accent": "teal",
       "eyebrow": "Climat",
@@ -224,7 +258,7 @@
     },
     {
       "id": "end",
-      "dur": 8.8,
+      "dur": 8.4,
       "sub": "Un ciel international qui bat des records, un ciel intérieur qui se vide.",
       "cta": "Explorez toutes les données",
       "url": "aviationdata.vercel.app",
