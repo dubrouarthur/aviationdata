@@ -244,7 +244,13 @@ export function initAirport(data, { world }) {
       title: (i) => fmtMonth(months[i]),
       events: [{ date: toDate("2020-03"), label: "Covid", short: "Covid" }],
       height: 250,
-      endLabels: false,
+      // two airports: name each line at its end, with its last value
+      endLabels: !!b,
+      endDots: !!b,
+      endText: (sr) => {
+        const v = [...sr.values].reverse().find(isNum);
+        return `${sr.label} ${idx ? fmtNum(v, 0) : compact(v)}`;
+      },
     };
     $("#apt-legend").replaceChildren(
       ...series.map((s) => lg(s.color, s.key === "m" ? "Chaque mois" : `${s.label}, moyenne sur 12 mois`)),
