@@ -1075,7 +1075,7 @@ details.data td:first-child {
   height: 12px;
   width: 16px;
   border-radius: 3px;
-  background: var(--magenta-soft);
+  background: var(--c, var(--magenta-soft));
 }
 
 .sm-grid {

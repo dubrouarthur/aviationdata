@@ -44,36 +44,38 @@ export function initFill(data) {
     },
   ]);
 
+  // change since 2000, in %: easier to read than an index; the shaded gap is the gain in passengers per flight
+  const since2000 = (arr) => arr.map((v) => (v / arr[base] - 1) * 100);
+  const signed = (v, d = 0) => (Math.abs(v) < 0.5 ? "0 %" : fmtPct(v, d));
+  $("#rempl-legend").replaceChildren(
+    el("span", { class: "lg" }, [el("i", { style: "--c:var(--blue)" }), "Passagers"]),
+    el("span", { class: "lg" }, [el("i", { style: "--c:var(--ink-2)" }), "Vols de passagers"]),
+    el("span", { class: "lg" }, [
+      el("i", { class: "area", style: "--c:var(--blue-soft)" }),
+      "L'écart : chaque vol emporte plus de passagers",
+    ]),
+  );
   lineChart($("#chart-rempl"), {
     dates: years.map((y) => toDate(y)),
     series: [
-      {
-        key: "pax",
-        label: "Passagers",
-        color: "var(--blue)",
-        values: pax.map((v) => (v / pax[base]) * 100),
-        width: 2.6,
-      },
-      {
-        key: "vols",
-        label: "Vols",
-        color: "var(--ink-2)",
-        values: vols.map((v) => (v / vols[base]) * 100),
-        width: 2,
-      },
+      { key: "pax", label: "Passagers", color: "var(--blue)", values: since2000(pax), width: 2.6 },
+      { key: "vols", label: "Vols", color: "var(--ink-2)", values: since2000(vols), width: 2.2 },
     ],
-    band: { a: "pax", b: "vols", color: "var(--blue-soft)", label: "avions plus pleins" },
+    band: { a: "pax", b: "vols", color: "var(--blue-soft)" },
     xDomain: [toDate(years[0]), toDate(years[last])],
-    baseline: 100,
-    yFormat: (v) => fmtNum(v),
-    tipFormat: (v) => fmtNum(v, 0),
-    title: (i) => `${years[i]} (indice 2000 = 100)`,
+    baseline: 0,
+    yFormat: (v) => signed(v),
+    tipFormat: (v) => `${signed(v, 1)} depuis 2000`,
+    title: (i) => `${years[i]}`,
+    events: [{ date: toDate(2020), label: "Covid", short: "Covid" }],
+    endDots: true,
+    endText: (s2) => `${s2.label} ${signed(s2.values[last])}`,
     height: 300,
     animate: true,
     table: {
-      head: "Année (indice 2000 = 100)",
+      head: "Année (évolution depuis 2000)",
       date: (d) => String(d.getUTCFullYear()),
-      value: (v) => fmtNum(v, 0),
+      value: (v) => signed(v, 1),
     },
   });
 

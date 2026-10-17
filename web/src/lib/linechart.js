@@ -11,7 +11,9 @@ import { isNum } from "./series.js";
  *   series: [{key, label, color, values, dashed, width}],
  *   xDomain: [Date, Date], yFormat: v => string, tipFormat: v => string,
  *   title: i => string, baseline: number|null, events: [{date: Date, label}],
- *   height, yZero: bool, endLabels: bool, area: key|null
+ *   height, yZero: bool, endLabels: bool, area: key|null,
+ *   endText: s => string (end label text, default s.label), endDots: bool (dot on each line end),
+ *   band: {a, b, color, label}, table: {head, date, value}
  * }
  */
 export function lineChart(node, initial) {
@@ -204,16 +206,29 @@ export function lineChart(node, initial) {
         })
         .filter(Boolean)
         .sort((a, b) => a.y - b.y);
+      for (const d of ends) d.y0 = d.y;
       for (let k = 1; k < ends.length; k++) ends[k].y = Math.max(ends[k].y, ends[k - 1].y + 15);
+      if (opts.endDots)
+        svg
+          .append("g")
+          .selectAll("circle")
+          .data(ends)
+          .join("circle")
+          .attr("cx", (d) => d.x)
+          .attr("cy", (d) => d.y0)
+          .attr("r", 4.5)
+          .style("fill", (d) => d.s.color)
+          .style("stroke", "var(--card)")
+          .style("stroke-width", 2);
       svg
         .append("g")
         .selectAll("text")
         .data(ends)
         .join("text")
         .attr("class", "end-label")
-        .attr("x", (d) => d.x + 8)
+        .attr("x", (d) => d.x + 10)
         .attr("y", (d) => d.y + 4)
-        .text((d) => d.s.label);
+        .text((d) => (opts.endText ? opts.endText(d.s) : d.s.label));
     }
 
     // crosshair layer
