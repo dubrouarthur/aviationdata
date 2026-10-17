@@ -328,16 +328,18 @@
           </div>
         </div>
         <div data-source="co2" class="panel" style="margin-top: 22px">
-          <h3>Pourquoi les émissions ont monté, puis baissé</h3>
-          <p class="note">
-            On part des émissions d'une année et on ajoute deux effets. Effet trafic : ce qu'auraient changé
-            les passagers-kilomètres supplémentaires (ou perdus) à efficacité constante. Effet efficacité : ce
-            qu'a changé la baisse du CO2 émis pour chaque passager-kilomètre. En millions de tonnes de CO2.
-          </p>
+          <h3 id="co2-why-title">Ce qui fait bouger le CO2 : plus de trafic, des vols plus remplis</h3>
+          <p class="note" id="co2-why-note"></p>
           <div class="controls">
             <div class="seg" role="group" aria-label="Vue" id="co2-period"></div>
             <div class="legend-row" id="co2-legend"></div>
           </div>
+          <div
+            class="chart"
+            id="chart-co2-index"
+            tabindex="0"
+            aria-label="Trafic, passagers par vol, CO2 par passager-kilomètre et émissions, indice 100 en 2000"
+          ></div>
           <div class="chart" id="chart-waterfall"></div>
         </div>
       </section>

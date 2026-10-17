@@ -281,6 +281,23 @@ with sync_playwright() as p:
         f"{fr(p2['intensite_pct'], 1)} %".replace("-", "−"),
     )
     check("CO2 key figures", text("#kf-co2"), f"{fr(T[-1], 1)} Mt", f"−{fr(abs(pct(G[0], G[-1])))} %")
+    # CO2 overview, index 100 in the first year: traffic, passengers per flight, emissions, CO2 per passenger-km
+    cy = D["co2"]["years"]
+    pv = [asum(N["pax"], y) / asum(N["vols"], y) for y in (cy[0], cy[-1])]
+
+    def sidx(v):
+        return f"+{fr(v - 100)} %" if v >= 100 else f"−{fr(100 - v)} %"
+
+    check(
+        "CO2 overview",
+        text("#chart-co2-index"),
+        f"Passagers-km {sidx((T[-1] / G[-1]) / (T[0] / G[0]) * 100)}",
+        f"Passagers par vol {sidx(pv[1] / pv[0] * 100)}",
+        f"Émissions {sidx(T[-1] / T[0] * 100)}",
+        f"CO2 par passager-km {sidx(G[-1] / G[0] * 100)}",
+    )
+    page.locator('#co2-period button[data-v="steps"]').click()
+    page.wait_for_timeout(300)
     # the waterfall's net changes per period
     check(
         "CO2 waterfall",

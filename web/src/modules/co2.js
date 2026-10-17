@@ -129,29 +129,116 @@ export function initCo2(data) {
   });
 
   // ---------------------------------------------------------------- C. what moves CO2
+  // overview: emissions = traffic x CO2 per passenger-km, in index form, with passengers per flight beside them
+  const AP = data.aeroports;
+  const ysum = (arr, y) => d3.sum(AP.months, (m, i) => (m.startsWith(String(y)) ? (arr[i] ?? 0) : 0));
+  const perFlight = years.map((y) => {
+    const v = ysum(AP.national.vols, y);
+    return v ? ysum(AP.national.pax, y) / v : null;
+  });
+  const traffic = years.map((_, i) => (T[i] * 1e12) / G.FRANCE_TOT[i]); // passenger-km (passenger-equivalent)
+  const idx = (arr) => arr.map((v) => (v === null ? null : (v / arr[0]) * 100));
+  const WHY = [
+    {
+      key: "pkm",
+      label: "Passagers-km",
+      long: "Trafic (passagers-kilomètres)",
+      color: "var(--blue)",
+      values: idx(traffic),
+    },
+    {
+      key: "pv",
+      label: "Passagers par vol",
+      long: "Passagers par vol",
+      color: "var(--ochre)",
+      values: idx(perFlight),
+    },
+    {
+      key: "co2",
+      label: "Émissions",
+      long: "Émissions de CO2",
+      color: "var(--ink)",
+      values: idx(T),
+      width: 3,
+    },
+    {
+      key: "g",
+      label: "CO2 par passager-km",
+      long: "CO2 par passager-kilomètre",
+      color: DOWN,
+      values: idx(G.FRANCE_TOT),
+    },
+  ].map((s) => ({ width: 2.4, ...s }));
+  const signedIdx = (v) => (Math.abs(v - 100) < 0.5 ? "0 %" : fmtPct(v - 100, 0));
+  const NOTES = {
+    index: `Indice 100 en ${years[0]}. Les émissions (en noir) suivent le trafic multiplié par le CO2 émis pour chaque passager-kilomètre ; ce dernier baisse à mesure que chaque vol emporte plus de passagers.`,
+    steps:
+      "On part des émissions d'une année et on ajoute deux effets. Effet trafic : ce qu'auraient changé les passagers-kilomètres supplémentaires (ou perdus) à efficacité constante. Effet efficacité : ce qu'a changé la baisse du CO2 émis pour chaque passager-kilomètre. En millions de tonnes de CO2.",
+    seg: "Les mêmes deux effets, segment par segment, en millions de tonnes de CO2.",
+  };
+  const iNode = $("#chart-co2-index");
+  let iChart = null;
   const wNode = $("#chart-waterfall");
-  let view = "steps";
+  let view = "index";
   const periodSeg = $("#co2-period");
   periodSeg.replaceChildren(
+    el("button", { type: "button", "data-v": "index", text: "Vue d'ensemble" }),
     el("button", { type: "button", "data-v": "steps", text: "Deux périodes" }),
     el("button", { type: "button", "data-v": "seg", text: "Par segment" }),
   );
   const legend = () =>
     $("#co2-legend").replaceChildren(
-      ...[
-        ...(view === "steps" ? [[TOTAL, "Émissions de l'année"]] : []),
-        [UP, "Fait monter les émissions"],
-        [DOWN, "Fait baisser les émissions"],
-      ].map(([c, t]) => el("span", { class: "lg" }, [el("i", { class: "sq", style: `--c:${c}` }), t])),
+      ...(view === "index"
+        ? WHY.map((s) => el("span", { class: "lg" }, [el("i", { style: `--c:${s.color}` }), s.long]))
+        : [
+            ...(view === "steps" ? [[TOTAL, "Émissions de l'année"]] : []),
+            [UP, "Fait monter les émissions"],
+            [DOWN, "Fait baisser les émissions"],
+          ].map(([c, t]) => el("span", { class: "lg" }, [el("i", { class: "sq", style: `--c:${c}` }), t]))),
     );
+  const show = () => {
+    $("#co2-why-note").textContent = NOTES[view];
+    iNode.style.display = view === "index" ? "" : "none";
+    wNode.style.display = view === "index" ? "none" : "";
+    if (wNode._dataTable) wNode._dataTable.style.display = view === "index" ? "none" : "";
+    if (iNode._dataTable) iNode._dataTable.style.display = view === "index" ? "" : "none";
+  };
   segmented(periodSeg, view, (v) => {
     view = v;
     legend();
-    draw(wNode.clientWidth);
+    show();
+    draw(wNode.clientWidth || iNode.clientWidth);
   });
   legend();
 
-  const draw = (width) => (view === "seg" ? drawSegments(width) : drawSteps(width));
+  function drawIndex() {
+    if (iChart) return;
+    iChart = lineChart(iNode, {
+      dates: years.map((y) => toDate(y)),
+      series: WHY,
+      xDomain: [toDate(years[0]), toDate(years[L])],
+      baseline: 100,
+      yFormat: (v) => fmtNum(v, 0),
+      tipFormat: (v) => `${signedIdx(v)} depuis ${years[0]}`,
+      title: (i) => `${years[i]} (indice 100 en ${years[0]})`,
+      events: [{ date: toDate(2020), label: "Covid", short: "Covid" }],
+      endDots: true,
+      endText: (s) => `${s.label} ${signedIdx(s.values[L])}`,
+      endWidth: 172,
+      height: 320,
+      animate: true,
+      table: {
+        head: `Année (indice 100 en ${years[0]})`,
+        date: (d) => String(d.getUTCFullYear()),
+        value: (v) => fmtNum(v, 0),
+      },
+    });
+  }
+  const draw = (width) => {
+    if (view === "index") return drawIndex();
+    if (!width) return;
+    return view === "seg" ? drawSegments(width) : drawSteps(width);
+  };
 
   function drawSteps(width) {
     wNode.replaceChildren();
@@ -462,6 +549,7 @@ export function initCo2(data) {
     });
   }
 
-  onResize(wNode, draw);
-  draw(wNode.clientWidth || 600);
+  onResize(wNode, (w) => view !== "index" && draw(w));
+  show();
+  draw();
 }

@@ -13,6 +13,7 @@ import { isNum } from "./series.js";
  *   title: i => string, baseline: number|null, events: [{date: Date, label}],
  *   height, yZero: bool, endLabels: bool, area: key|null,
  *   endText: s => string (end label text, default s.label), endDots: bool (dot on each line end),
+ *   endWidth: px reserved on the right for end labels (default 128),
  *   band: {a, b, color, label}, table: {head, date, value}
  * }
  */
@@ -30,7 +31,7 @@ export function lineChart(node, initial) {
     const visible = opts.series.filter((s) => s.values.some(isNum));
     const showEnd = opts.endLabels && !narrow && visible.length <= 5;
     const eventsIn = opts.events.filter((e) => e.date >= opts.xDomain[0] && e.date <= opts.xDomain[1]);
-    const margin = { top: 14, right: showEnd ? 128 : 14, bottom: 26, left: 52 };
+    const margin = { top: 14, right: showEnd ? opts.endWidth || 128 : 14, bottom: 26, left: 52 };
 
     const x = d3
       .scaleUtc()
