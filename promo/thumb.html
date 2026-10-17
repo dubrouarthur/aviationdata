@@ -119,6 +119,34 @@
         font-weight: 550;
         color: var(--muted);
       }
+      .by {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .by img {
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: 50% 28%;
+        box-shadow:
+          0 0 0 4px var(--paper, #f6f8f6),
+          0 0 0 7px var(--blue);
+      }
+      .by b {
+        display: block;
+        font-size: 38px;
+        font-stretch: 74%;
+        font-weight: 780;
+      }
+      .by span {
+        display: block;
+        margin-top: 2px;
+        font-size: 25px;
+        font-weight: 620;
+        color: var(--blue);
+      }
       .foot b {
         color: var(--ink);
         font-weight: 700;
@@ -134,6 +162,10 @@
         <div class="stats">
           <div class="stat up"><b>+7&#8239;%</b><span>trafic international<br />depuis 2019</span></div>
           <div class="stat down"><b>−21&#8239;%</b><span>trafic intérieur<br />depuis 2019</span></div>
+        </div>
+        <div class="by">
+          <img src="out/portrait.jpg" alt="" />
+          <div><b>Arthur Dubrou</b><span>linkedin.com/in/arthur-dubrou</span></div>
         </div>
         <div class="foot">D'après les données publiques de la DGAC · <b>aviationdata.vercel.app</b></div>
       </div>

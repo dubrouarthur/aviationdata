@@ -61,7 +61,7 @@ Le dossier `promo/` fabrique la vidéo à partir des vrais graphiques du site :
 - `render.py` monte le film en MP4 1920×1080 ;
 - `thumb.py` produit la miniature.
 
-Les fichiers produits vont dans `promo/out/`, qui n'est pas versionné.
+Les fichiers produits vont dans `promo/out/`, qui n'est pas versionné. La photo de l'auteur, affichée au début, en pied de chaque scène et à la fin, est lue dans `promo/out/portrait.jpg` : elle n'est pas versionnée et doit être déposée là avant le rendu.
 
 ## Sources
 

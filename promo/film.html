@@ -104,7 +104,7 @@
       }
       #end {
         gap: 26px;
-        width: 1320px;
+        width: 1140px;
       }
       #end h1 {
         font-size: 128px;
@@ -175,6 +175,79 @@
         color: var(--muted);
         font-weight: 550;
         letter-spacing: 0.01em;
+      }
+
+      /* author: portrait + LinkedIn, on the title card, the footer and the end card */
+      .portrait {
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: 50% 28%;
+        background: var(--rule);
+      }
+      .byline {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+      .byline .portrait {
+        width: 108px;
+        height: 108px;
+        box-shadow:
+          0 0 0 4px var(--paper),
+          0 0 0 6px var(--rule);
+      }
+      .byline b {
+        display: block;
+        font-size: 36px;
+        font-weight: 760;
+        font-stretch: 78%;
+        color: var(--ink);
+      }
+      .byline span {
+        display: block;
+        margin-top: 4px;
+        font-size: 23px;
+        font-weight: 600;
+        color: var(--blue);
+      }
+      #author {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 110px;
+        width: 460px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        text-align: center;
+      }
+      #author .portrait {
+        width: 300px;
+        height: 300px;
+        margin-bottom: 18px;
+        box-shadow:
+          0 0 0 8px var(--paper),
+          0 0 0 11px var(--blue);
+      }
+      #author b {
+        font-size: 64px;
+        font-stretch: 70%;
+        font-weight: 800;
+        line-height: 1;
+      }
+      #author .li {
+        font-size: 28px;
+        font-weight: 650;
+        color: var(--blue);
+      }
+      #author .hint {
+        max-width: 400px;
+        font-family: var(--f-text);
+        font-size: 25px;
+        line-height: 1.35;
+        color: var(--ink-2);
       }
 
       /* headline column */
@@ -264,11 +337,29 @@
       #foot .wordmark {
         font-size: 32px;
       }
-      #foot span {
+      #foot .line {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         font-size: 17px;
         font-weight: 550;
         color: var(--muted);
-        letter-spacing: 0.02em;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+      }
+      #foot .line b {
+        color: var(--ink);
+        font-weight: 680;
+      }
+      #foot .sep {
+        width: 1px;
+        height: 18px;
+        margin: 0 8px;
+        background: var(--rule);
+      }
+      #foot .portrait {
+        width: 26px;
+        height: 26px;
       }
     </style>
   </head>
@@ -288,6 +379,10 @@
         <div class="eyebrow"><i></i><span data-k="eyebrow"></span></div>
         <h1 class="wordmark"><span class="l1">Le ciel à</span><br /><em class="l2">deux vitesses</em></h1>
         <p data-k="sub"></p>
+        <div class="byline">
+          <img class="portrait" src="out/portrait.jpg" alt="" />
+          <div><b data-k="author"></b><span data-k="linkedin"></span></div>
+        </div>
       </section>
 
       <section class="card" id="end">
@@ -300,6 +395,14 @@
         </div>
         <div class="source" data-k="source"></div>
       </section>
+
+      <aside id="author">
+        <img class="portrait" src="out/portrait.jpg" alt="" />
+        <div class="eyebrow"><i></i><span data-k="by"></span></div>
+        <b data-k="author"></b>
+        <div class="li" data-k="linkedin"></div>
+        <div class="hint" data-k="hint"></div>
+      </aside>
 
       <div id="chart">
         <div class="frame" id="frame-a"><img alt="" /></div>
@@ -316,7 +419,10 @@
 
       <div id="foot">
         <div class="wordmark">Le ciel à <em>deux vitesses</em></div>
-        <span>Données publiques DGAC · aviationdata.vercel.app</span>
+        <div class="line">
+          <span>Explorez les données sur <b>aviationdata.vercel.app</b></span><i class="sep"></i
+          ><img class="portrait" src="out/portrait.jpg" alt="" /><span><b>Arthur Dubrou</b> · linkedin.com/in/arthur-dubrou</span>
+        </div>
       </div>
       <div id="progress"></div>
     </div>
@@ -358,8 +464,8 @@
           );
         })
         .then(() => {
-          for (const id of ["title", "end"]) {
-            const s = SCENES.find((x) => x.id === id);
+          for (const [id, from] of [["title", "title"], ["end", "end"], ["author", "end"]]) {
+            const s = SCENES.find((x) => x.id === from);
             document.querySelectorAll(`#${id} [data-k]`).forEach((n) => (n.textContent = fr(s[n.dataset.k] || "")));
           }
           return document.fonts.ready;
@@ -530,6 +636,7 @@
           inout(title.querySelector(".l1"), u, 0.12, leave, 0.7, 0.4, 60);
           inout(title.querySelector(".l2"), u, 0.26, leave, 0.7, 0.4, 60);
           inout(title.querySelector("p"), u, 0.55, leave, 0.6);
+          inout(title.querySelector(".byline"), u, 0.95, leave, 0.6);
           title.querySelector(".l1").style.display = title.querySelector(".l2").style.display = "inline-block";
         }
 
@@ -548,6 +655,18 @@
           inout(end.querySelector(".source"), u, 2.7, 99);
           end.querySelector(".l1").style.display = end.querySelector(".l2").style.display = "inline-block";
         }
+        const author = $("#author");
+        author.style.display = sc.id === "end" ? "flex" : "none";
+        if (sc.id === "end") {
+          const img = author.querySelector(".portrait");
+          const k = outCubic(lin(u, 2.9, 3.6));
+          img.style.opacity = k;
+          img.style.transform = `scale(${(0.9 + 0.1 * k).toFixed(4)})`;
+          inout(author.querySelector(".eyebrow"), u, 3.15, 99);
+          inout(author.querySelector("b"), u, 3.25, 99);
+          inout(author.querySelector(".li"), u, 3.4, 99);
+          inout(author.querySelector(".hint"), u, 3.6, 99);
+        }
 
         // ------------------------------------------------ headline column and footer
         const cap = $("#cap");
@@ -558,11 +677,9 @@
 
         // ------------------------------------------------ motif: strong on the cards, gone behind charts
         const strong =
-          sc.id === "title" ? 1 - inOut(lin(u, sc.dur - 0.8, sc.dur)) : sc.id === "end" ? inOut(lin(u, 0.2, 1.2)) : 0;
+          sc.id === "title" ? 1 - inOut(lin(u, sc.dur - 0.8, sc.dur)) : 0; // the end card belongs to the call to action and the author
         const tags = sc.id === "title" ? lin(u, 0.9, 1.4) * (1 - lin(u, sc.dur - 1.0, sc.dur - 0.6)) : 0;
         motif(t, strong, tags);
-        // on the end card the arcs slide right, clear of the call to action
-        $("#motif").style.transform = sc.id === "end" ? "translateX(470px)" : "none";
         $("#progress").style.width = `${((t / TOTAL) * 100).toFixed(3)}%`;
 
         await Promise.all(loads.filter(Boolean));

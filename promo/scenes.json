@@ -3,9 +3,11 @@
   "scenes": [
     {
       "id": "title",
-      "dur": 3.6,
+      "dur": 4.6,
       "eyebrow": "Données publiques DGAC · 1990–2025",
-      "sub": "Trente-cinq ans de transport aérien français, racontés par les chiffres de la DGAC."
+      "sub": "Trente-cinq ans de transport aérien français, racontés par les chiffres de la DGAC.",
+      "author": "Arthur Dubrou",
+      "linkedin": "linkedin.com/in/arthur-dubrou"
     },
     {
       "id": "globe",
@@ -222,12 +224,16 @@
     },
     {
       "id": "end",
-      "dur": 7.4,
+      "dur": 8.8,
       "sub": "Un ciel international qui bat des records, un ciel intérieur qui se vide.",
       "cta": "Explorez toutes les données",
       "url": "aviationdata.vercel.app",
       "list": "Votre aéroport, vos lignes, les compagnies, les prix, le CO2",
-      "source": "Source : DGAC, données publiques (data.gouv.fr)"
+      "source": "Source : DGAC, données publiques (data.gouv.fr)",
+      "author": "Arthur Dubrou",
+      "linkedin": "linkedin.com/in/arthur-dubrou",
+      "by": "Une enquête de",
+      "hint": "Retrouvez-moi sur LinkedIn pour en parler."
     }
   ]
 }

@@ -31,4 +31,5 @@ Dashboard interactif sur le transport aérien français, construit uniquement su
 - Les noms DGAC sont en majuscules sans accents : `pretty_name()` + table `ACCENTS` dans `etl/build.py`.
 - Aéroports fermés absents d'OurAirports : coordonnées dans `data/ref/airports_manual.csv`.
 - Les faits extérieurs aux données (taxe TSBA, Ormuz, Ryanair) sont datés et sourcés dans `sources.js` ; les vérifier avant toute mise à jour du texte, jamais de lien de cause affirmé.
+- Le film lit la photo de l'auteur dans `promo/out/portrait.jpg` (non versionnée, jamais commitée) ; un graphique filmé dans une grille `.grid-2` doit passer la grille sur une colonne (CSS de scène), sinon le panneau voisin déborde dans l'image.
 - Une animation d'entrée (whileVisible, IntersectionObserver) ne joue qu'une fois : `promo/capture.py` filme les scènes dans l'ordre de la page pour ne pas la consommer avant sa scène.
