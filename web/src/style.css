@@ -735,6 +735,21 @@ footer[id] {
   color: var(--paper);
 }
 
+/* France: the two segments over time, under the map; click to pick a year */
+.france-spark {
+  margin: 4px 0 2px;
+}
+
+.france-spark svg {
+  display: block;
+  width: 100%;
+}
+
+.overlay-year small.vs {
+  color: var(--magenta);
+  font-weight: 650;
+}
+
 .timebar {
   display: flex;
   align-items: center;

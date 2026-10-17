@@ -30,13 +30,18 @@ export function initFrance(data, { france }) {
   const amax = d3.max(metroAirports, (a) => d3.max(years, (y) => aYear.get(a.code).get(y))) || 1;
   const fsc = (k, y) => yearSum(Fr.months, Fr.faisceaux[k] || [], y);
   const routesCount = (y) => pairs.filter((p) => p.pax[ry(y)] > 0).length;
+  // the reference network drawn in grey under the current one: the golden age, or 2019 for winners and losers
+  const peakYear = d3.greatest(years, (y) => fsc("MET_RAD", y));
+  const refYear = () => (state.mode === "delta" ? 2019 : peakYear);
 
   const state = { year: 2000, mode: "plain", focus: [] };
   const node = $("#france-map");
   let width = node.clientWidth || 600;
   const svg = d3.select(node).append("svg");
   const gLand = svg.append("g");
+  const gGhost = svg.append("g");
   const gRoutes = svg.append("g");
+  const gGhostApt = svg.append("g");
   const gAirports = svg.append("g");
   const gLabels = svg.append("g");
   let projection = null;
@@ -70,9 +75,9 @@ export function initFrance(data, { france }) {
   const axy = (a) => projection([a.lon, a.lat]);
   const wScale = () =>
     d3
-      .scaleSqrt()
+      .scaleLinear()
       .domain([0, pmax])
-      .range([0, Math.max(7, width * 0.014)]);
+      .range([0, Math.max(12, width * 0.022)]);
   const rScale = () =>
     d3
       .scaleSqrt()
@@ -96,12 +101,35 @@ export function initFrance(data, { france }) {
     const r = rScale();
     const yi = ry(state.year);
     const dur = animate ? 500 : 0;
+    const ref = refYear();
+    const ri = ry(ref);
+    const ghostOn = state.year !== ref;
+    const radRef = pctChange(fsc("MET_RAD", ref), fsc("MET_RAD", state.year));
     $("#france-year").replaceChildren(
       String(state.year),
       el("small", {
         text: `${fmtPax(fsc("MET_RAD", state.year))} passagers Paris–province, ${fmtPax(fsc("MET_TRA", state.year))} province–province`,
       }),
+      ...(ghostOn
+        ? [el("small", { class: "vs", text: `Paris–province : ${fmtPct(radRef, 0)} par rapport à ${ref}` })]
+        : []),
     );
+    // ghost of the reference network, same scale: what has thinned or vanished shows at a glance
+    gGhost
+      .selectAll("path")
+      .data(ghostOn ? pairs.filter((p) => p.pax[ri] > 0) : [], (p) => `${p.a}_${p.b}`)
+      .join(
+        (enter) =>
+          enter.append("path").style("fill", "none").style("stroke-linecap", "round").style("opacity", 0),
+        (update) => update,
+        (exit) => exit.transition().duration(dur).style("opacity", 0).remove(),
+      )
+      .attr("d", curve)
+      .style("stroke", cssVar("--axis"))
+      .transition()
+      .duration(dur)
+      .style("opacity", 0.55)
+      .style("stroke-width", (p) => `${Math.max(0.8, wScale()(p.pax[ri]))}px`);
     const live = pairs.filter((p) => p.pax[yi] > 0).sort((a, b) => a.pax[yi] - b.pax[yi]);
     gRoutes
       .selectAll("path")
@@ -137,7 +165,7 @@ export function initFrance(data, { france }) {
       .transition()
       .duration(dur)
       .style("opacity", 0.78)
-      .style("stroke-width", (p) => Math.max(0.8, w(p.pax[yi])));
+      .style("stroke-width", (p) => `${Math.max(0.8, w(p.pax[yi]))}px`); // px: see the ghost above
 
     const delta = (a) => pctChange(aYear.get(a.code).get(2019), aYear.get(a.code).get(state.year));
     const div = (a) => {
@@ -149,6 +177,22 @@ export function initFrance(data, { france }) {
         : d3.interpolateRgb("#e9ecea", cssVar("--blue"))(t);
     };
     const shown = metroAirports.filter((a) => (aYear.get(a.code).get(state.year) ?? 0) > 0);
+    gGhostApt
+      .selectAll("circle")
+      .data(ghostOn ? metroAirports.filter((a) => (aYear.get(a.code).get(ref) ?? 0) > 0) : [], (a) => a.code)
+      .join(
+        (enter) => enter.append("circle").style("fill", "none").attr("r", 0),
+        (update) => update,
+        (exit) => exit.remove(),
+      )
+      .attr("cx", (a) => axy(a)[0])
+      .attr("cy", (a) => axy(a)[1])
+      .style("stroke", "var(--ink-2)")
+      .style("stroke-opacity", 0.35)
+      .style("stroke-dasharray", "2 2")
+      .transition()
+      .duration(dur)
+      .attr("r", (a) => Math.max(2.2, r(aYear.get(a.code).get(ref))));
     gAirports
       .selectAll("circle")
       .data(shown, (a) => a.code)
@@ -218,6 +262,14 @@ export function initFrance(data, { france }) {
       );
 
     $("#france-legend").replaceChildren(
+      ...(ghostOn
+        ? [
+            el("span", { class: "lg" }, [
+              el("i", { style: `--c:${cssVar("--axis")}` }),
+              `en gris : le réseau de ${ref}`,
+            ]),
+          ]
+        : []),
       el("span", { class: "lg" }, [el("i", { style: "--c:var(--magenta)" }), "liaison avec Paris"]),
       el("span", { class: "lg" }, [
         el("i", { style: "--c:var(--teal)" }),
@@ -233,6 +285,112 @@ export function initFrance(data, { france }) {
             "aéroport, taille : passagers",
           ]),
     );
+    drawSpark();
+  }
+
+  // ---------------------------------------------------------------- mini timeline under the map: both segments, the year marked
+  const spark = $("#france-spark");
+  function drawSpark() {
+    const W = spark.clientWidth || width;
+    const H = 108;
+    const m = { top: 18, right: 18, bottom: 20, left: 18 };
+    const x = d3
+      .scaleLinear()
+      .domain(d3.extent(years))
+      .range([m.left, W - m.right]);
+    const rad = years.map((y) => fsc("MET_RAD", y));
+    const tra = years.map((y) => fsc("MET_TRA", y));
+    const y = d3
+      .scaleLinear()
+      .domain([0, d3.max(rad) * 1.05])
+      .range([H - m.bottom, m.top]);
+    const sv = d3
+      .select(spark)
+      .selectAll("svg")
+      .data([0])
+      .join("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("height", H);
+    sv.selectAll("*").remove();
+    sv.append("g")
+      .attr("class", "axis")
+      .attr("transform", `translate(0,${H - m.bottom})`)
+      .call(
+        d3
+          .axisBottom(x)
+          .ticks(W < 420 ? 4 : 7)
+          .tickFormat(d3.format("d"))
+          .tickSize(0)
+          .tickPadding(5),
+      )
+      .call((g) => g.select(".domain").style("stroke", "var(--rule)"));
+    const line = d3
+      .line()
+      .x((_, i) => x(years[i]))
+      .y((v) => y(v))
+      .curve(d3.curveMonotoneX);
+    for (const [vals, c] of [
+      [rad, "var(--magenta)"],
+      [tra, "var(--teal)"],
+    ])
+      sv.append("path")
+        .attr("d", line(vals))
+        .style("fill", "none")
+        .style("stroke", c)
+        .style("stroke-width", 2);
+    for (const [vals, name] of [
+      [rad, "Paris–province"],
+      [tra, "province–province"],
+    ])
+      sv.append("text")
+        .attr("class", "end-label")
+        .attr("x", m.left)
+        .attr("y", y(vals[0]) - 6)
+        .style("font-size", "11px")
+        .text(name);
+    const xi = x(state.year);
+    sv.append("line")
+      .attr("x1", xi)
+      .attr("x2", xi)
+      .attr("y1", m.top - 4)
+      .attr("y2", H - m.bottom)
+      .style("stroke", "var(--ink)")
+      .style("stroke-width", 1.5);
+    const k = years.indexOf(state.year);
+    for (const [vals, c] of [
+      [rad, "var(--magenta)"],
+      [tra, "var(--teal)"],
+    ])
+      sv.append("circle")
+        .attr("cx", xi)
+        .attr("cy", y(vals[k]))
+        .attr("r", 4)
+        .style("fill", c)
+        .style("stroke", "var(--card)")
+        .style("stroke-width", 1.5);
+    const right = xi < W / 2;
+    for (const vals of [rad, tra])
+      sv.append("text")
+        .attr("class", "end-label")
+        .attr("x", xi + (right ? 8 : -8))
+        .attr("y", y(vals[k]) + 4)
+        .attr("text-anchor", right ? "start" : "end")
+        .style("font-size", "11.5px")
+        .text(fmtPax(vals[k]));
+    // the whole strip picks a year
+    sv.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", W)
+      .attr("height", H)
+      .attr("fill", "transparent")
+      .style("cursor", "pointer")
+      .on("click", (event) => {
+        const [px] = d3.pointer(event);
+        const yr = Math.round(x.invert(px));
+        timeline.stop();
+        timeline.set(Math.max(years[0], Math.min(lastYear, yr)));
+      });
   }
 
   let timelineHook = () => {};
@@ -284,7 +442,7 @@ export function initFrance(data, { france }) {
 
   // ---------------------------------------------------------------- moments (preset views) and captions
   const exits = RYANAIR_EXITS.map((c) => A.airports.find((a) => a.code === c)).filter(Boolean);
-  const peak = d3.greatest(years, (y) => fsc("MET_RAD", y));
+  const peak = peakYear;
   const vs19 = (a) => fmtPct(pctChange(aYear.get(a.code).get(2019), aYear.get(a.code).get(lastYear)), 0);
   const CAPTIONS = {
     peak: [
