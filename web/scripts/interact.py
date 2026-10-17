@@ -168,11 +168,28 @@ with sync_playwright() as p:
     page.locator("#chips-dist .chip").nth(4).click()
     page.wait_for_timeout(300)
     check("distance chip adds Outre-mer", page.locator("#chart-dist path.series-line").count() == n0 + 1)
+    scroll_to(page, "#chart-co2-seg")
+    check("CO2 stacked by segment", page.locator("#chart-co2-seg svg path").count() >= 4)
+    check("CO2 stacked legend", page.locator("#chart-co2-seg .legend-row .lg").count() == 4)
+    box = page.locator("#chart-co2-seg svg").bounding_box()
+    page.mouse.move(box["x"] + box["width"] * 0.5, box["y"] + box["height"] * 0.6)
+    page.wait_for_timeout(150)
+    check("CO2 stacked tooltip lists segments", tip_on() and "Long-courrier" in tip.inner_text())
+    check("CO2 per passenger-km lines", page.locator("#chart-co2-g path.series-line").count() == 5)
     scroll_to(page, "#chart-waterfall")
     check("waterfall has 7 bars", page.locator("#chart-waterfall g.step rect").count() == 7)
+    wt = page.locator("#chart-waterfall").inner_text()
+    check("waterfall period brackets", "2000 → 2019" in wt and "2019 → 2024" in wt, wt[:200])
+    check("waterfall legend", "Fait baisser" in page.locator("#co2-legend").inner_text())
+    page.locator("#chart-waterfall g.step rect").nth(1).hover(force=True)
+    page.wait_for_timeout(150)
+    check("waterfall tooltip", tip_on() and "passagers-km" in tip.inner_text())
     page.locator('#co2-period button[data-v="seg"]').click()
     page.wait_for_timeout(300)
     check("CO2 per-segment view", "International" in page.locator("#chart-waterfall").inner_text())
+    check("CO2 per-segment table", page.locator("#chart-waterfall + details.data tbody tr").count() == 4)
+    page.locator('#co2-period button[data-v="steps"]').click()
+    page.wait_for_timeout(300)
 
     # --- airport explorer
     scroll_to(page, "#apt-input")
@@ -206,6 +223,14 @@ with sync_playwright() as p:
     page.wait_for_timeout(150)
     check("route hover tooltip", tip_on() and "distance" in tip.inner_text())
 
+    # --- freight
+    scroll_to(page, "#chart-fret")
+    check("freight stacked by continent", page.locator("#chart-fret .legend-row .lg").count() == 5)
+    check("freight airports: 8 bars", page.locator("#chart-fret-apt svg rect").count() == 8)
+    page.locator("#chart-fret-apt svg rect").first.hover(force=True)
+    page.wait_for_timeout(150)
+    check("freight airport tooltip", tip_on() and "part des aéroports" in tip.inner_text())
+
     # --- carriers race
     scroll_to(page, "#chart-race", 1200)
     page.locator("#race-play").click()  # pause the autoplay if it started, or start it
@@ -214,6 +239,12 @@ with sync_playwright() as p:
     page.wait_for_timeout(800)
     check("race shows 2015", "2015" in page.locator("#chart-race .race-year").text_content())
     check("race bars", page.locator("#chart-race .race-bar").count() >= 10)
+
+    # --- flag carriers
+    scroll_to(page, "#chart-pav", 1200)
+    check("French vs foreign lines", page.locator("#chart-pav path.series-line").count() == 2)
+    check("foreign carriers by country", page.locator("#chart-pav-pays path.series-line").count() == 4)
+    check("flag text computed", "Autriche" in page.locator("#pav-text").inner_text())
 
     # --- prices
     scroll_to(page, "#chart-heat")

@@ -33,10 +33,13 @@
           <a href="#spirale">35 ans</a>
           <a href="#remplissage">Avions pleins</a>
           <a href="#covid">Covid</a>
+          <a href="#fret">Fret</a>
           <a href="#france">France</a>
-          <a href="#distance">Distance et CO2</a>
+          <a href="#distance">Distance</a>
+          <a href="#co2">CO2</a>
           <a href="#aeroport">Votre aéroport</a>
           <a href="#compagnies">Compagnies</a>
+          <a href="#pavillon">Pavillon</a>
           <a href="#prix">Prix</a>
         </nav>
       </div>
@@ -175,6 +178,32 @@
         </div>
       </section>
 
+      <!-- freight -->
+      <section class="chapter wrap" id="fret" aria-labelledby="h-fret">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-fret">Le fret aérien, l'autre trafic</h2>
+            <div class="prose" id="fret-text"></div>
+          </div>
+          <aside class="keyfig" id="kf-fret" aria-label="Chiffre clé"></aside>
+        </div>
+        <div class="grid-2" style="margin-top: 22px">
+          <div class="panel">
+            <h3>Fret et courrier par continent</h3>
+            <p class="note">
+              Tonnes transportées par avion entre la France et chaque continent, et à l'intérieur du pays (kt
+              : milliers de tonnes).
+            </p>
+            <div class="chart" id="chart-fret"></div>
+          </div>
+          <div class="panel">
+            <h3>Les aéroports du fret</h3>
+            <p class="note" id="fret-apt-note"></p>
+            <div class="chart" id="chart-fret-apt"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- 5. domestic France: route map + clickable moments -->
       <section class="chapter wrap" id="france" aria-labelledby="h-france">
         <div class="chapter-head">
@@ -218,22 +247,61 @@
       <section class="chapter wrap" id="distance" aria-labelledby="h-dist">
         <div class="chapter-head">
           <div class="chapter-lede">
-            <h2 class="section-title" id="h-dist">On part plus loin, et le CO2 suit</h2>
+            <h2 class="section-title" id="h-dist">On part plus loin</h2>
             <div class="prose" id="dist-text"></div>
           </div>
           <aside class="keyfig" id="kf-dist" aria-label="Chiffre clé"></aside>
         </div>
+        <div class="panel" style="margin-top: 22px">
+          <h3>Distance moyenne parcourue par passager</h3>
+          <p class="note">
+            Passagers-kilomètres divisés par passagers, par segment. Cliquez sur un segment pour l'afficher ou
+            le masquer.
+          </p>
+          <div class="chips" id="chips-dist" role="group" aria-label="Segments affichés"></div>
+          <div class="chart" id="chart-dist" tabindex="0" aria-label="Distance moyenne par passager"></div>
+        </div>
+      </section>
+
+      <!-- 7. CO2 -->
+      <section class="chapter wrap" id="co2" aria-labelledby="h-co2">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-co2">Le CO2 : plus de trafic, mais des vols plus sobres</h2>
+            <div class="prose" id="co2-text"></div>
+          </div>
+          <aside class="keyfig" id="kf-co2" aria-label="Chiffre clé"></aside>
+        </div>
         <div class="grid-2" style="margin-top: 22px">
           <div class="panel">
-            <h3>Distance moyenne parcourue par passager</h3>
-            <div class="chips" id="chips-dist" role="group" aria-label="Segments affichés"></div>
-            <div class="chart" id="chart-dist" tabindex="0" aria-label="Distance moyenne par passager"></div>
+            <h3>D'où viennent les émissions</h3>
+            <p class="note">
+              Émissions nettes de CO2 par segment, en millions de tonnes. Intérieur : vols en métropole.
+              Outre-mer : vols vers et entre les territoires d'Outre-mer. Moyen- et long-courrier : vols
+              internationaux.
+            </p>
+            <div class="chart" id="chart-co2-seg"></div>
           </div>
           <div class="panel">
-            <h3>Ce qui a fait bouger les émissions de CO2</h3>
-            <div class="seg" role="group" aria-label="Période" id="co2-period"></div>
-            <div class="chart" id="chart-waterfall"></div>
+            <h3>CO2 par passager et par kilomètre</h3>
+            <p class="note">
+              Grammes de CO2 par passager-kilomètre (le fret est compté en équivalent passager).
+            </p>
+            <div class="chart" id="chart-co2-g" tabindex="0" aria-label="CO2 par passager-kilomètre"></div>
           </div>
+        </div>
+        <div class="panel" style="margin-top: 22px">
+          <h3>Pourquoi les émissions ont monté, puis baissé</h3>
+          <p class="note">
+            On part des émissions d'une année et on ajoute deux effets. Effet trafic : ce qu'auraient changé
+            les passagers-kilomètres supplémentaires (ou perdus) à efficacité constante. Effet efficacité : ce
+            qu'a changé la baisse du CO2 émis pour chaque passager-kilomètre. En millions de tonnes de CO2.
+          </p>
+          <div class="controls">
+            <div class="seg" role="group" aria-label="Vue" id="co2-period"></div>
+            <div class="legend-row" id="co2-legend"></div>
+          </div>
+          <div class="chart" id="chart-waterfall"></div>
         </div>
       </section>
 
@@ -301,6 +369,45 @@
           <div class="legend-row" id="race-legend"></div>
           <div class="chart" id="chart-race"></div>
           <p class="note" id="cie-note"></p>
+        </div>
+      </section>
+
+      <!-- flag carriers -->
+      <section class="chapter wrap" id="pavillon" aria-labelledby="h-pav">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-pav">Qui vous transporte ?<br />Le pavillon français recule</h2>
+            <div class="prose" id="pav-text"></div>
+          </div>
+          <aside class="keyfig" id="kf-pav" aria-label="Chiffre clé"></aside>
+        </div>
+        <div class="grid-2" style="margin-top: 22px">
+          <div class="panel">
+            <h3>Passagers des compagnies françaises et étrangères</h3>
+            <p class="note">
+              Millions de passagers au départ et à l'arrivée de la France, selon la nationalité de la
+              compagnie.
+            </p>
+            <div
+              class="chart"
+              id="chart-pav"
+              tabindex="0"
+              aria-label="Passagers des compagnies françaises et étrangères"
+            ></div>
+          </div>
+          <div class="panel">
+            <h3>Les compagnies étrangères, par pays</h3>
+            <p class="note">
+              Passagers des compagnies de chaque pays, en millions : les trois premiers pays en 2025 et le
+              Royaume-Uni.
+            </p>
+            <div
+              class="chart"
+              id="chart-pav-pays"
+              tabindex="0"
+              aria-label="Compagnies étrangères par pays"
+            ></div>
+          </div>
         </div>
       </section>
 

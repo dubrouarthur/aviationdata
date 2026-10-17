@@ -9,10 +9,13 @@ const CHAPTERS = [
   ["spiral", () => import("./modules/spiral.js").then((m) => m.initSpiral)],
   ["fill", () => import("./modules/fill.js").then((m) => m.initFill)],
   ["covid", () => import("./modules/covid.js").then((m) => m.initCovid)],
+  ["fret", () => import("./modules/fret.js").then((m) => m.initFret)],
   ["france", () => import("./modules/france.js").then((m) => m.initFrance)],
   ["distance", () => import("./modules/distance.js").then((m) => m.initDistance)],
+  ["co2", () => import("./modules/co2.js").then((m) => m.initCo2)],
   ["airport", () => import("./modules/airport.js").then((m) => m.initAirport)],
   ["race", () => import("./modules/race.js").then((m) => m.initRace)],
+  ["pavillon", () => import("./modules/pavillon.js").then((m) => m.initPavillon)],
   ["prices", () => import("./modules/prices.js").then((m) => m.initPrices)],
   ["sources", () => import("./modules/sources.js").then((m) => m.initSources)],
 ];

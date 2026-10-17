@@ -17,7 +17,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
 D = {k: json.loads((ROOT / "public" / "data" / f"{k}.json").read_text()) for k in
-     ("fracture", "aeroports", "compagnies", "prix", "co2", "monde", "routes")}  # fmt: skip
+     ("fracture", "aeroports", "compagnies", "prix", "co2", "monde", "routes", "fret")}  # fmt: skip
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 failures = []
 
@@ -114,6 +114,42 @@ def wyear(c, y):
 
 
 intl_year = {y: sum(wsum(j) for j, m in enumerate(MM) if m.startswith(str(y))) for y in (1990, 2019, last)}
+
+# CO2 by segment, grams per passenger-km
+CM, CG = D["co2"]["mt"], D["co2"]["g_peqkm"]
+co2_last = D["co2"]["years"][-1]
+
+# average distance (LSN passenger-km / passengers)
+PF = F["par_faisceau"]
+
+
+def avg_km(keys, i):
+    pkt = sum(PF[k]["pkt"][i] or 0 for k in keys if k in PF)
+    pax = sum(PF[k]["pax"][i] or 0 for k in keys if k in PF)
+    return pkt / pax
+
+
+# freight (LSN) and airports' freight (APT, national total keeps the airports below the threshold)
+FR = D["fret"]
+FY, FT, FC = FR["years"], FR["total"], FR["continents"]
+f19, f20 = FY.index(2019), FY.index(2020)
+dom_peak = max(range(len(FY)), key=lambda i: FC["Intérieur"][i])
+cdg = next(a for a in A["airports"] if a["code"] == "LFPG")
+cdg_share = cdg["fret"][-1] / asum(N["fret"], AY[-1]) * 100
+cdg_pax_share = asum(cdg["pax"], AY[-1]) / asum(N["pax"], AY[-1]) * 100
+
+# French vs foreign carriers
+PV, CY = C["pavillon"], C["years"]
+pays = {p["nom"]: p["pax"] for p in C["pays"]}
+k17 = CY.index(2017)
+
+
+def fshare(i):
+    return PV["F"][i] / (PV["F"][i] + PV["E"][i]) * 100
+
+
+gF, gE = pct(PV["F"][0], PV["F"][-1]), pct(PV["E"][0], PV["E"][-1])
+WORDS = {2: "deux", 3: "trois", 4: "quatre", 5: "cinq", 6: "six", 7: "sept", 8: "huit"}
 top3 = [c["nom"] for c in sorted(MC, key=lambda c: -wyear(c, last))[:3]]
 movers = [c for c in MC if wyear(c, 2019) > 400000]
 gain = sorted(movers, key=lambda c: -pct(wyear(c, 2019), wyear(c, last)))[:4]
@@ -194,15 +230,88 @@ with sync_playwright() as p:
         f"{fr(abs(pct(rad[2019], rad[last])), 1)} %",
         f"{fr(abs(pct(fsum(['MET_TRA'], 2019), fsum(['MET_TRA'], last))), 1)} %",
     )
-    p1, p2 = CO[0], CO[1]
+    allk = list(PF)
+    km = [avg_km(allk, i) for i in range(len(Y))]
     check(
-        "distance and CO2",
-        text("#dist-text"),
+        "distance",
+        text("#dist-text") + text("#kf-dist"),
+        f"{fr(km[iL])} km",
+        f"{fr(km[0])} km en {Y[0]}",
+        f"+{fr(pct(km[0], km[iL]))} %",
+        f"{fr(avg_km(['MET_INTL', 'OM_INTL'], iL))} km",
+        f"{fr(avg_km(['MET_RAD'], iL))} km",
+    )
+    p1, p2 = CO[0], CO[1]
+    T, G = CM["FRANCE_TOT"], CG["FRANCE_TOT"]
+    check(
+        "CO2",
+        text("#co2-text"),
+        f"{fr(T[-1], 1)} millions de tonnes",
+        f"{fr(CM['INTL_LC'][-1] / T[-1] * 100)} %",
+        f"{fr(CM['MET_INTERIEUR'][-1], 1)} Mt",
+        f"{fr(abs(pct(CM['MET_INTERIEUR'][0], CM['MET_INTERIEUR'][-1])))} % de moins",
+        f"{fr(G[-1])} g de CO2, contre {fr(G[0])} g",
+        f"−{fr(abs(pct(G[0], G[-1])))} %",
+        f"{fr(CG['MET_INTERIEUR'][-1])} g, contre {fr(CG['INTL_LC'][-1])} g",
         f"{fr(p1['trafic'], 1)} Mt",
         f"{fr(-p1['intensite'], 1)} Mt",
-        f"{fr(p1['c1'] - p1['c0'], 1)} Mt",
+        f"{fr(p1['c1'] - p1['c0'], 1)} Mt de plus",
         f"{fr(abs(pct(p2['c0'], p2['c1'])), 1)} %",
+        f"{fr(p2['trafic_pct'], 1)} %".replace("-", "−"),
+        f"{fr(p2['intensite_pct'], 1)} %".replace("-", "−"),
     )
+    check("CO2 key figures", text("#kf-co2"), f"{fr(T[-1], 1)} Mt", f"−{fr(abs(pct(G[0], G[-1])))} %")
+    # the waterfall's net changes per period
+    check(
+        "CO2 waterfall",
+        text("#chart-waterfall"),
+        f"{fr(p1['c0'], 1)} Mt",
+        f"+{fr(p1['trafic'], 1)} Mt",
+        f"−{fr(-p1['intensite'], 1)} Mt",
+        f"{p1['from']} → {p1['to']} : +{fr(p1['c1'] - p1['c0'], 1)} Mt",
+        f"{p2['from']} → {p2['to']} : −{fr(p2['c0'] - p2['c1'], 1)} Mt",
+    )
+    dom = FC["Intérieur"]
+    paxc = pct(fa["TOTAL"][Y.index(2019)], fa["TOTAL"][Y.index(2020)])
+    check(
+        "freight",
+        text("#fret-text"),
+        f"{fr(FT[-1] / 1e6, 2)} millions de tonnes",
+        f"{fr(abs(pct(FT[f19], FT[-1])))} % de moins",
+        f"({fr(FT[f19] / 1e6, 2)} Mt)",
+        f"reculé que de {fr(abs(pct(FT[f19], FT[f20])))} %",
+        f"chutaient de {fr(abs(paxc))} %",
+        f"Asie ({fr(FC['Asie'][-1] / 1e3)} kt)",
+        f"Europe ({fr(FC['Europe'][-1] / 1e3)} kt)",
+        f"{fr(FC['Asie'][-1] / FT[-1] * 100)} % et {fr(FC['Europe'][-1] / FT[-1] * 100)} %",
+        f"Amérique ({fr(FC['Amérique'][-1] / FT[-1] * 100)} %)",
+        f"{fr(abs(pct(dom[dom_peak], dom[-1])))} % depuis son sommet de {FY[dom_peak]}",
+        f"{fr(cdg_share)} % à lui seul, contre {fr(cdg_pax_share)} %",
+    )
+    check("freight key figures", text("#kf-fret"), f"{fr(FT[-1] / 1e6, 2)} Mt", f"{fr(cdg_share)} %")
+    times = round(gE / gF)
+    check(
+        "flag carriers",
+        text("#pav-text"),
+        f"({fr(fshare(0), 1)} %)",
+        f"plus que {fr(fshare(-1), 1)} %",
+        f"+{fr(gF)} %, {fr(PV['F'][-1] / 1e6, 1)} M",
+        f"{WORDS[times]} fois plus vite",
+        f"+{fr(gE)} %, {fr(PV['E'][-1] / 1e6, 1)} M",
+        f"de {fr(pays['Autriche'][k17] / 1e6, 1)} M de passagers en 2017 à {fr(pays['Autriche'][-1] / 1e6, 1)} M",
+        f"de {fr(pays['Royaume-Uni'][k17] / 1e6, 1)} M à {fr(pays['Royaume-Uni'][-1] / 1e6, 1)} M",
+        f"Irlande ({fr(pays['Irlande'][-1] / 1e6, 1)} M)",
+        f"Espagne ({fr(pays['Espagne'][-1] / 1e6, 1)} M)",
+    )
+    check(
+        "flag key figures",
+        text("#kf-pav"),
+        f"{fr(fshare(-1))} %",
+        f"contre {fr(fshare(0))} %",
+        f"+{fr(gE)} %",
+        f"+{fr(gF)} %",
+    )
+    assert C["pays"][0]["nom"] == "Autriche", "story says Austria is the first foreign country"
     check(
         "carriers",
         text("#cie-text"),

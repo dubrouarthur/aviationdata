@@ -69,6 +69,19 @@ export function initSources(data) {
         text: "Passagers par vol : passagers des aéroports (arrivées et départs) divisés par leurs mouvements d'avions de passagers (série APT). Distance moyenne : passagers-kilomètres divisés par passagers (LSN).",
       }),
       el("li", {
+        text: "Fret : tonnes de fret et de courrier transportées par avion, par continent et par segment (série par liaison, LSN). Le fret des aéroports additionne ce qui est chargé et déchargé (série APT) : un envoi intérieur y compte deux fois, au départ et à l'arrivée.",
+      }),
+      el("li", {}, [
+        "Pavillon : nationalité de la compagnie et pays de la compagnie, tels que la DGAC les publie dans la série par compagnie ; toutes les lignes comptent, y compris celles regroupées sous le seuil de diffusion. Création d'easyJet Europe, compagnie basée à Vienne, annoncée en juillet 2017 pour conserver les droits de vol d'easyJet dans l'Union européenne après le Brexit (",
+        el("a", {
+          href: "https://www.voyages-d-affaires.com/brexit-easyjet-autriche-20170716.html",
+          text: "Voyages d'affaires, 16 juillet 2017",
+          target: "_blank",
+          rel: "noopener",
+        }),
+        "). Le rapprochement avec les courbes est une juxtaposition, pas une mesure.",
+      ]),
+      el("li", {
         text: "Décomposition du CO2 : méthode LMDI. Le trafic est déduit des séries DGAC elles-mêmes (émissions divisées par les émissions par passager-équivalent-kilomètre), si bien que l'effet du trafic et celui de l'efficacité s'additionnent exactement à la variation observée.",
       }),
       el("li", {
