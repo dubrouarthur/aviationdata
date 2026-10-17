@@ -11,7 +11,7 @@ Dashboard interactif sur le transport aérien français, construit uniquement su
 - `python3 web/scripts/interact.py` : parcours Playwright de toutes les interactions (servir `web/dist` sur 127.0.0.1:4173) ; `web/scripts/story_shots.py DIR "#sel,..." [--mobile]` pour les captures.
 - `python3 web/scripts/audit_numbers.py` : recalcule en Python chaque chiffre écrit dans le récit et le compare au texte affiché (même serveur).
 - `python3 promo/capture.py && python3 promo/render.py` : film promo (graphiques réels filmés image par image, horloge simulée), sortie dans `promo/out/` (non versionné).
-- Déploiement : Vercel lit `vercel.json` (build `web/`, sortie `web/dist`) ; `SITE_URL` ou le domaine Vercel rend les balises og:image absolues.
+- Déploiement : Vercel lit `vercel.json` (build `web/`, sortie `web/dist`) ; `SITE_URL` ou le domaine Vercel rend les balises og:image absolues. Pas d'`ignoreCommand` : Vercel ne construit que le dernier commit d'un push, et un `git diff HEAD^ HEAD` sautait tout push finissant par un commit hors `web/`.
 
 ## Contrat de données
 
