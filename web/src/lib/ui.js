@@ -37,6 +37,42 @@ export function segmented(root, initial, onChange, attr = "v") {
   return { set };
 }
 
+/**
+ * Preset views ("moments") shown as tabs: the reader clicks instead of scrolling through steps.
+ * items: [{key, label, hint}]; returns {select(key, fire = true), mark(key)}; mark(null) clears the selection.
+ */
+export function moments(root, items, onPick) {
+  root.setAttribute("role", "tablist");
+  const buttons = items.map((it) =>
+    el("button", { type: "button", role: "tab", "aria-selected": "false", "data-k": it.key }, [
+      el("b", { text: it.label }),
+      it.hint ? el("span", { text: it.hint }) : null,
+    ]),
+  );
+  const mark = (key) =>
+    buttons.forEach((b) => {
+      b.setAttribute("aria-selected", String(b.dataset.k === key));
+      b.tabIndex = b.dataset.k === key || (key === null && b === buttons[0]) ? 0 : -1;
+    });
+  const select = (key, fire = true) => {
+    mark(key);
+    if (fire) onPick(key);
+  };
+  buttons.forEach((b, i) => {
+    b.addEventListener("click", () => select(b.dataset.k));
+    b.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      const next = buttons[(i + step + buttons.length) % buttons.length];
+      next.focus();
+      select(next.dataset.k);
+    });
+  });
+  root.replaceChildren(...buttons);
+  return { select, mark };
+}
+
 /** Toggle chips doubling as the legend. items: [{key, label, color, dashed, on}] */
 export function chips(root, items, onChange) {
   root.replaceChildren();

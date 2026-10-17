@@ -1,25 +1,3 @@
-// Scrollytelling: the step crossing the middle of the viewport becomes active and drives its graphic.
-export function scrolly(stepsRoot, onStep) {
-  const steps = [...stepsRoot.querySelectorAll(".step")];
-  let current = -1;
-  const activate = (el) => {
-    const i = Number(el.dataset.step);
-    if (i === current) return;
-    current = i;
-    steps.forEach((s) => s.classList.toggle("is-active", s === el));
-    onStep(i);
-  };
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) if (e.isIntersecting) activate(e.target);
-    },
-    { rootMargin: "-45% 0px -45% 0px" },
-  );
-  steps.forEach((s) => io.observe(s));
-  activate(steps[0]);
-  return { current: () => current };
-}
-
 /** Run fn while node is on screen (animation loops), pause otherwise. */
 export function whileVisible(node, onShow, onHide) {
   const io = new IntersectionObserver((entries) => {

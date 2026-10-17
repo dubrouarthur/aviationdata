@@ -1,5 +1,5 @@
 /* Le ciel à deux vitesses — light only, aeronautical-chart paper.
-   Layout: editorial scrollytelling — narrative column + sticky graphic, then free exploration.
+   Layout: editorial — a hero globe with clickable moments, then chapters of charts to explore.
    Series inks are validated (dataviz validate_palette.js, light, on --paper):
    blue = international, magenta = Paris–province / domestic, ochre = outre-mer, teal = province–province / low-cost. */
 :root {
@@ -109,7 +109,7 @@ h3 {
 }
 
 .brand span {
-  color: var(--magenta);
+  color: var(--blue);
 }
 
 .topnav {
@@ -190,7 +190,7 @@ h3 {
 }
 
 .note {
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   color: var(--muted);
   line-height: 1.45;
   max-width: 64em;
@@ -222,7 +222,7 @@ h3 {
   color: var(--teal);
 }
 
-/* ------------------------------------------------------------------ scrollytelling */
+/* ------------------------------------------------------------------ chapters */
 .chapter {
   padding: 72px 0 24px;
   border-top: 1px solid var(--rule);
@@ -233,94 +233,174 @@ h3 {
   padding-top: 24px;
 }
 
-.scrolly {
+/* ------------------------------------------------------------------ hero and story layouts */
+.hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: 48px;
+  grid-template-areas:
+    "head globe"
+    "moments globe";
+  grid-template-rows: auto 1fr;
+  column-gap: 48px;
+  row-gap: 8px;
   align-items: start;
 }
 
-.scrolly.flip {
+.hero-head {
+  grid-area: head;
+  padding-top: 4vh;
+}
+
+.hero-globe {
+  grid-area: globe;
+}
+
+.hero-moments {
+  grid-area: moments;
+}
+
+.hero .display {
+  font-size: clamp(3.4rem, 6.4vw, 5.9rem);
+}
+
+.hero .prose p {
+  margin-bottom: 0.4em;
+}
+
+.story-grid {
+  display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 48px;
+  align-items: center;
 }
 
-.scrolly.flip .steps {
-  order: 2;
+.story-grid > * {
+  min-width: 0;
 }
 
-.steps {
-  position: relative;
-  z-index: 2;
-}
-
-.step {
-  min-height: 78vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 24px 0;
-}
-
-.step:first-child {
-  min-height: 70vh;
-  justify-content: flex-start;
-  padding-top: 8vh;
-}
-
-.step:last-child {
-  min-height: 60vh;
-}
-
-.step .card {
-  background: color-mix(in srgb, var(--card) 92%, transparent);
-  border: 1px solid var(--rule);
-  border-radius: 14px;
-  padding: 22px 24px;
-  box-shadow: var(--shadow);
-  max-width: 30em;
-  transition:
-    opacity 0.3s,
-    transform 0.3s;
-  opacity: 0.45;
-}
-
-.step.is-active .card {
-  opacity: 1;
-}
-
-.step .card h3 {
-  font-family: var(--f-display);
-  font-stretch: 70%;
-  font-weight: 780;
-  font-size: 1.7rem;
-  line-height: 1;
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
   margin: 0 0 10px;
 }
 
-.step .card p {
-  font-family: var(--f-text);
-  font-size: 1.04rem;
-  line-height: 1.58;
-  color: var(--ink-2);
-  margin: 0 0 0.6em;
+/* moments: preset views as tabs */
+.moments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.step .card p:last-child {
+.moments button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 96px;
+  padding: 9px 14px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.moments button b {
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 780;
+  font-size: 1.12rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.moments button span {
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.moments button:hover {
+  border-color: var(--axis);
+}
+
+.moments button[aria-selected="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.moments button[aria-selected="true"] span {
+  color: #b9c3be;
+}
+
+.moment-card {
+  margin-top: 16px;
+  padding: 20px 22px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  min-height: 150px;
+}
+
+.moment-card h3 {
+  font-family: var(--f-display);
+  font-stretch: 70%;
+  font-weight: 780;
+  font-size: 1.55rem;
+  line-height: 1.02;
+  margin: 0 0 10px;
+}
+
+.moment-card p {
+  font-family: var(--f-text);
+  font-size: 1.02rem;
+  line-height: 1.58;
+  color: var(--ink-2);
+  margin: 0 0 0.5em;
+}
+
+.moment-card p:last-child {
   margin-bottom: 0;
 }
 
-.step .card strong {
+.moment-card strong {
   color: var(--ink);
 }
 
-.sticky {
-  position: sticky;
-  top: max(12px, env(safe-area-inset-top, 0px));
-  height: calc(100vh - 24px);
-  max-height: 900px;
+/* country explorer under the globe */
+.explorer {
+  margin-top: 28px;
+}
+
+.explorer-head {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+  margin-bottom: 10px;
+}
+
+.explorer-head h3 {
+  margin: 0;
+}
+
+.rank.cols {
+  columns: 3;
+  column-gap: 32px;
+}
+
+.rank.cols li {
+  break-inside: avoid;
 }
 
 .graphic {
@@ -525,7 +605,7 @@ h3 {
 .axis text {
   fill: var(--muted);
   font-family: var(--f-ui);
-  font-size: 11.5px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -804,6 +884,45 @@ details.data td:first-child {
   max-height: 340px;
 }
 
+/* ------------------------------------------------------------------ prices vs traffic small multiples */
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 12px 0 6px;
+  font-size: 0.86rem;
+  color: var(--ink-2);
+}
+
+.legend-row .lg i {
+  height: 3px;
+}
+
+.legend-row .lg i.area {
+  height: 12px;
+  width: 16px;
+  border-radius: 3px;
+  background: var(--magenta-soft);
+}
+
+.sm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px 28px;
+}
+
+.sm h4 {
+  font-family: var(--f-display);
+  font-stretch: 74%;
+  font-weight: 760;
+  font-size: 1.12rem;
+  margin: 8px 0 2px;
+}
+
+.sm > div {
+  min-width: 0;
+}
+
 /* ------------------------------------------------------------------ airport explorer */
 .facts {
   display: grid;
@@ -884,49 +1003,25 @@ details.data td:first-child {
 
 /* ------------------------------------------------------------------ responsive */
 @media (max-width: 960px) {
-  .scrolly,
-  .scrolly.flip {
+  .hero-grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0;
+    grid-template-areas:
+      "head"
+      "globe"
+      "moments";
   }
 
-  .scrolly .sticky {
-    top: 0;
-    height: auto;
-    max-height: none;
-    padding-top: max(8px, env(safe-area-inset-top, 0px));
-    background: var(--paper);
-    z-index: 1;
+  .hero-head {
+    padding-top: 0;
   }
 
-  .scrolly .steps {
-    order: 2;
-    margin-top: -4vh;
-    position: relative;
-    z-index: 2;
+  .story-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
   }
 
-  /* the hero text scrolls over the sticky globe: give it the page background */
-  .step.hero-step {
-    background: var(--paper);
-    box-shadow: 0 -18px 18px var(--paper);
-    padding-top: 12px;
-  }
-
-  .step,
-  .step:first-child,
-  .step:last-child {
-    min-height: 62vh;
-    padding-top: 24px;
-  }
-
-  .step .card {
-    opacity: 1;
-    background: var(--card);
-  }
-
-  .step.hero-step {
-    margin-top: calc(4vh + 10px);
+  .rank.cols {
+    columns: 2;
   }
 
   .grid-2,
@@ -976,8 +1071,31 @@ details.data td:first-child {
     scrollbar-width: none;
   }
 
-  .seg::-webkit-scrollbar {
+  .seg::-webkit-scrollbar,
+  .moments::-webkit-scrollbar {
     display: none;
+  }
+
+  /* moments become one swipeable row */
+  .moments {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+    padding-right: 16px;
+  }
+
+  .moments button {
+    flex: none;
+    min-width: 0;
+  }
+
+  .moment-card {
+    min-height: 0;
+  }
+
+  .rank.cols {
+    columns: 1;
   }
 }
 

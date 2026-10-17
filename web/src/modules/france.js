@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { $, el, rich, showTip, hideTip, onResize, cssVar } from "../lib/ui.js";
-import { scrolly, player } from "../lib/scrolly.js";
+import { $, el, rich, moments, showTip, hideTip, onResize, cssVar } from "../lib/ui.js";
+import { player } from "../lib/scrolly.js";
 import { yearSum, pctChange, isNum } from "../lib/series.js";
 import { fmtPax, fmtPct, fmtPctAbs, fmtNum, monthShort } from "../lib/format.js";
 import { shortName } from "./names.js";
@@ -9,7 +9,7 @@ const PARIS = new Set(["LFPG", "LFPO", "LFOB"]);
 const RYANAIR_EXITS = ["LFBE", "LFSL", "LFST", "LFLC"];
 const isMetro = (p) => p.lat > 41 && p.lat < 51.6 && p.lon > -5.6 && p.lon < 10;
 
-/** Domestic France: detailed routes (PAP) and airport traffic (APT), 1990 -> today, told in steps. */
+/** Domestic France: detailed routes (PAP) and airport traffic (APT), 1990 -> today, with clickable moments. */
 export function initFrance(data, { france }) {
   const R = data.routes;
   const A = data.aeroports;
@@ -206,7 +206,10 @@ export function initFrance(data, { france }) {
       .attr("class", "end-label")
       .style("font-weight", (a) => (state.focus.includes(a.code) ? 750 : 550))
       .attr("text-anchor", (a) => (side.get(a.code) < 0 ? "end" : "start"))
-      .attr("x", (a) => axy(a)[0] + side.get(a.code) * (Math.max(2.2, r(aYear.get(a.code).get(state.year))) + 4))
+      .attr(
+        "x",
+        (a) => axy(a)[0] + side.get(a.code) * (Math.max(2.2, r(aYear.get(a.code).get(state.year))) + 4),
+      )
       .attr("y", (a) => axy(a)[1] + 4)
       .text((a) =>
         state.mode === "delta" && state.year !== 2019
@@ -232,6 +235,7 @@ export function initFrance(data, { france }) {
     );
   }
 
+  let timelineHook = () => {};
   const timeline = player({
     button: $("#france-play"),
     slider: $("#france-slider"),
@@ -241,69 +245,111 @@ export function initFrance(data, { france }) {
     labels: { play: "Lancer l'animation des liaisons intérieures", pause: "Mettre en pause" },
     onChange: (y) => {
       state.year = y;
+      state.mode = "plain";
+      state.focus = [];
       paint(true);
+      timelineHook(y);
     },
   });
 
-  // ---------------------------------------------------------------- steps
+  // ---------------------------------------------------------------- moments (preset views) and captions
   const exits = RYANAIR_EXITS.map((c) => A.airports.find((a) => a.code === c)).filter(Boolean);
-  const card = (id, title, parts) =>
-    $(id).replaceChildren(el("h3", { text: title }), ...parts.map((p) => el("p", {}, rich(p))));
   const peak = d3.greatest(years, (y) => fsc("MET_RAD", y));
-  card("#fr-step-0", `${peak}, l'âge d'or des lignes intérieures`, [
-    [
-      `Les liaisons entre Paris et la province transportent `,
-      { b: `${fmtNum(fsc("MET_RAD", peak) / 1e6, 1)} millions` },
-      ` de passagers, leur record. Les arcs magenta partent de Paris vers toutes les grandes villes.`,
+  const vs19 = (a) => fmtPct(pctChange(aYear.get(a.code).get(2019), aYear.get(a.code).get(lastYear)), 0);
+  const CAPTIONS = {
+    peak: [
+      `${peak}, l'âge d'or des lignes intérieures`,
+      [
+        `Les liaisons entre Paris et la province transportent `,
+        { b: `${fmtNum(fsc("MET_RAD", peak) / 1e6, 1)} millions` },
+        ` de passagers, leur record. Les arcs magenta partent de Paris vers toutes les grandes villes.`,
+      ],
     ],
-  ]);
-  card("#fr-step-1", "2019, le déclin a déjà commencé", [
-    [
-      `Les lignes au départ de Paris ont déjà perdu `,
-      { b: fmtPctAbs(pctChange(fsc("MET_RAD", peak), fsc("MET_RAD", 2019)), 0) },
-      ` de leurs passagers depuis ${peak}, notamment face aux TGV vers Marseille, Bordeaux ou Rennes. Les liaisons entre villes de province, elles, grimpent jusqu'à `,
-      { b: `${fmtNum(fsc("MET_TRA", 2019) / 1e6, 1)} millions` },
-      ` de passagers, portées par les compagnies à bas coûts.`,
+    2019: [
+      "2019, le déclin a déjà commencé",
+      [
+        `Paris–province a perdu `,
+        { b: fmtPctAbs(pctChange(fsc("MET_RAD", peak), fsc("MET_RAD", 2019)), 0) },
+        ` de ses passagers depuis ${peak}, des années où le TGV a atteint Marseille (2001), puis Bordeaux et Rennes (2017). Les liaisons entre villes de province, elles, montent à `,
+        { b: `${fmtNum(fsc("MET_TRA", 2019) / 1e6, 1)} millions` },
+        ` de passagers.`,
+      ],
     ],
-  ]);
-  card("#fr-step-2", `${lastYear}, la chute`, [
-    [
-      `Depuis 2019, Paris–province a perdu `,
-      { b: fmtPctAbs(pctChange(fsc("MET_RAD", 2019), fsc("MET_RAD", lastYear))) },
-      ` de ses passagers, province–province `,
-      { b: fmtPctAbs(pctChange(fsc("MET_TRA", 2019), fsc("MET_TRA", lastYear))) },
-      `. Les liaisons intérieures détaillées par la DGAC passent de ${routesCount(2019)} à ${routesCount(lastYear)}.`,
+    last: [
+      `${lastYear}, la chute`,
+      [
+        `Depuis 2019, Paris–province a perdu `,
+        { b: fmtPctAbs(pctChange(fsc("MET_RAD", 2019), fsc("MET_RAD", lastYear))) },
+        ` de ses passagers, province–province `,
+        { b: fmtPctAbs(pctChange(fsc("MET_TRA", 2019), fsc("MET_TRA", lastYear))) },
+        `. Les liaisons assez fréquentées pour être détaillées par la DGAC (trois compagnies au moins) passent de ${routesCount(2019)} à ${routesCount(lastYear)}.`,
+      ],
     ],
-  ]);
-  card("#fr-step-3", "Les aéroports régionaux décrochent", [
-    [`En bleu, les aéroports qui ont gagné des passagers depuis 2019 ; en magenta, ceux qui en ont perdu.`],
-    [
-      `Ryanair a quitté ${exits.map((a) => shortName(a)).join(", ")} entre l'hiver 2025-2026 et mars 2026 en invoquant la hausse des taxes : ces départs n'apparaîtront pleinement que dans les chiffres 2026. En ${lastYear}, ${exits
-        .map(
-          (a) =>
-            `${shortName(a)} ${fmtPct(pctChange(aYear.get(a.code).get(2019), aYear.get(a.code).get(lastYear)), 0)}`,
-        )
-        .join(", ")} par rapport à 2019.`,
+    delta: [
+      "Les aéroports régionaux décrochent",
+      [`En bleu, les aéroports qui ont gagné des passagers depuis 2019 ; en magenta, ceux qui en ont perdu.`],
+      [
+        `Ryanair a cessé de desservir Brive et Strasbourg à l'hiver 2025, puis Clermont-Ferrand fin mars 2026, et réduit son programme à Bergerac, en invoquant la hausse de la taxe sur les billets. Ces départs n'apparaîtront pleinement que dans les chiffres 2026. En ${lastYear}, par rapport à 2019 : ${exits
+          .map((a) => `${shortName(a)} ${vs19(a)}`)
+          .join(", ")}.`,
+      ],
     ],
-  ]);
-  const steps = [
-    { year: peak, mode: "plain", focus: [] },
-    { year: 2019, mode: "plain", focus: [] },
-    { year: lastYear, mode: "plain", focus: [] },
-    { year: lastYear, mode: "delta", focus: RYANAIR_EXITS },
-  ];
-  scrolly($("#steps-france"), (i) => {
-    timeline.stop();
-    Object.assign(state, steps[i]);
-    timeline.set(state.year, false);
-    paint(true);
-  });
+  };
+  const VIEWS = {
+    peak: { year: peak, mode: "plain", focus: [] },
+    2019: { year: 2019, mode: "plain", focus: [] },
+    last: { year: lastYear, mode: "plain", focus: [] },
+    delta: { year: lastYear, mode: "delta", focus: RYANAIR_EXITS },
+  };
+  function caption(key) {
+    const box = $("#france-caption");
+    if (!key) {
+      box.replaceChildren(
+        el("h3", { text: String(state.year) }),
+        el(
+          "p",
+          {},
+          rich([
+            { b: fmtPax(fsc("MET_RAD", state.year)) },
+            ` passagers entre Paris et la province, `,
+            { b: fmtPax(fsc("MET_TRA", state.year)) },
+            ` entre villes de province. ${routesCount(state.year)} liaisons détaillées sur la carte.`,
+          ]),
+        ),
+      );
+      return;
+    }
+    const [title, ...parts] = CAPTIONS[key];
+    box.replaceChildren(el("h3", { text: title }), ...parts.map((p) => el("p", {}, rich(p))));
+  }
+  const tabs = moments(
+    $("#france-moments"),
+    [
+      { key: "peak", label: String(peak), hint: "l'âge d'or" },
+      { key: "2019", label: "2019", hint: "avant le Covid" },
+      { key: "last", label: String(lastYear), hint: "la chute" },
+      { key: "delta", label: "Gagnants et perdants", hint: "depuis 2019" },
+    ],
+    (key) => {
+      timeline.stop();
+      Object.assign(state, VIEWS[key]);
+      timeline.set(state.year, false);
+      paint(true);
+      caption(key);
+    },
+  );
+  timelineHook = (y) => {
+    const key = Object.keys(VIEWS).find((k) => VIEWS[k].mode === "plain" && VIEWS[k].year === y) || null;
+    tabs.mark(key);
+    caption(key);
+  };
 
   onResize(node, (w) => {
     width = w;
     layout();
   });
   layout();
+  tabs.select("peak");
   initTsba(data);
 }
 
@@ -387,7 +433,7 @@ function initTsba(data) {
           .attr("x", tx + 3)
           .attr("y", 30)
           .style("font-weight", 500)
-          .text("TSBA ×3");
+          .text("TSBA ×2,8");
       }
       g.selectAll("rect")
         .data(s.vals.filter((v) => isNum(v.d)))

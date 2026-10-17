@@ -24,7 +24,7 @@ export function initFill(data) {
         { b: fmtPctAbs(pctChange(pax[base], pax[last]), 0) },
         `, alors que le nombre de vols de passagers a reculé de `,
         { b: fmtPctAbs(pctChange(vols[base], vols[last]), 0) },
-        `. Des avions plus grands, mieux remplis, et la disparition des petites lignes : chaque vol emporte aujourd'hui `,
+        `. Des avions plus grands ou mieux remplis : chaque vol emporte aujourd'hui `,
         { b: `${fmtNum(ratio[last], 0)} passagers` },
         ` en moyenne, contre ${fmtNum(ratio[base], 0)} en 2000.`,
       ]),

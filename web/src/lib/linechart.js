@@ -303,15 +303,18 @@ export function lineChart(node, initial) {
   });
   render();
   if (!revealed) {
-    const io = new IntersectionObserver((entries) => {
-      if (entries.some((e) => e.isIntersecting)) {
-        io.disconnect();
-        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-          revealed = true;
-          render();
-        } else pendingReveal?.();
-      }
-    }, { threshold: 0.35 });
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+            revealed = true;
+            render();
+          } else pendingReveal?.();
+        }
+      },
+      { threshold: 0.35 },
+    );
     io.observe(node);
   }
   return {

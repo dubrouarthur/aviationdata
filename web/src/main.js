@@ -33,14 +33,12 @@ async function main() {
       ),
     ]);
   } catch (err) {
-    document
-      .querySelector("main")
-      .prepend(
-        el("p", {
-          class: "wrap prose",
-          text: `Les données n'ont pas pu être chargées (${err.message}). Rechargez la page.`,
-        }),
-      );
+    document.querySelector("main").prepend(
+      el("p", {
+        class: "wrap prose",
+        text: `Les données n'ont pas pu être chargées (${err.message}). Rechargez la page.`,
+      }),
+    );
     return;
   }
   if (data.meta.demo) document.getElementById("demo-banner").hidden = false;

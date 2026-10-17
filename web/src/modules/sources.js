@@ -60,7 +60,7 @@ export function initSources(data) {
         text: "CO2 : émissions nettes, carburants d'aviation durables inclus, en millions de tonnes et en grammes par passager-équivalent-kilomètre.",
       }),
       el("li", {
-        text: "Repères datés : triplement de la taxe de solidarité sur les billets d'avion (TSBA) au 1er mars 2025, fermeture du détroit d'Ormuz fin février 2026, retour de la TSBA à 2,63 € sur 26 liaisons intérieures au 1er juin 2026, interdiction de vols intérieurs courts en mai 2023. Ils situent les courbes dans le temps sans établir de lien de cause.",
+        text: "Repères datés : hausse de la taxe de solidarité sur les billets d'avion (TSBA) au 1er mars 2025, de 2,63 € à 7,40 € en classe économique pour un vol intérieur ou européen (×2,8) ; quasi-fermeture du détroit d'Ormuz fin février 2026 ; retour de la TSBA à 2,63 € au 1er juin 2026 sur 26 liaisons d'aménagement du territoire, dont 23 intérieures ; interdiction des vols intérieurs remplaçables par moins de 2 h 30 de train, en mai 2023. Ils situent les courbes dans le temps sans établir de lien de cause. Le départ de Ryanair de plusieurs aéroports régionaux est rapporté par la presse (hiver 2025-2026).",
       }),
       el("li", {
         text: "Trajets : les arcs du globe relient Paris à l'aéroport principal de chaque pays de destination (série par liaison et par pays, LSN, complète). Les cartes de liaisons d'aéroport à aéroport utilisent la série PAP, qui ne détaille que les lignes exploitées par au moins trois compagnies, aucune ne dépassant 85 % du trafic.",

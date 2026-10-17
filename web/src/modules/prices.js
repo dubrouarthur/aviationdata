@@ -1,8 +1,8 @@
 import * as d3 from "d3";
-import { $, el, rich, segmented, chips, showTip, hideTip, onResize } from "../lib/ui.js";
-import { player } from "../lib/scrolly.js";
-import { yoy, isNum, pctChange, sumSeries } from "../lib/series.js";
-import { fmtPct, fmtPctAbs, fmtNum, fmtMonth, fmtMonthShort, monthShort } from "../lib/format.js";
+import { $, el, rich, segmented, showTip, hideTip, onResize, reducedMotion } from "../lib/ui.js";
+import { whileVisible } from "../lib/scrolly.js";
+import { yoy, isNum, pctChange } from "../lib/series.js";
+import { fmtPct, fmtPctAbs, fmtNum, fmtMonth, monthShort } from "../lib/format.js";
 
 const HEAT = [
   { key: "FRA_ENS", label: "Tous départs" },
@@ -37,8 +37,6 @@ const SEGMENTS = [
     traffic: ["MET_INTL"],
   },
 ];
-// year-on-year changes are meaningless while either month sits in the Covid collapse or rebound
-const COVID = (m) => m >= "2020-03" && m <= "2023-03";
 
 /** Airfares (IPTAP) on their own and crossed with traffic (LSN) by segment. */
 export function initPrices(data) {
@@ -54,6 +52,24 @@ export function initPrices(data) {
       break;
     }
   }
+  // months elapsed since the Strait of Hormuz was all but closed (end of February 2026)
+  const [ly, lm] = P.months[L].split("-").map(Number);
+  const hormuz = (ly - 2026) * 12 + (lm - 2);
+  const NUMBERS = [
+    "",
+    "un",
+    "deux",
+    "trois",
+    "quatre",
+    "cinq",
+    "six",
+    "sept",
+    "huit",
+    "neuf",
+    "dix",
+    "onze",
+    "douze",
+  ];
   // crossing: average price level vs traffic, 2019 -> last full traffic year, by segment
   const lastT = Fr.annual.years.at(-1);
   const meanYear = (arr, months, y) =>
@@ -82,14 +98,17 @@ export function initPrices(data) {
         { b: fmtPctAbs(cur) },
         cur >= 0 ? ` de plus qu'un an plus tôt` : ` de moins qu'un an plus tôt`,
         since ? `, la plus forte hausse depuis ${fmtMonth(since)}` : "",
-        `. Une hausse qui arrive sept mois après la fermeture du détroit d'Ormuz, qui a fait flamber le prix du kérosène.`,
+        `.`,
+        hormuz > 0 && cur > 0
+          ? ` Cette hausse arrive ${hormuz === 1 ? "un mois" : `${NUMBERS[hormuz] || hormuz} mois`} après la quasi-fermeture du détroit d'Ormuz, fin février 2026, qui a fait flamber le prix du kérosène.`
+          : "",
       ]),
     ),
     el(
       "p",
       {},
       rich([
-        `Le croisement avec le trafic est frappant. Entre 2019 et ${lastT}, le prix moyen d'un billet intérieur a ${dom.dPrice >= 0 ? "augmenté" : "baissé"} de `,
+        `Le croisement avec le trafic est frappant. Entre 2019 et ${lastT}, les prix des billets intérieurs ont ${dom.dPrice >= 0 ? "augmenté" : "baissé"} en moyenne de `,
         { b: fmtPctAbs(dom.dPrice, 0) },
         ` pendant que le trafic intérieur ${dom.dTraffic >= 0 ? "progressait" : "reculait"} de `,
         { b: fmtPctAbs(dom.dTraffic, 0) },
@@ -189,7 +208,10 @@ export function initPrices(data) {
         .style("font-variant-numeric", "tabular-nums")
         .style("pointer-events", "none")
         .style("fill", (c) => (Math.abs(c.v) > 9 ? "#fff" : "var(--ink-2)"))
-        .text((c) => `${c.v > 0 ? "+" : c.v < 0 ? "−" : ""}${fmtNum(Math.abs(c.v), 0)}`);
+        .text((c) => {
+          const r = Math.round(c.v);
+          return `${r > 0 ? "+" : r < 0 ? "−" : ""}${fmtNum(Math.abs(r), 0)}`;
+        });
     // legend
     const lg = svg.append("g").attr("transform", `translate(${m.left},${h - (narrow ? 28 : 12)})`);
     const ramp = [-lim, -lim / 2, 0, lim / 2, lim];
@@ -221,67 +243,62 @@ export function initPrices(data) {
   onResize(heatNode, drawHeat);
   drawHeat(heatNode.clientWidth || 900);
 
-  // ---------------------------------------------------------------- prices x traffic
-  const months = P.months.filter((m) => Fr.months.includes(m));
-  const pts = Object.fromEntries(
-    SEGMENTS.map((s) => {
-      const traffic = sumSeries(s.traffic.map((k) => Fr.faisceaux[k] || []));
-      const ty = yoy(traffic);
-      return [
-        s.key,
-        months
-          .map((m) => {
-            const pi = P.months.indexOf(m);
-            const ti = Fr.months.indexOf(m);
-            return { m, x: ty[ti], y: yoyOf[s.price]?.[pi] };
-          })
-          .filter((p) => isNum(p.x) && isNum(p.y) && !COVID(p.m)),
-      ];
-    }),
+  // ---------------------------------------------------------------- prices vs traffic: the scissors
+  // annual averages, both rebased to 2019 = 100, one small chart per segment
+  const sNode = $("#chart-scissors");
+  const fullYear = (months, y) => months.filter((m) => m.startsWith(String(y))).length === 12;
+  const span = d3
+    .range(+P.months[0].slice(0, 4), lastT + 1)
+    .filter((y) => fullYear(P.months, y) && fullYear(Fr.months, y));
+  const ORDER = ["dom", "intl", "om"];
+  const panels = ORDER.map((k) => SEGMENTS.find((s) => s.key === k)).map((s) => {
+    const p0 = meanYear(P.series[s.price], P.months, 2019);
+    const t0 = trafficYear(s.traffic, 2019);
+    return {
+      ...s,
+      pIdx: span.map((y) => (meanYear(P.series[s.price], P.months, y) / p0) * 100),
+      tIdx: span.map((y) => (trafficYear(s.traffic, y) / t0) * 100),
+    };
+  });
+  const yMax = d3.max(panels, (s) => d3.max([...s.pIdx, ...s.tIdx])) * 1.06;
+  const yMin = Math.min(
+    20,
+    d3.min(panels, (s) => d3.min([...s.pIdx, ...s.tIdx])),
   );
-  const allMonths = [...new Set(Object.values(pts).flatMap((arr) => arr.map((p) => p.m)))].sort();
-  const sNode = $("#chart-pxt");
-  let on = new Set(SEGMENTS.map((s) => s.key));
-  let focus = allMonths.at(-1);
-  on = chips(
-    $("#chips-pxt"),
-    SEGMENTS.map((s) => ({ key: s.key, label: s.label, color: s.color })),
-    (next) => {
-      on = next;
-      drawScatter(sNode.clientWidth);
-    },
+  const i19 = span.indexOf(2019);
+  let animated = false;
+
+  sNode.replaceChildren(
+    el("div", { class: "legend-row" }, [
+      el("span", { class: "lg" }, [el("i", { style: "--c:var(--magenta)" }), "Prix des billets"]),
+      el("span", { class: "lg" }, [el("i", { style: "--c:var(--blue)" }), "Passagers"]),
+      el("span", { class: "lg" }, [el("i", { class: "area" }), `Écart depuis 2019`]),
+    ]),
+    el(
+      "div",
+      { class: "sm-grid" },
+      panels.map((s) =>
+        el("div", { class: "sm", "data-k": s.key }, [el("h4", { text: s.label }), el("div")]),
+      ),
+    ),
   );
-  function drawScatter(width) {
-    sNode.replaceChildren();
-    const h = Math.min(520, Math.max(340, width * 0.55));
-    const m = { top: 16, right: 16, bottom: 40, left: 52 };
-    const all = SEGMENTS.filter((s) => on.has(s.key)).flatMap((s) => pts[s.key]);
-    const xl = Math.max(15, d3.quantile(all.map((p) => Math.abs(p.x)).sort(d3.ascending), 0.98) || 15);
-    const yl = Math.max(15, d3.quantile(all.map((p) => Math.abs(p.y)).sort(d3.ascending), 0.98) || 15);
+
+  function drawPanel(host, s, animate) {
+    const width = host.clientWidth;
+    host.replaceChildren();
+    if (!width) return;
+    const h = 250;
+    const m = { top: 12, right: 86, bottom: 24, left: 34 };
     const x = d3
       .scaleLinear()
-      .domain([-xl, xl])
-      .nice()
+      .domain(d3.extent(span))
       .range([m.left, width - m.right]);
     const y = d3
       .scaleLinear()
-      .domain([-yl, yl])
+      .domain([yMin, yMax])
       .nice()
       .range([h - m.bottom, m.top]);
-    const xTicks = Math.max(4, Math.min(8, Math.floor((width - m.left - m.right) / 64)));
-    const narrow = width < 560;
-    const svg = d3.select(sNode).append("svg").attr("viewBox", `0 0 ${width} ${h}`).attr("height", h);
-    svg
-      .append("g")
-      .attr("class", "grid")
-      .attr("transform", `translate(0,${h - m.bottom})`)
-      .call(
-        d3
-          .axisBottom(x)
-          .ticks(xTicks)
-          .tickSize(-(h - m.top - m.bottom))
-          .tickFormat(""),
-      );
+    const svg = d3.select(host).append("svg").attr("viewBox", `0 0 ${width} ${h}`).attr("height", h);
     svg
       .append("g")
       .attr("class", "grid")
@@ -289,179 +306,182 @@ export function initPrices(data) {
       .call(
         d3
           .axisLeft(y)
-          .ticks(6)
+          .ticks(4)
           .tickSize(-(width - m.left - m.right))
           .tickFormat(""),
       );
     svg
       .append("g")
       .attr("class", "axis")
+      .attr("transform", `translate(${m.left},0)`)
+      .call(d3.axisLeft(y).ticks(4).tickSize(0).tickPadding(6))
+      .call((g) => g.select(".domain").remove());
+    svg
+      .append("g")
+      .attr("class", "axis")
       .attr("transform", `translate(0,${h - m.bottom})`)
       .call(
         d3
           .axisBottom(x)
-          .ticks(xTicks)
-          .tickFormat((v) => `${fmtNum(v)} %`)
+          .tickValues(
+            span
+              .filter((v) => v % 5 === 0 || v === span[0] || v === span.at(-1))
+              .filter((v, k, a) => k === 0 || v - a[k - 1] > 2),
+          )
+          .tickFormat(String)
           .tickSizeOuter(0),
       );
-    svg
-      .append("g")
-      .attr("class", "axis")
-      .attr("transform", `translate(${m.left},0)`)
-      .call(
-        d3
-          .axisLeft(y)
-          .ticks(6)
-          .tickFormat((v) => `${fmtNum(v)} %`)
-          .tickSize(0)
-          .tickPadding(6),
-      )
-      .call((g) => g.select(".domain").remove());
+    // 2019 = 100 reference
     svg
       .append("line")
-      .attr("x1", x(0))
-      .attr("x2", x(0))
-      .attr("y1", m.top)
-      .attr("y2", h - m.bottom)
-      .style("stroke", "var(--ink-2)")
-      .style("stroke-opacity", 0.5);
-    svg
-      .append("line")
+      .attr("class", "ref-line")
       .attr("x1", m.left)
       .attr("x2", width - m.right)
-      .attr("y1", y(0))
-      .attr("y2", y(0))
-      .style("stroke", "var(--ink-2)")
-      .style("stroke-opacity", 0.5);
-    // quadrant captions; on narrow screens they wrap onto two lines to stay in their corner
-    const q = (tx, ty, text, anchor, below) => {
-      const t = svg
-        .append("text")
-        .attr("class", "end-label")
-        .style("font-weight", 500)
-        .style("fill", "var(--muted)")
-        .attr("y", ty)
-        .attr("text-anchor", anchor);
-      const lines = narrow ? text.split(", ").map((l, k, a) => (k < a.length - 1 ? `${l},` : l)) : [text];
-      lines.forEach((line, k) =>
-        t
-          .append("tspan")
-          .attr("x", tx)
-          .attr("dy", k ? 13 : below ? -(lines.length - 1) * 13 : 0)
-          .text(line),
-      );
-    };
-    q(width - m.right - 6, m.top + 14, "plus cher, plus de passagers", "end");
-    q(m.left + 6, m.top + 14, "plus cher, moins de passagers", "start");
-    q(m.left + 6, h - m.bottom - 8, "moins cher, moins de passagers", "start", true);
-    q(width - m.right - 6, h - m.bottom - 8, "moins cher, plus de passagers", "end", true);
-    const tags = [];
+      .attr("y1", y(100))
+      .attr("y2", y(100));
+    svg
+      .append("line")
+      .attr("x1", x(2019))
+      .attr("x2", x(2019))
+      .attr("y1", m.top)
+      .attr("y2", h - m.bottom)
+      .style("stroke", "var(--axis)")
+      .style("stroke-dasharray", "2 3");
     svg
       .append("text")
       .attr("class", "end-label")
-      .attr("x", width - m.right)
-      .attr("y", h - 6)
+      .attr("x", x(2019) - 4)
+      .attr("y", m.top + 10)
       .attr("text-anchor", "end")
       .style("font-weight", 500)
-      .text("trafic sur un an →");
-    svg
-      .append("text")
-      .attr("class", "end-label")
-      .attr("x", m.left + 4)
-      .attr("y", m.top - 4)
-      .style("font-weight", 500)
-      .text("↑ prix sur un an");
-    const fIdx = allMonths.indexOf(focus);
-    for (const s of SEGMENTS.filter((seg) => on.has(seg.key))) {
-      const arr = pts[s.key];
-      svg
-        .append("g")
-        .selectAll("circle")
-        .data(arr)
-        .join("circle")
-        .attr("cx", (p) => x(Math.max(-xl, Math.min(xl, p.x))))
-        .attr("cy", (p) => y(Math.max(-yl, Math.min(yl, p.y))))
-        .attr("r", 3)
-        .style("fill", s.color)
-        .style("opacity", 0.16);
-      const trail = arr.filter((p) => {
-        const k = allMonths.indexOf(p.m);
-        return k <= fIdx && k > fIdx - 12;
-      });
+      .style("font-size", "10.5px")
+      .text("2019 = 100");
+    // the gap that opens after 2019
+    const after = span.map((yr, k) => ({ yr, p: s.pIdx[k], t: s.tIdx[k] })).filter((d) => d.yr >= 2019);
+    const gap = svg
+      .append("path")
+      .attr(
+        "d",
+        d3
+          .area()
+          .x((d) => x(d.yr))
+          .y0((d) => y(d.t))
+          .y1((d) => y(d.p))
+          .curve(d3.curveMonotoneX)(after),
+      )
+      .style("fill", "var(--magenta-soft)")
+      .style("opacity", 0.7);
+    const line = (vals) =>
+      d3
+        .line()
+        .x((_, k) => x(span[k]))
+        .y((v) => y(v))
+        .curve(d3.curveMonotoneX)(vals);
+    const paths = [
+      ["tIdx", "var(--blue)"],
+      ["pIdx", "var(--magenta)"],
+    ].map(([k, color]) =>
       svg
         .append("path")
-        .attr(
-          "d",
-          d3
-            .line()
-            .x((p) => x(Math.max(-xl, Math.min(xl, p.x))))
-            .y((p) => y(Math.max(-yl, Math.min(yl, p.y))))
-            .curve(d3.curveCatmullRom)(trail),
-        )
-        .style("fill", "none")
-        .style("stroke", s.color)
-        .style("stroke-width", 1.6)
-        .style("opacity", 0.7);
-      svg
-        .append("g")
-        .selectAll("circle")
-        .data(trail)
-        .join("circle")
-        .attr("cx", (p) => x(Math.max(-xl, Math.min(xl, p.x))))
-        .attr("cy", (p) => y(Math.max(-yl, Math.min(yl, p.y))))
-        .attr("r", (p) => (p.m === focus ? 7 : 3.4))
-        .style("fill", s.color)
-        .style("stroke", "var(--card)")
-        .style("stroke-width", (p) => (p.m === focus ? 2 : 1))
-        .on("pointermove", (event, p) =>
-          showTip(event, `${s.label}, ${fmtMonth(p.m)}`, [
-            { label: "trafic sur un an", value: fmtPct(p.x), color: s.color },
-            { label: "prix sur un an", value: fmtPct(p.y) },
-          ]),
-        )
-        .on("pointerleave", hideTip);
-      const cur = trail.find((p) => p.m === focus);
-      if (cur)
-        tags.push({
-          x: x(Math.max(-xl, Math.min(xl, cur.x))),
-          y: y(Math.max(-yl, Math.min(yl, cur.y))) + 4,
-          text: narrow ? s.short : s.label,
-        });
+        .attr("class", "series-line")
+        .attr("d", line(s[k]))
+        .style("stroke", color)
+        .style("stroke-width", 2.6),
+    );
+    // end labels, pushed apart when the two lines finish close together
+    const L2 = span.length - 1;
+    const ends = [
+      { v: s.pIdx[L2], text: `prix ${fmtPct(s.pIdx[L2] - 100, 0)}`, color: "var(--magenta)" },
+      { v: s.tIdx[L2], text: `trafic ${fmtPct(s.tIdx[L2] - 100, 0)}`, color: "var(--blue)" },
+    ].map((e) => ({ ...e, py: y(e.v) }));
+    ends.sort((a, b) => a.py - b.py);
+    if (ends[1].py - ends[0].py < 15) {
+      const mid = (ends[0].py + ends[1].py) / 2;
+      ends[0].py = mid - 7.5;
+      ends[1].py = mid + 7.5;
     }
-    // current-month labels: push apart vertically, flip left near the right edge
-    tags.sort((a, b) => a.y - b.y);
-    tags.forEach((t, k) => {
-      if (k && t.y - tags[k - 1].y < 14) t.y = tags[k - 1].y + 14;
-    });
-    for (const t of tags) {
-      const tw = t.text.length * 6.4;
-      t.anchor = t.x + 10 + tw <= width - m.right || t.x - 10 - tw < m.left ? "start" : "end";
-      t.lx = t.anchor === "start" ? Math.min(t.x + 10, width - m.right - tw) : t.x - 10;
-    }
-    svg
+    const labels = svg
       .append("g")
       .selectAll("text")
-      .data(tags)
+      .data(ends)
       .join("text")
       .attr("class", "end-label")
-      .attr("text-anchor", (t) => t.anchor)
-      .attr("x", (t) => t.lx)
-      .attr("y", (t) => t.y)
-      .text((t) => t.text);
+      .attr("x", width - m.right + 6)
+      .attr("y", (e) => e.py + 4)
+      .style("fill", (e) => e.color)
+      .style("font-weight", 700)
+      .text((e) => e.text);
+    const dots = svg
+      .append("g")
+      .selectAll("circle")
+      .data(ends)
+      .join("circle")
+      .attr("cx", x(span[L2]))
+      .attr("cy", (e) => y(e.v))
+      .attr("r", 3.5)
+      .style("fill", (e) => e.color);
+
+    // hover: one tooltip for both lines
+    const cross = svg
+      .append("line")
+      .attr("class", "crosshair")
+      .attr("y1", m.top)
+      .attr("y2", h - m.bottom)
+      .style("display", "none");
+    svg
+      .append("rect")
+      .attr("x", m.left)
+      .attr("y", 0)
+      .attr("width", width - m.left - m.right)
+      .attr("height", h)
+      .attr("fill", "transparent")
+      .on("pointermove", (event) => {
+        const [px] = d3.pointer(event);
+        const k = Math.max(0, Math.min(L2, Math.round(x.invert(px) - span[0])));
+        cross.attr("x1", x(span[k])).attr("x2", x(span[k])).style("display", null);
+        showTip(event, `${s.label}, ${span[k]}`, [
+          { label: "prix (2019 = 100)", value: fmtNum(s.pIdx[k], 0), color: "var(--magenta)" },
+          { label: "passagers (2019 = 100)", value: fmtNum(s.tIdx[k], 0), color: "var(--blue)" },
+        ]);
+      })
+      .on("pointerleave", () => {
+        cross.style("display", "none");
+        hideTip();
+      });
+
+    if (animate) {
+      for (const pth of paths) {
+        const len = pth.node().getTotalLength();
+        pth
+          .style("stroke-dasharray", `${len} ${len}`)
+          .style("stroke-dashoffset", len)
+          .transition()
+          .duration(1500)
+          .ease(d3.easeCubicInOut)
+          .style("stroke-dashoffset", 0);
+      }
+      gap.style("opacity", 0).transition().delay(900).duration(700).style("opacity", 0.7);
+      labels.style("opacity", 0).transition().delay(1300).duration(400).style("opacity", 1);
+      dots.style("opacity", 0).transition().delay(1300).duration(400).style("opacity", 1);
+    }
   }
-  player({
-    button: $("#pxt-play"),
-    slider: $("#pxt-slider"),
-    output: $("#pxt-out"),
-    values: allMonths,
-    interval: 260,
-    format: fmtMonthShort,
-    labels: { play: "Animer les mois", pause: "Mettre en pause" },
-    onChange: (m) => {
-      focus = m;
-      drawScatter(sNode.clientWidth);
+  function drawScissors(animate = false) {
+    sNode.querySelectorAll(".sm").forEach((div) => {
+      const s = panels.find((q) => q.key === div.dataset.k);
+      drawPanel(div.lastElementChild, s, animate);
+    });
+  }
+  const pending = !reducedMotion();
+  whileVisible(
+    sNode,
+    () => {
+      if (pending && !animated) {
+        animated = true;
+        drawScissors(true);
+      }
     },
-  });
-  onResize(sNode, drawScatter);
-  drawScatter(sNode.clientWidth || 900);
+    () => {},
+  );
+  onResize(sNode, () => drawScissors(false));
+  drawScissors(false);
 }

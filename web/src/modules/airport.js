@@ -173,16 +173,21 @@ export function initAirport(data, { world }) {
         .style("stroke", "var(--ink-2)")
         .style("stroke-opacity", 0.25)
         .style("stroke-dasharray", "3 4");
+      // label each ring to the south-west of the airport, usually the emptiest side of the map
+      const [cx0, cy0] = proj([a.lon, a.lat]);
       const top = proj([a.lon, Math.min(89, a.lat + km / 111.2)]);
-      if (top)
+      if (top) {
+        const rr = Math.hypot(top[0] - cx0, top[1] - cy0);
         svg
           .append("text")
           .attr("class", "end-label")
+          .attr("text-anchor", "end")
           .style("font-weight", 500)
           .style("font-size", "10.5px")
-          .attr("x", top[0] + 3)
-          .attr("y", top[1] - 3)
+          .attr("x", cx0 - rr * Math.SQRT1_2 - 3)
+          .attr("y", cy0 + rr * Math.SQRT1_2 + 12)
           .text(`${fmtNum(km)} km`);
+      }
     }
     const w = d3
       .scaleSqrt()

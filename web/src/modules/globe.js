@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { $, el, rich, showTip, hideTip, cssVar, reducedMotion } from "../lib/ui.js";
-import { scrolly, whileVisible, player } from "../lib/scrolly.js";
+import { $, el, rich, moments, showTip, hideTip, cssVar, reducedMotion } from "../lib/ui.js";
+import { whileVisible, player } from "../lib/scrolly.js";
 import { pctChange, isNum } from "../lib/series.js";
 import { fmtPax, fmtPct, fmtPctAbs, fmtNum, fmtMonth, fmtMonthShort } from "../lib/format.js";
 
@@ -69,7 +69,7 @@ export function initGlobe(data, { dots }) {
   }
   function resize() {
     W = Math.min(host.clientWidth || 600, 760);
-    const H = Math.min(W, Math.max(320, window.innerHeight * 0.78));
+    const H = Math.min(W, Math.max(320, window.innerHeight * 0.72));
     dpr = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
@@ -387,8 +387,12 @@ export function initGlobe(data, { dots }) {
       .map((c) => ({ c, v: valueOf(c), d: deltaOf(c) }))
       .filter((r) => r.v > 0)
       .sort((a, b) => b.v - a.v)
-      .slice(0, 40);
+      .slice(0, window.innerWidth < 640 ? 15 : 30);
     const vmax = rows[0]?.v || 1;
+    $("#explorer-title").textContent =
+      state.period.kind === "year"
+        ? `Les ${rows.length} premiers pays en ${state.period.y}`
+        : `Les premiers pays en ${fmtMonth(months[state.period.i])}`;
     list.replaceChildren(
       ...rows.map(({ c, v, d }) => {
         const li = el(
@@ -445,22 +449,7 @@ export function initGlobe(data, { dots }) {
     }),
   );
 
-  // ---------------------------------------------------------------- time control
-  const timeline = player({
-    button: $("#globe-play"),
-    slider: $("#globe-slider"),
-    output: $("#globe-out"),
-    values: years,
-    interval: 520,
-    labels: { play: "Lancer le voyage de 1990 à aujourd'hui", pause: "Mettre le voyage en pause" },
-    onChange: (y) => {
-      state.period = { kind: "year", y };
-      renderOverlay();
-      renderList();
-    },
-  });
-
-  // ---------------------------------------------------------------- story
+  // ---------------------------------------------------------------- figures used by the captions
   const top = (y, n, filter = () => true) =>
     [...countries]
       .filter(filter)
@@ -477,8 +466,23 @@ export function initGlobe(data, { dots }) {
   const f = data.fracture.annual;
   const iL = f.years.indexOf(lastYear);
   const i19 = f.years.indexOf(2019);
-  const nCountries = (y) => countries.filter((c) => annual.get(c.id).get(y) > 0).length;
-  const names = (arr) => arr.map((c) => c.nom).join(", ");
+  const names = (arr) => {
+    const n = arr.map((c) => c.nom);
+    return n.length > 1 ? `${n.slice(0, -1).join(", ")} et ${n.at(-1)}` : n.join("");
+  };
+  const leader = (y) => top(y, 1)[0];
+  // first year of the current unbroken run at number one
+  const leadSince = (y) => {
+    let k = years.indexOf(y);
+    while (k > 0 && leader(years[k - 1]) === leader(y)) k -= 1;
+    return years[k];
+  };
+  const mln = (v) => `${fmtNum(v / 1e6, 1)} millions`;
+  const recordYear = d3.greatest(years, intlYear);
+  const moved = (c) => {
+    const d = deltaOf(c);
+    return d <= -99.5 ? `${c.nom} (plus aucun passager)` : `${c.nom} (${fmtPct(d, 0)})`;
+  };
 
   $("#hero-dek").replaceChildren(
     el(
@@ -492,97 +496,118 @@ export function initGlobe(data, { dots }) {
         `.`,
       ]),
     ),
-    el(
-      "p",
-      {},
-      `Ce récit s'appuie uniquement sur les données publiques de la Direction générale de l'aviation civile : trafic de chaque aéroport et de chaque liaison depuis 1990, compagnies, prix des billets, émissions de CO2.`,
-    ),
   );
-  const card = (id, title, parts) =>
-    $(id).replaceChildren(el("h3", { text: title }), ...parts.map((p) => el("p", {}, rich(p))));
-  card("#step-1990", String(y0), [
-    [
-      `Le ciel français compte alors `,
-      { b: `${fmtNum(intlYear(y0) / 1e6, 1)} millions` },
-      ` de passagers internationaux. Les arcs les plus épais mènent à ${names(top(y0, 3))} : l'Europe proche et le Maghreb.`,
-    ],
-  ]);
-  card("#step-2019", "2019, l'année record", [
-    [
-      { b: `${fmtNum(intlYear(2019) / 1e6, 1)} millions` },
-      ` de passagers internationaux vers ${nCountries(2019)} pays détaillés. Les États-Unis, le Canada et l'Asie tirent des arcs de plus en plus longs.`,
-    ],
-  ]);
-  card("#step-2020", "Avril 2020, le ciel s'éteint", [
-    [
-      `Le confinement vide le ciel : `,
-      { b: fmtNum(sumMonth(april)) },
-      ` passagers internationaux en avril 2020, contre `,
-      { b: fmtPax(sumMonth(april19)) },
-      ` un an plus tôt, soit `,
-      { b: fmtPct(pctChange(sumMonth(april19), sumMonth(april)), 1) },
-      `. Seules quelques liaisons de rapatriement subsistent.`,
-    ],
-  ]);
-  card("#step-2025", `${lastYear}, une nouvelle carte`, [
-    [
-      `Les arcs bleus ont grandi depuis 2019 : ${gainers.map((c) => `${c.nom} (${fmtPct(deltaOf(c), 0)})`).join(", ")}.`,
-    ],
-    [`Les arcs magenta ont reculé : ${losers.map((c) => `${c.nom} (${fmtPct(deltaOf(c), 0)})`).join(", ")}.`],
-  ]);
+  $("#hero-kicker").textContent = `Données publiques DGAC, ${y0}–${lastYear}`;
 
-  const steps = [
-    () => ({
+  // ---------------------------------------------------------------- moments (preset views) and captions
+  const MOMENTS = [
+    { key: String(y0), label: String(y0), hint: fmtPax(intlYear(y0)) },
+    { key: "2019", label: "2019", hint: fmtPax(intlYear(2019)) },
+    { key: "2020-04", label: "Avril 2020", hint: fmtPax(sumMonth(april)) },
+    { key: String(lastYear), label: String(lastYear), hint: fmtPax(intlYear(lastYear)) },
+    { key: "delta", label: "Gagnants et perdants", hint: `depuis 2019` },
+  ];
+  const VIEWS = {
+    [y0]: { period: { kind: "year", y: y0 }, mode: "plain", labels: top(y0, 5), turn: [5, 40] },
+    2019: { period: { kind: "year", y: 2019 }, mode: "plain", labels: top(2019, 6), turn: [0, 36] },
+    "2020-04": { period: { kind: "month", i: april }, mode: "plain", labels: [], turn: [10, 35] },
+    [lastYear]: {
       period: { kind: "year", y: lastYear },
       mode: "plain",
-      labels: top(lastYear, 6).map((c) => c.id),
+      labels: top(lastYear, 6),
       turn: [8, 32],
-    }),
-    () => ({
-      period: { kind: "year", y: y0 },
-      mode: "plain",
-      labels: top(y0, 5).map((c) => c.id),
-      turn: [5, 40],
-    }),
-    () => ({
-      period: { kind: "year", y: 2019 },
-      mode: "plain",
-      labels: top(2019, 6, (c) => c.dist > 4000).map((c) => c.id),
-      turn: [-35, 30],
-    }),
-    () => ({ period: { kind: "month", i: april }, mode: "plain", labels: [], turn: [10, 35] }),
-    () => ({
+    },
+    delta: {
       period: { kind: "year", y: lastYear },
       mode: "delta",
-      labels: [...gainers, ...losers].map((c) => c.id),
+      labels: [...gainers, ...losers],
       turn: [30, 35],
-    }),
-    () => ({
-      period: { kind: "year", y: lastYear },
-      mode: "plain",
-      labels: top(lastYear, 4).map((c) => c.id),
-      turn: null,
-    }),
-  ];
-  scrolly($("#steps-monde"), (i) => {
-    const s = steps[i]();
+    },
+  };
+
+  function caption() {
+    const P = state.period;
+    let title;
+    let parts;
+    if (state.mode === "delta") {
+      title = `Depuis 2019, une nouvelle carte`;
+      parts = [
+        [`Les arcs bleus ont grandi : ${gainers.map(moved).join(", ")}.`],
+        [`Les arcs magenta ont reculé : ${losers.map(moved).join(", ")}.`],
+      ];
+    } else if (P.kind === "month") {
+      title = `${fmtMonth(months[P.i]).replace(/^\w/, (m) => m.toUpperCase())}, le ciel s'éteint`;
+      parts = [
+        [
+          `Le confinement vide le ciel : `,
+          { b: fmtNum(sumMonth(P.i)) },
+          ` passagers internationaux dans le mois, contre `,
+          { b: fmtPax(sumMonth(april19)) },
+          ` en avril 2019, soit `,
+          { b: fmtPct(pctChange(sumMonth(april19), sumMonth(P.i)), 1) },
+          `.`,
+        ],
+      ];
+    } else {
+      const y = P.y;
+      const lead = leader(y);
+      const since = leadSince(y);
+      const ratio = intlYear(lastYear) / intlYear(y);
+      title = y === recordYear ? `${y}, l'année record` : String(y);
+      parts = [
+        [
+          { b: mln(intlYear(y)) },
+          ` de passagers internationaux`,
+          ratio >= 1.5 ? `, ${fmtNum(ratio, 1)} fois moins qu'en ${lastYear}.` : `.`,
+        ],
+        [
+          `En tête : ${names(top(y, 3))}.`,
+          since > y0 ? ` Numéro un depuis ${since} : ${lead.nom} (avant : ${leader(since - 1).nom}).` : "",
+        ],
+      ];
+    }
+    $("#globe-caption").replaceChildren(el("h3", { text: title }), ...parts.map((p) => el("p", {}, rich(p))));
+  }
+
+  function apply(view) {
     timeline.stop();
-    state.period = s.period;
-    state.mode = s.mode;
-    state.labels = s.labels;
-    if (s.period.kind === "year") timeline.set(s.period.y, false);
+    state.period = view.period;
+    state.mode = view.mode;
+    state.labels = view.labels.map((c) => c.id);
+    if (view.period.kind === "year") timeline.set(view.period.y, false);
     else {
-      const ym = months[s.period.i];
+      const ym = months[view.period.i];
       timeline.set(+ym.slice(0, 4), false);
       $("#globe-out").textContent = fmtMonthShort(ym);
     }
-    if (s.turn) turnTo(s.turn[0], s.turn[1]);
+    if (view.turn) turnTo(view.turn[0], view.turn[1]);
     renderOverlay();
     renderList();
+    caption();
+  }
+
+  const tabs = moments($("#globe-moments"), MOMENTS, (key) => apply(VIEWS[key]));
+
+  // ---------------------------------------------------------------- time control (free exploration)
+  const timeline = player({
+    button: $("#globe-play"),
+    slider: $("#globe-slider"),
+    output: $("#globe-out"),
+    values: years,
+    interval: 520,
+    labels: { play: "Lancer le voyage de 1990 à aujourd'hui", pause: "Mettre le voyage en pause" },
+    onChange: (y) => {
+      state.period = { kind: "year", y };
+      state.mode = "plain";
+      state.labels = top(y, 5).map((c) => c.id);
+      tabs.mark(VIEWS[y] && VIEWS[y].mode === "plain" ? String(y) : null);
+      renderOverlay();
+      renderList();
+      caption();
+    },
   });
 
   resize();
-  renderOverlay();
-  renderList();
+  tabs.select(String(lastYear));
   new ResizeObserver(() => resize()).observe(host);
 }

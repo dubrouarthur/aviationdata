@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { $, el, rich, onResize, reducedMotion } from "../lib/ui.js";
 import { player, whileVisible } from "../lib/scrolly.js";
 import { ranksByYear, pctChange } from "../lib/series.js";
-import { fmtPax, fmtPct, fmtNum } from "../lib/format.js";
+import { fmtPax, fmtPctAbs, fmtNum } from "../lib/format.js";
 
 const TOP = 10;
 
@@ -27,8 +27,10 @@ export function initRace(data) {
         `. ${leader.nom} reste en tête avec ${fmtPax(leader.pax[L])} de passagers, suivie de ${top3.map((c) => c.nom).join(", ")}.`,
         ...(ryanair
           ? [
-              ` Ryanair, qui réduit son offre en France depuis la hausse des taxes, recule de `,
-              { b: fmtPct(pctChange(ryanair.pax[L - 1], ryanair.pax[L]), 1) },
+              ` Ryanair, qui réduit son offre en France depuis la hausse des taxes, ${
+                pctChange(ryanair.pax[L - 1], ryanair.pax[L]) < 0 ? "recule" : "progresse"
+              } de `,
+              { b: fmtPctAbs(pctChange(ryanair.pax[L - 1], ryanair.pax[L]), 1) },
               ` sur un an.`,
             ]
           : []),

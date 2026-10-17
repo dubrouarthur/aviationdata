@@ -9,6 +9,20 @@
       name="description"
       content="Trente-cinq ans de transport aérien français racontés par les données publiques de la DGAC : destinations, liaisons, aéroports, compagnies, prix et CO2."
     />
+    <meta name="theme-color" content="#f6f8f6" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Le ciel à deux vitesses" />
+    <meta
+      property="og:description"
+      content="Trafic international +7 %, trafic intérieur −21 % depuis 2019 : 35 ans d'aviation française racontés par les données publiques de la DGAC."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <header class="masthead">
@@ -18,7 +32,7 @@
           <a href="#monde">Le monde</a>
           <a href="#spirale">35 ans</a>
           <a href="#remplissage">Avions pleins</a>
-          <a href="#covid">Avril 2020</a>
+          <a href="#covid">Covid</a>
           <a href="#france">France</a>
           <a href="#distance">Distance et CO2</a>
           <a href="#aeroport">Votre aéroport</a>
@@ -32,41 +46,46 @@
     </div>
 
     <main>
-      <!-- 1. the world seen from France: sticky globe -->
-      <section class="chapter wrap" id="monde" aria-labelledby="title">
-        <div class="scrolly">
-          <div class="steps" id="steps-monde">
-            <div class="step hero-step" data-step="0">
-              <h1 class="display" id="title">Le ciel à<br /><em>deux vitesses</em></h1>
-              <div class="prose" id="hero-dek"></div>
-              <p class="note">Faites défiler pour voyager dans le temps. Le globe se fait tourner à la souris ou au doigt.</p>
-            </div>
-            <div class="step" data-step="1"><div class="card" id="step-1990"></div></div>
-            <div class="step" data-step="2"><div class="card" id="step-2019"></div></div>
-            <div class="step" data-step="3"><div class="card" id="step-2020"></div></div>
-            <div class="step" data-step="4"><div class="card" id="step-2025"></div></div>
-            <div class="step" data-step="5">
-              <div class="card" id="step-explore">
-                <h3>À vous d'explorer</h3>
-                <p>Choisissez une année, un continent, survolez un pays.</p>
-                <div class="controls">
-                  <div class="seg" role="group" aria-label="Continent" id="globe-cont"></div>
-                </div>
-                <div class="scroll-list"><ol class="rank" id="country-list"></ol></div>
-              </div>
-            </div>
+      <!-- 1. the world seen from France: globe + clickable moments -->
+      <section class="chapter wrap hero" id="monde" aria-labelledby="title">
+        <div class="hero-grid">
+          <div class="hero-head">
+            <p class="kicker" id="hero-kicker">Données publiques DGAC</p>
+            <h1 class="display" id="title">Le ciel à<br /><em>deux vitesses</em></h1>
+            <div class="prose" id="hero-dek"></div>
           </div>
-          <div class="sticky">
+          <div class="hero-globe">
             <div class="graphic" id="globe">
               <div class="overlay-year" id="globe-year"></div>
               <div class="overlay-legend" id="globe-legend"></div>
             </div>
             <div class="timebar">
-              <button class="play" id="globe-play" type="button" aria-label="Lancer le voyage de 1990 à aujourd'hui"></button>
+              <button
+                class="play"
+                id="globe-play"
+                type="button"
+                aria-label="Lancer le voyage de 1990 à aujourd'hui"
+              ></button>
               <input type="range" id="globe-slider" aria-label="Année affichée sur le globe" />
               <output id="globe-out" for="globe-slider"></output>
             </div>
           </div>
+          <div class="hero-moments">
+            <p class="label">Choisissez un moment, ou faites glisser les années sous le globe</p>
+            <div class="moments" id="globe-moments" aria-label="Moments clés du trafic international"></div>
+            <div class="moment-card" id="globe-caption" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="panel explorer">
+          <div class="explorer-head">
+            <h3 id="explorer-title">Les 30 premiers pays</h3>
+            <div class="seg" role="group" aria-label="Continent" id="globe-cont"></div>
+          </div>
+          <ol class="rank cols" id="country-list"></ol>
+          <p class="note">
+            Passagers entre la France et chaque pays ; à droite, l'évolution entre 2019 et la dernière année
+            complète. Survolez ou cliquez un pays pour le retrouver sur le globe.
+          </p>
         </div>
       </section>
 
@@ -84,7 +103,11 @@
               </div>
               <button class="btn" type="button" id="spirale-replay">Rejouer</button>
             </div>
-            <p class="note">Chaque anneau est une année, de 1990 au centre à 2025 au bord ; chaque secteur est un mois, de janvier à décembre dans le sens des aiguilles d'une montre. Plus la case est foncée, plus le mois a compté de passagers.</p>
+            <p class="note">
+              Chaque anneau est une année, de 1990 au centre à 2025 au bord ; chaque secteur est un mois, de
+              janvier à décembre dans le sens des aiguilles d'une montre. Plus la case est foncée, plus le
+              mois a compté de passagers.
+            </p>
           </div>
           <div class="chart" id="chart-spirale"></div>
         </div>
@@ -97,7 +120,9 @@
         <div class="grid-2" style="margin-top: 22px">
           <div class="panel">
             <h3>Passagers et vols, indice 2000 = 100</h3>
-            <p class="note">Trafic des aéroports français : passagers (arrivées et départs) et vols de passagers.</p>
+            <p class="note">
+              Trafic des aéroports français : passagers (arrivées et départs) et vols de passagers.
+            </p>
             <div class="chart" id="chart-rempl" tabindex="0" aria-label="Passagers et vols depuis 1990"></div>
           </div>
           <div class="panel">
@@ -111,36 +136,47 @@
 
       <!-- 4. April 2020 -->
       <section class="chapter wrap" id="covid" aria-labelledby="h-covid">
-        <h2 class="section-title" id="h-covid">Avril 2020 : les passagers disparaissent, le fret tient</h2>
+        <h2 class="section-title" id="h-covid">
+          Covid : en avril 2020, les passagers disparaissent, le fret tient
+        </h2>
         <div class="prose" id="covid-text"></div>
         <div class="panel" style="margin-top: 22px">
           <div class="controls" style="margin-top: 0">
             <div class="chips" id="chips-covid" role="group" aria-label="Séries affichées"></div>
           </div>
-          <div class="chart" id="chart-covid" tabindex="0" aria-label="Passagers, vols et fret pendant la crise sanitaire"></div>
+          <div
+            class="chart"
+            id="chart-covid"
+            tabindex="0"
+            aria-label="Passagers, vols et fret pendant la crise sanitaire"
+          ></div>
         </div>
       </section>
 
-      <!-- 5. domestic France: sticky route map -->
+      <!-- 5. domestic France: route map + clickable moments -->
       <section class="chapter wrap" id="france" aria-labelledby="h-france">
         <h2 class="section-title" id="h-france">La France intérieure se vide</h2>
-        <div class="scrolly flip">
-          <div class="steps" id="steps-france">
-            <div class="step" data-step="0"><div class="card" id="fr-step-0"></div></div>
-            <div class="step" data-step="1"><div class="card" id="fr-step-1"></div></div>
-            <div class="step" data-step="2"><div class="card" id="fr-step-2"></div></div>
-            <div class="step" data-step="3"><div class="card" id="fr-step-3"></div></div>
-          </div>
-          <div class="sticky">
+        <div class="story-grid">
+          <div class="story-graphic">
             <div class="graphic" id="france-map">
               <div class="overlay-year" id="france-year"></div>
               <div class="overlay-legend" id="france-legend"></div>
             </div>
             <div class="timebar">
-              <button class="play" id="france-play" type="button" aria-label="Lancer l'animation des liaisons intérieures"></button>
+              <button
+                class="play"
+                id="france-play"
+                type="button"
+                aria-label="Lancer l'animation des liaisons intérieures"
+              ></button>
               <input type="range" id="france-slider" aria-label="Année affichée sur la carte de France" />
               <output id="france-out" for="france-slider"></output>
             </div>
+          </div>
+          <div class="story-side">
+            <p class="label">Quatre moments de l'aérien intérieur</p>
+            <div class="moments" id="france-moments" aria-label="Moments clés du trafic intérieur"></div>
+            <div class="moment-card" id="france-caption" aria-live="polite"></div>
           </div>
         </div>
         <div class="panel" style="margin-top: 32px">
@@ -173,7 +209,13 @@
         <h2 class="section-title" id="h-apt">Et votre aéroport ?</h2>
         <div class="controls">
           <label class="visually-hidden" for="apt-input">Rechercher un aéroport</label>
-          <input class="search" id="apt-input" list="apt-list" placeholder="Ville ou code OACI (ex. LFRS)" autocomplete="off" />
+          <input
+            class="search"
+            id="apt-input"
+            list="apt-list"
+            placeholder="Ville ou code OACI (ex. LFRS)"
+            autocomplete="off"
+          />
           <datalist id="apt-list"></datalist>
           <select class="select" id="apt-year" aria-label="Année des liaisons"></select>
         </div>
@@ -182,7 +224,12 @@
             <div id="apt-head"></div>
             <div class="facts" id="apt-facts"></div>
             <h3 style="margin-top: 8px">Passagers par mois</h3>
-            <div class="chart" id="chart-apt" tabindex="0" aria-label="Passagers mensuels de l'aéroport"></div>
+            <div
+              class="chart"
+              id="chart-apt"
+              tabindex="0"
+              aria-label="Passagers mensuels de l'aéroport"
+            ></div>
           </div>
           <div class="panel">
             <h3 id="apt-routes-title">Ses liaisons</h3>
@@ -198,7 +245,12 @@
         <div class="prose" id="cie-text"></div>
         <div class="panel" style="margin-top: 22px">
           <div class="timebar">
-            <button class="play" id="race-play" type="button" aria-label="Lancer la course de 2010 à aujourd'hui"></button>
+            <button
+              class="play"
+              id="race-play"
+              type="button"
+              aria-label="Lancer la course de 2010 à aujourd'hui"
+            ></button>
             <input type="range" id="race-slider" aria-label="Année de la course" />
             <output id="race-out" for="race-slider"></output>
           </div>
@@ -217,17 +269,12 @@
           <div class="chart" id="chart-heat"></div>
         </div>
         <div class="panel" style="margin-top: 22px">
-          <h3>Prix contre trafic, sur un an</h3>
-          <p class="note">Chaque point est un mois : en abscisse l'évolution du trafic, en ordonnée celle des prix, par rapport au même mois un an plus tôt. Les mois de mars 2020 à mars 2023, faussés par l'effondrement et le rebond du Covid, sont exclus.</p>
-          <div class="controls">
-            <div class="chips" id="chips-pxt" role="group" aria-label="Segments affichés"></div>
-          </div>
-          <div class="timebar">
-            <button class="play" id="pxt-play" type="button" aria-label="Animer les mois"></button>
-            <input type="range" id="pxt-slider" aria-label="Mois affiché" />
-            <output id="pxt-out" for="pxt-slider"></output>
-          </div>
-          <div class="chart" id="chart-pxt"></div>
+          <h3>Prix des billets et passagers depuis 2019</h3>
+          <p class="note">
+            Moyennes annuelles, en base 100 en 2019. Prix : indice des prix des billets au départ de la France
+            (IPTAP, DGAC). Passagers : trafic de chaque segment (DGAC).
+          </p>
+          <div class="chart" id="chart-scissors"></div>
         </div>
       </section>
     </main>

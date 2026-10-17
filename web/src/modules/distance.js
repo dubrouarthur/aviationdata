@@ -211,7 +211,10 @@ export function initDistance(data) {
         if (width < 520) {
           // narrow: one short word per bar, staggered on two rows so neighbours never collide
           const short = s.kind === "total" ? s.label : i < 3 ? ["trafic", "sobriété"][i - 1] : s.label;
-          t.append("tspan").attr("x", t.attr("x")).attr("dy", i % 2 ? 13 : 0).text(short);
+          t.append("tspan")
+            .attr("x", t.attr("x"))
+            .attr("dy", i % 2 ? 13 : 0)
+            .text(short);
           return;
         }
         const words = s.label.split(" ");

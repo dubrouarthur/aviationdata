@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { $, el, rich, chips } from "../lib/ui.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, isNum } from "../lib/series.js";
-import { fmtPct, fmtNum, fmtMonth } from "../lib/format.js";
+import { fmtPct, fmtPctAbs, fmtNum, fmtMonth } from "../lib/format.js";
 
 const SERIES = [
   { key: "pax", label: "Passagers", color: "var(--blue)", width: 2.6 },
@@ -38,12 +38,12 @@ export function initCovid(data) {
       "p",
       {},
       rich([
-        `En avril 2020, les aéroports français perdent `,
-        { b: fmtPct(at("pax", "2020-04") - 100, 1) },
+        `En avril 2020, en plein premier confinement, les aéroports français perdent `,
+        { b: fmtPctAbs(at("pax", "2020-04") - 100, 1) },
         ` de leurs passagers et `,
-        { b: fmtPct(at("vols", "2020-04") - 100, 0) },
+        { b: fmtPctAbs(at("vols", "2020-04") - 100, 0) },
         ` de leurs vols par rapport à avril 2019. Le fret, lui, ne recule que de `,
-        { b: fmtPct(at("fret", "2020-04") - 100, 0) },
+        { b: fmtPctAbs(at("fret", "2020-04") - 100, 0) },
         `, porté par les vols tout-cargo (`,
         { b: fmtPct(at("vols_cargo", "2020-04") - 100, 0) },
         `) qui remplacent les soutes des avions de ligne cloués au sol.`,

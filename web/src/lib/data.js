@@ -19,8 +19,8 @@ export const EVENTS = [
   { date: "2008-10", label: "Crise financière", short: "2008" },
   { date: "2020-03", label: "Covid-19", short: "Covid" },
   { date: "2023-05", label: "Interdiction de vols courts", short: "Vols courts" },
-  { date: "2025-03", label: "TSBA ×3", short: "TSBA" },
-  { date: "2026-02", label: "Fermeture d'Ormuz", short: "Ormuz" },
+  { date: "2025-03", label: "Taxe sur les billets ×2,8", short: "TSBA" },
+  { date: "2026-02", label: "Détroit d'Ormuz bloqué", short: "Ormuz" },
   { date: "2026-06", label: "TSBA réduite sur 26 lignes", short: "TSBA −" },
 ];
 

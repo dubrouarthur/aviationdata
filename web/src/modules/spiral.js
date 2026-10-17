@@ -10,10 +10,34 @@ export function initSpiral(data) {
   const intl = sumSeries([F.MET_INTL, F.OM_INTL].filter(Boolean));
   const nat = sumSeries([F.MET_RAD, F.MET_TRA, F.MET_OM, F.OM_OM].filter(Boolean));
   const total = sumSeries([intl, nat]);
+  // multi-hue ramps built from the site inks (ochre, teal, blue, ink / ochre, magenta, plum), lightness falling
+  // steadily from one end to the other, so that years and seasons stay distinct and the order stays readable
+  const BLUES = [
+    "#fbf5e4",
+    "#f3dc9c",
+    "#c9dba0",
+    "#7cc0a6",
+    "#3a9bb0",
+    "#2a78d6",
+    "#1d4f9c",
+    "#122a52",
+    "#0b1726",
+  ];
+  const MAGENTAS = [
+    "#fcf5e8",
+    "#f6dba6",
+    "#f0b383",
+    "#e2877f",
+    "#cc5687",
+    "#b5267e",
+    "#7f1660",
+    "#47103c",
+    "#1f0a1c",
+  ];
   const SERIES = {
-    total: { label: "Tous les vols", values: total, color: "--blue" },
-    intl: { label: "International", values: intl, color: "--blue" },
-    nat: { label: "Intérieur", values: nat, color: "--magenta" },
+    total: { label: "Tous les vols", values: total, color: "--blue", ramp: BLUES },
+    intl: { label: "International", values: intl, color: "--blue", ramp: BLUES },
+    nat: { label: "Intérieur", values: nat, color: "--magenta", ramp: MAGENTAS },
   };
   const years = [...new Set(months.map((m) => +m.slice(0, 4)))];
   const node = $("#chart-spirale");
@@ -58,7 +82,7 @@ export function initSpiral(data) {
   function draw() {
     node.replaceChildren();
     const S = Math.min(width, 660);
-    const H = S + 26; // room under the rings for the colour legend
+    const H = S + 58; // room under the rings for the colour legend
     const cx = width / 2;
     const cy = S / 2;
     const r0 = S * 0.1;
@@ -67,9 +91,14 @@ export function initSpiral(data) {
     const ring = (r1 - r0) / years.length;
     const a0 = gap / 2;
     const step = (2 * Math.PI - gap) / 12;
-    const { values, color } = SERIES[mode];
+    const { values, color, ramp } = SERIES[mode];
     const vmax = d3.max(values) || 1;
-    const scale = d3.scaleSequential(d3.interpolateRgb(cssVar("--paper-2"), cssVar(color))).domain([0, vmax]);
+    // the ramp starts just under the quietest normal month (Covid months excluded), so the colours spread over
+    // the real range of the data; anything lower, like the Covid hole, takes the lightest colour
+    const normal = values.filter((v, i) => isNum(v) && !(months[i] >= "2020-03" && months[i] <= "2021-12"));
+    const unit = vmax > 5e6 ? 5e5 : 1e5;
+    const vmin = Math.floor((d3.quantile(normal.sort(d3.ascending), 0.01) * 0.9) / unit) * unit;
+    const scale = d3.scaleSequential(d3.interpolateRgbBasis(ramp)).domain([vmin, vmax]).clamp(true);
     const svg = d3.select(node).append("svg").attr("viewBox", `0 0 ${width} ${H}`).attr("height", H);
     const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
     const arc = d3.arc().padAngle(0.006).cornerRadius(1.2);
@@ -115,8 +144,8 @@ export function initSpiral(data) {
     const hl = g
       .append("path")
       .style("fill", "none")
-      .style("stroke", "var(--ink)")
-      .style("stroke-width", 1.2)
+      .style("stroke", "var(--ochre)")
+      .style("stroke-width", 2)
       .style("display", "none")
       .style("pointer-events", "none");
 
@@ -160,28 +189,43 @@ export function initSpiral(data) {
         .style("fill", "none")
         .style("stroke", "var(--ink-2)")
         .style("stroke-width", 1);
-      g.append("text").attr("class", "end-label").attr("x", x2).attr("y", y2 - 6).text("2020 : le trou du Covid");
+      g.append("text")
+        .attr("class", "end-label")
+        .attr("x", x2)
+        .attr("y", y2 - 6)
+        .text("2020 : le trou du Covid");
     }
 
-    // colour legend
-    const lg = svg.append("g").attr("transform", `translate(${Math.max(8, cx - S / 2 + 4)},${H - 16})`);
+    // colour legend: the ramp, its two ends written underneath, "passagers par mois" as its title
+    const LW = Math.min(240, width - 16);
+    const lg = svg.append("g").attr("transform", `translate(${Math.max(8, cx - S / 2 + 4)},${H - 34})`);
     const grad = svg.append("defs").append("linearGradient").attr("id", "spiral-ramp");
-    grad.append("stop").attr("offset", "0%").attr("stop-color", scale(0));
-    grad.append("stop").attr("offset", "100%").attr("stop-color", scale(vmax));
-    lg.append("rect").attr("width", 120).attr("height", 8).attr("rx", 4).style("fill", "url(#spiral-ramp)");
+    for (let k = 0; k <= 10; k++)
+      grad
+        .append("stop")
+        .attr("offset", `${k * 10}%`)
+        .attr("stop-color", scale(vmin + ((vmax - vmin) * k) / 10));
+    lg.append("rect").attr("width", LW).attr("height", 10).attr("rx", 5).style("fill", "url(#spiral-ramp)");
+    const mln = (v) => `${fmtNum(v / 1e6, 1)} M`;
     lg.append("text")
       .attr("class", "end-label")
       .attr("x", 0)
-      .attr("y", -5)
-      .style("font-weight", 500)
-      .text("0");
+      .attr("y", -6)
+      .style("font-weight", 600)
+      .text("Passagers par mois");
     lg.append("text")
       .attr("class", "end-label")
-      .attr("x", 120)
-      .attr("y", -5)
+      .attr("x", 0)
+      .attr("y", 26)
+      .style("font-weight", 500)
+      .text(`${mln(vmin)} ou moins`);
+    lg.append("text")
+      .attr("class", "end-label")
+      .attr("x", LW)
+      .attr("y", 26)
       .attr("text-anchor", "end")
       .style("font-weight", 500)
-      .text(`${fmtPax(vmax)} / mois`);
+      .text(mln(vmax));
 
     if (!animated && !reducedMotion()) paths.style("opacity", 0);
     return paths;
