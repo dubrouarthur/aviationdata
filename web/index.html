@@ -342,8 +342,14 @@
 
       <!-- 7. airport explorer -->
       <section class="chapter wrap" id="aeroport" aria-labelledby="h-apt">
-        <h2 class="section-title" id="h-apt">Et votre aéroport ?</h2>
-        <div class="controls">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-apt">Et votre aéroport ?</h2>
+            <div class="prose" id="apt-intro"></div>
+          </div>
+          <aside class="keyfig" id="kf-apt" aria-label="Chiffre clé"></aside>
+        </div>
+        <div class="apt-finder">
           <label class="visually-hidden" for="apt-input">Rechercher un aéroport</label>
           <input
             class="search"
@@ -353,31 +359,72 @@
             autocomplete="off"
           />
           <datalist id="apt-list"></datalist>
-          <select class="select" id="apt-year" aria-label="Année des liaisons"></select>
+          <div
+            class="picks"
+            id="apt-picks"
+            role="group"
+            aria-label="Accès rapide aux plus grands aéroports"
+          ></div>
         </div>
-        <div
-          class="picks"
-          id="apt-picks"
-          role="group"
-          aria-label="Accès rapide aux plus grands aéroports"
-        ></div>
-        <div class="grid-2" style="align-items: start">
-          <div data-source="trafic" data-series="par aéroport" class="panel">
-            <div id="apt-head"></div>
-            <div class="facts" id="apt-facts"></div>
-            <h3 style="margin-top: 8px">Passagers par mois</h3>
+        <div class="panel apt-card" id="apt-card" data-source="trafic" data-series="par aéroport">
+          <div id="apt-head"></div>
+          <div class="facts" id="apt-facts"></div>
+        </div>
+        <div class="grid-2 apt-grid">
+          <div class="panel" data-source="trafic" data-series="par aéroport">
+            <h3>Passagers depuis 1990</h3>
+            <p class="note" id="apt-chart-note"></p>
+            <div class="controls">
+              <label class="visually-hidden" for="apt-compare">Comparer avec un autre aéroport</label>
+              <select class="select" id="apt-compare"></select>
+              <div class="seg" role="group" aria-label="Échelle" id="apt-scale">
+                <button type="button" data-v="pax">Passagers</button>
+                <button type="button" data-v="idx">Indice 2019 = 100</button>
+              </div>
+            </div>
+            <div class="legend-row" id="apt-legend"></div>
             <div
               class="chart"
               id="chart-apt"
               tabindex="0"
-              aria-label="Passagers mensuels de l'aéroport"
+              aria-label="Passagers de l'aéroport depuis 1990"
             ></div>
           </div>
-          <div data-source="trafic" data-series="par paire d'aéroports" class="panel">
-            <h3 id="apt-routes-title">Ses liaisons</h3>
+          <div class="panel" data-source="trafic" data-series="par aéroport">
+            <h3 id="apt-season-title">Ses saisons</h3>
+            <p class="note" id="apt-season-note"></p>
+            <div class="legend-row" id="apt-season-legend"></div>
+            <div class="chart" id="apt-season"></div>
+          </div>
+        </div>
+        <div class="grid-2 apt-grid">
+          <div class="panel" data-source="trafic" data-series="par paire d'aéroports">
+            <div class="panel-head">
+              <h3 id="apt-routes-title">Ses liaisons</h3>
+              <select class="select" id="apt-year" aria-label="Année des liaisons"></select>
+            </div>
             <p class="note" id="apt-routes-note"></p>
+            <div class="legend-row" id="apt-routes-legend"></div>
             <div class="chart" id="apt-routes"></div>
           </div>
+          <div class="panel" data-source="trafic" data-series="par paire d'aéroports">
+            <h3 id="apt-top-title">Ses principales liaisons</h3>
+            <p class="note" id="apt-top-note"></p>
+            <ol class="route-list" id="apt-top"></ol>
+          </div>
+        </div>
+        <div class="panel apt-ranking" data-source="trafic" data-series="par aéroport">
+          <div class="panel-head">
+            <h3>Tous les aéroports</h3>
+            <div class="seg" role="group" aria-label="Aéroports affichés" id="apt-zone">
+              <button type="button" data-v="all">Tous</button>
+              <button type="button" data-v="metro">Métropole</button>
+              <button type="button" data-v="om">Outre-mer</button>
+            </div>
+          </div>
+          <p class="note" id="apt-rank-note"></p>
+          <div class="table-scroll rank-scroll"><table class="apt-rank" id="apt-rank"></table></div>
+          <button class="btn" id="apt-rank-more" type="button"></button>
         </div>
       </section>
 

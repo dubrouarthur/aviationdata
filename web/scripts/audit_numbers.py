@@ -150,6 +150,26 @@ def fshare(i):
 
 gF, gE = pct(PV["F"][0], PV["F"][-1]), pct(PV["E"][0], PV["E"][-1])
 WORDS = {2: "deux", 3: "trois", 4: "quatre", 5: "cinq", 6: "six", 7: "sept", 8: "huit"}
+# airports: recovery since 2019 (airports above 200 000 passengers in 2019) and the default card (Toulouse)
+AP = A["airports"]
+big = [a for a in AP if asum(a["pax"], 2019) >= 200000]
+recov = [a for a in big if asum(a["pax"], last) >= asum(a["pax"], 2019)]
+apt_mv = sorted((pct(asum(a["pax"], 2019), asum(a["pax"], last)) for a in big), reverse=True)
+
+
+def fpax(v):
+    if v >= 1e6:
+        return f"{fr(v / 1e6, 1 if v >= 1e7 else 2)} M"
+    return f"{fr(v / 1e3)} k" if v >= 1e5 else fr(v)
+
+
+tls = next(a for a in AP if a["code"] == "LFBO")
+tls_p, tls_19 = asum(tls["pax"], last), asum(tls["pax"], 2019)
+tls_rank = 1 + sum(1 for a in AP if asum(a["pax"], last) > tls_p)
+tls_years = {y: asum(tls["pax"], y) for y in AY}
+tls_rec = max(tls_years, key=tls_years.get)
+tls_m = [tls["pax"][j] or 0 for j, m in enumerate(AM) if m.startswith(str(last))]
+tls_peak = max(range(12), key=lambda k: tls_m[k])
 top3 = [c["nom"] for c in sorted(MC, key=lambda c: -wyear(c, last))[:3]]
 movers = [c for c in MC if wyear(c, 2019) > 400000]
 gain = sorted(movers, key=lambda c: -pct(wyear(c, 2019), wyear(c, last)))[:4]
@@ -312,6 +332,27 @@ with sync_playwright() as p:
         f"+{fr(gF)} %",
     )
     assert C["pays"][0]["nom"] == "Autriche", "story says Austria is the first foreign country"
+    check(
+        "airports, recovery",
+        text("#apt-intro") + text("#kf-apt"),
+        f"Sur les {len(big)} aéroports",
+        f"{len(recov)} ont retrouvé",
+        f"{len(recov)} sur {len(big)}",
+        f"+{fr(apt_mv[0])} %",
+        f"+{fr(apt_mv[1])} %",
+        f"−{fr(abs(apt_mv[-1]))} %",
+        f"−{fr(abs(apt_mv[-2]))} %",
+    )
+    d_tls = pct(tls_19, tls_p)
+    check(
+        "airport card (Toulouse)",
+        text(".apt-sentence"),
+        f"{fpax(tls_p)} passagers en {last}",
+        f"{fr(abs(d_tls))} % {'de plus' if d_tls >= 0 else 'de moins'} qu'en 2019",
+        f"le {tls_rank}e aéroport français",
+        f"Son record : {fpax(tls_years[tls_rec])} passagers en {tls_rec}",
+        f"{MONTHS[tls_peak]} ({fr(tls_m[tls_peak] / sum(tls_m) * 100)} %",
+    )
     check(
         "carriers",
         text("#cie-text"),

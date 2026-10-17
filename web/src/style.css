@@ -1119,6 +1119,260 @@ details.data td:first-child {
   color: var(--ink-2);
 }
 
+/* airport explorer: finder, card, panels, routes list, ranking */
+.apt-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 26px 0 16px;
+}
+
+.apt-finder .picks {
+  margin: 0;
+}
+
+.apt-card {
+  scroll-margin-top: 80px;
+}
+
+.apt-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.apt-title h3 {
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1.02;
+}
+
+.apt-title .note {
+  margin: 0;
+}
+
+.apt-sentence {
+  margin: 10px 0 0;
+  max-width: 62em;
+  font-family: var(--f-text);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.apt-card .facts {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  margin-bottom: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.apt-grid {
+  margin-top: 22px;
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.panel-head h3 {
+  margin: 0;
+}
+
+.route-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-family: var(--f-ui);
+  font-size: 0.88rem;
+}
+
+.route-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(60px, 1fr) 64px 48px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.rl-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  color: var(--ink);
+}
+
+button.rl-name {
+  font: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--axis);
+  text-underline-offset: 3px;
+}
+
+button.rl-name:hover,
+button.rl-name:focus-visible {
+  color: var(--blue-text);
+  text-decoration-color: currentColor;
+}
+
+.rl-bar i {
+  display: block;
+  height: 10px;
+  min-width: 3px;
+  border-radius: 4px;
+  background: var(--c);
+}
+
+.rl-v,
+.rl-d {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rl-v {
+  font-weight: 650;
+}
+
+.rl-d {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+
+.apt-ranking {
+  margin-top: 22px;
+}
+
+.rank-scroll {
+  max-height: none;
+  margin-top: 6px;
+}
+
+.apt-rank {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--f-ui);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.apt-rank th,
+.apt-rank td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.apt-rank thead th {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--muted);
+  border-bottom-color: var(--axis);
+}
+
+.apt-rank th[scope="row"],
+.apt-rank thead th:nth-child(2) {
+  text-align: left;
+  width: 100%;
+  white-space: normal;
+}
+
+.apt-rank .r {
+  color: var(--muted);
+  width: 3em;
+}
+
+.apt-rank tbody tr {
+  cursor: pointer;
+}
+
+.apt-rank tbody tr:hover,
+.apt-rank tbody tr[aria-selected="true"] {
+  background: var(--paper-2);
+}
+
+.apt-rank tbody tr[aria-selected="true"] .rk-name {
+  font-weight: 750;
+}
+
+.rk-name {
+  font: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.apt-rank .sort {
+  font: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.apt-rank th[aria-sort="descending"] .sort {
+  color: var(--ink);
+}
+
+.apt-rank th[aria-sort="descending"] .sort::after {
+  content: " ▾";
+}
+
+.rk-name .short {
+  display: none;
+}
+
+.apt-rank td.spark {
+  width: 104px;
+}
+
+.apt-rank td.spark svg {
+  display: block;
+  margin-left: auto;
+}
+
+#apt-rank-more {
+  margin-top: 12px;
+}
+
+@media (max-width: 620px) {
+  .apt-rank .spark {
+    display: none;
+  }
+
+  .rk-name .full {
+    display: none;
+  }
+
+  .rk-name .short {
+    display: inline;
+  }
+
+  .apt-rank th,
+  .apt-rank td {
+    padding: 7px 6px;
+  }
+
+  .route-list li {
+    grid-template-columns: minmax(0, 1fr) 54px 60px 44px;
+  }
+}
+
 /* ------------------------------------------------------------------ bar race */
 .race-bar {
   transition: none;
