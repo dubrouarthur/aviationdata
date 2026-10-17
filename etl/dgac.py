@@ -48,13 +48,14 @@ SERIES: dict[str, dict[str, list[str]]] = {
     "cie": {
         "name": ["CIE_NOM"],
         "nat": ["CIE_NAT"],
+        "pays": ["CIE_PAYS"],
         "pax": ["CIE_PAX"],
     },
 }
 OPTIONAL = {
     "apt": {"pax_tr", "zone", "mvt", "mvt_cgo", "frp_dep", "frp_arr"},
     "lsn": {"pkt", "cont", "origin", "dest", "frp"},
-    "cie": {"nat"},
+    "cie": {"nat", "pays"},
     "pap": {"mvt", "dist"},
 }
 NUMERIC = {"pax", "pax_dep", "pax_arr", "pax_tr", "pkt", "dist", "mvt", "mvt_cgo", "frp", "frp_dep", "frp_arr"}

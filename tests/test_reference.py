@@ -60,3 +60,21 @@ def test_major_airports_on_map(out):
 
 def test_every_real_airport_is_on_the_map(out):
     assert out["aeroports"]["missing_coords"] == []
+
+
+def test_french_carriers_share(out):
+    pav = out["compagnies"]["pavillon"]
+    years = out["compagnies"]["years"]
+
+    def share(y):
+        i = years.index(y)
+        return pav["F"][i] / (pav["F"][i] + pav["E"][i])
+
+    assert share(2010) == pytest.approx(0.486, abs=0.005)
+    assert share(2025) == pytest.approx(0.381, abs=0.005)
+
+
+def test_freight_totals(out):
+    f = out["fret"]
+    assert f["total"][f["years"].index(2019)] == pytest.approx(2.432e6, rel=0.01)
+    assert f["total"][f["years"].index(2025)] == pytest.approx(2.228e6, rel=0.01)

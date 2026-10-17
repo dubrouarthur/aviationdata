@@ -379,6 +379,24 @@ def build_carriers(cie: list[dict], top_n: int = 12) -> dict:
         for b in sorted(keep, key=lambda b: -per[b][-1] if years else 0)
     ]
     rest = [round(total[i] - sum(c["pax"][i] for c in carriers)) for i in range(len(years))]
+    # flag: every row counted under its own nationality (Transavia France is French, Transavia NL is not)
+    pavillon = {"F": [0.0] * len(years), "E": [0.0] * len(years)}
+    by_country: dict[str, list[float]] = defaultdict(lambda: [0.0] * len(years))
+    labels = {k: v["label"] for k, v in world.load_countries().items()}
+    for r in cie:
+        y = int(r["month"][:4])
+        if y not in yi:
+            continue
+        pax = r["pax"] or 0.0
+        french = (r.get("nat") or "").upper().startswith("F")
+        pavillon["F" if french else "E"][yi[y]] += pax
+        country = (r.get("pays") or "").strip()
+        if not french and country and not country.startswith("_"):
+            by_country[labels.get(country) or pretty_name(country)][yi[y]] += pax
+    pays = [
+        {"nom": name, "pax": [round(v) for v in vals]}
+        for name, vals in sorted(by_country.items(), key=lambda kv: -kv[1][-1])[:10]
+    ]
     return {
         "years": years,
         "carriers": carriers,
@@ -389,6 +407,34 @@ def build_carriers(cie: list[dict], top_n: int = 12) -> dict:
             round(sum(per[b][i] for b in per if b in LOWCOST) / total[i], 4) if total[i] else None
             for i in range(len(years))
         ],
+        "pavillon": {k: [round(v) for v in vals] for k, vals in pavillon.items()},
+        "pays": pays,
+    }
+
+
+# ---------------------------------------------------------------- freight
+def build_fret(lsn: list[dict]) -> dict:
+    """Air freight and mail (tonnes) from the route series: no double counting of domestic freight."""
+    years = complete_years({r["month"] for r in lsn})
+    yi = {y: i for i, y in enumerate(years)}
+    total = [0.0] * len(years)
+    cont: dict[str, list[float]] = defaultdict(lambda: [0.0] * len(years))
+    fsc: dict[str, list[float]] = defaultdict(lambda: [0.0] * len(years))
+    for r in lsn:
+        y = int(r["month"][:4])
+        if y not in yi:
+            continue
+        t = r.get("frp") or 0.0
+        total[yi[y]] += t
+        label = (r.get("cont") or "Autre").strip("() ").capitalize()
+        cont[label][yi[y]] += t
+        fsc[r.get("fsc") or "AUTRE"][yi[y]] += t
+    r1 = lambda vals: [round(v, 1) for v in vals]  # noqa: E731
+    return {
+        "years": years,
+        "total": r1(total),
+        "continents": {k: r1(v) for k, v in sorted(cont.items(), key=lambda kv: -kv[1][-1] if years else 0)},
+        "faisceaux": {k: r1(v) for k, v in fsc.items()},
     }
 
 
@@ -515,6 +561,7 @@ def build(raw: Path, out: Path, demo: bool = False, ref: dict | None = None) -> 
     fracture = build_fracture(traffic["lsn"])
     airports = build_airports(traffic["apt"], ref)
     carriers = build_carriers(traffic["cie"])
+    fret = build_fret(traffic["lsn"])
     prices = build_prices(raw)
     co2 = build_co2(raw)
     years = fracture["annual"]["years"]
@@ -538,6 +585,7 @@ def build(raw: Path, out: Path, demo: bool = False, ref: dict | None = None) -> 
             "prix": [prices["months"][0], prices["months"][-1]],
             "co2": [co2["years"][0], co2["years"][-1]],
             "compagnies": [carriers["years"][0], carriers["years"][-1]] if carriers["years"] else None,
+            "fret": [fret["years"][0], fret["years"][-1]] if fret["years"] else None,
         },
         "sources": manifest_sources(raw),
         "missing_coords": airports["missing_coords"],
@@ -553,6 +601,7 @@ def build(raw: Path, out: Path, demo: bool = False, ref: dict | None = None) -> 
         "co2": co2,
         "monde": monde,
         "routes": routes,
+        "fret": fret,
     }
     for name, payload in outputs.items():
         (out / f"{name}.json").write_text(

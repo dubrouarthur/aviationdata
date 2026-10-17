@@ -304,11 +304,12 @@ CONTRACT = {
     "meta": {"generated_at", "demo", "coverage", "sources", "missing_coords", "warnings"},
     "fracture": {"months", "faisceaux", "annual", "continents", "par_faisceau"},
     "aeroports": {"months", "years", "airports", "aggregates", "national", "missing_coords"},
-    "compagnies": {"years", "carriers", "rest", "aggregated", "total", "lowcost_share"},
+    "compagnies": {"years", "carriers", "rest", "aggregated", "total", "lowcost_share", "pavillon", "pays"},
     "prix": {"months", "base", "series", "sources"},
     "co2": {"years", "segments", "mt", "g_peqkm", "pax", "decomp"},
     "monde": {"months", "origin", "countries", "autres"},
     "routes": {"years", "airports", "pairs"},
+    "fret": {"years", "total", "continents", "faisceaux"},
 }
 
 
@@ -360,3 +361,49 @@ def test_manual_airports_complete_the_reference(tmp_path):
         tmp_path / "m.csv", "code,name,municipality,lat,lon,country,note\nLFBV,Brive,Brive,45.15,1.47,FR,closed\n"
     )
     assert set(build.load_ref_airports(a, m)) == {"LFPG", "LFBV"}
+
+
+# ---------------------------------------------------------------- carrier nationality and freight
+def _cie(month, name, nat, pays, pax):
+    return {"month": month, "name": name, "nat": nat, "pays": pays, "pax": pax}
+
+
+def test_pavillon_counts_every_row_by_its_own_nationality():
+    rows = (
+        [_cie(f"2024-{m:02d}", "AIR FRANCE", "F", "FRANCE", 100) for m in range(1, 13)]
+        + [_cie(f"2024-{m:02d}", "RYANAIR", "E", "IRLANDE", 50) for m in range(1, 13)]
+        + [_cie(f"2024-{m:02d}", "TRANSAVIA FRANCE", "F", "FRANCE", 10) for m in range(1, 13)]
+        + [_cie(f"2024-{m:02d}", "TRANSAVIA", "E", "PAYS-BAS", 5) for m in range(1, 13)]
+    )
+    out = build.build_carriers(rows)
+    assert out["pavillon"] == {"F": [1320], "E": [660]}
+    # foreign passengers per carrier country, labelled in French, biggest first
+    assert out["pays"][0] == {"nom": "Irlande", "pax": [600]}
+    assert out["pays"][1]["nom"] == "Pays-Bas"
+
+
+def test_pavillon_tolerates_files_without_country():
+    rows = [_cie(f"2024-{m:02d}", "AIR FRANCE", "F", None, 100) for m in range(1, 13)]
+    out = build.build_carriers(rows)
+    assert out["pavillon"] == {"F": [1200], "E": [0]}
+    assert out["pays"] == []
+
+
+def _lsn(month, fsc, cont, frp):
+    return {"month": month, "seg": "INTL" if "INTL" in fsc else "NAT", "fsc": fsc, "cont": cont, "frp": frp, "pax": 1}
+
+
+def test_freight_from_routes_by_year_continent_and_segment():
+    rows = [_lsn(f"2024-{m:02d}", "MET_INTL", "ASIE", 10.0) for m in range(1, 13)] + [
+        _lsn(f"2024-{m:02d}", "MET_RAD", "(INTÉRIEUR)", 1.5) for m in range(1, 13)
+    ]
+    out = build.build_fret(rows)
+    assert out["years"] == [2024]
+    assert out["total"] == [138.0]
+    assert out["continents"] == {"Asie": [120.0], "Intérieur": [18.0]}
+    assert out["faisceaux"]["MET_INTL"] == [120.0]
+
+
+def test_freight_only_complete_years():
+    rows = [_lsn(f"2025-{m:02d}", "MET_INTL", "EUROPE", 1.0) for m in range(1, 7)]
+    assert build.build_fret(rows)["years"] == []
