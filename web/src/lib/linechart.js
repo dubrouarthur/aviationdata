@@ -173,6 +173,7 @@ export function lineChart(node, initial) {
         g
           .append("path")
           .attr("class", "series-line")
+          .attr("data-dashed", s.dashed ? "1" : null)
           .attr("d", line(pts))
           .style("stroke", s.color)
           .style("stroke-width", s.width || 2)
