@@ -18,6 +18,7 @@ const CHAPTERS = [
   ["race", () => import("./modules/race.js").then((m) => m.initRace)],
   ["pavillon", () => import("./modules/pavillon.js").then((m) => m.initPavillon)],
   ["prices", () => import("./modules/prices.js").then((m) => m.initPrices)],
+  ["resume", () => import("./modules/resume.js").then((m) => m.initResume)],
   ["sources", () => import("./modules/sources.js").then((m) => m.initSources)],
 ];
 

@@ -298,6 +298,11 @@ with sync_playwright() as p:
     page.wait_for_timeout(150)
     check("prices vs traffic tooltip", tip_on() and "2019 = 100" in tip.inner_text())
     check("prices text computed", "%" in page.locator("#prix-text").inner_text())
+    # closing summary: one card per chapter, each pointing back to an existing chapter
+    hrefs = page.locator("#resume-grid a.resume-card").evaluate_all("as => as.map(a => a.getAttribute('href'))")
+    check("summary has 8 cards", len(hrefs) == 8, hrefs)
+    check("summary links to chapters", all(page.locator(h).count() == 1 for h in hrefs), hrefs)
+    check("share on LinkedIn", "linkedin.com/sharing" in (page.locator("#share a").get_attribute("href") or ""))
     check("sources listed", page.locator("#sources-body a").count() >= 4)
     # every chart, map and globe carries a link to its DGAC dataset
     unsourced = page.evaluate(
