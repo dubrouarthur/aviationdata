@@ -169,7 +169,7 @@ export function initSpiral(data) {
       .data(marks)
       .join("text")
       .attr("class", "end-label")
-      .style("font-size", "10.5px")
+      .style("font-size", "11.5px")
       .attr("text-anchor", "middle")
       .attr("x", 0)
       .attr("y", (y) => -(r0 + (years.indexOf(y) + 0.5) * ring) + 3.5)

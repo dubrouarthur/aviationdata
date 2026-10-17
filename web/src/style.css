@@ -314,6 +314,68 @@ footer[id] {
   margin: 0 0 10px;
 }
 
+/* chapter header: title and lede on the left, the chapter's key figures on the right */
+.chapter-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  gap: 20px 56px;
+  align-items: end;
+}
+
+.chapter-head > * {
+  min-width: 0;
+}
+
+.chapter-head + .story-grid {
+  margin-top: 36px;
+}
+
+.chapter-head .prose p:last-child {
+  margin-bottom: 0;
+}
+
+.keyfig {
+  display: grid;
+  gap: 18px;
+  padding: 4px 0 6px 26px;
+  border-left: 1px solid var(--rule);
+}
+
+.keyfig:empty {
+  display: none;
+}
+
+.kf b {
+  display: block;
+  font-family: var(--f-display);
+  font-stretch: 66%;
+  font-weight: 820;
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.kf span {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 8px;
+  font-family: var(--f-text);
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+.kf span i {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--c, var(--ink));
+  transform: translateY(1px);
+}
+
 /* hero key figures: value in ink, identity carried by a small swatch */
 .kpis {
   display: grid;
@@ -403,8 +465,7 @@ footer[id] {
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
-  min-width: 96px;
-  padding: 9px 14px 8px;
+  padding: 9px 13px 8px;
   border: 1px solid var(--rule);
   border-radius: 12px;
   background: var(--card);
@@ -1134,6 +1195,17 @@ details.data td:first-child {
 
   .rank.cols {
     columns: 2;
+  }
+
+  .chapter-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .keyfig {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+    padding: 16px 0 0;
   }
 
   .grid-2,

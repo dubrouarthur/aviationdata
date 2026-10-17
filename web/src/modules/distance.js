@@ -1,5 +1,16 @@
 import * as d3 from "d3";
-import { $, el, rich, chips, segmented, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
+import {
+  $,
+  el,
+  rich,
+  chips,
+  segmented,
+  showTip,
+  hideTip,
+  onResize,
+  dataTable,
+  keyFigures,
+} from "../lib/ui.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, pctChange } from "../lib/series.js";
 import { fmtPct, fmtPctAbs, fmtNum } from "../lib/format.js";
@@ -67,6 +78,19 @@ export function initDistance(data) {
       ]),
     ),
   );
+
+  keyFigures($("#kf-dist"), [
+    {
+      value: `${fmtNum(values.all[L])} km`,
+      label: `parcourus en moyenne par passager en ${years[L]}, ${fmtPct(pctChange(values.all[0], values.all[L]), 0)} depuis ${years[0]}`,
+      color: "var(--ink)",
+    },
+    {
+      value: fmtPct(pctChange(p2.c0, p2.c1), 1),
+      label: `d'émissions de CO2 entre 2019 et ${p2.to}`,
+      color: "var(--teal)",
+    },
+  ]);
 
   // ---------------------------------------------------------------- distance chart
   const node = $("#chart-dist");

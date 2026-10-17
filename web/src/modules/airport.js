@@ -196,7 +196,7 @@ export function initAirport(data, { world }) {
           .attr("class", "end-label")
           .attr("text-anchor", "end")
           .style("font-weight", 500)
-          .style("font-size", "10.5px")
+          .style("font-size", "11.5px")
           .attr("x", cx0 - rr * Math.SQRT1_2 - 3)
           .attr("y", cy0 + rr * Math.SQRT1_2 + 12)
           .text(`${fmtNum(km)} km`);

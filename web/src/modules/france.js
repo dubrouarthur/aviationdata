@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, moments, showTip, hideTip, onResize, cssVar } from "../lib/ui.js";
+import { $, el, rich, moments, showTip, hideTip, onResize, cssVar, keyFigures } from "../lib/ui.js";
 import { player } from "../lib/scrolly.js";
 import { yearSum, pctChange, isNum } from "../lib/series.js";
 import { fmtPax, fmtPct, fmtPctAbs, fmtNum, monthShort } from "../lib/format.js";
@@ -252,6 +252,36 @@ export function initFrance(data, { france }) {
     },
   });
 
+  // ---------------------------------------------------------------- intro and key figures
+  {
+    const pk = d3.greatest(years, (y) => fsc("MET_RAD", y));
+    $("#france-text").replaceChildren(
+      el(
+        "p",
+        {},
+        rich([
+          `Les liaisons entre Paris et la province ont longtemps été le cœur du réseau intérieur : `,
+          { b: `${fmtNum(fsc("MET_RAD", pk) / 1e6, 1)} millions` },
+          ` de passagers en ${pk}, leur record. Il en reste `,
+          { b: `${fmtNum(fsc("MET_RAD", lastYear) / 1e6, 1)} millions` },
+          ` en ${lastYear}. Choisissez un moment ou faites glisser les années pour voir la carte s'éclaircir.`,
+        ]),
+      ),
+    );
+    keyFigures($("#kf-france"), [
+      {
+        value: fmtPct(pctChange(fsc("MET_RAD", 2019), fsc("MET_RAD", lastYear)), 0),
+        label: `de passagers entre Paris et la province depuis 2019`,
+        color: "var(--magenta)",
+      },
+      {
+        value: fmtPct(pctChange(fsc("MET_TRA", 2019), fsc("MET_TRA", lastYear)), 0),
+        label: "entre villes de province",
+        color: "var(--teal)",
+      },
+    ]);
+  }
+
   // ---------------------------------------------------------------- moments (preset views) and captions
   const exits = RYANAIR_EXITS.map((c) => A.airports.find((a) => a.code === c)).filter(Boolean);
   const peak = d3.greatest(years, (y) => fsc("MET_RAD", y));
@@ -459,7 +489,7 @@ function initTsba(data) {
         .attr("x", (v) => x(v.m))
         .attr("y", ch + 14)
         .style("fill", "var(--muted)")
-        .style("font-size", "10.5px")
+        .style("font-size", "11.5px")
         .text((v) => (narrow ? v.m.slice(0, 4) : `${monthShort(+v.m.slice(5, 7) - 1)} ${v.m.slice(2, 4)}`));
     });
   }

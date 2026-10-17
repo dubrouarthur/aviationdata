@@ -1,5 +1,16 @@
 import * as d3 from "d3";
-import { $, el, rich, segmented, showTip, hideTip, onResize, reducedMotion, dataTable } from "../lib/ui.js";
+import {
+  $,
+  el,
+  rich,
+  segmented,
+  showTip,
+  hideTip,
+  onResize,
+  reducedMotion,
+  dataTable,
+  keyFigures,
+} from "../lib/ui.js";
 import { whileVisible } from "../lib/scrolly.js";
 import { yoy, isNum, pctChange } from "../lib/series.js";
 import { fmtPct, fmtPctAbs, fmtNum, fmtMonth, monthShort } from "../lib/format.js";
@@ -121,6 +132,15 @@ export function initPrices(data) {
     ),
   );
 
+  keyFigures($("#kf-prix"), [
+    {
+      value: fmtPct(dom.dPrice, 0),
+      label: `prix des billets intérieurs entre 2019 et ${lastT}`,
+      color: "var(--magenta)",
+    },
+    { value: fmtPct(dom.dTraffic, 0), label: "de passagers sur ces mêmes lignes", color: "var(--blue)" },
+  ]);
+
   // ---------------------------------------------------------------- heatmap
   const heatNode = $("#chart-heat");
   let heatKey = "FRA_ENS";
@@ -204,7 +224,7 @@ export function initPrices(data) {
         .attr("x", cw / 2)
         .attr("y", ch / 2 + 4)
         .attr("text-anchor", "middle")
-        .style("font-size", "10.5px")
+        .style("font-size", "11.5px")
         .style("font-variant-numeric", "tabular-nums")
         .style("pointer-events", "none")
         .style("fill", (c) => (Math.abs(c.v) > 9 ? "#fff" : "var(--ink-2)"))
@@ -229,7 +249,7 @@ export function initPrices(data) {
         .attr("y", 12)
         .attr("text-anchor", "middle")
         .style("fill", "var(--muted)")
-        .style("font-size", "10px")
+        .style("font-size", "11px")
         .text(`${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)} %`);
     });
     lg.append("text")
@@ -354,7 +374,7 @@ export function initPrices(data) {
       .attr("y", m.top + 10)
       .attr("text-anchor", "end")
       .style("font-weight", 500)
-      .style("font-size", "10.5px")
+      .style("font-size", "11.5px")
       .text("2019 = 100");
     // the gap that opens after 2019
     const after = span.map((yr, k) => ({ yr, p: s.pIdx[k], t: s.tIdx[k] })).filter((d) => d.yr >= 2019);

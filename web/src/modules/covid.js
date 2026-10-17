@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, chips } from "../lib/ui.js";
+import { $, el, rich, chips, keyFigures } from "../lib/ui.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, isNum } from "../lib/series.js";
 import { fmtPct, fmtPctAbs, fmtNum, fmtMonth } from "../lib/format.js";
@@ -58,6 +58,19 @@ export function initCovid(data) {
       ]),
     ),
   );
+
+  keyFigures($("#kf-covid"), [
+    {
+      value: fmtPct(at("pax", "2020-04") - 100, 0),
+      label: "de passagers en avril 2020, face à avril 2019",
+      color: "var(--blue)",
+    },
+    {
+      value: fmtPct(at("fret", "2020-04") - 100, 0),
+      label: "seulement pour le fret et la poste",
+      color: "var(--ochre)",
+    },
+  ]);
 
   const node = $("#chart-covid");
   let on = new Set(SERIES.map((s) => s.key));

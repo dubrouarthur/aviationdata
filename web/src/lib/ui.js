@@ -114,6 +114,18 @@ export function dataTable(anchor, { head, rows, summary = "Voir les chiffres" })
   return box;
 }
 
+/** A chapter's key figures: [{value, label, color}] -> big number in ink, label with a colour swatch. */
+export function keyFigures(node, items) {
+  node.replaceChildren(
+    ...items.map(({ value, label, color }) =>
+      el("div", { class: "kf" }, [
+        el("b", { text: value }),
+        el("span", {}, [el("i", { style: `--c:${color || "var(--ink)"}` }), label]),
+      ]),
+    ),
+  );
+}
+
 /** Toggle chips doubling as the legend. items: [{key, label, color, dashed, on}] */
 export function chips(root, items, onChange) {
   root.replaceChildren();

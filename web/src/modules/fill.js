@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
+import { $, el, rich, showTip, hideTip, onResize, dataTable, keyFigures } from "../lib/ui.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, pctChange, isNum } from "../lib/series.js";
 import { fmtPax, fmtPct, fmtPctAbs, fmtNum } from "../lib/format.js";
@@ -30,6 +30,19 @@ export function initFill(data) {
       ]),
     ),
   );
+
+  keyFigures($("#kf-rempl"), [
+    {
+      value: fmtPct(pctChange(pax[base], pax[last]), 0),
+      label: `de passagers dans les aéroports entre 2000 et ${years[last]}`,
+      color: "var(--blue)",
+    },
+    {
+      value: fmtPct(pctChange(vols[base], vols[last]), 0),
+      label: "de vols de passagers",
+      color: "var(--ink-2)",
+    },
+  ]);
 
   lineChart($("#chart-rempl"), {
     dates: years.map((y) => toDate(y)),

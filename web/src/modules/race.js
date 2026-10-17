@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, onResize, reducedMotion } from "../lib/ui.js";
+import { $, el, rich, onResize, reducedMotion, keyFigures } from "../lib/ui.js";
 import { player, whileVisible } from "../lib/scrolly.js";
 import { ranksByYear, pctChange } from "../lib/series.js";
 import { fmtPax, fmtPctAbs, fmtNum } from "../lib/format.js";
@@ -40,6 +40,13 @@ export function initRace(data) {
   $("#cie-note").textContent =
     "Compagnies regroupées par marque (Malta Air avec Ryanair, par exemple). Classées à bas coûts : easyJet, Ryanair, Transavia, Volotea, Vueling, Wizz Air, Eurowings, Norwegian, Jet2 (choix éditorial). Source : DGAC, trafic par compagnie au départ et à l'arrivée de la France.";
 
+  keyFigures($("#kf-cie"), [
+    {
+      value: `${fmtNum(share[L] * 100, 0)} %`,
+      label: `des passagers voyagent en low-cost en ${years[L]}, contre ${fmtNum(share[0] * 100, 0)} % en ${years[0]}`,
+      color: "var(--teal)",
+    },
+  ]);
   $("#race-legend").replaceChildren(
     el("span", { class: "lg" }, [
       el("i", { class: "sq", style: "--c:var(--teal)" }),
@@ -62,7 +69,7 @@ export function initRace(data) {
   function frame(i, dur) {
     const h = 44 + TOP * 34;
     svg.attr("viewBox", `0 0 ${width} ${h}`).attr("height", h);
-    const m = { top: 10, right: 110, bottom: 10, left: 10 };
+    const m = { top: 10, right: 70, bottom: 10, left: width < 560 ? 104 : 140 };
     const rows = carriers
       .filter((c) => ranks.get(c.nom)[i] && ranks.get(c.nom)[i] <= TOP)
       .sort((a, b) => ranks.get(a.nom)[i] - ranks.get(b.nom)[i]);
@@ -88,10 +95,15 @@ export function initRace(data) {
       .attr("height", 24)
       .attr("rx", 4)
       .attr("width", 0);
-    enter.append("text").attr("class", "race-label").attr("y", 16.5);
+    enter
+      .append("text")
+      .attr("class", "race-label")
+      .attr("y", 16.5)
+      .attr("x", m.left - 10)
+      .attr("text-anchor", "end");
     enter.append("text").attr("class", "race-value").attr("y", 16.5);
     const all = enter.merge(g);
-    all.select("rect").style("fill", color);
+    all.select("rect").style("fill", color).attr("x", m.left);
     all
       .transition(t)
       .attr("transform", (c) => `translate(0,${y(ranks.get(c.nom)[i])})`)
@@ -102,20 +114,13 @@ export function initRace(data) {
       .attr("width", (c) => Math.max(2, x(c.pax[i]) - m.left));
     all
       .select(".race-label")
-      .text((c) => c.nom)
-      .transition(t)
-      .attr("x", (c) => {
-        const wBar = x(c.pax[i]) - m.left;
-        return wBar > c.nom.length * 8 + 20 ? m.left + 10 : x(c.pax[i]) + 8;
-      })
-      .style("fill", (c) => (x(c.pax[i]) - m.left > c.nom.length * 8 + 20 ? "#fff" : "var(--ink)"));
+      .text((c) => (width < 560 && c.nom.length > 14 ? `${c.nom.slice(0, 13)}…` : c.nom))
+      .attr("x", m.left - 10)
+      .style("fill", "var(--ink)");
     all
       .select(".race-value")
       .transition(t)
-      .attr("x", (c) => {
-        const wBar = x(c.pax[i]) - m.left;
-        return wBar > c.nom.length * 8 + 20 ? x(c.pax[i]) + 8 : x(c.pax[i]) + 16 + c.nom.length * 7.4;
-      })
+      .attr("x", (c) => x(c.pax[i]) + 8)
       .tween("text", function (c) {
         const node = this;
         const from = +(node.dataset.v || 0);

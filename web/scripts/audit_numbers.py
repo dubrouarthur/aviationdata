@@ -226,6 +226,16 @@ with sync_playwright() as p:
         f"{fr(pct(pmean('MET_INTAL_TOT', 2019), pmean('MET_INTAL_TOT', last)))} %",
         f"{fr(pct(traffic(['MET_INTL'], 2019), traffic(['MET_INTL'], last)))} %",
     )
+    # chapter key figures repeat numbers of the text: they must agree with the recomputation too
+    check(
+        "key figures",
+        text("#kf-rempl") + text("#kf-covid") + text("#kf-france") + text("#kf-cie") + text("#kf-prix"),
+        f"+{fr(pct(asum(N['pax'], 2000), asum(N['pax'], AY[-1])))} %",
+        f"−{fr(abs(covid['pax']))} %",
+        f"−{fr(abs(pct(rad[2019], rad[last])))} %",
+        f"{fr(C['lowcost_share'][-1] * 100)} %",
+        f"+{fr(pct(pmean('MET_INTER_MET', 2019), pmean('MET_INTER_MET', last)))} %",
+    )
     b.close()
 
 print(f"\n{len(failures)} failure(s)")
