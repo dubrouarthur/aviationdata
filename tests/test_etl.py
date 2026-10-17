@@ -349,6 +349,12 @@ def test_demo_has_map_ready_airports(demo_outputs):
         ("ST-BARTHELEMY", "Saint-Barthélemy"),
         ("ST-GEORGES-DE-L'OYAPOCK", "Saint-Georges-de-l'Oyapock"),
         ("NOUMEA LA TONTOUTA", "Nouméa la Tontouta"),
+        ("CHAMBERY-AIX-LES-BAINS", "Chambéry-Aix-les-Bains"),
+        ("AJACCIO-NAPOLEON-BONAPARTE", "Ajaccio-Napoléon-Bonaparte"),
+        ("CHALONS-VATRY", "Châlons-Vatry"),
+        ("GRENOBLE-ALPES-ISERE", "Grenoble-Alpes-Isère"),
+        ("ST-TROPEZ-LA MOLE", "Saint-Tropez-la Môle"),
+        ("EPINAL-MIRECOURT", "Épinal-Mirecourt"),
     ],
 )
 def test_pretty_airport_names(raw, expected):
