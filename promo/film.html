@@ -562,7 +562,7 @@
         const tags = sc.id === "title" ? lin(u, 0.9, 1.4) * (1 - lin(u, sc.dur - 1.0, sc.dur - 0.6)) : 0;
         motif(t, strong, tags);
         // on the end card the arcs slide right, clear of the call to action
-        $("#motif").style.transform = sc.id === "end" ? "translateX(430px)" : "none";
+        $("#motif").style.transform = sc.id === "end" ? "translateX(470px)" : "none";
         $("#progress").style.width = `${((t / TOTAL) * 100).toFixed(3)}%`;
 
         await Promise.all(loads.filter(Boolean));

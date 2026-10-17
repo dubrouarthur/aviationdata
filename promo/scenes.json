@@ -121,7 +121,7 @@
     {
       "id": "fret",
       "target": "#chart-fret",
-      "css": "#chart-fret { width: 780px !important; }",
+      "css": "#fret .grid-2 { grid-template-columns: 1fr !important; } #chart-fret { width: 720px !important; }",
       "reveal": "wipe",
       "dur": 4.6,
       "settle": 60,
@@ -163,7 +163,7 @@
     {
       "id": "pavillon",
       "target": "#chart-pav svg",
-      "css": "#chart-pav { width: 700px !important; }",
+      "css": "#pavillon .grid-2 { grid-template-columns: 1fr !important; } #chart-pav { width: 700px !important; }",
       "dur": 4.6,
       "settle": 60,
       "accent": "blue",
@@ -203,7 +203,7 @@
       "id": "co2",
       "order": 7,
       "target": "#chart-waterfall svg",
-      "css": "#chart-waterfall { width: 780px !important; }",
+      "css": "#chart-waterfall { width: 680px !important; }",
       "reveal": "wipe",
       "dur": 5.0,
       "settle": 60,
