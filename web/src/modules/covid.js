@@ -7,7 +7,7 @@ import { fmtPct, fmtPctAbs, fmtNum, fmtMonth } from "../lib/format.js";
 const SERIES = [
   { key: "pax", label: "Passagers", color: "var(--blue)", width: 2.6 },
   { key: "vols", label: "Vols de passagers", color: "var(--ink-2)" },
-  { key: "fret", label: "Fret et poste (tonnes)", color: "var(--ochre)", width: 2.4 },
+  { key: "fret", label: "Fret et poste", color: "var(--ochre)", width: 2.4 },
   { key: "vols_cargo", label: "Vols tout-cargo", color: "var(--teal)" },
 ];
 
