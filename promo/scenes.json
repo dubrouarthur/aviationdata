@@ -10,6 +10,12 @@
       "linkedin": "linkedin.com/in/arthur-dubrou"
     },
     {
+      "id": "question",
+      "dur": 3.4,
+      "q": "En France, prend-on plus ou moins l'avion qu'avant ?",
+      "a": "Réponse : <b>les deux à la fois.</b>"
+    },
+    {
       "id": "globe",
       "order": 1,
       "target": "#globe canvas",
@@ -28,7 +34,8 @@
         " millions de passagers en 2025"
       ],
       "sub": "Jamais autant de voyageurs n'avaient décollé ou atterri en France.",
-      "kicker": "Passagers entre la France et chaque pays, en 2025"
+      "kicker": "Passagers entre la France et chaque pays, en 2025",
+      "beatLabel": "millions de passagers en 2025, un record"
     },
     {
       "id": "delta",
@@ -51,7 +58,8 @@
         " % depuis 2019"
       ],
       "sub": "En bleu, les pays qui gagnent des passagers, menés par l'Égypte (+61 %) et la Turquie (+51 %). En magenta, ceux qui en perdent.",
-      "kicker": "Évolution du trafic par pays entre 2019 et 2025"
+      "kicker": "Évolution du trafic par pays entre 2019 et 2025",
+      "beatLabel": "de trafic international depuis 2019"
     },
     {
       "id": "france",
@@ -75,7 +83,8 @@
         " % depuis 2019"
       ],
       "sub": "En gris, le réseau de 2000 : les lignes entre Paris et la province maigrissent, certaines disparaissent.",
-      "kicker": "Liaisons et aéroports de métropole"
+      "kicker": "Liaisons et aéroports de métropole",
+      "beatLabel": "de trafic intérieur depuis 2019"
     },
     {
       "id": "aeroports",
@@ -106,7 +115,8 @@
       ],
       "sub": "depuis 2019. Sur les 46 aéroports de plus de 200 000 passagers, 21 seulement ont retrouvé leur niveau d'avant.",
       "kicker": "Passagers, moyenne sur 12 mois, indice 100 = 2019",
-      "order": 8
+      "order": 8,
+      "beatLabel": "de passagers à Beauvais depuis 2019, quand Pau en perd 61 %"
     },
     {
       "id": "spirale",
@@ -127,7 +137,8 @@
         " depuis 1990"
       ],
       "sub": "62 millions de passagers en 1990, 183 millions en 2025. Un seul trou dans ces trente-cinq ans : le printemps 2020.",
-      "kicker": "Passagers par mois, de 1990 (au centre) à 2025 (au bord)"
+      "kicker": "Passagers par mois, de 1990 (au centre) à 2025 (au bord)",
+      "beatLabel": "fois plus de passagers qu'en 1990"
     },
     {
       "id": "covid",
@@ -152,7 +163,8 @@
         "document.querySelectorAll('#chips-covid .chip')[1].click()",
         "document.querySelectorAll('#chips-covid .chip')[3].click()"
       ],
-      "reveal": "wipe"
+      "reveal": "wipe",
+      "beatLabel": "de passagers en avril 2020"
     },
     {
       "id": "fret",
@@ -172,7 +184,8 @@
       ],
       "sub": "8 % de moins qu'en 2019. L'Asie et l'Europe en pèsent chacune un tiers ; Roissy-CDG traite 80 % du fret des aéroports.",
       "kicker": "Fret et courrier transportés par avion, par continent",
-      "order": 5
+      "order": 5,
+      "beatLabel": "millions de tonnes de fret transportées par avion en 2025"
     },
     {
       "id": "race",
@@ -213,7 +226,8 @@
       ],
       "sub": "en 2025, contre 49 % en 2010. Les compagnies étrangères ont progressé cinq fois plus vite.",
       "kicker": "Passagers des compagnies françaises et étrangères, en millions",
-      "order": 10
+      "order": 10,
+      "beatLabel": "des passagers voyagent sur une compagnie française"
     },
     {
       "id": "prix",
@@ -233,7 +247,8 @@
         " % depuis 2019"
       ],
       "sub": "pendant que le nombre de passagers sur ces lignes reculait de 27 %. À l'international, les prix ont pris 30 %.",
-      "kicker": "Prix des billets et passagers, base 100 en 2019"
+      "kicker": "Prix des billets et passagers, base 100 en 2019",
+      "beatLabel": "sur le prix des billets intérieurs depuis 2019"
     },
     {
       "id": "co2",
@@ -254,7 +269,8 @@
         " Mt de CO2"
       ],
       "sub": "entre 2000 et 2019, quand la hausse du trafic en ajoutait 11,2. Depuis 2019, les émissions reculent : −1,4 Mt.",
-      "kicker": "Émissions de CO2 du transport aérien, en millions de tonnes"
+      "kicker": "Émissions de CO2 du transport aérien, en millions de tonnes",
+      "beatLabel": "millions de tonnes de CO2 évitées par des vols plus sobres, de 2000 à 2019"
     },
     {
       "id": "end",

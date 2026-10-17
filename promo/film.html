@@ -290,15 +290,10 @@
         inset: 0;
         pointer-events: none;
       }
-      /* each chart lies on a sheet of paper that lifts in with a slight tilt, then drifts (slow camera push) */
+      /* the chart sits straight on the paper: it lifts in with a slight tilt, then drifts (slow camera push) */
       #chart .frame {
         position: absolute;
         transform-origin: 50% 85%;
-        background: #ffffff;
-        border-radius: 26px;
-        box-shadow:
-          0 1px 3px rgba(15, 28, 43, 0.05),
-          0 26px 70px rgba(15, 28, 43, 0.12);
       }
       #chart img {
         position: absolute;
@@ -313,12 +308,12 @@
       }
       #bgnum {
         position: absolute;
-        right: -40px;
-        bottom: -90px;
+        right: -30px;
+        bottom: -190px;
         font-family: var(--f-display);
         font-stretch: 62%;
         font-weight: 850;
-        font-size: 640px;
+        font-size: 470px;
         line-height: 0.8;
         letter-spacing: -0.02em;
         white-space: nowrap;
@@ -342,6 +337,82 @@
       }
       #counter b {
         color: var(--ink);
+      }
+      /* number beat: each scene opens on its number alone, which then shrinks toward the headline */
+      #beat {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        pointer-events: none;
+      }
+      #beat b {
+        display: block;
+        font-family: var(--f-display);
+        font-stretch: 62%;
+        font-weight: 850;
+        font-size: 340px;
+        line-height: 0.85;
+        letter-spacing: -0.01em;
+        color: var(--c);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      #beat .eyebrow {
+        font-size: 24px;
+      }
+      #beat .label {
+        max-width: 1500px;
+        font-family: var(--f-text);
+        font-size: 44px;
+        line-height: 1.3;
+        text-align: center;
+        color: var(--ink-2);
+      }
+      /* the question the film answers */
+      #question {
+        position: absolute;
+        left: 132px;
+        right: 132px;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 40px;
+      }
+      #question h2 {
+        margin: 0;
+        max-width: 1500px;
+        font-size: 120px;
+        font-stretch: 66%;
+        font-weight: 820;
+        line-height: 0.95;
+      }
+      #question h2 .w {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: top;
+        padding: 0.12em 0 0.1em;
+        margin: -0.12em 0 -0.1em;
+      }
+      #question h2 .w > span {
+        display: inline-block;
+      }
+      #question p {
+        margin: 0;
+        font-family: var(--f-text);
+        font-size: 52px;
+        color: var(--ink-2);
+      }
+      #question p b {
+        font-family: var(--f-display);
+        font-stretch: 70%;
+        font-weight: 800;
+        color: var(--blue);
       }
       /* headline words rise from behind a mask, one after the other */
       #cap h2 .w {
@@ -486,6 +557,11 @@
       </div>
       <div id="progress"></div>
       <div id="counter"></div>
+      <section id="question">
+        <h2></h2>
+        <p></p>
+      </section>
+      <div id="beat"><div class="eyebrow"><i></i><span></span></div><b></b><div class="label"></div></div>
     </div>
 
     <script>
@@ -505,14 +581,21 @@
       const $ = (s) => document.querySelector(s);
 
       let FPS, SCENES, TOTAL;
+      const BEAT = 1.0; // seconds of number alone at the start of a scene
+      const BEAT_TRIM = 0.3; // taken back from the end of the scene's own time
       const ready = fetch("scenes.json")
         .then((r) => r.json())
         .then((d) => {
           FPS = d.fps;
           let t = 0;
           SCENES = d.scenes.map((s) => {
-            const sc = { ...s, start: t, frames: Math.round(s.dur * d.fps), film: !!s.target };
-            t += s.dur;
+            const film = !!s.target;
+            // a live headline (the carrier race) counts with its chart: no beat there
+            const live = (s.headline || []).some((x) => typeof x === "object" && x.live);
+            const beat = film && !live ? BEAT : 0;
+            const dur = film && beat ? s.dur - BEAT_TRIM + beat : s.dur;
+            const sc = { ...s, dur, beat, start: t, frames: Math.round(s.dur * d.fps), film };
+            t += dur;
             return sc;
           });
           TOTAL = t;
@@ -544,7 +627,7 @@
         const o = lin(t, b, b + e) ** 2;
         show(node, i * (1 - o), (1 - i) * rise - o * 22);
       };
-      const PAD = 38; // sheet margin around the chart
+      const PAD = 0; // no sheet: the chart uses the whole area
       const fit = (sc) => {
         const k = Math.min((AREA.w - 2 * PAD) / sc.meta.w, (AREA.h - 2 * PAD) / sc.meta.h);
         const w = sc.meta.w * k;
@@ -621,7 +704,7 @@
           cap.querySelector(".ey").textContent = fr(sc.eyebrow);
           words(h2, sc.headline);
         }
-        capNums.forEach(([part, span]) => (span.textContent = countText(part, u, sc)));
+        capNums.forEach(([part, span]) => (span.textContent = countText(part, part.live || !sc.beat ? u : 99, sc)));
         const end = sc.dur - 0.34;
         inout(cap.querySelector(".eyebrow"), u, 0.1, end);
         capWords.forEach((w, i) => {
@@ -695,6 +778,10 @@
         const u = t - sc.start;
         const prev = SCENES[k - 1];
         const loads = [];
+        // film scenes: uu is the scene's own clock once its number beat is over; scm has the matching duration
+        const beat = sc.beat || 0;
+        const uu = u - beat;
+        const scm = { ...sc, dur: sc.dur - beat };
 
         // ------------------------------------------------ chart frames
         const A = $("#frame-a");
@@ -702,10 +789,10 @@
         const kicker = $("#kicker");
         const badge = $("#badge");
         if (sc.film) {
-          const f = Math.floor(u * FPS + 1e-6);
-          const enter = outCubic(lin(u, 0.2, 1.0));
-          const wipe = sc.reveal === "wipe" ? inOut(lin(u, 0.35, 2.0)) : 1;
-          const push = 1 + 0.03 * inOut(lin(u, 0.6, sc.dur));
+          const f = Math.max(0, Math.floor(uu * FPS + 1e-6));
+          const enter = outCubic(lin(uu, beat ? -0.1 : 0.2, beat ? 0.7 : 1.0));
+          const wipe = sc.reveal === "wipe" ? inOut(lin(uu, 0.1, 1.7)) : 1;
+          const push = 1 + 0.03 * inOut(lin(uu, 0.6, scm.dur));
           loads.push(place(B, sc, f, enter, (1 - enter) * 70, (0.94 + 0.06 * enter) * push, wipe, (1 - enter) * 14));
           if (prev && prev.film && u < 0.36) {
             const out = 1 - lin(u, 0, 0.32);
@@ -715,17 +802,17 @@
           kicker.textContent = fr(sc.kicker || "");
           kicker.style.left = `${box.x - PAD + 6}px`;
           kicker.style.top = `${Math.max(48, box.y - PAD - 42)}px`;
-          // depth: tinted light behind the sheet, the scene's number huge and faint, drifting slower than the sheet
+          // depth: tinted light behind the chart, the scene's number huge and faint along the bottom edge, drifting
           const tint = { blue: "42,120,214", magenta: "181,38,126", teal: "19,138,110" }[sc.accent] || "42,120,214";
           const spot = $("#spot");
-          spot.style.background = `radial-gradient(closest-side, rgba(${tint},0.14), rgba(${tint},0) 72%)`;
+          spot.style.background = `radial-gradient(closest-side, rgba(${tint},0.12), rgba(${tint},0) 72%)`;
           spot.style.left = `${box.x + box.w / 2 - 750 + 40 * Math.sin(u * 0.6)}px`;
           spot.style.top = `${box.y + box.h / 2 - 750 + 30 * Math.cos(u * 0.5)}px`;
-          spot.style.opacity = (enter * (1 - lin(u, sc.dur - 0.3, sc.dur))).toFixed(3);
+          spot.style.opacity = (enter * (1 - lin(uu, scm.dur - 0.3, scm.dur))).toFixed(3);
           const bg = $("#bgnum");
           bg.textContent = bgText(sc);
           bg.style.color = COLORS[sc.accent] || COLORS.blue;
-          bg.style.opacity = (0.07 * outCubic(lin(u, 0.2, 1.0)) * (1 - lin(u, sc.dur - 0.35, sc.dur))).toFixed(4);
+          bg.style.opacity = (0.06 * outCubic(lin(uu, 0.2, 1.0)) * (1 - lin(uu, scm.dur - 0.35, scm.dur))).toFixed(4);
           bg.style.transform = `translateX(${(60 - 120 * (u / sc.dur)).toFixed(1)}px)`;
           // a plane streaks across at the cut
           const sw = lin(u, 0, 0.62);
@@ -751,7 +838,7 @@
           const counter = $("#counter");
           counter.innerHTML = `<b>${String(films.indexOf(sc) + 1).padStart(2, "0")}</b> / ${String(films.length).padStart(2, "0")}`;
           inout(counter, u, 0.2, sc.dur - 0.34);
-          inout(kicker, u, 0.25, sc.dur - 0.34);
+          inout(kicker, uu, 0.25, scm.dur - 0.34);
           if (sc.badge && sc.meta.live) {
             const right = sc.id !== "france";
             badge.textContent = sc.meta.live[Math.min(sc.meta.live.length - 1, f)];
@@ -760,7 +847,7 @@
             badge.style.width = "420px";
             badge.style.left = `${right ? box.x + box.w - 420 : box.x}px`;
             badge.style.top = `${box.y + (right ? -70 : 6)}px`;
-            inout(badge, u, 0.2, sc.dur - 0.34);
+            inout(badge, uu, 0.2, scm.dur - 0.34);
           } else badge.style.opacity = 0;
         } else {
           kicker.style.opacity = 0;
@@ -820,13 +907,72 @@
         // ------------------------------------------------ headline column and footer
         const cap = $("#cap");
         cap.style.display = sc.film ? "flex" : "none";
-        if (sc.film) caption(sc, u);
+        if (sc.film) caption(scm, uu);
+        // ------------------------------------------------ number beat
+        const beatEl = $("#beat");
+        if (sc.film && beat && u < beat + 0.4) {
+          const part = sc.headline.find((x) => typeof x === "object" && x.n !== undefined);
+          const next = sc.headline[sc.headline.indexOf(part) + 1];
+          const pct = typeof next === "string" && /^\s*%/.test(next) ? " %" : "";
+          const c = outCubic(lin(u, 0.12, beat - 0.15));
+          const from = part.from ?? 0;
+          const big = beatEl.querySelector("b");
+          big.textContent = fr(`${part.sign || ""}${num(from + (part.n - from) * c, part.dec)}${pct}`);
+          beatEl.style.setProperty("--c", COLORS[sc.accent] || COLORS.blue);
+          beatEl.querySelector(".eyebrow span").textContent = fr(sc.eyebrow || "");
+          beatEl.querySelector(".label").textContent = fr(sc.beatLabel || "");
+          inout(beatEl.querySelector(".label"), u, 0.25, 99, 0.45, 0.3, 24);
+          beatEl.querySelector(".eyebrow").style.setProperty("--c", COLORS[sc.accent] || COLORS.blue);
+          const inK = outCubic(lin(u, 0.0, 0.35));
+          const go = inOut(lin(u, beat - 0.3, beat + 0.3)); // shrinks and slides toward the headline column
+          beatEl.style.opacity = (inK * (1 - lin(u, beat - 0.05, beat + 0.35))).toFixed(3);
+          beatEl.style.transform = `translate(${(-560 * go).toFixed(1)}px, ${(-120 * go).toFixed(1)}px) scale(${(
+            (0.9 + 0.1 * inK) *
+            (1 - 0.7 * go)
+          ).toFixed(4)})`;
+        } else beatEl.style.opacity = 0;
+
+        // ------------------------------------------------ the question the film answers
+        const q = $("#question");
+        q.style.display = sc.id === "question" ? "flex" : "none";
+        if (sc.id === "question") {
+          const h2 = q.querySelector("h2");
+          if (!h2.dataset.built) {
+            h2.dataset.built = "1";
+            h2.replaceChildren(
+              ...fr(sc.q)
+                .split(/( +)/)
+                .map((tok) => {
+                  if (/^ +$/.test(tok)) return document.createTextNode(" ");
+                  const w = document.createElement("span");
+                  w.className = "w";
+                  const inner = document.createElement("span");
+                  inner.textContent = tok;
+                  w.append(inner);
+                  return w;
+                }),
+            );
+            q.querySelector("p").innerHTML = fr(sc.a);
+          }
+          const leave = sc.dur - 0.4;
+          [...h2.querySelectorAll(".w > span")].forEach((w, i) => {
+            const kq = outCubic(lin(u, 0.1 + i * 0.06, 0.6 + i * 0.06));
+            const o = lin(u, leave, leave + 0.35) ** 2;
+            w.style.transform = `translateY(${((1 - kq) * 110 - o * 30).toFixed(1)}%)`;
+            w.style.opacity = (1 - o).toFixed(3);
+          });
+          inout(q.querySelector("p"), u, 1.5, leave, 0.6, 0.3, 40);
+        }
         $("#foot").style.opacity =
-          sc.id === "title" ? lin(u, sc.dur - 0.5, sc.dur) : sc.id === "end" ? 1 - lin(u, 0, 0.4) : 1;
+          sc.id === "title" || sc.id === "question" ? 0 : sc.id === "end" ? 1 - lin(u, 0, 0.4) : lin(u, 0, 0.5);
 
         // ------------------------------------------------ motif: strong on the cards, gone behind charts
         const strong =
-          sc.id === "title" ? 1 - inOut(lin(u, sc.dur - 0.8, sc.dur)) : 0; // the end card belongs to the call to action and the author
+          sc.id === "title"
+            ? 1 - 0.65 * inOut(lin(u, sc.dur - 0.8, sc.dur))
+            : sc.id === "question"
+              ? 0.35 * (1 - inOut(lin(u, sc.dur - 0.6, sc.dur)))
+              : 0; // the end card belongs to the call to action and the author
         const tags = sc.id === "title" ? lin(u, 0.9, 1.4) * (1 - lin(u, sc.dur - 1.0, sc.dur - 0.6)) : 0;
         motif(t, strong, tags);
         $("#progress").style.width = `${((t / TOTAL) * 100).toFixed(3)}%`;
