@@ -33,7 +33,8 @@ export function rich(parts) {
 export const frSpace = (s) =>
   s
     .replace(/(^|\S)[ \t\n]+([?!:;»])/g, "$1\u202f$2")
-    .replace(/«[ \t\n]+/g, "«\u202f")
+    .replace(/«[ \t\n]*(?=\S)/g, "«\u202f")
+    .replace(/(\S)»/g, "$1\u202f»")
     .replace(/(\d)[ \u00a0](%|Mt|kt|km|M|k|g)(?![\p{L}\d])/gu, "$1\u202f$2");
 
 /** Apply frSpace to every text node under root (HTML and SVG). */

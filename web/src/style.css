@@ -2,6 +2,29 @@
    Layout: editorial — a hero globe with clickable moments, then chapters of charts to explore.
    Series inks are validated (dataviz validate_palette.js, light, on --paper):
    blue = international, magenta = Paris–province / domestic, ochre = outre-mer, teal = province–province / low-cost. */
+
+/* Both families draw the narrow no-break space at 0.1 em: "146 354" read "146354", "1 774 km" read
+   "1 774km". These faces, declared after Fontsource's with the same descriptors, supply only U+202F
+   at 0.15 em (web/scripts/make_nnbsp_font.py). */
+@font-face {
+  font-family: "Archivo Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url("./fonts/nnbsp.woff") format("woff");
+  unicode-range: U+202F;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("./fonts/nnbsp.woff") format("woff");
+  unicode-range: U+202F;
+}
+
 :root {
   color-scheme: light;
   --paper: #f6f8f6;

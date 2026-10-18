@@ -9,6 +9,7 @@ describe("French spacing", () => {
     expect(frSpace("Et votre aéroport ?")).toBe(`Et votre aéroport${N}?`);
     expect(frSpace("chaque pays ; à droite !")).toBe(`chaque pays${N}; à droite${N}!`);
     expect(frSpace("« vols »")).toBe(`«${N}vols${N}»`);
+    expect(frSpace("En vue «Intérieur», les")).toBe(`En vue «${N}Intérieur${N}», les`);
   });
 
   it("handles a text node that starts right after an inline element", () => {
@@ -27,6 +28,11 @@ describe("French spacing", () => {
     expect(frSpace("https://aviationdata.vercel.app/")).toBe("https://aviationdata.vercel.app/");
     expect(frSpace(`déjà${N}: bon`)).toBe(`déjà${N}: bon`);
     expect(frSpace("08:30")).toBe("08:30");
+  });
+
+  it("is idempotent, so the observer that applies it settles", () => {
+    for (const t of ["Source : DGAC", "«Intérieur»", "« vols »", "41 % et 2 km", "Et votre aéroport ?"])
+      expect(frSpace(frSpace(t))).toBe(frSpace(t));
   });
 
   it("walks every text node of a tree, SVG included", () => {
