@@ -81,4 +81,38 @@ function trackChapters() {
 }
 
 trackChapters();
+numberChapters();
+readingProgress();
+
+/** "03 / 11" above each chapter title: where the reader is in the story. */
+function numberChapters() {
+  const ids = [...document.querySelectorAll(".topnav a")]
+    .map((a) => a.hash.slice(1))
+    .filter((id) => id !== "monde" && id !== "resume");
+  ids.forEach((id, i) => {
+    const h2 = document.querySelector(`#${id} h2.section-title`);
+    if (!h2 || h2.previousElementSibling?.classList.contains("chapter-num")) return;
+    h2.before(
+      el("p", { class: "chapter-num" }, [
+        el("b", { text: String(i + 1).padStart(2, "0") }),
+        ` / ${String(ids.length).padStart(2, "0")}`,
+      ]),
+    );
+  });
+}
+
+/** Thin bar under the masthead: how far down the story the reader is. */
+function readingProgress() {
+  const bar = document.getElementById("read-progress");
+  if (!bar) return;
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max).toFixed(4) : 0})`;
+  };
+  addEventListener("scroll", () => (raf ||= requestAnimationFrame(update)), { passive: true });
+  addEventListener("resize", update);
+  update();
+}
 main();

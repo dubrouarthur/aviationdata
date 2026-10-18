@@ -1,4 +1,5 @@
 import { $, el } from "../lib/ui.js";
+import { shareUrl, linkedInShare } from "../lib/datasets.js";
 
 // one card per chapter, built from what the chapters already computed (their first key figure),
 // so the summary can never disagree with the story
@@ -30,9 +31,7 @@ export function initResume() {
   }).filter(Boolean);
   $("#resume-grid").replaceChildren(...cards);
 
-  // share: the canonical address when the build knows it, else this page
-  const og = document.querySelector('meta[property="og:url"]')?.content || "";
-  const url = /^https?:\/\//.test(og) ? og : location.href.split("#")[0];
+  const url = shareUrl();
   const copy = el("button", { type: "button", class: "btn", text: "Copier le lien" });
   copy.addEventListener("click", async () => {
     try {
@@ -43,17 +42,28 @@ export function initResume() {
     }
     setTimeout(() => (copy.textContent = "Copier le lien"), 2500);
   });
+  const LI = "https://www.linkedin.com/in/arthur-dubrou/";
   $("#share").replaceChildren(
-    el("p", { text: "Ce travail vous a appris quelque chose ? Partagez-le." }),
-    el("div", { class: "share-actions" }, [
-      el("a", {
-        class: "btn primary",
-        href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-        target: "_blank",
-        rel: "noopener",
-        text: "Partager sur LinkedIn",
-      }),
-      copy,
+    el("div", { class: "author-card" }, [
+      el("img", { src: "auteur.jpg", alt: "Arthur Dubrou", width: 76, height: 76, loading: "lazy" }),
+      el("div", {}, [
+        el("p", { class: "ac-by", text: "Une enquête en données de" }),
+        el("p", { class: "ac-name", text: "Arthur Dubrou" }),
+        el("a", { href: LI, target: "_blank", rel: "noopener", text: "Me suivre sur LinkedIn" }),
+      ]),
+    ]),
+    el("div", { class: "share-box" }, [
+      el("p", { text: "Ce travail vous a appris quelque chose ? Partagez-le." }),
+      el("div", { class: "share-actions" }, [
+        el("a", {
+          class: "btn primary",
+          href: linkedInShare(url),
+          target: "_blank",
+          rel: "noopener",
+          text: "Partager sur LinkedIn",
+        }),
+        copy,
+      ]),
     ]),
   );
 }

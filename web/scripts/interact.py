@@ -306,7 +306,7 @@ with sync_playwright() as p:
     hrefs = page.locator("#resume-grid a.resume-card").evaluate_all("as => as.map(a => a.getAttribute('href'))")
     check("summary has 8 cards", len(hrefs) == 8, hrefs)
     check("summary links to chapters", all(page.locator(h).count() == 1 for h in hrefs), hrefs)
-    check("share on LinkedIn", "linkedin.com/sharing" in (page.locator("#share a").get_attribute("href") or ""))
+    check("share on LinkedIn", "linkedin.com/sharing" in (page.locator("#share a.btn.primary").get_attribute("href") or ""))
     check("sources listed", page.locator("#sources-body a").count() >= 4)
     # every chart, map and globe carries a link to its DGAC dataset
     unsourced = page.evaluate(
@@ -317,7 +317,16 @@ with sync_playwright() as p:
            }).map((n) => n.id)"""
     )
     check("every chart links to its data source", not unsourced, unsourced)
-    check("source links open the dataset", page.locator(".source-line a").count() >= 22)
+    check("source links open the dataset", page.locator(".source-line a[href*='data.gouv.fr']").count() >= 22)
+    shares = page.locator("a.share-chart").evaluate_all("as => as.map(a => decodeURIComponent(a.href))")
+    check(
+        "every chart can be shared on LinkedIn, at its chapter",
+        len(shares) == page.locator(".source-line").count()
+        and all("linkedin.com/sharing" in s and "#" in s for s in shares),
+        shares[:2],
+    )
+    check("author photo at the end", page.locator("#share .author-card img").evaluate("i => i.naturalWidth") > 0)
+    check("chapters numbered", page.locator(".chapter-num").count() >= 10)
     check("table views", page.locator("details.data").count() >= 6)
     page.locator("#chart-waterfall + details.data summary").click()
     check("waterfall table opens", page.locator("#chart-waterfall + details.data tbody tr").count() == 7)

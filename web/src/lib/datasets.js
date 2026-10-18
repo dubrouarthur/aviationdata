@@ -19,6 +19,17 @@ export const DATASETS = {
   },
 };
 
+/** Address to share: the canonical one when the build knows it, else this page; optional chapter anchor. */
+export function shareUrl(id = "") {
+  const og = document.querySelector('meta[property="og:url"]')?.content || "";
+  const base = /^https?:\/\//.test(og) ? og : location.href.split("#")[0];
+  return id ? `${base}#${id}` : base;
+}
+export const linkedInShare = (url) =>
+  `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+const SHARE_ICON =
+  '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 2h4v4M14 2 7.5 8.5M12 9.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 /**
  * A source line with a link to each DGAC dataset, at the end of every element carrying data-source
  * ("trafic", "co2", "iptap trafic"...). data-series names the DGAC series used, e.g. "par compagnie".
@@ -37,6 +48,16 @@ export function addSourceLines(root = document) {
     });
     if (node.dataset.series) parts.push(` (${node.dataset.series})`);
     parts.push(", data.gouv.fr");
-    node.append(el("p", { class: "source-line" }, parts));
+    // and a way to share this very chart: the link opens the page at its chapter
+    const chapter = node.closest("section[id]");
+    const share = el("a", {
+      class: "share-chart",
+      href: linkedInShare(shareUrl(chapter?.id)),
+      target: "_blank",
+      rel: "noopener",
+      "aria-label": `Partager ce graphique sur LinkedIn${chapter ? ` (chapitre ${chapter.querySelector("h2")?.textContent.trim() || ""})` : ""}`,
+    });
+    share.innerHTML = `${SHARE_ICON}<span>Partager sur LinkedIn</span>`;
+    node.append(el("div", { class: "source-line" }, [el("p", {}, parts), share]));
   }
 }
