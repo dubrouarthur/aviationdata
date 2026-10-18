@@ -2,7 +2,7 @@ import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import { loadAll } from "./lib/data.js";
-import { el, watchFrenchSpacing } from "./lib/ui.js";
+import { el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { addSourceLines } from "./lib/datasets.js";
 
 const CHAPTERS = [
@@ -60,6 +60,7 @@ async function main() {
     }
   }
   collapseLongIntros(); // the intros are written by the chapters
+  scrollHints(".topnav, .seg, .moments");
 }
 
 /** Sticky chapter nav: the link of the chapter crossing the upper third of the screen is marked current. */

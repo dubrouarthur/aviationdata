@@ -38,7 +38,7 @@ export function initRace(data) {
     ),
   );
   $("#cie-note").textContent =
-    "Compagnies regroupées par marque (Malta Air avec Ryanair, par exemple). Classées à bas coûts : easyJet, Ryanair, Transavia, Volotea, Vueling, Wizz Air, Eurowings, Norwegian, Jet2 (choix éditorial). Source : DGAC, trafic par compagnie au départ et à l'arrivée de la France.";
+    "Compagnies regroupées par marque (Malta Air avec Ryanair, par exemple). Classées à bas coûts : easyJet, Ryanair, Transavia, Volotea, Vueling, Wizz Air, Eurowings, Norwegian, Jet2 (choix éditorial). Passagers au départ et à l'arrivée de la France.";
 
   keyFigures($("#kf-cie"), [
     {

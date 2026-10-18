@@ -683,6 +683,7 @@ export function initAirport(data, { world }) {
       sortBy === "pax" ? pax(q) - pax(p) : (change(q) ?? -Infinity) - (change(p) ?? -Infinity),
     );
     const shown = showAll ? rows : rows.slice(0, RANK_SHORT);
+    const maxPax = d3.max(pool, pax) || 1; // bars are linear: Paris's weight shows as it is
     const head = (key, label) => {
       const btn = el("button", { type: "button", class: "sort", text: label });
       btn.addEventListener("click", () => {
@@ -716,7 +717,12 @@ export function initAirport(data, { world }) {
           const tr = el("tr", { "aria-selected": String(a.code === sel) }, [
             el("td", { class: "r", text: String(rank.get(a.code)) }),
             el("th", { scope: "row" }, name),
-            el("td", { text: fmtPax(pax(a)) }),
+            el("td", { class: "pax" }, [
+              el("span", { class: "pax-track", "aria-hidden": "true" }, [
+                el("i", { style: `width:${((100 * pax(a)) / maxPax).toFixed(2)}%` }),
+              ]),
+              el("span", { class: "pax-v", text: fmtPax(pax(a)) }),
+            ]),
             el("td", {
               class: d === null || Math.abs(d) < 0.5 ? "" : d > 0 ? "up" : "down",
               text: signed(d),

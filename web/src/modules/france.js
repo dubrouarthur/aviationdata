@@ -338,16 +338,6 @@ export function initFrance(data, { france }) {
         .style("fill", "none")
         .style("stroke", c)
         .style("stroke-width", 2);
-    for (const [vals, name] of [
-      [rad, "Paris–province"],
-      [tra, "province–province"],
-    ])
-      sv.append("text")
-        .attr("class", "end-label")
-        .attr("x", m.left)
-        .attr("y", y(vals[0]) - 6)
-        .style("font-size", "11px")
-        .text(name);
     const xi = x(state.year);
     sv.append("line")
       .attr("x1", xi)
@@ -369,14 +359,57 @@ export function initFrance(data, { france }) {
         .style("stroke", "var(--card)")
         .style("stroke-width", 1.5);
     const right = xi < W / 2;
-    for (const vals of [rad, tra])
-      sv.append("text")
+    // the two values stay 13px apart even where the lines meet (2020, 2025)
+    let [yr, yt] = [y(rad[k]) + 4, y(tra[k]) + 4];
+    if (yt - yr < 13) [yr, yt] = [(yr + yt) / 2 - 6.5, (yr + yt) / 2 + 6.5];
+    const values = [
+      [rad, yr],
+      [tra, yt],
+    ].map(([vals, ly]) =>
+      sv
+        .append("text")
         .attr("class", "end-label")
         .attr("x", xi + (right ? 8 : -8))
-        .attr("y", y(vals[k]) + 4)
+        .attr("y", ly)
         .attr("text-anchor", right ? "start" : "end")
         .style("font-size", "11.5px")
-        .text(fmtPax(vals[k]));
+        .text(fmtPax(vals[k]))
+        .node(),
+    );
+    // a paper plate under each value: the line it sits on must not show between the digits
+    for (const t of values) {
+      const bb = t.getBBox();
+      if (bb.width)
+        sv.insert("rect", () => t)
+          .attr("x", bb.x - 2)
+          .attr("y", bb.y)
+          .attr("width", bb.width + 4)
+          .attr("height", bb.height)
+          .attr("rx", 2)
+          .style("fill", "var(--paper)");
+    }
+    // series names at the start of their line; a name the year's values would cover moves to the
+    // end of its line (Paris–province above, province–province below, so the two never meet)
+    const last = years.length - 1;
+    const overlap = (a, b) =>
+      a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+    [
+      [rad, "Paris–province", -6],
+      [tra, "province–province", 14],
+    ].forEach(([vals, name, below]) => {
+      const t = sv
+        .append("text")
+        .attr("class", "end-label")
+        .attr("x", m.left)
+        .attr("y", y(vals[0]) - 6)
+        .style("font-size", "11px")
+        .text(name);
+      const box = t.node().getBBox();
+      if (box.width && values.some((v) => overlap(box, v.getBBox())))
+        t.attr("x", W - m.right)
+          .attr("text-anchor", "end")
+          .attr("y", y(vals[last]) + below);
+    });
     // the whole strip picks a year
     sv.append("rect")
       .attr("x", 0)

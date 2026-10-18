@@ -259,3 +259,21 @@ export function onResize(node, fn) {
 }
 
 export const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/** Rows that scroll sideways on a phone (chapter nav, segmented controls, moments) fade at the
+ * edge that hides more options, so a cut-off label reads as "swipe", not as a bug. */
+export function scrollHints(selector) {
+  const update = (n) => {
+    const more = n.scrollWidth - n.clientWidth > 2;
+    n.classList.toggle("fade-l", more && n.scrollLeft > 2);
+    n.classList.toggle("fade-r", more && n.scrollLeft + n.clientWidth < n.scrollWidth - 2);
+  };
+  const ro = new ResizeObserver((entries) => entries.forEach((e) => update(e.target)));
+  for (const n of document.querySelectorAll(selector)) {
+    if (n.dataset.hint) continue;
+    n.dataset.hint = "1";
+    n.addEventListener("scroll", () => update(n), { passive: true });
+    ro.observe(n);
+    update(n);
+  }
+}

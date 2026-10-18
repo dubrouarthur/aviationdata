@@ -109,7 +109,7 @@ export function initFill(data) {
 
   function draw(width) {
     node.replaceChildren();
-    const m = { top: 26, right: 44, bottom: 8, left: 112 };
+    const m = { top: 26, right: 44, bottom: 32, left: 112 }; // the legend gets its own line under the rows
     const rowH = 24;
     const h = m.top + m.bottom + rows.length * rowH;
     const x = d3
@@ -191,7 +191,7 @@ export function initFill(data) {
       .on("pointerleave", hideTip);
     svg
       .append("g")
-      .attr("transform", `translate(${m.left},${h - 2})`)
+      .attr("transform", `translate(${m.left},${h - 6})`)
       .call((lg) => {
         lg.append("circle").attr("cx", 0).attr("cy", -4).attr("r", 4).style("fill", "var(--axis)");
         lg.append("text")

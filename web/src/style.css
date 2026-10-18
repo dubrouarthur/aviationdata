@@ -841,6 +841,14 @@ footer[id] {
   width: 100%;
 }
 
+/* labels cross the lines: a paper halo keeps them legible */
+.france-spark text.end-label {
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
 .overlay-year small.vs {
   color: var(--magenta);
   font-weight: 650;
@@ -1461,7 +1469,58 @@ button.rl-name:focus-visible {
   margin-top: 12px;
 }
 
+/* passengers as a bar on a common linear scale, the figure at its end */
+.apt-rank th[scope="row"],
+.apt-rank thead th:nth-child(2) {
+  width: auto;
+}
+
+.apt-rank td.pax,
+.apt-rank thead th:nth-child(3) {
+  width: 42%;
+}
+
+.pax-track {
+  display: inline-block;
+  width: calc(100% - 5.4em);
+  height: 8px;
+  margin-right: 0.6em;
+  vertical-align: middle;
+}
+
+.pax-track i {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 0 3px 3px 0;
+  background: var(--blue-soft);
+}
+
+.apt-rank tbody tr[aria-selected="true"] .pax-track i,
+.apt-rank tbody tr:hover .pax-track i {
+  background: var(--blue);
+}
+
+.pax-v {
+  display: inline-block;
+  min-width: 4.8em;
+  text-align: right;
+}
+
 @media (max-width: 620px) {
+  .pax-track {
+    display: none;
+  }
+
+  .apt-rank td.pax,
+  .apt-rank thead th:nth-child(3) {
+    width: auto;
+  }
+
+  .pax-v {
+    min-width: 0;
+  }
+
   .apt-rank .spark {
     display: none;
   }
@@ -2038,7 +2097,7 @@ button.rl-name:focus-visible {
   }
 
   .seg button {
-    padding: 8px 14px;
+    padding: 8px 11px;
   }
 
   .chip,
@@ -2059,4 +2118,20 @@ button.rl-name:focus-visible {
   .route-list li {
     padding: 11px 0;
   }
+}
+
+/* ------------------------------------------------------------------ swipeable rows: an edge fades where more is hidden */
+.fade-r {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+
+.fade-l {
+  -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent);
+}
+
+.fade-l.fade-r {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
 }
