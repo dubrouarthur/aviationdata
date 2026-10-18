@@ -355,6 +355,16 @@ def test_demo_has_map_ready_airports(demo_outputs):
         ("GRENOBLE-ALPES-ISERE", "Grenoble-Alpes-Isère"),
         ("ST-TROPEZ-LA MOLE", "Saint-Tropez-la Môle"),
         ("EPINAL-MIRECOURT", "Épinal-Mirecourt"),
+        ("GENEVE", "Genève"),
+        ("MADRID-ADOLFO SUAREZ", "Madrid-Adolfo Suárez"),
+        ("MALAGA-COSTA DEL SOL", "Málaga-Costa del Sol"),
+        ("MONTREAL-DORVAL", "Montréal-Dorval"),
+        ("DUSSELDORF-RHEIN-RUHR", "Düsseldorf-Rhein-Ruhr"),
+        ("ISTANBUL-SABIHA GOKCEN", "Istanbul-Sabiha Gökçen"),
+        ("CHICAGO-O'HARE", "Chicago-O'Hare"),
+        ("GLASGOW (UK)", "Glasgow (UK)"),
+        ("HERAKLION  (CRETE)", "Héraklion (Crète)"),
+        ("SAO PAULO-GUARULHOS", "São Paulo-Guarulhos"),
     ],
 )
 def test_pretty_airport_names(raw, expected):

@@ -135,9 +135,42 @@ ACCENTS = {
     "sequestre": "Séquestre",
     "tille": "Tillé",
     "vallee": "Vallée",
+    # foreign airports, in their French spelling (route maps)
+    "ataturk": "Atatürk",
+    "athenes": "Athènes",
+    "bejaia": "Béjaïa",
+    "cancun": "Cancún",
+    "chopina": "Chopin",
+    "crete": "Crète",
+    "dubai": "Dubaï",
+    "dusseldorf": "Düsseldorf",
+    "fez": "Fès",
+    "genes": "Gênes",
+    "geneve": "Genève",
+    "gokcen": "Gökçen",
+    "goteborg": "Göteborg",
+    "heraklion": "Héraklion",
+    "igi": "IGI",
+    "ionniennes": "Ioniennes",
+    "juarez": "Juárez",
+    "liege": "Liège",
+    "lome": "Lomé",
+    "malaga": "Málaga",
+    "mikonos": "Mykonos",
+    "montreal": "Montréal",
+    "petersbourg": "Pétersbourg",
+    "quebec": "Québec",
+    "rep": "Rép",
+    "sao": "São",
+    "setif": "Sétif",
+    "seville": "Séville",
+    "suarez": "Suárez",
+    "teheran": "Téhéran",
+    "uk": "UK",
+    "verone": "Vérone",
 }
-PARTICLES = {"de", "du", "des", "la", "le", "les", "sur", "en", "et", "d", "l", "aux"}
-ELIDED = {"d", "l"}  # d'Azur, l'Oyapock: capital after the apostrophe
+PARTICLES = {"de", "du", "des", "la", "le", "les", "sur", "en", "et", "d", "l", "aux", "del"}
+ELIDED = {"d", "l", "o"}  # d'Azur, l'Oyapock, O'Hare: capital after the apostrophe
 SAINTS = {"st": "Saint", "ste": "Sainte"}
 
 
@@ -164,7 +197,7 @@ def brand(name: str) -> str:
 
 def pretty_name(raw: str) -> str:
     """'NICE-COTE D'AZUR' -> "Nice-Côte d'Azur"; 'ST-BARTHELEMY' -> 'Saint-Barthélemy'; "FAA'A" -> "Faa'a"."""
-    parts = re.split(r"([\s\-/'()])", raw.strip().lower())
+    parts = re.split(r"([\s\-/'()])", re.sub(r"\s+", " ", raw.strip()).lower())
     out: list[str] = []
     prev_word: str | None = None
     for i, p in enumerate(parts):
