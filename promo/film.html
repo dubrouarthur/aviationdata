@@ -372,6 +372,49 @@
         text-align: center;
         color: var(--ink-2);
       }
+      /* two numbers side by side, for a comparison (passengers vs freight, passengers vs CO2) */
+      #beat2 {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 150px;
+        pointer-events: none;
+      }
+      #beat2 .item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        max-width: 640px;
+      }
+      #beat2 b {
+        display: block;
+        font-family: var(--f-display);
+        font-stretch: 62%;
+        font-weight: 850;
+        font-size: 270px;
+        line-height: 0.85;
+        color: var(--c);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      #beat2 .item.big b {
+        font-size: 340px;
+      }
+      #beat2 .label {
+        font-family: var(--f-text);
+        font-size: 40px;
+        line-height: 1.3;
+        text-align: center;
+        color: var(--ink-2);
+      }
+      #beat2 .rule {
+        width: 2px;
+        height: 300px;
+        background: var(--rule);
+      }
       /* the question the film answers */
       #question {
         position: absolute;
@@ -562,10 +605,11 @@
         <p></p>
       </section>
       <div id="beat"><div class="eyebrow"><i></i><span></span></div><b></b><div class="label"></div></div>
+      <div id="beat2"></div>
     </div>
 
     <script>
-      const COLORS = { blue: "#2a78d6", magenta: "#b5267e", teal: "#138a6e" };
+      const COLORS = { blue: "#2a78d6", magenta: "#b5267e", teal: "#138a6e", ochre: "#b87a00" };
       const AREA = { x: 660, y: 120, w: 1180, h: 860 }; // where charts are laid out
       // French typography: thin no-break spaces before % ? ! and no-break before :
       const fr = (s) =>
@@ -583,6 +627,7 @@
       let FPS, SCENES, TOTAL;
       const BEAT = 1.6; // seconds of number alone at the start of a scene: count, hold to read, leave
       const BEAT_TRIM = 0.8; // taken back from the end of the scene's own time, so the film keeps its length
+      const BEAT2 = 2.3; // two numbers to compare need a little longer
       const ready = fetch("scenes.json")
         .then((r) => r.json())
         .then((d) => {
@@ -592,8 +637,8 @@
             const film = !!s.target;
             // a live headline (the carrier race) counts with its chart: no beat there
             const live = (s.headline || []).some((x) => typeof x === "object" && x.live);
-            const beat = film && !live ? BEAT : 0;
-            const dur = film && beat ? s.dur - BEAT_TRIM + beat : s.dur;
+            const beat = film && !live ? (s.beats ? BEAT2 : BEAT) : 0;
+            const dur = film && beat ? s.dur - (s.trim ?? BEAT_TRIM) + beat : s.dur;
             const sc = { ...s, dur, beat, start: t, frames: Math.round(s.dur * d.fps), film };
             t += dur;
             return sc;
@@ -910,7 +955,39 @@
         if (sc.film) caption(scm, uu);
         // ------------------------------------------------ number beat
         const beatEl = $("#beat");
-        if (sc.film && beat && u < beat + 0.4) {
+        const beat2 = $("#beat2");
+        if (sc.film && beat && sc.beats && u < beat + 0.4) {
+          if (beat2.dataset.for !== sc.id) {
+            beat2.dataset.for = sc.id;
+            beat2.replaceChildren(
+              ...sc.beats.flatMap((b, i) => [
+                ...(i ? [Object.assign(document.createElement("div"), { className: "rule" })] : []),
+                (() => {
+                  const it = document.createElement("div");
+                  it.className = `item${b.big ? " big" : ""}`;
+                  it.style.setProperty("--c", COLORS[b.accent] || COLORS.blue);
+                  it.innerHTML = `<b></b><div class="label">${fr(b.label)}</div>`;
+                  return it;
+                })(),
+              ]),
+            );
+          }
+          const items = [...beat2.querySelectorAll(".item")];
+          sc.beats.forEach((b, i) => {
+            const t0 = i * 0.45; // the second number lands after the first, to be read as an answer
+            const c = outCubic(lin(u, t0 + 0.1, t0 + 0.65));
+            items[i].querySelector("b").textContent = fr(`${b.sign || ""}${num(b.n * c, b.dec)}${b.pct ? " %" : ""}`);
+            const k2 = outCubic(lin(u, t0, t0 + 0.4));
+            items[i].style.opacity = k2.toFixed(3);
+            items[i].style.transform = `translateY(${((1 - k2) * 40).toFixed(1)}px)`;
+          });
+          const rule = beat2.querySelector(".rule");
+          if (rule) rule.style.opacity = outCubic(lin(u, 0.3, 0.7)).toFixed(3);
+          const go = inOut(lin(u, beat - 0.35, beat + 0.2));
+          beat2.style.opacity = (1 - lin(u, beat - 0.2, beat + 0.2)).toFixed(3);
+          beat2.style.transform = `scale(${(1 - 0.12 * go).toFixed(4)})`;
+        } else beat2.style.opacity = 0;
+        if (sc.film && beat && !sc.beats && u < beat + 0.4) {
           const part = sc.headline.find((x) => typeof x === "object" && x.n !== undefined);
           const next = sc.headline[sc.headline.indexOf(part) + 1];
           const pct = typeof next === "string" && /^\s*%/.test(next) ? " %" : "";

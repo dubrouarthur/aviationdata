@@ -11,7 +11,7 @@
     },
     {
       "id": "question",
-      "dur": 3.4,
+      "dur": 3.2,
       "q": "En France, prend-on plus ou moins l'avion qu'avant ?",
       "a": "Réponse : <b>les deux à la fois.</b>"
     },
@@ -59,7 +59,8 @@
       ],
       "sub": "En bleu, les pays qui gagnent des passagers, menés par l'Égypte (+61 %) et la Turquie (+51 %). En magenta, ceux qui en perdent.",
       "kicker": "Évolution du trafic par pays entre 2019 et 2025",
-      "beatLabel": "de trafic international depuis 2019"
+      "beatLabel": "de trafic international depuis 2019",
+      "trim": 1.3
     },
     {
       "id": "france",
@@ -164,7 +165,23 @@
         "document.querySelectorAll('#chips-covid .chip')[3].click()"
       ],
       "reveal": "wipe",
-      "beatLabel": "de passagers en avril 2020"
+      "beats": [
+        {
+          "n": 99,
+          "sign": "−",
+          "pct": true,
+          "accent": "magenta",
+          "big": true,
+          "label": "de passagers en avril 2020, au premier confinement"
+        },
+        {
+          "n": 54,
+          "sign": "−",
+          "pct": true,
+          "accent": "ochre",
+          "label": "seulement pour le fret et la poste"
+        }
+      ]
     },
     {
       "id": "fret",
@@ -227,7 +244,8 @@
       "sub": "en 2025, contre 49 % en 2010. Les compagnies étrangères ont progressé cinq fois plus vite.",
       "kicker": "Passagers des compagnies françaises et étrangères, en millions",
       "order": 10,
-      "beatLabel": "des passagers voyagent sur une compagnie française"
+      "beatLabel": "des passagers voyagent sur une compagnie française",
+      "trim": 1.3
     },
     {
       "id": "prix",
@@ -260,25 +278,36 @@
       "accent": "teal",
       "eyebrow": "Climat",
       "headline": [
-        "Trafic ",
+        "CO2 par passager-km : ",
         {
-          "n": 63,
-          "sign": "+"
+          "n": 32,
+          "sign": "−"
         },
-        " %, CO2 ",
-        {
-          "n": 11,
-          "sign": "+"
-        },
-        " %"
+        " % depuis 2000"
       ],
-      "sub": "depuis 2000. Chaque passager-kilomètre émet 32 % de CO2 en moins, et chaque vol emporte 83 % de passagers en plus.",
+      "sub": "pendant que le nombre de passagers augmentait de 75 %. Chaque vol emporte 83 % de passagers en plus : au total, les émissions n'ont pris que 11 %.",
       "kicker": "Indice 100 en 2000",
-      "beatLabel": "de trafic aérien depuis 2000, pour 11 % de CO2 en plus"
+      "beats": [
+        {
+          "n": 75,
+          "sign": "+",
+          "pct": true,
+          "accent": "blue",
+          "label": "de passagers entre 2000 et 2024"
+        },
+        {
+          "n": 32,
+          "sign": "−",
+          "pct": true,
+          "accent": "teal",
+          "big": true,
+          "label": "de CO2 émis par passager et par kilomètre"
+        }
+      ]
     },
     {
       "id": "end",
-      "dur": 7.8,
+      "dur": 7.6,
       "sub": "Un ciel international qui bat des records, un ciel intérieur qui se vide.",
       "cta": "Explorez toutes les données",
       "url": "aviationdata.vercel.app",
