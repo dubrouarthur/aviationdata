@@ -26,7 +26,7 @@ export function initResume() {
       el("span", { class: "rc-title" }, [el("i", { style: `--c:${color}` }), title]),
       el("b", { text: value }),
       el("span", { class: "rc-label", text: label }),
-      el("span", { class: "rc-go", text: "Revoir le chapitre →" }),
+      el("span", { class: "rc-go", text: "Revoir le chapitre" }),
     ]);
   }).filter(Boolean);
   $("#resume-grid").replaceChildren(...cards);
@@ -53,7 +53,7 @@ export function initResume() {
       ]),
     ]),
     el("div", { class: "share-box" }, [
-      el("p", { text: "Ce travail vous a appris quelque chose ? Partagez-le." }),
+      el("p", { text: "Ce travail vous a appris quelque chose ? Partagez-le." }),
       el("div", { class: "share-actions" }, [
         el("a", {
           class: "btn primary",

@@ -75,7 +75,6 @@ h3 {
   font-family: var(--f-ui);
   font-variant-numeric: tabular-nums;
   font-weight: 650;
-  white-space: nowrap;
 }
 
 .visually-hidden {
@@ -243,6 +242,41 @@ footer[id] {
 
 .prose p {
   margin: 0 0 0.9em;
+}
+
+.chapter-lede .prose > p:first-child {
+  font-size: 1.1em;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* phones: a chapter opens on its first paragraph; the rest is one tap away */
+.read-more {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .prose.collapsible:not(.open) > p:nth-child(n + 2) {
+    display: none;
+  }
+
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    margin: -4px 0 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--f-ui);
+    font-size: 0.92rem;
+    font-weight: 650;
+    color: var(--blue-text);
+    text-decoration: underline;
+    text-decoration-color: var(--axis);
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
 }
 
 .prose strong,
@@ -648,6 +682,13 @@ footer[id] {
   font-size: 0.76rem;
   color: var(--ink-2);
   pointer-events: none;
+}
+
+/* the globe's arcs run under the legend: a paper wash keeps every word legible */
+.overlay-legend .lg {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--paper) 85%, transparent);
 }
 
 .lg {
@@ -1509,11 +1550,9 @@ button.rl-name:focus-visible {
   align-items: center;
   gap: 8px;
   font-family: var(--f-ui);
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink-2);
 }
 
 .rc-title i {
@@ -1581,10 +1620,8 @@ button.rl-name:focus-visible {
 
 .share .author-card .ac-by {
   font-family: var(--f-ui);
-  font-size: 0.78rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 0.86rem;
+  font-weight: 600;
   color: var(--muted);
 }
 
@@ -1933,5 +1970,70 @@ button.rl-name:focus-visible {
   * {
     transition: none !important;
     animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ loading placeholder */
+.chart:empty,
+.graphic:empty {
+  min-height: 220px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--paper-2) 0%, var(--card) 50%, var(--paper-2) 100%) 0 0 / 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart:empty,
+  .graphic:empty {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ touch: every control at least 40 px tall */
+@media (pointer: coarse), (max-width: 720px) {
+  .topnav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  .seg button,
+  .chip,
+  .picks button,
+  .share-chart,
+  .btn,
+  select.select,
+  button.rl-name,
+  .apt-rank .sort {
+    min-height: 40px;
+  }
+
+  .seg button {
+    padding: 8px 14px;
+  }
+
+  .chip,
+  .picks button {
+    padding: 8px 13px;
+  }
+
+  details.data summary {
+    padding: 10px 0;
+  }
+
+  .apt-rank td,
+  .apt-rank th {
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+
+  .route-list li {
+    padding: 11px 0;
   }
 }

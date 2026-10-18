@@ -3,6 +3,7 @@
 python3 web/scripts/interact.py [--url http://127.0.0.1:4173/]
 """
 
+import re
 import sys
 
 from playwright.sync_api import sync_playwright
@@ -59,7 +60,7 @@ with sync_playwright() as p:
     check("demo banner hidden on real data", page.locator("#demo-banner").is_hidden())
     check(
         "hero key figures",
-        page.locator("#hero-kpis .kpi").count() == 3 and " M" in page.locator("#hero-kpis").inner_text(),
+        page.locator("#hero-kpis .kpi").count() == 3 and re.search(r"\d\sM", page.locator("#hero-kpis").inner_text()),
     )
     check(
         "sticky nav marks the first chapter",
@@ -306,7 +307,8 @@ with sync_playwright() as p:
     hrefs = page.locator("#resume-grid a.resume-card").evaluate_all("as => as.map(a => a.getAttribute('href'))")
     check("summary has 8 cards", len(hrefs) == 8, hrefs)
     check("summary links to chapters", all(page.locator(h).count() == 1 for h in hrefs), hrefs)
-    check("share on LinkedIn", "linkedin.com/sharing" in (page.locator("#share a.btn.primary").get_attribute("href") or ""))
+    share_href = page.locator("#share a.btn.primary").get_attribute("href") or ""
+    check("share on LinkedIn", "linkedin.com/sharing" in share_href)
     check("sources listed", page.locator("#sources-body a").count() >= 4)
     # every chart, map and globe carries a link to its DGAC dataset
     unsourced = page.evaluate(

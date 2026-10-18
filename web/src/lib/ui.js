@@ -16,11 +16,52 @@ export function el(tag, attrs = {}, children = []) {
   return n;
 }
 
-/** Inline text with <strong class="num"> parts: rich(["Le trafic a ", {b: "+7 %"}, "."]) */
+/** Inline text with <strong class="num"> parts: rich(["Le trafic a ", {b: "+7 %"}, "."]).
+ * A number stays glued to the word after it ("22,2 millions", "11,3 Mt") and a long bold
+ * phrase may still wrap, so it never leaves a one-word line before it on a phone. */
 export function rich(parts) {
   const frag = document.createDocumentFragment();
-  for (const p of parts) frag.append(typeof p === "string" ? p : el("strong", { class: "num", text: p.b }));
+  for (const p of parts)
+    frag.append(
+      typeof p === "string" ? p : el("strong", { class: "num", text: p.b.replace(/(\d) /g, "$1 ") }),
+    );
   return frag;
+}
+
+/** French typography: a narrow no-break space before ? ! : ; » and after «, so the mark
+ * never starts a line on its own, and between a number and its unit ("41 %", "713 kt"). */
+export const frSpace = (s) =>
+  s
+    .replace(/(^|\S)[ \t\n]+([?!:;»])/g, "$1\u202f$2")
+    .replace(/«[ \t\n]+/g, "«\u202f")
+    .replace(/(\d)[ \u00a0](%|Mt|kt|km|M|k|g)(?![\p{L}\d])/gu, "$1\u202f$2");
+
+/** Apply frSpace to every text node under root (HTML and SVG). */
+export function applyFrenchSpacing(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) fixText(n);
+}
+
+function fixText(n) {
+  const tag = n.parentNode?.nodeName;
+  if (tag === "SCRIPT" || tag === "STYLE") return;
+  const v = frSpace(n.nodeValue);
+  if (v !== n.nodeValue) n.nodeValue = v; // unchanged text is not rewritten, so the observer settles
+}
+
+/** Keep the spacing right on text the charts write later (tooltips, year changes, sorting). */
+export function watchFrenchSpacing(root) {
+  applyFrenchSpacing(root);
+  new MutationObserver((records) => {
+    for (const r of records) {
+      if (r.type === "characterData") fixText(r.target);
+      else
+        for (const n of r.addedNodes)
+          n.nodeType === Node.TEXT_NODE
+            ? fixText(n)
+            : n.nodeType === Node.ELEMENT_NODE && applyFrenchSpacing(n);
+    }
+  }).observe(root, { childList: true, characterData: true, subtree: true });
 }
 
 export const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();

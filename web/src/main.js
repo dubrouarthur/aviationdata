@@ -2,7 +2,7 @@ import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import { loadAll } from "./lib/data.js";
-import { el } from "./lib/ui.js";
+import { el, watchFrenchSpacing } from "./lib/ui.js";
 import { addSourceLines } from "./lib/datasets.js";
 
 const CHAPTERS = [
@@ -59,6 +59,7 @@ async function main() {
       console.error(`chapter ${name}:`, err);
     }
   }
+  collapseLongIntros(); // the intros are written by the chapters
 }
 
 /** Sticky chapter nav: the link of the chapter crossing the upper third of the screen is marked current. */
@@ -80,9 +81,30 @@ function trackChapters() {
   links.forEach((_, id) => document.getElementById(id) && io.observe(document.getElementById(id)));
 }
 
+watchFrenchSpacing(document.body); // "Source : DGAC" never breaks before its colon
 trackChapters();
 numberChapters();
 readingProgress();
+
+/** On phones, a chapter intro of several paragraphs shows the first one and a "Lire la suite" toggle. */
+function collapseLongIntros() {
+  for (const prose of document.querySelectorAll(".chapter-lede .prose")) {
+    if (prose.children.length < 2 || prose.classList.contains("collapsible")) continue;
+    prose.classList.add("collapsible");
+    const btn = el("button", {
+      type: "button",
+      class: "read-more",
+      "aria-expanded": "false",
+      text: "Lire la suite",
+    });
+    btn.addEventListener("click", () => {
+      const open = prose.classList.toggle("open");
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? "Réduire" : "Lire la suite";
+    });
+    prose.after(btn);
+  }
+}
 
 /** "03 / 11" above each chapter title: where the reader is in the story. */
 function numberChapters() {

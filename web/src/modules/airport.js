@@ -165,7 +165,7 @@ export function initAirport(data, { world }) {
         el("h3", { text: a.nom }),
         el("p", {
           class: "note",
-          text: `${a.code} · ${a.zone === "OM" ? "Outre-mer" : "Métropole"} · trafic publié depuis ${firstYear}`,
+          text: `${a.code}, ${a.zone === "OM" ? "Outre-mer" : "métropole"}, trafic publié depuis ${firstYear}`,
         }),
       ]),
       el("p", { class: "apt-sentence" }, rich(sentence)),
