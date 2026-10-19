@@ -254,7 +254,8 @@
         },
         ", Pau −61 %"
       ],
-      "note": "Trafic de chaque aéroport, 100 = niveau de 2019. 21 des 46 aéroports de plus de 200 000 passagers ont retrouvé ce niveau."
+      "note": "Trafic de chaque aéroport, 100 = niveau de 2019. 21 des 46 aéroports de plus de 200 000 passagers ont retrouvé ce niveau.",
+      "reveal": "wipe"
     },
     {
       "id": "cta",
