@@ -1,0 +1,239 @@
+{
+  "fps": 30,
+  "size": [1080, 1350],
+  "url": "aviationdata.vercel.app",
+  "author": "Arthur Dubrou",
+  "linkedin": "linkedin.com/in/arthur-dubrou",
+  "clips": {
+    "fence": {
+      "page": "https://www.pexels.com/video/commercial-airliner-taking-off-over-fence-37157735/",
+      "author": "Joolsmagools",
+      "file": "https://videos.pexels.com/video-files/37157735/15741357_1440_2560_30fps.mp4"
+    },
+    "emptygate": {
+      "page": "https://www.pexels.com/video/empty-airport-gate-under-cloudy-sky-35434987/",
+      "author": "Numan Gilgil",
+      "file": "https://videos.pexels.com/video-files/35434987/15012781_1440_2560_30fps.mp4"
+    },
+    "af787": {
+      "page": "https://www.pexels.com/video/french-airliner-plane-landing-17394131/",
+      "author": "James Anthony",
+      "file": "https://videos.pexels.com/video-files/17394131/17394131-uhd_2560_1440_60fps.mp4"
+    },
+    "wing": {
+      "page": "https://www.pexels.com/video/aerial-view-of-airplane-wing-over-clouds-33299649/",
+      "author": "Jomin Thach",
+      "file": "https://videos.pexels.com/video-files/33299649/14183074_1440_2560_30fps.mp4"
+    },
+    "paris": {
+      "page": "https://www.pexels.com/video/aerial-view-of-paris-cityscape-from-above-38676076/",
+      "author": "Fabio Le Saint",
+      "file": "https://videos.pexels.com/video-files/38676076/16429108_2560_1440_30fps.mp4"
+    },
+    "fids": {
+      "page": "https://www.pexels.com/video/flight-information-display-at-modern-airport-37130582/",
+      "author": "K",
+      "file": "https://videos.pexels.com/video-files/37130582/15730062_2560_1440_24fps.mp4"
+    },
+    "cdg": {
+      "page": "https://www.pexels.com/video/people-inside-charles-de-gaulle-airport-3723441/",
+      "author": "K",
+      "file": "https://videos.pexels.com/video-files/3723441/3723441-uhd_2732_1440_24fps.mp4"
+    },
+    "contrail": {
+      "page": "https://www.pexels.com/video/jet-plane-creating-contrails-in-blue-sky-34249051/",
+      "author": "Dave Planes",
+      "file": "https://videos.pexels.com/video-files/34249051/14512752_2560_1440_30fps.mp4"
+    },
+    "sunsetland": {
+      "page": "https://www.pexels.com/video/airplane-landing-at-sunset-with-vibrant-sky-34508450/",
+      "author": "BAE JUN",
+      "file": "https://videos.pexels.com/video-files/34508450/14620831_1440_2560_30fps.mp4"
+    },
+    "sunsetsil": {
+      "page": "https://www.pexels.com/video/airplane-silhouetted-against-vibrant-sunset-sky-29069414/",
+      "author": "Hāyca",
+      "file": "https://videos.pexels.com/video-files/29069414/12564035_1440_2560_60fps.mp4"
+    }
+  },
+  "beats": [
+    {
+      "id": "hook",
+      "kind": "number",
+      "dur": 3.4,
+      "clip": "fence",
+      "from": 6.0,
+      "speed": 1.8,
+      "cy": 0.48,
+      "kicker": "France, 2025",
+      "n": 183,
+      "suffix": " M",
+      "accent": "white",
+      "line": "de passagers. Jamais autant."
+    },
+    {
+      "id": "twist",
+      "kind": "number",
+      "dur": 3.0,
+      "clip": "emptygate",
+      "from": 1.0,
+      "cy": 0.52,
+      "kicker": "Mais sur les vols intérieurs…",
+      "n": 21,
+      "sign": "−",
+      "suffix": " %",
+      "accent": "magenta",
+      "line": "de passagers depuis 2019."
+    },
+    {
+      "id": "title",
+      "kind": "title",
+      "dur": 3.0,
+      "clip": "af787",
+      "from": 3.5,
+      "fit": "blurpad",
+      "fgY": -150,
+      "title": ["Le ciel à", "deux vitesses"],
+      "sub": "35 ans de données publiques de la DGAC"
+    },
+    {
+      "id": "intl",
+      "kind": "chart",
+      "dur": 5.0,
+      "clip": "wing",
+      "from": 3.0,
+      "cy": 0.5,
+      "chart": "delta",
+      "chartFrom": 1.3,
+      "chartWidth": 860,
+      "accent": "blue",
+      "kicker": "Le monde vu de France",
+      "headline": [
+        "International : ",
+        { "n": 7, "sign": "+", "suffix": " %" },
+        " de passagers depuis 2019"
+      ],
+      "note": "En bleu, les pays qui gagnent des passagers ; en magenta, ceux qui en perdent."
+    },
+    {
+      "id": "france",
+      "kind": "chart",
+      "dur": 5.4,
+      "clip": "paris",
+      "from": 2.0,
+      "pan": [0.44, 0.56],
+      "chart": "france",
+      "chartWidth": 880,
+      "badge": true,
+      "accent": "magenta",
+      "kicker": "La France intérieure",
+      "headline": [
+        "Paris–province : ",
+        { "n": 46, "sign": "−", "suffix": " %" },
+        " de passagers depuis 2000"
+      ],
+      "note": "L'épaisseur de chaque ligne suit son nombre de passagers."
+    },
+    {
+      "id": "prix",
+      "kind": "chart",
+      "dur": 5.0,
+      "clip": "fids",
+      "from": 0.2,
+      "cx": 0.62,
+      "chart": "prix",
+      "chartWidth": 960,
+      "accent": "magenta",
+      "kicker": "Le prix du billet",
+      "headline": [
+        "Billets intérieurs : ",
+        { "n": 53, "sign": "+", "suffix": " %" },
+        ". Passagers : −27 %."
+      ],
+      "note": "Entre 2019 et 2025. Indices des prix DGAC, base 100 en 2019."
+    },
+    {
+      "id": "lowcost",
+      "kind": "chart",
+      "dur": 5.0,
+      "clip": "cdg",
+      "from": 0.5,
+      "cx": 0.5,
+      "chart": "race",
+      "chartRate": 1.3,
+      "chartWidth": 960,
+      "accent": "teal",
+      "kicker": "Les compagnies",
+      "headline": [
+        "Low-cost : 18 % des passagers en 2010, ",
+        { "n": 41, "suffix": " %" },
+        " en 2025"
+      ],
+      "note": "Passagers au départ et à l'arrivée de la France, par compagnie."
+    },
+    {
+      "id": "co2",
+      "kind": "chart",
+      "dur": 6.8,
+      "clip": "contrail",
+      "from": 0.5,
+      "cx": 0.45,
+      "chart": "co2",
+      "chartWidth": 960,
+      "stats": [
+        {
+          "n": 32,
+          "sign": "−",
+          "suffix": " %",
+          "accent": "teal",
+          "label": "de CO2 par passager et par kilomètre depuis 2000"
+        },
+        {
+          "n": 63,
+          "sign": "+",
+          "suffix": " %",
+          "accent": "blue",
+          "label": "de trafic, en passagers-kilomètres"
+        }
+      ],
+      "statsDur": 2.4,
+      "accent": "teal",
+      "kicker": "Le CO2",
+      "headline": [
+        "Des avions plus sobres. Les émissions : ",
+        { "n": 11, "sign": "+", "suffix": " %" },
+        " depuis 2000"
+      ],
+      "note": "Indice 100 en 2000. Émissions nettes du trafic aérien commercial en France, jusqu'en 2024."
+    },
+    {
+      "id": "apt",
+      "kind": "chart",
+      "dur": 5.0,
+      "clip": "sunsetland",
+      "from": 0.3,
+      "cy": 0.5,
+      "chart": "aeroports",
+      "chartWidth": 960,
+      "accent": "blue",
+      "kicker": "Et votre aéroport ?",
+      "headline": [
+        "Beauvais ",
+        { "n": 68, "sign": "+", "suffix": " %" },
+        ", Pau −61 % depuis 2019"
+      ],
+      "note": "21 des 46 aéroports de plus de 200 000 passagers ont retrouvé leur niveau de 2019. Indice 100 en 2019."
+    },
+    {
+      "id": "cta",
+      "kind": "cta",
+      "dur": 6.4,
+      "clip": "sunsetsil",
+      "from": 6.0,
+      "cy": 0.5,
+      "lead": ["95 aéroports.", "35 ans de données.", "Tout est en ligne."],
+      "action": "Explorez la dashboard",
+      "small": "Gratuit, sans inscription, d'après les données ouvertes de la DGAC"
+    }
+  ]
+}

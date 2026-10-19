@@ -4,8 +4,10 @@ Time inside the page is faked (Playwright clock), so every animation (globe, d3 
 the carrier race) advances exactly 1/FPS per frame, whatever the capture speed. Only the chart
 itself is kept (page chrome, controls and backgrounds are hidden), so the film can lay it out freely.
 
-    python3 promo/capture.py [--url http://127.0.0.1:4173/] [--only race,prix]
+    python3 promo/capture.py [--url http://127.0.0.1:4173/] [--only race,prix] [--theme dark]
 Writes promo/out/raw/<scene>/0000.png ... and meta.json (size, values read per frame).
+--theme dark films the same charts in light ink with brighter series colours, for the reel
+(reel.html), where they sit over darkened footage; frames go to promo/out/raw-dark/.
 """
 
 import json
@@ -17,9 +19,18 @@ from playwright.sync_api import sync_playwright
 from scenes import FPS, SCENES
 
 ROOT = Path(__file__).parent
-RAW = ROOT / "out" / "raw"
 url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
 only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
+theme = sys.argv[sys.argv.index("--theme") + 1] if "--theme" in sys.argv else "light"
+RAW = ROOT / "out" / ("raw-dark" if theme == "dark" else "raw")
+
+# dark ink for the reel: every chart reads its colours from these variables (globe included)
+DARK_CSS = """
+:root { --paper: #0c1724; --paper-2: #132131; --card: #0c1724; --ink: #f3f6f8; --ink-2: #cdd6de;
+  --muted: #a3b2c1; --blue-text: #8cc0ff; --rule: #2e3e50; --grid: #223142; --axis: #50637a;
+  --sea: #10213a; --sphere-hi: #2d4d78; --land-dot: #7590aa; --blue: #4d9bff; --blue-soft: #1d3a5f;
+  --magenta: #ff4da6; --magenta-soft: #4d1a3a; --ochre: #f3b23c; --teal: #25c79c; }
+"""
 
 # keep the charts, drop everything that makes it look like a web page
 FILM_CSS = """
@@ -101,6 +112,11 @@ with sync_playwright() as p:
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.clock.install()
+    if theme == "dark":  # before any chart reads its colours
+        page.add_init_script(
+            "document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style');"
+            f" s.textContent = {json.dumps(DARK_CSS)}; document.head.append(s); }});"
+        )
     page.goto(url, wait_until="networkidle")
     page.wait_for_timeout(1000)
     page.clock.pause_at(page.evaluate("Date.now()") + 500)
@@ -111,6 +127,8 @@ with sync_playwright() as p:
     page.clock.run_for(6000)  # the globe starts turning on its own after 5 s without interaction
     # film in page order, so that a chart never plays its entrance animation before its own scene
     for sc in sorted((s for s in SCENES if s.get("target")), key=lambda s: s["order"]):
+        if theme == "dark":  # the 4:5 reel films narrower charts (larger type once scaled) and may hold them longer
+            sc = {**sc, **sc.get("reel", {})}
         name, dur, speed = sc["id"], sc["dur"], sc.get("speed", 1)
         if only and name not in only:
             continue

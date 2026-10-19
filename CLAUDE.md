@@ -11,6 +11,7 @@ Dashboard interactif sur le transport aérien français, construit uniquement su
 - `python3 web/scripts/interact.py` : parcours Playwright de toutes les interactions (servir `web/dist` sur 127.0.0.1:4173) ; `web/scripts/story_shots.py DIR "#sel,..." [--mobile]` pour les captures.
 - `python3 web/scripts/audit_numbers.py` : recalcule en Python chaque chiffre écrit dans le récit et le compare au texte affiché (même serveur).
 - `python3 promo/capture.py && python3 promo/render.py` : film promo (graphiques réels filmés image par image, horloge simulée), sortie dans `promo/out/` (non versionné).
+- Reel LinkedIn 4:5 avec vidéos de fond : `python3 promo/capture.py --theme dark && python3 promo/reel_footage.py && python3 promo/render.py --page reel.html --size 1080x1350 --out promo/out/le-ciel-a-deux-vitesses-reel-4x5.mp4`. Les rushes Pexels (auteurs et liens dans `promo/reel.json`) sont téléchargés dans `promo/out/footage/` et ne doivent jamais être versionnés (licence : pas de redistribution).
 - Déploiement : Vercel lit `vercel.json` (build `web/`, sortie `web/dist`) ; `SITE_URL` ou le domaine Vercel rend les balises og:image absolues. Pas d'`ignoreCommand` : Vercel ne construit que le dernier commit d'un push, et un `git diff HEAD^ HEAD` sautait tout push finissant par un commit hors `web/`.
 
 ## Contrat de données

@@ -61,6 +61,14 @@ Le dossier `promo/` fabrique la vidéo à partir des vrais graphiques du site :
 - `render.py` monte le film en MP4 1920×1080 ;
 - `thumb.py` produit la miniature.
 
+Un reel 4:5 (1080×1350) pour LinkedIn mêle de vraies images d'avions et d'aéroports aux graphiques, filmés en encre claire :
+
+- `capture.py --theme dark` filme les graphiques en version sombre dans `promo/out/raw-dark/` ;
+- `reel_footage.py` télécharge les rushes et les découpe au format 4:5 ;
+- `render.py --page reel.html --size 1080x1350` monte le reel.
+
+Les rushes viennent de [Pexels](https://www.pexels.com/license/) (usage libre, sans attribution obligatoire) ; leurs auteurs et leurs liens sont listés dans `promo/reel.json`. Ils sont téléchargés dans `promo/out/footage/` et ne sont jamais versionnés.
+
 Les fichiers produits vont dans `promo/out/`, qui n'est pas versionné. La photo de l'auteur, affichée au début, en pied de chaque scène et à la fin, est lue dans `promo/out/portrait.jpg` : elle n'est pas versionnée et doit être déposée là avant le rendu.
 
 ## Sources

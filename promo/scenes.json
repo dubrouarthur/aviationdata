@@ -60,7 +60,10 @@
       "sub": "En bleu, les pays qui gagnent des passagers, menés par l'Égypte (+61 %) et la Turquie (+51 %). En magenta, ceux qui en perdent.",
       "kicker": "Évolution du trafic par pays entre 2019 et 2025",
       "beatLabel": "de trafic international depuis 2019",
-      "trim": 1.3
+      "trim": 1.3,
+      "reel": {
+        "css": "#globe { width: 500px !important; margin: 0 auto !important; }"
+      }
     },
     {
       "id": "france",
@@ -85,7 +88,10 @@
       ],
       "sub": "En gris, le réseau de 2000 : les lignes entre Paris et la province maigrissent, certaines disparaissent.",
       "kicker": "Liaisons et aéroports de métropole",
-      "beatLabel": "de trafic intérieur depuis 2019"
+      "beatLabel": "de trafic intérieur depuis 2019",
+      "reel": {
+        "css": "#france-map { width: 540px !important; }"
+      }
     },
     {
       "id": "aeroports",
@@ -117,7 +123,10 @@
       "sub": "depuis 2019. Sur les 46 aéroports de plus de 200 000 passagers, 21 seulement ont retrouvé leur niveau d'avant.",
       "kicker": "Passagers, moyenne sur 12 mois, indice 100 = 2019",
       "order": 8,
-      "beatLabel": "de passagers à Beauvais depuis 2019, quand Pau en perd 61 %"
+      "beatLabel": "de passagers à Beauvais depuis 2019, quand Pau en perd 61 %",
+      "reel": {
+        "css": "#aeroport .grid-2 { grid-template-columns: 1fr !important; } #chart-apt { width: 560px !important; }"
+      }
     },
     {
       "id": "spirale",
@@ -224,7 +233,11 @@
         " % des passagers"
       ],
       "sub": "en 2025, contre 18 % en 2010. Air France reste en tête.",
-      "kicker": "Passagers par compagnie, en France"
+      "kicker": "Passagers par compagnie, en France",
+      "reel": {
+        "dur": 5.8,
+        "css": "#chart-race { width: 540px !important; }"
+      }
     },
     {
       "id": "pavillon",
@@ -266,7 +279,10 @@
       ],
       "sub": "pendant que le nombre de passagers sur ces lignes reculait de 27 %. À l'international, les prix ont pris 30 %.",
       "kicker": "Prix des billets et passagers, base 100 en 2019",
-      "beatLabel": "sur le prix des billets intérieurs depuis 2019"
+      "beatLabel": "sur le prix des billets intérieurs depuis 2019",
+      "reel": {
+        "css": "#chart-scissors { width: 520px !important; } #chart-scissors .sm[data-k=om] { display: none !important; }"
+      }
     },
     {
       "id": "co2",
@@ -303,7 +319,10 @@
           "big": true,
           "label": "de CO2 émis par passager et par kilomètre"
         }
-      ]
+      ],
+      "reel": {
+        "css": "#chart-co2-index { width: 560px !important; }"
+      }
     },
     {
       "id": "end",
