@@ -71,6 +71,11 @@
           linear-gradient(to bottom, rgba(6, 12, 20, 0.62) 0%, rgba(6, 12, 20, 0) 26%),
           linear-gradient(to top, rgba(6, 12, 20, 0.86) 0%, rgba(6, 12, 20, 0.42) 30%, rgba(6, 12, 20, 0) 56%);
       }
+      #shade-num {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(6, 12, 20, 0.9) 0%, rgba(6, 12, 20, 0.7) 32%, rgba(6, 12, 20, 0) 64%);
+      }
       #chart {
         position: absolute;
         left: 0;
@@ -117,6 +122,22 @@
         letter-spacing: -0.012em;
         font-variant-numeric: tabular-nums;
         margin: 14px 0 6px;
+      }
+      #big .num .unit {
+        font-size: 0.4em;
+        font-stretch: 70%;
+        letter-spacing: 0;
+        margin-left: 0.12em;
+      }
+      #top {
+        position: absolute;
+        left: 72px;
+        right: 72px;
+        top: 74px;
+        font-size: 32px;
+        font-stretch: 85%;
+        font-weight: 650;
+        color: var(--soft);
       }
       #big .line {
         font-size: 62px;
@@ -248,11 +269,18 @@
         right: 72px;
         top: 170px;
       }
-      #cta .lead {
-        font-size: 104px;
-        font-stretch: 66%;
+      #cta .q {
+        font-size: 150px;
+        font-stretch: 62%;
         font-weight: 850;
-        line-height: 0.98;
+        line-height: 0.9;
+      }
+      #cta .lead {
+        margin-top: 26px;
+        font-size: 56px;
+        font-stretch: 75%;
+        font-weight: 700;
+        line-height: 1.1;
       }
       #cta .action {
         margin-top: 70px;
@@ -334,12 +362,14 @@
       <img id="bg" alt="" />
       <div id="tint"></div>
       <div id="shade"></div>
+      <div id="shade-num"></div>
       <div id="chart"><img alt="" /></div>
       <div id="badge"></div>
       <div id="head" class="shadow"></div>
       <div id="note"></div>
       <div id="stats" class="shadow"></div>
       <div id="big" class="shadow"></div>
+      <div id="top" class="shadow"></div>
       <div id="title" class="shadow"></div>
       <div id="cta" class="shadow"></div>
       <div id="foot" class="shadow">
@@ -427,6 +457,12 @@
           const k = outCubic(lin(u, start, start + dur));
           const v = Math.round(+c.dataset.n * k);
           c.textContent = fr(`${c.dataset.sign}${v}${c.dataset.suffix}`);
+          if (c.dataset.unit) {
+            const unit = document.createElement("span");
+            unit.className = "unit";
+            unit.textContent = c.dataset.unit.trim();
+            c.append(unit);
+          }
         });
       }
       function fade(node, u, inAt, outAt, d = 0.3, dy = 26) {
@@ -447,7 +483,7 @@
       // ---------------------------------------------------------------- per-beat DOM, built once
       let built = null;
       function build(b) {
-        for (const id of ["#head", "#note", "#stats", "#big", "#title", "#cta", "#badge"]) {
+        for (const id of ["#head", "#note", "#stats", "#big", "#top", "#title", "#cta", "#badge"]) {
           $(id).replaceChildren();
           $(id).style.opacity = 0;
         }
@@ -458,6 +494,8 @@
           const n = document.createElement("div");
           n.className = "num";
           n.append(words([{ n: b.n, sign: b.sign, suffix: b.suffix, accent: b.accent }]));
+          if (b.unit) n.querySelector(".w").firstChild.dataset.unit = b.unit; // "183 millions", unit in smaller type
+          if (b.top) $("#top").textContent = fr(b.top);
           const l = document.createElement("div");
           l.className = "line";
           l.append(words(b.line));
@@ -499,13 +537,12 @@
           $("#title").append(h, s, chip(false));
         }
         if (b.kind === "cta") {
+          const q = document.createElement("div");
+          q.className = "q";
+          q.append(words(b.q));
           const lead = document.createElement("div");
           lead.className = "lead";
-          for (const line of b.lead) {
-            const d = document.createElement("div");
-            d.append(words(line));
-            lead.append(d);
-          }
+          lead.append(words(b.lead));
           const a = document.createElement("div");
           a.className = "action";
           a.textContent = fr(b.action);
@@ -515,7 +552,7 @@
           const sm = document.createElement("div");
           sm.className = "small";
           sm.textContent = fr(b.small);
-          $("#cta").append(lead, a, pill, sm, chip(true));
+          $("#cta").append(q, lead, a, pill, sm, chip(true));
         }
         built = b.id;
       }
@@ -543,6 +580,7 @@
         let tint = 0.12;
         let bright = 0.92;
         if (b.kind === "title") tint = 0.18;
+        if (b.kind === "number") bright = 0.82; // white figures must hold over a white fuselage
         if (b.kind === "cta") tint = 0.2 + 0.16 * lin(u, 0, 1.2); // the sunset stays visible behind the address
         let cu = u; // chart clock
         if (b.kind === "chart") {
@@ -561,6 +599,7 @@
         $("#bg").style.transform = `scale(${(zoom * (1 + blur / 900)).toFixed(4)})`;
         $("#bg").style.filter = `blur(${blur.toFixed(1)}px) brightness(${bright.toFixed(3)}) saturate(1.08)`;
         $("#tint").style.opacity = tint.toFixed(3);
+        $("#shade-num").style.opacity = b.kind === "number" ? 1 : 0;
         $("#shade").style.opacity = b.kind === "chart" && cu > 0 ? (1 - 0.5 * lin(cu, 0, 0.5)).toFixed(3) : 1;
 
         const end = b.dur - 0.28; // everything leaves just before the cut
@@ -572,6 +611,8 @@
           rise(big.querySelector(".num"), u, 0.12, 0, 0.5);
           count(big, u, 0.12, 0.95);
           rise(big.querySelector(".line"), u, 0.55, 0.05);
+          const top = $("#top");
+          top.style.opacity = (outCubic(lin(u, 0.0, 0.3)) * (1 - lin(u, end, end + 0.25))).toFixed(3);
         }
         // ---------------- title
         if (b.kind === "title") {
@@ -635,7 +676,8 @@
         if (b.kind === "cta") {
           const c = $("#cta");
           c.style.opacity = 1;
-          c.querySelectorAll(".lead > div").forEach((d, i) => rise(d, u, 0.1 + i * 0.3, 0.04));
+          rise(c.querySelector(".q"), u, 0.1, 0.06, 0.5);
+          rise(c.querySelector(".lead"), u, 0.55, 0.03);
           fade(c.querySelector(".action"), u, 1.15, null);
           const p = c.querySelector(".pill");
           const pk = outCubic(lin(u, 1.35, 1.75));
