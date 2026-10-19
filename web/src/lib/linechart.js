@@ -109,7 +109,8 @@ export function lineChart(node, initial) {
       .call(
         d3
           .axisBottom(x)
-          .ticks(narrow ? 4 : 9)
+          // about one year label per 64 px of plot: no overlap when end labels squeeze the plot
+          .ticks(Math.max(3, Math.min(9, Math.floor((width - margin.left - margin.right) / 64))))
           .tickFormat(d3.utcFormat("%Y"))
           .tickSizeOuter(0),
       );

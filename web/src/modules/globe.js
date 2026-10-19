@@ -64,7 +64,18 @@ export function initGlobe(data, { dots }) {
   let dpr = 1;
   const colors = {};
   function readColors() {
-    for (const k of ["paper", "sea", "land-dot", "blue", "magenta", "ink", "ink-2", "muted", "rule"])
+    for (const k of [
+      "paper",
+      "sea",
+      "sphere-hi",
+      "land-dot",
+      "blue",
+      "magenta",
+      "ink",
+      "ink-2",
+      "muted",
+      "rule",
+    ])
       colors[k] = cssVar(`--${k}`);
   }
   function resize() {
@@ -125,7 +136,7 @@ export function initGlobe(data, { dots }) {
 
     // sphere with a soft light from the top left
     const g = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R);
-    g.addColorStop(0, "#ffffff");
+    g.addColorStop(0, colors["sphere-hi"] || "#ffffff");
     g.addColorStop(1, colors.sea);
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, 2 * Math.PI);
@@ -251,7 +262,7 @@ export function initGlobe(data, { dots }) {
       if (boxes.some((b) => box.x0 < b.x1 && box.x1 > b.x0 && box.y0 < b.y1 && box.y1 > b.y0)) continue;
       boxes.push(box);
       ctx.lineWidth = 4;
-      ctx.strokeStyle = "rgba(255,255,255,0.92)";
+      ctx.strokeStyle = colors.paper; // halo in the page colour, so labels read on light and dark themes
       ctx.strokeText(text, p.x + 7, p.y);
       ctx.fillStyle = colors.ink;
       ctx.fillText(text, p.x + 7, p.y);
