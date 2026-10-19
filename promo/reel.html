@@ -593,8 +593,8 @@
             tint = 0.12 + 0.4 * lin(u, 0, 0.5);
           } else {
             const g = inOut(lin(cu, 0, 0.55));
-            blur = (b.stats ? 8 : 0) + (b.stats ? 14 : 22) * g;
-            tint = (b.stats ? 0.52 : 0.12) + (b.stats ? 0.14 : 0.54) * g;
+            blur = (b.stats ? 8 : 0) + (b.stats ? 8 : 16) * g;
+            tint = (b.stats ? 0.52 : 0.12) + (b.stats ? 0.08 : 0.48) * g;
             bright = 0.92 - 0.2 * g;
           }
         }
@@ -661,7 +661,7 @@
           Object.assign(chartBox.style, {
             width: `${w}px`,
             height: `${h}px`,
-            transform: `translate(${x}px, ${(y + (1 - e) * 40).toFixed(1)}px) scale(${((0.96 + 0.04 * e) * (1 + 0.045 * inOut(lin(cu, 0.6, b.dur)))).toFixed(4)})`,
+            transform: `translate(${x}px, ${(y + (1 - e) * 40).toFixed(1)}px) scale(${((0.96 + 0.04 * e) * (1 + 0.075 * inOut(lin(cu, 0.6, b.dur)))).toFixed(4)})`,
             opacity: cu < 0 ? 0 : (e * (1 - leave)).toFixed(3),
           });
           const cf = Math.max(0, Math.min(C.frames - 1, Math.round((b.chartFrom || 0) * FPS) + Math.floor(Math.max(0, cu - 0.25) * FPS * (b.chartRate || 1))));

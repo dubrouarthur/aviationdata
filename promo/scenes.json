@@ -63,7 +63,9 @@
       "trim": 1.3,
       "reel": {
         "css": "#globe { width: 500px !important; margin: 0 auto !important; }",
-        "dur": 6.4
+        "dur": 5.4,
+        "speed": 2.0,
+        "settle": 5200
       }
     },
     {

@@ -112,7 +112,6 @@
       "from": 3.0,
       "cy": 0.5,
       "chart": "delta",
-      "chartFrom": 1.3,
       "chartWidth": 860,
       "accent": "blue",
       "kicker": "Les vols internationaux",
