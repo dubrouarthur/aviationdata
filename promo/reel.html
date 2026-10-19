@@ -576,6 +576,8 @@
 
         // footage: clear on number beats, blurred and darkened under charts
         const zoom = 1.07 - 0.07 * inOut(lin(u, 0, b.dur));
+        const arrive = 1 - outCubic(lin(u, 0, 0.45)); // 1 at the cut, 0 once settled
+        const lean = inOut(lin(u, b.dur - 0.35, b.dur)); // grows into the next cut
         let blur = 0;
         let tint = 0.12;
         let bright = 0.92;
@@ -596,8 +598,9 @@
             bright = 0.92 - 0.2 * g;
           }
         }
-        $("#bg").style.transform = `scale(${(zoom * (1 + blur / 900)).toFixed(4)})`;
-        $("#bg").style.filter = `blur(${blur.toFixed(1)}px) brightness(${bright.toFixed(3)}) saturate(1.08)`;
+        const punch = k === 0 ? 0 : arrive; // the very first frame opens clean
+        $("#bg").style.transform = `scale(${(zoom * (1 + blur / 900) * (1 + 0.1 * punch + 0.05 * lean)).toFixed(4)})`;
+        $("#bg").style.filter = `blur(${(blur + 16 * punch + 8 * lean).toFixed(1)}px) brightness(${(bright * (1 + 0.25 * punch)).toFixed(3)}) saturate(1.08)`;
         $("#tint").style.opacity = tint.toFixed(3);
         $("#shade-num").style.opacity = b.kind === "number" ? 1 : 0;
         $("#shade").style.opacity = b.kind === "chart" && cu > 0 ? (1 - 0.5 * lin(cu, 0, 0.5)).toFixed(3) : 1;
@@ -610,6 +613,9 @@
           rise(big.querySelector(".kicker"), u, 0.05, 0.04);
           rise(big.querySelector(".num"), u, 0.12, 0, 0.5);
           count(big, u, 0.12, 0.95);
+          const land = u > 1.07 ? 1 + 0.06 * (1 - outCubic(lin(u, 1.07, 1.4))) : 1;
+          big.querySelector(".num").style.transform = `scale(${land.toFixed(4)})`;
+          big.querySelector(".num").style.transformOrigin = "0 80%";
           rise(big.querySelector(".line"), u, 0.55, 0.05);
           const top = $("#top");
           top.style.opacity = (outCubic(lin(u, 0.0, 0.3)) * (1 - lin(u, end, end + 0.25))).toFixed(3);
@@ -655,11 +661,14 @@
           Object.assign(chartBox.style, {
             width: `${w}px`,
             height: `${h}px`,
-            transform: `translate(${x}px, ${(y + (1 - e) * 40).toFixed(1)}px) scale(${(0.96 + 0.04 * e).toFixed(4)})`,
+            transform: `translate(${x}px, ${(y + (1 - e) * 40).toFixed(1)}px) scale(${((0.96 + 0.04 * e) * (1 + 0.045 * inOut(lin(cu, 0.6, b.dur)))).toFixed(4)})`,
             opacity: cu < 0 ? 0 : (e * (1 - leave)).toFixed(3),
           });
           const cf = Math.max(0, Math.min(C.frames - 1, Math.round((b.chartFrom || 0) * FPS) + Math.floor(Math.max(0, cu - 0.25) * FPS * (b.chartRate || 1))));
           loads.push(setImg(chartBox.querySelector("img"), `out/raw-dark/${b.chart}/${pad(cf)}.png`));
+          const wipe = b.reveal === "wipe" ? inOut(lin(cu, 0.3, 3.3)) : 1;
+          chartBox.querySelector("img").style.clipPath =
+            wipe < 1 ? `inset(-2% ${((1 - wipe) * 100).toFixed(2)}% -2% -2%)` : "none";
           note.style.top = `${y + h + 26}px`;
           note.style.opacity = cu < 0 ? 0 : (outCubic(lin(cu, 0.8, 1.2)) * (1 - leave)).toFixed(3);
           const badge = $("#badge");

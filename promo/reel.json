@@ -171,7 +171,8 @@
         " depuis 2019, et −27 % de passagers"
       ],
       "note": "En haut, les vols intérieurs ; en bas, les vols internationaux. Indices DGAC, base 100 en 2019.",
-      "speed": 0.9
+      "speed": 0.9,
+      "reveal": "wipe"
     },
     {
       "id": "lowcost",
@@ -181,7 +182,6 @@
       "from": 0.5,
       "cx": 0.5,
       "chart": "race",
-      "chartRate": 1.3,
       "chartWidth": 960,
       "accent": "teal",
       "kicker": "Les compagnies low-cost",
@@ -224,15 +224,16 @@
       "accent": "teal",
       "kicker": "Le CO2 de l'aérien",
       "headline": [
-        "Au total : ",
+        "Par passager et par kilomètre : ",
         {
-          "n": 11,
-          "sign": "+",
+          "n": 32,
+          "sign": "−",
           "suffix": " %"
         },
-        " d'émissions de CO2 depuis 2000"
+        " de CO2 depuis 2000"
       ],
-      "note": "Courbes en indice 100 en 2000 : trafic, passagers par vol, CO2 par passager-kilomètre et émissions. Données DGAC jusqu'en 2024."
+      "note": "Grammes de CO2 émis par passager pour chaque kilomètre : 111 g en 2000, 76 g en 2024 en moyenne, et moins encore sur les longs trajets.",
+      "reveal": "wipe"
     },
     {
       "id": "apt",
