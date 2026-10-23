@@ -4,6 +4,7 @@ import "./style.css";
 import { loadAll } from "./lib/data.js";
 import { el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { addSourceLines } from "./lib/datasets.js";
+import { asset } from "./lib/site.js";
 
 const CHAPTERS = [
   ["globe", () => import("./modules/globe.js").then((m) => m.initGlobe)],
@@ -30,7 +31,7 @@ async function main() {
       loadAll(),
       Promise.all(
         ["geo/land-dots.json", "geo/world-110m.json", "geo/metropole.geojson"].map((u) =>
-          fetch(u).then((r) => {
+          fetch(asset(u)).then((r) => {
             if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`);
             return r.json();
           }),

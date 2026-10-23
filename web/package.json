@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "format": "prettier --write src index.html"
+    "format": "prettier --write src index.html le-ciel-a-deux-vitesses/index.html courant-jet/index.html"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

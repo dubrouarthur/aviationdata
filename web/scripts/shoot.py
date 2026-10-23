@@ -1,6 +1,6 @@
 """Screenshot the built site (dist/) in several themes/viewports and report console errors.
 
-    python3 web/scripts/shoot.py OUT_DIR [--url http://127.0.0.1:4173/]
+    python3 web/scripts/shoot.py OUT_DIR [--url http://127.0.0.1:4173/le-ciel-a-deux-vitesses/]
 Serve web/dist first (e.g. python3 -m http.server 4173 -d web/dist).
 """
 
@@ -10,7 +10,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 out = Path(sys.argv[1])
-url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
+url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/le-ciel-a-deux-vitesses/"
 out.mkdir(parents=True, exist_ok=True)
 CASES = [
     ("desktop-dark", 1440, 900, "dark"),

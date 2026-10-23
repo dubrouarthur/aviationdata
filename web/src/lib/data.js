@@ -1,8 +1,9 @@
+import { asset } from "./site.js";
 import { toDate } from "./series.js";
 
 const FILES = ["meta", "fracture", "aeroports", "compagnies", "prix", "co2", "monde", "routes", "fret"];
 
-export async function loadAll(base = "data/") {
+export async function loadAll(base = asset("data/")) {
   const entries = await Promise.all(
     FILES.map(async (name) => {
       const res = await fetch(`${base}${name}.json`);
@@ -32,11 +33,13 @@ let selected = null;
 
 export const selection = {
   get: () => selected,
-  set(code, { scroll = false } = {}) {
+  // url: false for the default pick at load, so a shared chapter link (#co2) keeps its anchor
+  set(code, { scroll = false, url = true } = {}) {
     if (code === selected) return;
     selected = code;
     try {
-      history.replaceState(null, "", code ? `#aeroport-${code}` : location.pathname + location.search);
+      if (url)
+        history.replaceState(null, "", code ? `#aeroport-${code}` : location.pathname + location.search);
     } catch {
       /* sandboxed frames may refuse history access */
     }

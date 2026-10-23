@@ -1,0 +1,397 @@
+/* aviationdata, the home page: a masthead, the newest investigation over its own live map, then
+   every investigation as a flight strip (the paper strips air traffic controllers keep for each
+   flight), the method and the author. */
+.home main section[id] {
+  scroll-margin-top: 64px;
+}
+
+.site-head {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 30;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.site-head .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 58px;
+}
+
+.wordmark {
+  font-family: var(--f-display);
+  font-stretch: 75%;
+  font-weight: 520;
+  font-size: 1.45rem;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.wordmark b {
+  font-weight: 830;
+  color: var(--ink);
+}
+
+.site-nav {
+  display: flex;
+  gap: 20px;
+  font-size: 0.9rem;
+}
+
+.site-nav a {
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: var(--blue-text);
+}
+
+/* ------------------------------------------------------------------ the lead story */
+.lead {
+  position: relative;
+  min-height: 560px;
+  height: min(80vh, 760px);
+  background: var(--night);
+  color: var(--night-ink);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.lead canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.lead::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    0deg,
+    rgba(13, 34, 54, 0.94) 0%,
+    rgba(13, 34, 54, 0.55) 42%,
+    rgba(13, 34, 54, 0) 70%
+  );
+}
+
+.lead-body {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding-bottom: clamp(28px, 6vh, 64px);
+}
+
+.lead-tag {
+  margin: 0 0 10px;
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: var(--speed-core);
+}
+
+.lead-title {
+  margin: 0 0 18px;
+  font-family: var(--f-display);
+  font-stretch: 62%;
+  font-weight: 820;
+  font-size: clamp(3.6rem, 10vw, 8.4rem);
+  line-height: 0.86;
+  letter-spacing: -0.012em;
+}
+
+.lead-title a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.lead-title a:hover,
+.lead-title a:focus-visible {
+  color: var(--speed-core);
+}
+
+.lead-dek {
+  font-family: var(--f-text);
+  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+  line-height: 1.5;
+  max-width: 34em;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 20px;
+}
+
+.lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.lead .btn.primary {
+  background: #fff;
+  color: var(--night);
+  border-color: #fff;
+}
+
+.lead-caption {
+  font-size: 0.8rem;
+  color: var(--night-muted);
+}
+
+/* ------------------------------------------------------------------ every investigation, as flight strips */
+.issues {
+  padding-top: 64px;
+}
+
+.home-h2 {
+  font-family: var(--f-display);
+  font-stretch: 70%;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 3.6vw, 2.8rem);
+  line-height: 1;
+  margin: 0 0 22px;
+}
+
+.home-h2 a {
+  text-decoration: none;
+}
+
+.strips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.strip-link {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) minmax(200px, 280px) 72px;
+  align-items: stretch;
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 8px solid var(--c);
+  border-radius: 6px;
+  min-height: 104px;
+}
+
+.strip-link > span {
+  padding: 16px 18px;
+}
+
+.strip-link > span + span {
+  border-left: 1px dashed var(--rule);
+}
+
+.strip-no {
+  font-family: var(--f-display);
+  font-stretch: 62%;
+  font-weight: 820;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--c);
+  font-variant-numeric: tabular-nums;
+}
+
+.strip-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.strip-title {
+  font-family: var(--f-display);
+  font-stretch: 70%;
+  font-weight: 800;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.strip-dek {
+  font-family: var(--f-text);
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.strip-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.strip-meta b {
+  color: var(--ink);
+  font-weight: 650;
+  margin-right: 6px;
+}
+
+.strip-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--c);
+}
+
+.strip-link:hover .strip-title,
+.strip-link:focus-visible .strip-title {
+  color: var(--c);
+}
+
+.strip-link:hover {
+  border-color: color-mix(in srgb, var(--c) 40%, var(--rule));
+  border-left-color: var(--c);
+}
+
+/* ------------------------------------------------------------------ the first story, featured */
+.feature {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 36px;
+  align-items: center;
+  padding-top: 64px;
+}
+
+.feature-img img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--rule);
+}
+
+.feature .prose {
+  margin-bottom: 18px;
+}
+
+/* ------------------------------------------------------------------ method */
+.method {
+  padding: 72px 0 40px;
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px 40px;
+}
+
+.method h3 {
+  font-family: var(--f-display);
+  font-stretch: 75%;
+  font-weight: 760;
+  font-size: 1.2rem;
+  margin: 0 0 8px;
+}
+
+.method p {
+  font-family: var(--f-text);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ footer */
+.site-foot {
+  border-top: 1px solid var(--rule);
+  padding: 36px 0 48px;
+  background: var(--paper-2);
+}
+
+.foot-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 40px;
+}
+
+.foot-note {
+  font-size: 0.86rem;
+  color: var(--muted);
+  margin: 0;
+  max-width: 34em;
+}
+
+@media (max-width: 900px) {
+  .strip-link {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .strip-meta {
+    grid-column: 2;
+    border-left: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .strip-go {
+    display: none !important;
+  }
+
+  .feature {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .method-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .site-nav {
+    gap: 14px;
+    font-size: 0.84rem;
+  }
+
+  .strip-link {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .strip-no {
+    font-size: 1.6rem;
+    padding-bottom: 0 !important;
+  }
+
+  .strip-link > span + span {
+    border-left: 0;
+  }
+
+  .strip-meta {
+    grid-column: 1;
+  }
+}
+
+.home {
+  --jet: var(--night);
+}
+
+.site-foot .author-card .ac-by {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.site-foot .author-card .ac-name {
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 780;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  color: var(--ink);
+}

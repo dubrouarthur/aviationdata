@@ -155,6 +155,37 @@ footer[id] {
   color: var(--blue);
 }
 
+/* site wordmark at the head of a story: the way back to every investigation */
+.site-mark {
+  font-family: var(--f-display);
+  font-stretch: 75%;
+  font-weight: 560;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  color: var(--ink-2);
+  text-decoration: none;
+  padding-right: 16px;
+  margin-right: -12px;
+  border-right: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.site-mark b {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.site-mark:hover,
+.site-mark:focus-visible {
+  color: var(--blue-text);
+}
+
+@media (max-width: 720px) {
+  .site-mark {
+    display: none;
+  }
+}
+
 .topnav {
   display: flex;
   gap: 18px;

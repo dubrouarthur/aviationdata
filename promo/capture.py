@@ -4,7 +4,7 @@ Time inside the page is faked (Playwright clock), so every animation (globe, d3 
 the carrier race) advances exactly 1/FPS per frame, whatever the capture speed. Only the chart
 itself is kept (page chrome, controls and backgrounds are hidden), so the film can lay it out freely.
 
-    python3 promo/capture.py [--url http://127.0.0.1:4173/] [--only race,prix] [--theme dark]
+    python3 promo/capture.py [--url http://127.0.0.1:4173/le-ciel-a-deux-vitesses/] [--only race,prix] [--theme dark]
 Writes promo/out/raw/<scene>/0000.png ... and meta.json (size, values read per frame).
 --theme dark films the same charts in light ink with brighter series colours, for the reel
 (reel.html), where they sit over darkened footage; frames go to promo/out/raw-dark/.
@@ -19,7 +19,7 @@ from playwright.sync_api import sync_playwright
 from scenes import FPS, SCENES
 
 ROOT = Path(__file__).parent
-url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
+url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/le-ciel-a-deux-vitesses/"
 only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
 theme = sys.argv[sys.argv.index("--theme") + 1] if "--theme" in sys.argv else "light"
 RAW = ROOT / "out" / ("raw-dark" if theme == "dark" else "raw")

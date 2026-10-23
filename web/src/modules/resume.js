@@ -1,5 +1,6 @@
 import { $, el } from "../lib/ui.js";
 import { shareUrl, linkedInShare } from "../lib/datasets.js";
+import { asset } from "../lib/site.js";
 
 // one card per chapter, built from what the chapters already computed (their first key figure),
 // so the summary can never disagree with the story
@@ -45,7 +46,7 @@ export function initResume() {
   const LI = "https://www.linkedin.com/in/arthur-dubrou/";
   $("#share").replaceChildren(
     el("div", { class: "author-card" }, [
-      el("img", { src: "auteur.jpg", alt: "Arthur Dubrou", width: 76, height: 76, loading: "lazy" }),
+      el("img", { src: asset("auteur.jpg"), alt: "Arthur Dubrou", width: 76, height: 76, loading: "lazy" }),
       el("div", {}, [
         el("p", { class: "ac-by", text: "Une enquête en données de" }),
         el("p", { class: "ac-name", text: "Arthur Dubrou" }),

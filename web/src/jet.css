@@ -1,0 +1,615 @@
+/* "Le vent dans le dos": the jet-stream story. Paper pages from style.css, plus night-blue bands
+   where the wind is drawn. East (towards France, with the wind) is blue, west (towards America,
+   against it) is rose, on paper and on the dark maps alike. */
+:root {
+  --east: #2a78d6;
+  --west: #b5267e;
+  --night: #0d2236;
+  --night-2: #0a1b2c;
+  --night-ink: #e9f0f6;
+  --night-muted: #a9bccd; /* 8:1 on --night */
+  --east-hi: #8cc4ff;
+  --west-hi: #ff8fd0;
+  --gc: rgba(255, 255, 255, 0.78);
+  --map-land: #173450;
+  --map-coast: rgba(196, 220, 240, 0.38);
+  --speed-core: #ffd68c;
+  --strip-lo: #f5e4ee;
+  --strip-hi: var(--west);
+  --strip-ink: var(--muted);
+  --strip-mark: var(--ink);
+}
+
+.jet .brand span {
+  color: var(--west);
+}
+
+.jet .topnav a[aria-current="true"] {
+  border-bottom-color: var(--west);
+}
+
+.jet .read-progress i {
+  background: var(--west);
+}
+
+/* ------------------------------------------------------------------ opening: Ciara at night */
+.jet-open {
+  position: relative;
+  min-height: 560px;
+  height: min(84vh, 800px);
+  background: var(--night);
+  color: var(--night-ink);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.open-map {
+  position: absolute;
+  inset: 0;
+}
+
+.open-sat {
+  position: absolute;
+  max-width: none;
+  filter: brightness(0.5) saturate(0.75) contrast(1.08);
+}
+
+.open-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* over the wind, under the text: the headline stays readable */
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(13, 34, 54, 0.85) 0%, rgba(13, 34, 54, 0.5) 34%, rgba(13, 34, 54, 0) 58%),
+    linear-gradient(0deg, rgba(13, 34, 54, 0.88) 0%, rgba(13, 34, 54, 0) 22%),
+    linear-gradient(180deg, rgba(13, 34, 54, 0.9) 0%, rgba(13, 34, 54, 0) 16%);
+}
+
+.open-wind,
+.open-routes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.open-routes {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.open-text {
+  position: relative;
+  z-index: 4;
+  padding-top: clamp(48px, 11vh, 120px);
+}
+
+.open-text .display {
+  color: #fff;
+  max-width: 7.5em;
+}
+
+.open-text .display em {
+  color: var(--speed-core);
+}
+
+.open-kicker {
+  color: var(--night-muted);
+}
+
+/* the standfirst, on paper right under the map */
+.standfirst {
+  padding-top: 34px;
+  padding-bottom: 8px;
+}
+
+.open-dek {
+  font-family: var(--f-text);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  line-height: 1.45;
+  max-width: 34em;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+
+.open-by {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.open-legend {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 22px;
+  font-size: 0.78rem;
+  color: var(--night-muted);
+}
+
+.ol-credit {
+  flex-basis: 100%;
+  font-size: 0.74rem;
+  opacity: 0.85;
+}
+
+.ol-routes {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ol-routes i {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 2px dashed var(--gc);
+}
+
+.ol-routes i.k-east {
+  border-top: 3px solid var(--east-hi);
+  margin-left: 8px;
+}
+
+/* speed legend, shared by the dark maps */
+.sl-title {
+  font-weight: 650;
+  color: var(--night-ink);
+}
+
+.sl-ramp {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.sl-step {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 36px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sl-step i {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+}
+
+/* routes on the dark maps */
+.route-gc {
+  fill: none;
+  stroke: var(--gc);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 5;
+}
+
+.route-halo {
+  fill: none;
+  stroke: rgba(8, 20, 33, 0.7);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.route-east,
+.route-west {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.route-east {
+  stroke: var(--east-hi);
+}
+
+.route-west {
+  stroke: var(--west-hi);
+}
+
+.apt {
+  fill: #fff;
+  stroke: var(--night);
+  stroke-width: 2;
+}
+
+.apt-label,
+.max-label {
+  fill: #fff;
+  font-family: var(--f-ui);
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(8, 20, 33, 0.85);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.max-label {
+  fill: var(--speed-core);
+}
+
+.max-ring {
+  fill: none;
+  stroke: var(--speed-core);
+  stroke-width: 1.5;
+}
+
+/* ------------------------------------------------------------------ chapters */
+.jet-chapter .chapter-lede {
+  max-width: 46em;
+}
+
+.jet-grid {
+  margin-top: 28px;
+  align-items: start;
+}
+
+.jet-chapter figure.panel,
+.explorer figure {
+  margin: 0;
+}
+
+.jet-chapter > figure.panel {
+  margin-top: 28px;
+}
+
+.sub-title {
+  font-family: var(--f-display);
+  font-stretch: 70%;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  line-height: 1;
+  margin: 0 0 14px;
+}
+
+.grid-wide {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 22px;
+  margin-top: 28px;
+  align-items: start;
+}
+
+.after-explorer {
+  border-top: 0;
+  padding-top: 40px;
+}
+
+/* ------------------------------------------------------------------ the explorer band */
+.explorer {
+  background: var(--night);
+  color: var(--night-ink);
+  padding: 34px 0 26px;
+  margin-top: 32px;
+  --strip-lo: #183552;
+  --strip-hi: var(--west-hi);
+  --strip-ink: var(--night-muted);
+  --strip-mark: #fff;
+}
+
+.explorer-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin-bottom: 16px;
+}
+
+.explorer-head h3 {
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 760;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.explorer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.explorer .seg,
+.dark-panel .seg {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.explorer .seg button,
+.dark-panel .seg button {
+  color: var(--night-muted);
+}
+
+.explorer .seg button[aria-pressed="true"],
+.dark-panel .seg button[aria-pressed="true"] {
+  background: var(--night-ink);
+  color: var(--night);
+}
+
+.exp-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--night-muted);
+}
+
+.exp-date input {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--night-ink);
+  background: var(--night-2);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  padding: 6px 8px;
+  color-scheme: dark;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--night-ink);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn.ghost[aria-pressed="true"] {
+  background: var(--night-ink);
+  color: var(--night);
+}
+
+.explorer-stage {
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  height: 520px;
+  background: var(--night-2);
+  overflow: hidden;
+}
+
+.explorer-stage canvas,
+.explorer-stage svg {
+  position: absolute;
+  inset: 0;
+}
+
+.explorer-read {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px 28px;
+  margin-top: 18px;
+}
+
+.er-day {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--night-muted);
+}
+
+.er-row {
+  border-left: 3px solid var(--c);
+  padding-left: 14px;
+}
+
+.er-row.west {
+  --c: var(--west-hi);
+}
+
+.er-row.east {
+  --c: var(--east-hi);
+}
+
+.er-title {
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: var(--c);
+}
+
+.er-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin: 0;
+}
+
+.er-times span {
+  display: flex;
+  flex-direction: column;
+}
+
+.er-times small {
+  font-size: 0.74rem;
+  color: var(--night-muted);
+}
+
+.er-times b {
+  font-family: var(--f-display);
+  font-stretch: 70%;
+  font-weight: 760;
+  font-size: 1.55rem;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.explorer-strip {
+  margin-top: 22px;
+  --strip-ink: var(--night-muted);
+}
+
+.explorer-strip .note {
+  color: var(--night-muted);
+  margin: 0 0 8px;
+}
+
+.explorer .source-line {
+  border-top-color: rgba(255, 255, 255, 0.16);
+  color: var(--night-muted);
+}
+
+.explorer .source-line a:hover,
+.explorer .source-line a:focus-visible {
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------ climatology map */
+.dark-panel {
+  background: var(--night);
+  border-color: var(--night);
+  color: var(--night-ink);
+}
+
+.dark-panel h3 {
+  color: #fff;
+}
+
+.dark-panel .note {
+  color: var(--night-muted);
+}
+
+.dark-panel .source-line {
+  border-top-color: rgba(255, 255, 255, 0.16);
+  color: var(--night-muted);
+}
+
+.clim-map {
+  position: relative;
+  margin: 12px -22px 10px;
+  height: 300px;
+  background: var(--night-2);
+  overflow: hidden;
+}
+
+.clim-map canvas,
+.clim-map svg {
+  position: absolute;
+  inset: 0;
+}
+
+/* ------------------------------------------------------------------ read also */
+.also {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  max-width: 760px;
+  text-decoration: none;
+  padding: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.also img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+
+.also span {
+  font-family: var(--f-text);
+  color: var(--ink-2);
+}
+
+.also b {
+  display: block;
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.also:hover b,
+.also:focus-visible b {
+  color: var(--blue-text);
+}
+
+#lire-aussi #share {
+  margin-top: 28px;
+}
+
+.footer h3 {
+  font-family: var(--f-display);
+  font-stretch: 75%;
+  font-size: 1.15rem;
+  margin: 26px 0 8px;
+}
+
+@media (max-width: 900px) {
+  .grid-wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .jet-open {
+    height: 82vh;
+    min-height: 540px;
+  }
+
+  .open-map::after {
+    background:
+      linear-gradient(180deg, rgba(13, 34, 54, 0.92) 0%, rgba(13, 34, 54, 0.55) 34%, rgba(13, 34, 54, 0) 56%),
+      linear-gradient(0deg, rgba(13, 34, 54, 0.9) 0%, rgba(13, 34, 54, 0) 26%);
+  }
+
+  .explorer-read {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .also {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sl-step {
+    min-width: 30px;
+  }
+
+  .sl-title,
+  .ol-routes {
+    flex-basis: 100%;
+  }
+
+  .ol-routes i.k-east {
+    margin-left: 14px;
+  }
+
+  .open-legend {
+    gap: 6px 16px;
+    font-size: 0.74rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .open-sat {
+    filter: brightness(0.45) saturate(0.7);
+  }
+}
+
+.all-stories {
+  margin: 14px 0 0;
+  font-weight: 650;
+}
+
+/* phones: the five destinations scroll sideways instead of widening the page */
+.explorer-controls {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.explorer .seg {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.explorer .seg::-webkit-scrollbar {
+  display: none;
+}

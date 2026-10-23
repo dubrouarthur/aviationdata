@@ -13,7 +13,7 @@ from playwright.sync_api import sync_playwright
 out = Path(sys.argv[1])
 sels = sys.argv[2].split(",")
 mobile = "--mobile" in sys.argv
-url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
+url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/le-ciel-a-deux-vitesses/"
 out.mkdir(parents=True, exist_ok=True)
 with sync_playwright() as p:
     b = p.chromium.launch(args=["--use-gl=swiftshader", "--enable-unsafe-swiftshader"])

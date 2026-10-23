@@ -763,5 +763,5 @@ export function initAirport(data, { world }) {
   onResize(mapNode, () => renderRoutes(selection.get()));
   onResize(seasonNode, () => renderSeasons(byCode.get(selection.get())));
   const fromHash = selection.fromHash();
-  selection.set(fromHash && byCode.has(fromHash) ? fromHash : "LFBO");
+  selection.set(fromHash && byCode.has(fromHash) ? fromHash : "LFBO", { url: false });
 }

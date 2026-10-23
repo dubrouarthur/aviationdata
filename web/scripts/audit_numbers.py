@@ -3,7 +3,7 @@
 The page computes its sentences in JavaScript; this script recomputes the same figures in Python, straight
 from web/public/data/*.json, and checks that the rendered text says the same thing. Exit 1 on any mismatch.
 
-    python3 web/scripts/audit_numbers.py [--url http://127.0.0.1:4173/]
+    python3 web/scripts/audit_numbers.py [--url http://127.0.0.1:4173/le-ciel-a-deux-vitesses/]
 """
 
 import json
@@ -15,7 +15,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
+url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/le-ciel-a-deux-vitesses/"
 D = {k: json.loads((ROOT / "public" / "data" / f"{k}.json").read_text()) for k in
      ("fracture", "aeroports", "compagnies", "prix", "co2", "monde", "routes", "fret")}  # fmt: skip
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()

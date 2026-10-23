@@ -3,553 +3,177 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Le ciel à deux vitesses</title>
+    <title>aviationdata, enquêtes en données ouvertes sur le transport aérien</title>
     <meta name="claude:viewport-fit-sides" content="cover" />
+    <script>
+      // the first story used to live here: its old chapter links (#co2, #aeroport-LFLL...) follow it
+      if (
+        /^#(monde|spirale|remplissage|covid|fret|france|distance|co2|aeroport|compagnies|pavillon|prix|resume|sources|h-)/.test(
+          location.hash,
+        )
+      )
+        location.replace("le-ciel-a-deux-vitesses" + location.hash);
+    </script>
     <meta
       name="description"
-      content="Trente-cinq ans de transport aérien français racontés par les données publiques de la DGAC : destinations, liaisons, aéroports, compagnies, prix, fret et CO2."
+      content="Des enquêtes sur le transport aérien construites uniquement sur des données publiques : DGAC, Copernicus, NOAA, Météo-France, NASA, OpenSky. Chaque chiffre est recalculé depuis la source."
     />
     <meta name="author" content="Arthur Dubrou" />
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": "Le ciel à deux vitesses",
-        "description": "Trente-cinq ans de transport aérien français racontés par les données publiques de la DGAC.",
-        "inLanguage": "fr",
-        "author": {
-          "@type": "Person",
-          "name": "Arthur Dubrou",
-          "url": "https://www.linkedin.com/in/arthur-dubrou/",
-          "sameAs": ["https://www.linkedin.com/in/arthur-dubrou/"]
-        },
-        "isBasedOn": [
-          "https://www.data.gouv.fr/datasets/trafic-aerien-commercial-mensuel-francais-par-paire-daeroports-par-sens-depuis-1990",
-          "https://www.data.gouv.fr/datasets/indices-des-prix-du-transport-aerien-de-passagers",
-          "https://www.data.gouv.fr/datasets/emissions-nettes-annuelles-de-co2-du-trafic-aerien-commercial-en-france"
-        ]
-      }
-    </script>
     <meta name="theme-color" content="#f6f8f6" />
+    <meta name="site-root" content="./" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="fr_FR" />
-    <meta property="og:title" content="Le ciel à deux vitesses" />
+    <meta property="og:title" content="aviationdata" />
     <meta
       property="og:description"
-      content="Trafic international +7 %, trafic intérieur −21 % depuis 2019 : 35 ans d'aviation française racontés par les données publiques de la DGAC."
+      content="Enquêtes en données ouvertes sur le transport aérien : le trafic français depuis 1990, le courant-jet et les vols transatlantiques."
     />
-    <meta property="og:image" content="%VITE_SITE_URL%og.png" />
+    <meta property="og:image" content="%VITE_SITE_URL%og-jet.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="%VITE_SITE_URL%" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body>
-    <a class="skip-link" href="#monde">Aller au contenu</a>
-    <header class="masthead">
-      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+  <body class="home">
+    <a class="skip-link" href="#enquetes">Aller aux enquêtes</a>
+    <header class="site-head">
       <div class="wrap">
-        <a class="brand" href="#monde">Le ciel à <span>deux vitesses</span></a>
-        <nav class="topnav" aria-label="Chapitres">
-          <a href="#monde">Le monde</a>
-          <a href="#spirale">35 ans</a>
-          <a href="#remplissage">Avions pleins</a>
-          <a href="#covid">Covid</a>
-          <a href="#fret">Fret</a>
-          <a href="#france">France</a>
-          <a href="#distance">Distance</a>
-          <a href="#co2">CO2</a>
-          <a href="#aeroport">Votre aéroport</a>
-          <a href="#compagnies">Compagnies</a>
-          <a href="#pavillon">Pavillon</a>
-          <a href="#prix">Prix</a>
-          <a href="#resume">En bref</a>
+        <a class="wordmark" href="./" aria-label="aviationdata, accueil">aviation<b>data</b></a>
+        <nav class="site-nav" aria-label="Site">
+          <a href="#enquetes">Enquêtes</a>
+          <a href="#methode">Méthode</a>
+          <a href="#auteur">Auteur</a>
         </nav>
       </div>
     </header>
-    <div id="demo-banner" class="demo-banner" hidden>
-      Données de démonstration fictives : ne pas citer ni publier ces chiffres.
-    </div>
 
     <main>
-      <!-- 1. the world seen from France: globe + clickable moments -->
-      <section class="chapter wrap hero" id="monde" aria-labelledby="title">
-        <div class="hero-grid">
-          <div class="hero-head">
-            <p class="kicker" id="hero-kicker">Données publiques DGAC</p>
-            <h1 class="display" id="title">Le ciel à<br /><em>deux vitesses</em></h1>
-            <div class="prose" id="hero-dek"></div>
-            <div class="byline">
-              <p>
-                Une enquête en données d'<a
-                  href="https://www.linkedin.com/in/arthur-dubrou/"
-                  target="_blank"
-                  rel="noopener"
-                  >Arthur Dubrou</a
-                >
-              </p>
-              <a class="hero-cta" href="#aeroport">Trouver mon aéroport</a>
-            </div>
-            <div class="kpis" id="hero-kpis"></div>
-          </div>
-          <div class="hero-globe" data-source="trafic" data-series="par pays">
-            <div class="graphic" id="globe">
-              <div class="overlay-year" id="globe-year"></div>
-              <div class="overlay-legend" id="globe-legend"></div>
-            </div>
-            <div class="timebar">
-              <button
-                class="play"
-                id="globe-play"
-                type="button"
-                aria-label="Lancer le voyage de 1990 à aujourd'hui"
-              ></button>
-              <input type="range" id="globe-slider" aria-label="Année affichée sur le globe" />
-              <output id="globe-out" for="globe-slider"></output>
-            </div>
-          </div>
-          <div class="hero-moments">
-            <p class="label">Choisissez un moment, ou faites glisser les années sous le globe</p>
-            <div class="moments" id="globe-moments" aria-label="Moments clés du trafic international"></div>
-            <div class="moment-card" id="globe-caption" aria-live="polite"></div>
-          </div>
-        </div>
-        <div class="panel explorer" data-source="trafic" data-series="par pays">
-          <div class="explorer-head">
-            <h3 id="explorer-title">Les 30 premiers pays</h3>
-            <div class="seg" role="group" aria-label="Continent" id="globe-cont"></div>
-          </div>
-          <ol class="rank cols" id="country-list"></ol>
-          <p class="note">
-            Passagers entre la France et chaque pays ; à droite, l'évolution entre 2019 et la dernière année
-            complète. Survolez ou cliquez un pays pour le retrouver sur le globe.
+      <!-- lead story: the jet stream, drawn live behind the headline -->
+      <section class="lead" aria-labelledby="lead-title">
+        <canvas class="lead-wind" id="lead-wind" aria-hidden="true"></canvas>
+        <div class="wrap lead-body">
+          <p class="lead-tag">Nouvelle enquête</p>
+          <h1 class="lead-title" id="lead-title">
+            <a href="courant-jet">Le vent dans le dos</a>
+          </h1>
+          <p class="lead-dek">
+            Paris–New York dure environ une heure de plus que New York–Paris. En cause, un fleuve d'air qui
+            coule à dix kilomètres d'altitude, et avec lequel les compagnies négocient chaque jour leur route.
+            Plus de 100 000 vols, quatre ans de vents ERA5 et cinquante ans de ballons-sondes de Météo-France.
           </p>
-        </div>
-      </section>
-
-      <!-- 2. 35 years in a spiral -->
-      <section class="chapter wrap" id="spirale" aria-labelledby="h-spirale">
-        <div class="grid-2" style="align-items: center">
-          <div>
-            <h2 class="section-title" id="h-spirale">Trente-cinq ans de ciel, mois par mois</h2>
-            <div class="prose" id="spirale-text"></div>
-            <div class="controls">
-              <div class="seg" role="group" aria-label="Vols affichés" id="spirale-mode">
-                <button type="button" data-v="total">Tous les vols</button>
-                <button type="button" data-v="intl">International</button>
-                <button type="button" data-v="nat">Intérieur</button>
-              </div>
-              <button class="btn" type="button" id="spirale-replay">Rejouer</button>
-            </div>
-            <p class="note">
-              Chaque anneau est une année, de 1990 au centre à 2025 au bord ; chaque secteur est un mois, de
-              janvier à décembre dans le sens des aiguilles d'une montre. Plus la case est foncée, plus le
-              mois a compté de passagers.
-            </p>
-          </div>
-          <div data-source="trafic" data-series="par liaison">
-            <div class="chart" id="chart-spirale"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. fuller planes -->
-      <section class="chapter wrap" id="remplissage" aria-labelledby="h-rempl">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-rempl">Moins de vols, des avions bien plus pleins</h2>
-            <div class="prose" id="rempl-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-rempl" aria-label="Chiffre clé"></aside>
-        </div>
-        <div class="grid-2" style="margin-top: 22px">
-          <div data-source="trafic" data-series="par aéroport" class="panel">
-            <h3>Depuis 2000 : plus de passagers, moins de vols</h3>
-            <p class="note">
-              Évolution par rapport à 2000, en %. Trafic des aéroports français : passagers (arrivées et
-              départs) et vols de passagers.
-            </p>
-            <div class="legend-row" id="rempl-legend"></div>
-            <div
-              class="chart"
-              id="chart-rempl"
-              tabindex="0"
-              aria-label="Évolution des passagers et des vols depuis 2000"
-            ></div>
-          </div>
-          <div data-source="trafic" data-series="par aéroport" class="panel">
-            <h3>Passagers par vol</h3>
-            <div class="big-figure" id="rempl-figure"></div>
-            <div class="figure-caption" id="rempl-caption"></div>
-            <div class="chart" id="chart-rempl-apt"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. April 2020 -->
-      <section class="chapter wrap" id="covid" aria-labelledby="h-covid">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-covid">
-              Covid : en avril 2020, les passagers disparaissent, le fret tient
-            </h2>
-            <div class="prose" id="covid-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-covid" aria-label="Chiffre clé"></aside>
-        </div>
-        <div data-source="trafic" data-series="par aéroport" class="panel" style="margin-top: 22px">
-          <h3>Passagers, vols et fret, mois par mois</h3>
-          <p class="note">
-            Indice 100 = même mois de 2019. Cliquez sur une série pour l'afficher ou la masquer.
-          </p>
-          <div class="controls">
-            <div class="chips" id="chips-covid" role="group" aria-label="Séries affichées"></div>
-          </div>
-          <div
-            class="chart"
-            id="chart-covid"
-            tabindex="0"
-            aria-label="Passagers, vols et fret pendant la crise sanitaire"
-          ></div>
-        </div>
-      </section>
-
-      <!-- freight -->
-      <section class="chapter wrap" id="fret" aria-labelledby="h-fret">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-fret">Le fret aérien, l'autre trafic</h2>
-            <div class="prose" id="fret-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-fret" aria-label="Chiffre clé"></aside>
-        </div>
-        <div class="grid-2" style="margin-top: 22px">
-          <div data-source="trafic" data-series="par liaison et par aéroport" class="panel">
-            <h3>Fret et courrier par continent</h3>
-            <p class="note">
-              Tonnes transportées par avion entre la France et chaque continent, et à l'intérieur du pays (kt
-              : milliers de tonnes).
-            </p>
-            <div class="chart" id="chart-fret"></div>
-          </div>
-          <div data-source="trafic" data-series="par aéroport" class="panel">
-            <h3>Les aéroports du fret</h3>
-            <p class="note" id="fret-apt-note"></p>
-            <div class="chart" id="chart-fret-apt"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 5. domestic France: route map + clickable moments -->
-      <section class="chapter wrap" id="france" aria-labelledby="h-france">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-france">La France intérieure se vide</h2>
-            <div class="prose" id="france-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-france" aria-label="Chiffre clé"></aside>
-        </div>
-        <div class="story-grid">
-          <div class="story-graphic" data-source="trafic" data-series="par aéroport et par paire d'aéroports">
-            <div class="graphic" id="france-map">
-              <div class="overlay-year" id="france-year"></div>
-              <div class="overlay-legend" id="france-legend"></div>
-            </div>
-            <div class="france-spark" id="france-spark" aria-hidden="true"></div>
-            <div class="timebar">
-              <button
-                class="play"
-                id="france-play"
-                type="button"
-                aria-label="Lancer l'animation des liaisons intérieures"
-              ></button>
-              <input type="range" id="france-slider" aria-label="Année affichée sur la carte de France" />
-              <output id="france-out" for="france-slider"></output>
-            </div>
-          </div>
-          <div class="story-side">
-            <p class="label">Quatre moments de l'aérien intérieur</p>
-            <div class="moments" id="france-moments" aria-label="Moments clés du trafic intérieur"></div>
-            <div class="moment-card" id="france-caption" aria-live="polite"></div>
-          </div>
-        </div>
-        <div data-source="trafic" data-series="par liaison" class="panel" style="margin-top: 32px">
-          <h3>Après la hausse de la taxe sur les billets (mars 2025)</h3>
-          <p class="note">Évolution du trafic par rapport au même mois de l'année précédente, par segment.</p>
-          <div class="chart" id="chart-tsba"></div>
-        </div>
-      </section>
-
-      <!-- 6. distance and CO2 -->
-      <section class="chapter wrap" id="distance" aria-labelledby="h-dist">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-dist">On part plus loin</h2>
-            <div class="prose" id="dist-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-dist" aria-label="Chiffre clé"></aside>
-        </div>
-        <div data-source="trafic" data-series="par liaison" class="panel" style="margin-top: 22px">
-          <h3>Distance moyenne parcourue par passager</h3>
-          <p class="note">
-            Passagers-kilomètres divisés par passagers, par segment. Cliquez sur un segment pour l'afficher ou
-            le masquer.
-          </p>
-          <div class="chips" id="chips-dist" role="group" aria-label="Segments affichés"></div>
-          <div class="chart" id="chart-dist" tabindex="0" aria-label="Distance moyenne par passager"></div>
-        </div>
-      </section>
-
-      <!-- 7. CO2 -->
-      <section class="chapter wrap" id="co2" aria-labelledby="h-co2">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-co2">Le CO2 : plus de trafic, mais des vols plus sobres</h2>
-            <div class="prose" id="co2-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-co2" aria-label="Chiffre clé"></aside>
-        </div>
-        <div data-source="co2" class="panel" style="margin-top: 22px">
-          <h3 id="co2-why-title">Ce qui fait bouger le CO2 : plus de trafic, des vols plus remplis</h3>
-          <p class="note" id="co2-why-note"></p>
-          <div class="controls">
-            <div class="seg" role="group" aria-label="Vue" id="co2-period"></div>
-            <div class="legend-row" id="co2-legend"></div>
-          </div>
-          <div
-            class="chart"
-            id="chart-co2-index"
-            tabindex="0"
-            aria-label="Trafic, passagers par vol, CO2 par passager-kilomètre et émissions, indice 100 en 2000"
-          ></div>
-          <div class="chart" id="chart-waterfall"></div>
-        </div>
-        <div class="grid-2" style="margin-top: 22px">
-          <div data-source="co2" class="panel">
-            <h3>D'où viennent les émissions</h3>
-            <p class="note">
-              Émissions nettes de CO2 par segment, en millions de tonnes. Intérieur : vols en métropole.
-              Outre-mer : vols vers et entre les territoires d'Outre-mer. Moyen- et long-courrier : vols
-              internationaux.
-            </p>
-            <div class="chart" id="chart-co2-seg"></div>
-          </div>
-          <div data-source="co2" class="panel">
-            <h3>CO2 par passager et par kilomètre</h3>
-            <p class="note">
-              Grammes de CO2 par passager-kilomètre (le fret est compté en équivalent passager).
-            </p>
-            <div class="chart" id="chart-co2-g" tabindex="0" aria-label="CO2 par passager-kilomètre"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 7. airport explorer -->
-      <section class="chapter wrap" id="aeroport" aria-labelledby="h-apt">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-apt">Et votre aéroport ?</h2>
-            <div class="prose" id="apt-intro"></div>
-          </div>
-          <aside class="keyfig" id="kf-apt" aria-label="Chiffre clé"></aside>
-        </div>
-        <div class="apt-finder">
-          <label class="visually-hidden" for="apt-input">Rechercher un aéroport</label>
-          <input
-            class="search"
-            id="apt-input"
-            list="apt-list"
-            placeholder="Ville ou code OACI (ex. LFRS)"
-            autocomplete="off"
-          />
-          <datalist id="apt-list"></datalist>
-          <div
-            class="picks"
-            id="apt-picks"
-            role="group"
-            aria-label="Accès rapide aux plus grands aéroports"
-          ></div>
-        </div>
-        <div class="panel apt-card" id="apt-card" data-source="trafic" data-series="par aéroport">
-          <div id="apt-head"></div>
-          <div class="facts" id="apt-facts"></div>
-        </div>
-        <div class="grid-2 apt-grid">
-          <div class="panel" data-source="trafic" data-series="par aéroport">
-            <h3>Passagers depuis 1990</h3>
-            <p class="note" id="apt-chart-note"></p>
-            <div class="controls">
-              <label class="visually-hidden" for="apt-compare">Comparer avec un autre aéroport</label>
-              <select class="select" id="apt-compare"></select>
-              <div class="seg" role="group" aria-label="Échelle" id="apt-scale">
-                <button type="button" data-v="pax">Passagers</button>
-                <button type="button" data-v="idx">Indice 2019 = 100</button>
-              </div>
-            </div>
-            <div class="legend-row" id="apt-legend"></div>
-            <div
-              class="chart"
-              id="chart-apt"
-              tabindex="0"
-              aria-label="Passagers de l'aéroport depuis 1990"
-            ></div>
-          </div>
-          <div class="panel" data-source="trafic" data-series="par aéroport">
-            <h3 id="apt-season-title">Ses saisons</h3>
-            <p class="note" id="apt-season-note"></p>
-            <div class="legend-row" id="apt-season-legend"></div>
-            <div class="chart" id="apt-season"></div>
-          </div>
-        </div>
-        <div class="grid-2 apt-grid">
-          <div class="panel" data-source="trafic" data-series="par paire d'aéroports">
-            <div class="panel-head">
-              <h3 id="apt-routes-title">Ses liaisons</h3>
-              <select class="select" id="apt-year" aria-label="Année des liaisons"></select>
-            </div>
-            <p class="note" id="apt-routes-note"></p>
-            <div class="legend-row" id="apt-routes-legend"></div>
-            <div class="chart" id="apt-routes"></div>
-          </div>
-          <div class="panel" data-source="trafic" data-series="par paire d'aéroports">
-            <h3 id="apt-top-title">Ses principales liaisons</h3>
-            <p class="note" id="apt-top-note"></p>
-            <ol class="route-list" id="apt-top"></ol>
-          </div>
-        </div>
-        <div class="panel apt-ranking" data-source="trafic" data-series="par aéroport">
-          <div class="panel-head">
-            <h3>Tous les aéroports</h3>
-            <div class="seg" role="group" aria-label="Aéroports affichés" id="apt-zone">
-              <button type="button" data-v="all">Tous</button>
-              <button type="button" data-v="metro">Métropole</button>
-              <button type="button" data-v="om">Outre-mer</button>
-            </div>
-          </div>
-          <p class="note" id="apt-rank-note"></p>
-          <div class="table-scroll rank-scroll"><table class="apt-rank" id="apt-rank"></table></div>
-          <button class="btn" id="apt-rank-more" type="button"></button>
-        </div>
-      </section>
-
-      <!-- 8. carriers race -->
-      <section class="chapter wrap" id="compagnies" aria-labelledby="h-cie">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-cie">La course des compagnies</h2>
-            <div class="prose" id="cie-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-cie" aria-label="Chiffre clé"></aside>
-        </div>
-        <div data-source="trafic" data-series="par compagnie" class="panel" style="margin-top: 22px">
-          <div class="timebar">
-            <button
-              class="play"
-              id="race-play"
-              type="button"
-              aria-label="Lancer la course de 2010 à aujourd'hui"
-            ></button>
-            <input type="range" id="race-slider" aria-label="Année de la course" />
-            <output id="race-out" for="race-slider"></output>
-          </div>
-          <div class="legend-row" id="race-legend"></div>
-          <div class="chart" id="chart-race"></div>
-          <p class="note" id="cie-note"></p>
-        </div>
-      </section>
-
-      <!-- flag carriers -->
-      <section class="chapter wrap" id="pavillon" aria-labelledby="h-pav">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-pav">Qui vous transporte ?<br />Le pavillon français recule</h2>
-            <div class="prose" id="pav-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-pav" aria-label="Chiffre clé"></aside>
-        </div>
-        <div class="grid-2" style="margin-top: 22px">
-          <div data-source="trafic" data-series="par compagnie" class="panel">
-            <h3>Passagers des compagnies françaises et étrangères</h3>
-            <p class="note">
-              Millions de passagers au départ et à l'arrivée de la France, selon la nationalité de la
-              compagnie.
-            </p>
-            <div
-              class="chart"
-              id="chart-pav"
-              tabindex="0"
-              aria-label="Passagers des compagnies françaises et étrangères"
-            ></div>
-          </div>
-          <div data-source="trafic" data-series="par compagnie" class="panel">
-            <h3>Les compagnies étrangères, par pays</h3>
-            <p class="note">
-              Passagers des compagnies de chaque pays, en millions : les trois premiers pays en 2025 et le
-              Royaume-Uni.
-            </p>
-            <div
-              class="chart"
-              id="chart-pav-pays"
-              tabindex="0"
-              aria-label="Compagnies étrangères par pays"
-            ></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 9. prices x traffic -->
-      <section class="chapter wrap" id="prix" aria-labelledby="h-prix">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-prix">Le prix du billet, et ce qu'il fait au trafic</h2>
-            <div class="prose" id="prix-text"></div>
-          </div>
-          <aside class="keyfig" id="kf-prix" aria-label="Chiffre clé"></aside>
-        </div>
-        <div data-source="iptap" class="panel" style="margin-top: 22px">
-          <h3>Évolution des prix sur un an, mois par mois</h3>
-          <div class="seg" role="group" aria-label="Destinations" id="heat-series"></div>
-          <div class="chart" id="chart-heat"></div>
-        </div>
-        <div data-source="iptap trafic" class="panel" style="margin-top: 22px">
-          <h3>Prix des billets et passagers depuis 2019</h3>
-          <p class="note">
-            Moyennes annuelles, en base 100 en 2019. Prix : indice des prix des billets au départ de la France
-            (IPTAP, DGAC). Passagers : trafic de chaque segment (DGAC).
-          </p>
-          <div class="chart" id="chart-scissors"></div>
-        </div>
-      </section>
-
-      <!-- closing summary -->
-      <section class="chapter wrap" id="resume" aria-labelledby="h-resume">
-        <h2 class="section-title" id="h-resume">Ce qu'il faut retenir</h2>
-        <p class="resume-lead">
-          Un ciel international qui bat des records, un ciel intérieur qui se vide. Chaque carte reprend le
-          chiffre clé d'un chapitre : cliquez pour y revenir.
-        </p>
-        <div class="resume-grid" id="resume-grid"></div>
-        <div class="share" id="share"></div>
-      </section>
-    </main>
-
-    <footer class="footer" id="sources">
-      <div class="wrap">
-        <div class="credit">
-          <p class="credit-name">Conçu et réalisé par Arthur Dubrou</p>
-          <p>
-            Une question, une idée, une collaboration ?
-            <a href="https://www.linkedin.com/in/arthur-dubrou/" target="_blank" rel="noopener"
-              >Écrivez-moi sur LinkedIn</a
+          <p class="lead-actions">
+            <a class="btn primary" href="courant-jet">Lire l'enquête</a>
+            <span class="lead-caption" id="lead-caption"
+              >Vents à 10 km d'altitude, nuit du 8 au 9 février 2020</span
             >
           </p>
         </div>
-        <h2>Méthode et sources</h2>
-        <div id="sources-body"></div>
+      </section>
+
+      <section class="wrap issues" id="enquetes" aria-labelledby="h-enquetes">
+        <h2 class="home-h2" id="h-enquetes">Les enquêtes</h2>
+        <ol class="strips" reversed>
+          <li class="strip" style="--c: var(--jet)">
+            <a class="strip-link" href="courant-jet">
+              <span class="strip-no">02</span>
+              <span class="strip-main">
+                <span class="strip-title">Le vent dans le dos</span>
+                <span class="strip-dek"
+                  >Le courant-jet, les vols transatlantiques et l'art de choisir sa route au-dessus de
+                  l'Atlantique.</span
+                >
+              </span>
+              <span class="strip-meta">
+                <span><b>Octobre 2026</b> 8 chapitres</span>
+                <span>ERA5 Copernicus, NOAA, Météo-France, NASA, OpenSky</span>
+              </span>
+              <span class="strip-go">Lire</span>
+            </a>
+          </li>
+          <li class="strip" style="--c: var(--magenta)">
+            <a class="strip-link" href="le-ciel-a-deux-vitesses">
+              <span class="strip-no">01</span>
+              <span class="strip-main">
+                <span class="strip-title">Le ciel à deux vitesses</span>
+                <span class="strip-dek"
+                  >Trente-cinq ans de transport aérien français : l'international repart, l'intérieur
+                  décroche. Destinations, aéroports, compagnies, prix, fret et CO2.</span
+                >
+              </span>
+              <span class="strip-meta">
+                <span><b>2026</b> 12 chapitres</span>
+                <span>DGAC, data.gouv.fr</span>
+              </span>
+              <span class="strip-go">Lire</span>
+            </a>
+          </li>
+        </ol>
+      </section>
+
+      <section class="wrap feature" aria-labelledby="h-ciel">
+        <a class="feature-img" href="le-ciel-a-deux-vitesses" tabindex="-1" aria-hidden="true">
+          <img src="og.png" alt="" width="1200" height="630" loading="lazy" />
+        </a>
+        <div class="feature-text">
+          <h2 class="home-h2" id="h-ciel"><a href="le-ciel-a-deux-vitesses">Le ciel à deux vitesses</a></h2>
+          <p class="prose">
+            Depuis 2019, le trafic international des aéroports français a dépassé son niveau d'avant Covid
+            quand les vols intérieurs restent loin derrière. L'enquête suit 35 ans de données de la DGAC,
+            aéroport par aéroport et compagnie par compagnie, jusqu'au prix du billet et aux émissions par
+            passager.
+          </p>
+          <p><a class="btn" href="le-ciel-a-deux-vitesses">Lire l'enquête</a></p>
+        </div>
+      </section>
+
+      <section class="wrap method" id="methode" aria-labelledby="h-methode">
+        <h2 class="home-h2" id="h-methode">Comment ces enquêtes sont faites</h2>
+        <div class="method-grid">
+          <div>
+            <h3>Des données publiques, et seulement elles</h3>
+            <p>
+              Chaque graphique est tiré d'un jeu de données ouvert et nommé sous le graphique : la DGAC pour
+              le trafic français, Copernicus et la NOAA pour les vents, Météo-France pour les ballons-sondes,
+              la NASA pour les images satellites, OpenSky pour les vols.
+            </p>
+          </div>
+          <div>
+            <h3>Des chiffres recalculés, pas recopiés</h3>
+            <p>
+              Les textes sont écrits à partir des données traitées : un script recalcule chaque nombre cité et
+              le compare à la page avant toute publication. Quand une donnée manque, le trou reste visible.
+            </p>
+          </div>
+          <div>
+            <h3>Les limites dites</h3>
+            <p>
+              Une corrélation n'est pas une cause. Les faits extérieurs aux données sont datés et sourcés, et
+              chaque enquête finit par sa méthode, ses sources et ce qu'elle ne permet pas de dire.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-foot" id="auteur">
+      <div class="wrap foot-grid">
+        <div class="author-card">
+          <img src="auteur.jpg" alt="Arthur Dubrou" width="76" height="76" loading="lazy" />
+          <div>
+            <p class="ac-by">Enquêtes conçues et réalisées par</p>
+            <p class="ac-name">Arthur Dubrou</p>
+            <a href="https://www.linkedin.com/in/arthur-dubrou/" target="_blank" rel="noopener"
+              >Me suivre sur LinkedIn</a
+            >
+          </div>
+        </div>
+        <p class="foot-note">
+          Site indépendant, sans publicité ni traceur. Code et traitements :
+          <a href="https://github.com/dubrouarthur/aviationdata" target="_blank" rel="noopener">GitHub</a>.
+        </p>
       </div>
     </footer>
-    <div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/home.js"></script>
   </body>
 </html>

@@ -1,6 +1,6 @@
 """Drive every interaction of the built story and assert visible effects. Exit 1 on any failure.
 
-python3 web/scripts/interact.py [--url http://127.0.0.1:4173/]
+python3 web/scripts/interact.py [--url http://127.0.0.1:4173/le-ciel-a-deux-vitesses/]
 """
 
 import re
@@ -8,7 +8,7 @@ import sys
 
 from playwright.sync_api import sync_playwright
 
-url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/"
+url = sys.argv[sys.argv.index("--url") + 1] if "--url" in sys.argv else "http://127.0.0.1:4173/le-ciel-a-deux-vitesses/"
 failures = []
 LAUNCH = ["--use-gl=swiftshader", "--enable-unsafe-swiftshader"]
 

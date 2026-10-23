@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Le vent dans le dos : le courant-jet et les vols transatlantiques</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Pourquoi Paris–New York dure une heure de plus que New York–Paris : 105 000 vols OpenSky, les vents ERA5 de Copernicus, la réanalyse de la NOAA, les ballons-sondes de Météo-France et l'imagerie de la NASA."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Le vent dans le dos",
+        "description": "Le courant-jet, les vols transatlantiques et l'art de choisir sa route au-dessus de l'Atlantique.",
+        "inLanguage": "fr",
+        "datePublished": "2026-10-24",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": [
+          "https://doi.org/10.5281/zenodo.7923702",
+          "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels",
+          "https://psl.noaa.gov/data/gridded/data.ncep.reanalysis.html",
+          "https://www.ncei.noaa.gov/products/weather-balloon/integrated-global-radiosonde-archive",
+          "https://www.cpc.ncep.noaa.gov/products/precip/CWlink/pna/nao.shtml",
+          "https://worldview.earthdata.nasa.gov/"
+        ]
+      }
+    </script>
+    <meta name="theme-color" content="#0d2236" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Le vent dans le dos" />
+    <meta
+      property="og:description"
+      content="Paris–New York dure une heure de plus que New York–Paris. Enquête en données ouvertes sur le courant-jet et les vols transatlantiques."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-jet.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%courant-jet" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="jet">
+    <a class="skip-link" href="#nuit">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#nuit">Le vent <span>dans le dos</span></a>
+        <nav class="topnav" aria-label="Chapitres">
+          <a href="#nuit">Ciara</a>
+          <a href="#ecart">Une heure</a>
+          <a href="#saisons">Saisons</a>
+          <a href="#vent">10 km/h</a>
+          <a href="#route">La route</a>
+          <a href="#aller-retour">Aller-retour</a>
+          <a href="#climat">Climat</a>
+          <a href="#trappes">Trappes</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- opening: the night of storm Ciara, satellite image and winds -->
+      <section class="jet-open" id="nuit" aria-labelledby="title">
+        <div class="open-map" id="open-map">
+          <img
+            class="open-sat"
+            id="open-sat"
+            src="../img/jet/ciara-viirs.jpg"
+            alt="Image satellite de l'Atlantique Nord le 8 février 2020 : une longue bande de nuages traverse l'océan de la Floride aux îles Britanniques."
+            width="1760"
+            height="800"
+          />
+          <canvas class="open-wind" id="open-wind" aria-hidden="true"></canvas>
+          <svg class="open-routes" id="open-routes" aria-hidden="true"></svg>
+        </div>
+        <div class="wrap open-text">
+          <p class="kicker open-kicker">Enquête aviationdata n° 2</p>
+          <h1 class="display" id="title">Le vent <em>dans le dos</em></h1>
+        </div>
+        <div class="wrap open-legend" id="open-legend"></div>
+      </section>
+      <div class="wrap standfirst">
+        <p class="open-dek" id="open-dek"></p>
+        <p class="open-by">Par Arthur Dubrou, octobre 2026</p>
+      </div>
+
+      <section class="chapter wrap jet-chapter" id="nuit-text" aria-labelledby="h-nuit">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-nuit">La nuit du 8 au 9 février 2020</h2>
+            <div class="prose" id="nuit-prose"></div>
+          </div>
+          <aside class="keyfig" id="kf-nuit" aria-label="Chiffres clés"></aside>
+        </div>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="ecart" aria-labelledby="h-ecart">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-ecart">Une heure de plus vers l'ouest</h2>
+          <div class="prose" id="ecart-prose"></div>
+        </div>
+        <div class="grid-2 jet-grid">
+          <figure class="panel" data-jsource="opensky">
+            <h3 id="h-hist"></h3>
+            <p class="note">Nombre de vols par durée, tranches de 5 minutes, 2019-2022.</p>
+            <div class="chart" id="chart-hist" tabindex="0" aria-labelledby="h-hist"></div>
+          </figure>
+          <figure class="panel" data-jsource="opensky">
+            <h3 id="h-routes">Le même écart sur presque toutes les lignes</h3>
+            <p class="note" id="routes-note"></p>
+            <div class="chart" id="chart-routes" tabindex="0" aria-labelledby="h-routes"></div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="saisons" aria-labelledby="h-saisons">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-saisons">L'hiver, l'écart se creuse</h2>
+          <div class="prose" id="saisons-prose"></div>
+        </div>
+        <figure class="panel" data-jsource="opensky era5">
+          <h3 id="h-monthly"></h3>
+          <p class="note">
+            Durée médiane des vols de chaque mois, et vent moyen le long de la route des vols vers Paris. Les
+            mois de moins de 20 vols, au printemps 2020, restent vides.
+          </p>
+          <div class="chart" id="chart-monthly" tabindex="0" aria-labelledby="h-monthly"></div>
+        </figure>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="vent" aria-labelledby="h-vent">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-vent">Chaque tranche de 10 km/h compte</h2>
+          <div class="prose" id="vent-prose"></div>
+        </div>
+        <figure class="panel" data-jsource="opensky era5">
+          <h3 id="h-scatter"></h3>
+          <p class="note" id="scatter-note"></p>
+          <div class="chart" id="chart-scatter" tabindex="0" aria-labelledby="h-scatter"></div>
+        </figure>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="route" aria-labelledby="h-route">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-route">La ligne droite n'est pas la plus rapide</h2>
+          <div class="prose" id="route-prose"></div>
+        </div>
+      </section>
+      <section class="explorer" aria-labelledby="h-explorer" data-jsource="era5">
+        <div class="wrap explorer-head">
+          <h3 id="h-explorer">Choisissez un jour, une destination</h3>
+          <div class="explorer-controls">
+            <div class="seg" id="exp-dest" role="group" aria-label="Destination"></div>
+            <label class="exp-date">
+              <span>Jour</span>
+              <input type="date" id="exp-day" min="2019-01-01" max="2022-12-31" value="2020-02-08" />
+            </label>
+            <button type="button" class="btn ghost" id="exp-play" aria-pressed="false">Faire défiler</button>
+          </div>
+        </div>
+        <div class="explorer-stage" id="exp-stage">
+          <canvas class="exp-base" id="exp-base" aria-hidden="true"></canvas>
+          <canvas class="exp-speed" id="exp-speed" aria-hidden="true"></canvas>
+          <canvas class="exp-wind" id="exp-wind" aria-hidden="true"></canvas>
+          <svg class="exp-svg" id="exp-svg" role="img" aria-labelledby="exp-read"></svg>
+        </div>
+        <div class="wrap explorer-read" id="exp-read" aria-live="polite"></div>
+        <div class="wrap explorer-strip">
+          <p class="note" id="strip-note"></p>
+          <div class="chart" id="chart-strip"></div>
+        </div>
+        <div class="wrap explorer-foot" id="exp-foot"></div>
+      </section>
+      <section class="chapter wrap jet-chapter after-explorer" aria-labelledby="h-model">
+        <div class="grid-2 jet-grid">
+          <div>
+            <h3 class="sub-title" id="h-model">Le modèle colle aux vols réels</h3>
+            <div class="prose" id="model-prose"></div>
+          </div>
+          <figure class="panel" data-jsource="opensky era5">
+            <h3 id="h-gains">Ce que la meilleure route fait gagner</h3>
+            <p class="note" id="gains-note"></p>
+            <div class="chart" id="chart-gains"></div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="aller-retour" aria-labelledby="h-ar">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-ar">Le vent ne s'annule pas</h2>
+          <div class="prose" id="ar-prose"></div>
+        </div>
+        <figure class="panel" data-jsource="era5">
+          <h3 id="h-rt">Un aller-retour Paris–New York, en moyenne sur 2019-2022</h3>
+          <div class="chart" id="chart-rt"></div>
+        </figure>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="climat" aria-labelledby="h-climat">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-climat">Un jet qui bat au rythme de l'Atlantique</h2>
+          <div class="prose" id="climat-prose"></div>
+        </div>
+        <div class="grid-wide">
+          <figure class="panel" data-jsource="r1 nao">
+            <h3 id="h-winters">Le vent arrière de l'hiver sur New York–Paris, depuis 1949</h3>
+            <p class="note" id="winters-note"></p>
+            <div class="chart" id="chart-winters" tabindex="0" aria-labelledby="h-winters"></div>
+          </figure>
+          <figure class="panel dark-panel" data-jsource="r1">
+            <h3 id="h-clim">Où passe le jet, en moyenne</h3>
+            <div class="seg" id="clim-season" role="group" aria-label="Saison"></div>
+            <div class="clim-map" id="clim-map"></div>
+            <p class="note" id="clim-note"></p>
+          </figure>
+        </div>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="trappes" aria-labelledby="h-trappes">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-trappes">Au-dessus de Paris, les ballons de Météo-France</h2>
+          <div class="prose" id="trappes-prose"></div>
+        </div>
+        <div class="grid-2 jet-grid">
+          <figure class="panel" data-jsource="igra">
+            <h3 id="h-tmonths">Le vent à 250 hPa au-dessus de Trappes, mois par mois</h3>
+            <p class="note" id="tmonths-note"></p>
+            <div class="chart" id="chart-tmonths" tabindex="0" aria-labelledby="h-tmonths"></div>
+          </figure>
+          <figure class="panel" data-jsource="igra">
+            <h3 id="h-tyears">Les sondages au-dessus de 200 km/h, année par année</h3>
+            <p class="note" id="tyears-note"></p>
+            <div class="chart" id="chart-tyears" tabindex="0" aria-labelledby="h-tyears"></div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="lire-aussi" aria-labelledby="h-aussi">
+        <h2 class="sub-title" id="h-aussi">À lire aussi</h2>
+        <a class="also" href="../le-ciel-a-deux-vitesses">
+          <img src="../og.png" alt="" width="1200" height="630" loading="lazy" />
+          <span>
+            <b>Le ciel à deux vitesses</b>
+            Trente-cinq ans de transport aérien français : l'international repart, l'intérieur décroche.
+          </span>
+        </a>
+        <p class="all-stories"><a href="../">Toutes les enquêtes d'aviationdata</a></p>
+        <div class="share" id="share"></div>
+      </section>
+    </main>
+
+    <footer class="footer" id="sources">
+      <div class="wrap">
+        <div class="credit">
+          <p class="credit-name">Conçu et réalisé par Arthur Dubrou</p>
+          <p>
+            Une question, une idée, une collaboration ?
+            <a href="https://www.linkedin.com/in/arthur-dubrou/" target="_blank" rel="noopener"
+              >Écrivez-moi sur LinkedIn</a
+            >
+          </p>
+        </div>
+        <h2>Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </footer>
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/jet.js"></script>
+  </body>
+</html>
