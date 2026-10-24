@@ -9,6 +9,7 @@ Inputs:
 
 Called by build_jet.py; writes web/public/data/jet/cost.json:
 - prices: [month, euros per tonne] since 2019; year: the last complete year's mean; last: the last month;
+  recent: the mean of the last twelve months, the price the story uses;
 - pair: Paris-CDG <-> New York-JFK per complete year: movements, passengers, passenger-equivalents;
 - factors: tonnes of CO2 per tonne of fuel (ICAO), litres per US gallon, kg per litre, g CO2 per Peq-km.
 
@@ -97,6 +98,12 @@ def build() -> dict:
         "prices": prices,
         "year": {"y": int(year), "eur_t": round(sum(p for m, p in prices if m[:4] == year) / 12, 1)},
         "last": {"m": prices[-1][0], "eur_t": prices[-1][1]},
+        # the reference price of the story: the mean of the last twelve months published
+        "recent": {
+            "from": prices[-12][0],
+            "to": prices[-1][0],
+            "eur_t": round(sum(p for _, p in prices[-12:]) / 12, 1),
+        },
         "pair": pair_traffic(),
         "factors": {
             "co2_per_fuel": CO2_PER_FUEL,

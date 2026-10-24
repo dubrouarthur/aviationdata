@@ -28,6 +28,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import analysis as A  # noqa: E402
 import build_cost  # noqa: E402
+import build_forecast  # noqa: E402
 import build_history  # noqa: E402
 import build_sim  # noqa: E402
 import nao as NAO  # noqa: E402
@@ -688,6 +689,8 @@ def main() -> None:
         build_sim.stats()
     print("fuel prices and loads...")
     build_cost.build()
+    print("forecasts...")
+    build_forecast.build()
     print("opening map...")
     build_hero(ref)
     print("climate...")
@@ -707,6 +710,7 @@ def main() -> None:
                 "nasa": "GIBS VIIRS_SNPP_CorrectedReflectance_TrueColor 2020-02-08",
                 "prices": "EIA EER_EPJK_PF4_RGC_DPG monthly, ECB EXR.M.USD.EUR.SP00.A",
                 "dgac_pap": "DGAC traffic per airport pair, Paris-CDG <-> New York-JFK",
+                "forecasts": "WeatherBench 2: ECMWF HRES and Pangu-Weather, 2020, leads 12 h and 108 h",
             },
         },
     )

@@ -206,8 +206,9 @@ class StackField:
 
 
 def best_route_stack(field, a, b, t0, mach, level=None, fuel=None):
-    """best_route for every day of a StackField at once: minutes [day] and the share of the route
-    flown at each level [day, level]."""
+    """best_route for every day of a StackField at once: minutes [day], the share of the route flown at
+    each level [day, level], and the route: lateral index on A.lattice(a, b, ...) and level at each
+    station, path and levels [day, station]."""
     n, spacing, m, reach = LATTICE["n"], LATTICE["spacing"], LATTICE["m"], LATTICE["reach"]
     lat, lon = A.lattice(a, b, n, spacing, m)
     k, L, D = 2 * m + 1, field.levels, field.days
@@ -262,7 +263,13 @@ def best_route_stack(field, a, b, t0, mach, level=None, fuel=None):
     j = np.full(D, m)
     cur = lv.copy()
     days = np.arange(D)
+    # the route itself: lateral index on the lattice and level at each station, for every day
+    path = np.full((D, n), m)
+    path_lv = np.zeros((D, n), dtype=int)
+    path_lv[:, n - 1] = cur
     for i in range(n - 1, 0, -1):
         share[days, cur] += 1
         j, cur = back[i, days, j, cur, 0].astype(int), back[i, days, j, cur, 1].astype(int)
-    return {"minutes": minutes, "burn": best, "share": share / (n - 1)}
+        path[:, i - 1] = j
+        path_lv[:, i - 1] = cur
+    return {"minutes": minutes, "burn": best, "share": share / (n - 1), "path": path, "levels": path_lv}

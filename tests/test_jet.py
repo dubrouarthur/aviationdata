@@ -147,3 +147,36 @@ def test_aircraft_effect_is_what_is_left_once_the_wind_is_removed():
     assert eff["A388"]["e"] == pytest.approx(-8.5, abs=0.6) and eff["A333"]["w"] == pytest.approx(8.5, abs=0.6)
     assert eff["A388"]["e"] < eff["A333"]["e"]
     assert B.calendar(df[df.east])[0] is not None and B.calendar(df[df.east])[5] is None
+
+
+def jet_stack(days=3):
+    """A zonal jet centred at 50 N, stronger each day, at one level, six-hourly, standard temperature."""
+    import sim as S
+
+    lat = 22.5 + 1.5 * np.arange(34)
+    core = np.exp(-(((lat - 50) / 6) ** 2))[:, None] * np.ones(77)
+    u = np.stack([np.stack([core * 40 * (1 + d)] * 3) for d in range(days)])[:, :, None]
+    v = np.zeros_like(u)
+    t = np.full_like(u, 220.8)
+    return S, S.StackField(u, v, t, 22.5, -96.0, 1.5), (u, v, t)
+
+
+def test_a_planned_route_flown_in_the_same_wind_takes_the_planned_time():
+    S, F, (u, v, t) = jet_stack()
+    r = S.best_route_stack(F, JFK, CDG, 0.0, 0.84, level=0)
+    lat, lon = A.lattice(JFK, CDG, S.LATTICE["n"], S.LATTICE["spacing"], S.LATTICE["m"])
+    stations = np.arange(lat.shape[0])
+    for d in range(F.days):
+        pts = np.stack([lat[stations, r["path"][d]], lon[stations, r["path"][d]]], axis=1)
+        flown = S.path_time(S.Field(u[d], v[d], t[d], 22.5, -96.0, 1.5), pts, 0.0, 0, 0.84)[0]
+        assert flown == pytest.approx(r["minutes"][d], abs=1e-3)  # float32 stack, float64 replay
+    assert (r["path"][:, 0] == S.LATTICE["m"]).all() and (r["path"][:, -1] == S.LATTICE["m"]).all()
+
+
+def test_knowing_the_wind_beats_the_great_circle_towards_paris():
+    S, F, (u, v, t) = jet_stack()
+    r = S.best_route_stack(F, JFK, CDG, 0.0, 0.84, level=0)
+    gc = S.great_circle_points(JFK, CDG)
+    for d in range(F.days):
+        straight = S.path_time(S.Field(u[d], v[d], t[d], 22.5, -96.0, 1.5), gc, 0.0, 0, 0.84)[0]
+        assert r["minutes"][d] < straight
