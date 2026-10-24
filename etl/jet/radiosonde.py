@@ -10,7 +10,8 @@ line per level. Columns used: LVLTYP1 (1), LVLTYP2 (2), PRESS (10-15, Pa), WDIR 
 degrees), WSPD (47-51, tenths of m/s); -9999 / -8888 mean missing.
 
     python3 etl/jet/radiosonde.py
-Writes data/raw/igra/FRM00007145-data.txt.zip (downloaded) and data/raw/igra/trappes_250.csv
+Writes data/raw/igra/FRM00007145-data.txt.zip (downloaded), data/raw/igra/trappes_profile.csv (wind and
+height at the standard levels of every sounding) and data/raw/igra/trappes_250.csv
 (one row per sounding with a wind at 250 hPa: date, hour, direction, speed in km/h, and the
 speeds at 300 and 200 hPa when reported).
 """
@@ -63,6 +64,30 @@ def parse(lines, level_pa: int = 25000, around=(30000, 20000)):
     yield from flush()
 
 
+STANDARD = (85000, 70000, 50000, 40000, 30000, 25000, 20000, 15000, 10000)
+
+
+def profiles(lines, levels=STANDARD):
+    """Yield (YYYY-MM-DD, hour, level_hpa, height_m, wspd_kmh) for every standard level with a wind
+    and a height (GPH, columns 17-21, metres), the wind profile of each sounding."""
+    date = hour = None
+    for line in lines:
+        if line.startswith("#"):
+            date = f"{line[13:17]}-{line[18:20]}-{line[21:23]}"
+            hour = int(line[24:26]) if line[24:26].strip().isdigit() else 99
+            continue
+        if date is None or len(line) < 51:
+            continue
+        try:
+            press = int(line[9:15])
+            gph = int(line[16:21])
+            wspd = int(line[46:51])
+        except ValueError:
+            continue
+        if press in levels and gph > 0 and wspd >= 0:
+            yield date, hour, press // 100, gph, kmh(wspd)
+
+
 def kmh(tenths_ms: int) -> float:
     return round(tenths_ms / 10 * 3.6, 1)
 
@@ -82,3 +107,12 @@ if __name__ == "__main__":
                 w.writerow(row)
                 n += 1
     print(f"trappes_250.csv: {n} soundings with a 250 hPa wind")
+    dest = OUT / "trappes_profile.csv"
+    with zipfile.ZipFile(z) as zf, zf.open(zf.namelist()[0]) as f, open(dest, "w", newline="") as out:
+        w = csv.writer(out)
+        w.writerow(["date", "hour", "level_hpa", "height_m", "wspd_kmh"])
+        n = 0
+        for row in profiles(io.TextIOWrapper(f, encoding="ascii", errors="replace")):
+            w.writerow(row)
+            n += 1
+    print(f"trappes_profile.csv: {n} levels")

@@ -105,6 +105,10 @@ def test_igra_parser_reads_the_250_hpa_wind():
         "10 -9999  25000 10340B -575B-9999    60   330   330 ",
     ]
     assert list(radiosonde.parse(lines)) == [("2020-02-09", 0, 330, 118.8, 104.4, None)]
+    assert list(radiosonde.profiles(lines)) == [
+        ("2020-02-09", 0, 300, 9170, 104.4),
+        ("2020-02-09", 0, 250, 10340, 118.8),
+    ]
 
 
 def test_nao_parser():
@@ -113,3 +117,33 @@ def test_nao_parser():
     assert nao.parse(" 1950    1    0.9200\n 2026    9   -0.5334\n") == {(1950, 1): 0.92, (2026, 9): -0.5334}
     with pytest.raises(ValueError):
         nao.parse("<html>moved</html>")
+
+
+def test_aircraft_effect_is_what_is_left_once_the_wind_is_removed():
+    import build_jet as B
+    import pandas as pd
+
+    rng = np.random.default_rng(3)
+    rows = []
+    for east, sign in ((True, 1), (False, -1)):
+        for t, offset in (("A388", -8.0), ("A333", 9.0)):
+            w = rng.uniform(20, 200, 400) * sign
+            for wi in w:
+                rows.append(
+                    {
+                        "origin": "KJFK" if east else "LFPG",
+                        "destination": "LFPG" if east else "KJFK",
+                        "east": east,
+                        "w": wi,
+                        "dur": 420 - 0.3 * wi + offset,
+                        "typecode": t,
+                        "airline": "AFR",
+                        "month": "2019-01",
+                    }
+                )
+    df = pd.DataFrame(rows)
+    df["res"] = B.residuals(df)
+    eff = {r["code"]: r for r in B.effects(df, "typecode", B.TYPES)}
+    assert eff["A388"]["e"] == pytest.approx(-8.5, abs=0.6) and eff["A333"]["w"] == pytest.approx(8.5, abs=0.6)
+    assert eff["A388"]["e"] < eff["A333"]["e"]
+    assert B.calendar(df[df.east])[0] is not None and B.calendar(df[df.east])[5] is None

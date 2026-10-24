@@ -13,6 +13,8 @@ Writes data/raw/reanalysis/{u,v}wnd.mon.nc and {u,v}wnd.250.<year>.nc.
 """
 
 import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -28,9 +30,17 @@ def get(path: str, params: dict, dest: Path) -> None:
         return
     url = f"{NCSS}/{path}?{urllib.parse.urlencode({**params, **BOX, 'accept': 'netcdf'})}"
     tmp = dest.with_suffix(".part")
-    with urllib.request.urlopen(url, timeout=600) as resp, open(tmp, "wb") as out:
-        while chunk := resp.read(1 << 20):
-            out.write(chunk)
+    for attempt in range(8):  # the THREDDS server answers 500 now and then under load
+        try:
+            with urllib.request.urlopen(url, timeout=600) as resp, open(tmp, "wb") as out:
+                while chunk := resp.read(1 << 20):
+                    out.write(chunk)
+            break
+        except (urllib.error.URLError, TimeoutError) as err:
+            if attempt == 7:
+                raise
+            print(f"{dest.name}: {err}, retrying", flush=True)
+            time.sleep(20 * (attempt + 1))
     tmp.rename(dest)
     print(f"{dest.name}: {dest.stat().st_size / 1e6:.1f} MB")
 

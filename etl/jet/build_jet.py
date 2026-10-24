@@ -9,9 +9,9 @@ Inputs, fetched by the scripts next to this one (all in data/raw/, never version
 - igra/trappes_250.csv: Météo-France radiosondes at Trappes (IGRA 2, NOAA NCEI);
 - nasa/VIIRS_SNPP_CorrectedReflectance_TrueColor-2020-02-08.jpg (NASA GIBS).
 
-    python3 etl/jet/build_jet.py
-Writes web/public/data/jet/{flights,routing,climate,trappes,hero,winds,meta}.json, the binary
-wind fields hero.bin and winds-<year>.bin, and web/public/img/jet/ciara-viirs.jpg.
+    python3 etl/jet/build_jet.py [--skip-stats]
+Writes web/public/data/jet/{flights,routing,climate,trappes,hero,winds,sim,sim_stats,meta}.json, the
+binary wind fields hero.bin, winds-<year>.bin and sim/<day>.bin, and web/public/img/jet/ciara-viirs.jpg.
 """
 
 from __future__ import annotations
@@ -27,6 +27,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import analysis as A  # noqa: E402
+import build_history  # noqa: E402
+import build_sim  # noqa: E402
 import nao as NAO  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -66,6 +68,40 @@ NAMES = {
     "KSEA": "Seattle",
     "CYVR": "Vancouver",
 }
+
+
+TYPES = {
+    "A359": "Airbus A350-900",
+    "A388": "Airbus A380",
+    "B789": "Boeing 787-9",
+    "B788": "Boeing 787-8",
+    "B77L": "Boeing 777-200LR",
+    "B77W": "Boeing 777-300ER",
+    "B772": "Boeing 777-200",
+    "B752": "Boeing 757-200",
+    "B763": "Boeing 767-300",
+    "B764": "Boeing 767-400",
+    "A332": "Airbus A330-200",
+    "A333": "Airbus A330-300",
+    "A339": "Airbus A330-900",
+}
+AIRLINES = {
+    "AFR": "Air France",
+    "DAL": "Delta",
+    "AAL": "American Airlines",
+    "UAL": "United",
+    "NAX": "Norwegian",
+    "ACA": "Air Canada",
+    "XLF": "French bee",
+    "FBU": "French bee",
+    "EVL": "Evelop",
+    "CFG": "Condor",
+    "TSC": "Air Transat",
+    "LVL": "Level",
+    "FDX": "FedEx",
+    "ELY": "El Al",
+}
+MIN_TYPE = 150  # flights per direction for an aircraft type or an airline to be compared
 
 
 def r1(x, nd: int = 1):
@@ -160,7 +196,38 @@ def direction_stats(s: pd.DataFrame) -> dict:
     return out
 
 
+def residuals(df) -> pd.Series:
+    """Duration minus what the wind predicts on its own route and direction (minutes): what is left
+    once the wind is accounted for. Routes outside the wind grid get NaN."""
+    out = pd.Series(np.nan, index=df.index)
+    for _, s in df[df.w.notna()].groupby(["origin", "destination"]):
+        if len(s) < MIN_FLIGHTS:
+            continue
+        slope, icpt, _, _ = A.ols(s.w, s.dur)
+        out[s.index] = s.dur - (icpt + slope * s.w)
+    return out
+
+
+def effects(df, key, names, min_n=MIN_TYPE):
+    """Median residual by aircraft type or airline, in each direction, for those flown often enough."""
+    rows = []
+    for k, s in df.dropna(subset=["res"]).groupby(key):
+        e, w = s[s.east].res, s[~s.east].res
+        if k not in names or len(e) < min_n or len(w) < min_n:
+            continue
+        rows.append({"code": k, "name": names[k], "e": r1(e.median()), "w": r1(w.median()), "ne": len(e), "nw": len(w)})
+    return sorted(rows, key=lambda r: (r["e"] + r["w"]) / 2)
+
+
+def calendar(s):
+    """Median duration by calendar month (12 values, None under 20 flights)."""
+    g = s.groupby(s.month.str[5:7].astype(int)).dur
+    med, n = g.median(), g.size()
+    return [r1(med[m]) if n.get(m, 0) >= 20 else None for m in range(1, 13)]
+
+
 def build_flights(df, ref, n_raw):
+    df["res"] = residuals(df)
     routes = []
     for (fr, na), s in df.groupby(["fr", "na"]):
         e, w = s[s.east], s[~s.east]
@@ -175,6 +242,7 @@ def build_flights(df, ref, n_raw):
                 "km": round(float(A.haversine(*ref[fr], *ref[na]))),
                 "east": direction_stats(e),
                 "west": direction_stats(w),
+                "months": {"e": calendar(e), "w": calendar(w)},
             }
         )
     routes.sort(key=lambda r: -(r["east"]["n"] + r["west"]["n"]))
@@ -215,6 +283,26 @@ def build_flights(df, ref, n_raw):
 
     de, fe = days(e)
     dw, fw = days(w)
+
+    def record(rows, pick):
+        d = pick((r for r in rows if r[3] >= 3), key=lambda r: r[1])
+        return {"day": d[0], "dur": d[1], "w": d[2], "n": d[3]}
+
+    records = {
+        "fast_e": record(de, min),
+        "slow_e": record(de, max),
+        "fast_w": record(dw, min),
+        "slow_w": record(dw, max),
+    }
+    within = df[df.airline == "AFR"]
+    aircraft = {
+        "types": effects(df, "typecode", TYPES),
+        "afr": effects(within, "typecode", TYPES),
+        "airlines": [
+            r | {"fleet": p[p.airline == r["code"]].typecode.value_counts().head(2).index.tolist()}
+            for r in effects(p, "airline", AIRLINES)
+        ],
+    }
     write(
         "flights.json",
         {
@@ -240,7 +328,9 @@ def build_flights(df, ref, n_raw):
                 "monthly": monthly,
                 "days": {"e": de, "w": dw},
                 "fit": {"e": fe, "w": fw},
+                "records": records,
             },
+            "aircraft": aircraft,
         },
     )
     return e, w
@@ -463,6 +553,30 @@ def build_climate(ref):
 
 
 # ---------------------------------------------------------------- Trappes radiosondes (Météo-France, IGRA 2)
+def trappes_profile():
+    """Median wind by standard level above Trappes, winter and summer 1991-2020 (00 and 12 UTC soundings),
+    with the median height of each level: where the jet sits in altitude."""
+    df = pd.read_csv(RAW / "igra" / "trappes_profile.csv")
+    df = df[df.hour.isin([23, 0, 1, 11, 12, 13])]
+    year, month = df.date.str[:4].astype(int), df.date.str[5:7].astype(int)
+    df = df[(year >= 1991) & (year <= 2020)]
+    month = month[df.index]
+    out = {}
+    for key, months in (("djf", [12, 1, 2]), ("jja", [6, 7, 8])):
+        g = df[month.isin(months)].groupby("level_hpa")
+        out[key] = [
+            {
+                "hpa": int(lv),
+                "km": r1(s.height_m.median() / 1000, 2),
+                "p50": r1(s.wspd_kmh.median(), 0),
+                "p90": r1(s.wspd_kmh.quantile(0.9), 0),
+                "n": int(len(s)),
+            }
+            for lv, s in sorted(g, key=lambda x: -x[0])
+        ]
+    return out
+
+
 def build_trappes(times, lats, lons, U, V):
     df = pd.read_csv(RAW / "igra" / "trappes_250.csv")
     # main synoptic hours only (00 and 12 UTC, launches up to an hour off); a launch at 23 UTC is
@@ -528,6 +642,7 @@ def build_trappes(times, lats, lons, U, V):
                 "rank": int(ciara.index[0]) + 1 if len(ciara) else None,
                 "stronger_before": stronger,  # last date with a stronger wind before Ciara
             },
+            "profile": trappes_profile(),
             "check": {
                 "n": int(len(obs)),
                 "r": r1(np.corrcoef(era, obs)[0, 1], 3),
@@ -552,6 +667,24 @@ def main() -> None:
     build_routing(times, lats, lons, U, V, stack, ref, e, w)
     build_winds(stack, ref)
     write_fixture(ref)
+    print("history...")
+    hist = build_history.build(build_sim.STORMS)
+    titles = [
+        "Le plus fort vent arrière de 1959 à 2022",
+        "Le 2e plus fort vent arrière de 1959 à 2022",
+        "Le 3e plus fort vent arrière de 1959 à 2022",
+        "Le vent le plus contraire de 1959 à 2022",
+    ]
+    extra = [{"day": d, "group": "history", "title": t} for d, t in zip(hist["sim_days"], titles, strict=True)]
+    print("simulator...")
+    build_sim.build(
+        json.loads((OUT / "flights.json").read_text()),
+        json.loads((OUT / "routing.json").read_text()),
+        (times, lats, lons, U, V),
+        extra,
+    )
+    if "--skip-stats" not in sys.argv:  # six minutes; sim_stats.json is kept when skipped
+        build_sim.stats()
     print("opening map...")
     build_hero(ref)
     print("climate...")
