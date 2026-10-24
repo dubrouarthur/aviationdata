@@ -86,7 +86,8 @@ export function groundSpeed(u, v, track, tas = TAS) {
   return along + Math.sqrt(Math.max(tas * tas - cross * cross, 1.0));
 }
 
-function legMinutes(f, la1, lo1, la2, lo2, tas) {
+/** Minutes to fly one leg in a frozen field at a true airspeed (km/h). */
+export function legMinutes(f, la1, lo1, la2, lo2, tas = TAS) {
   const seg = haversine(la1, lo1, la2, lo2);
   const trk = bearing(la1, lo1, la2, lo2);
   const [u, v] = windAt(f, (la1 + la2) / 2, (lo1 + lo2) / 2);

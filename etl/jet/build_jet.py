@@ -458,6 +458,8 @@ def build_hero(ref):
     )
     a, b = ref["KJFK"], ref["LFPG"]
     gc, best, path = A.fastest_route(u, v, lat, lon, a, b)
+    # the same night the other way: Paris -> New York against the jet (the opening's race)
+    gc_w, best_w, path_w = A.fastest_route(u, v, lat, lon, b, a)
     la, lo = A.great_circle(*a, *b, 64)
     write(
         "hero.json",
@@ -480,6 +482,14 @@ def build_hero(ref):
                 "t_gc": r1(gc),
                 "t_fast": r1(best),
                 "nowind": r1(A.haversine(*a, *b) / A.TAS * 60),
+            },
+            "west": {
+                "from": "LFPG",
+                "to": "KJFK",
+                "head": r1(-A.route_wind(u, v, lat, lon, b, a)),
+                "fast": A.route_coords(b, a, path_w),
+                "t_gc": r1(gc_w),
+                "t_fast": r1(best_w),
             },
             "image": {"src": "img/jet/ciara-viirs.jpg", "date": "2020-02-08", "bbox": [20, -90, 70, 20]},
         },

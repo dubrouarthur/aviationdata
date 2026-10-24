@@ -5,8 +5,13 @@ import { feature } from "topojson-client";
 import { $, el, onResize } from "../lib/ui.js";
 import { asset } from "../lib/site.js";
 import { decodeField, drawSpeed, particles, plateCarree, SPEED_STOPS, speedRGB } from "./wind.js";
-import { greatCircle, windAt } from "./route.js";
-import { kmh } from "./fmt.js";
+import { bearing, greatCircle, legMinutes, windAt } from "./route.js";
+import { euros, hm, kmh, tonnes } from "./fmt.js";
+import { fmtNum } from "../lib/format.js";
+
+const PLANE =
+  "M0,-7 L2,-1 L7,2 L7,3.5 L2,2 L1.4,5.5 L3,7 L3,8 L0,7.2 L-3,8 L-3,7 L-1.4,5.5 L-2,2 L-7,3.5 L-7,2 L-2,-1 Z";
+const reduced = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 export const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -62,24 +67,58 @@ export function speedLegend(node, title = "Vent à 10 km d'altitude") {
 }
 
 /* ------------------------------------------------------------------ opening map */
-export async function openMap(hero) {
+/**
+ * The opening: the night of storm Ciara, and a race. The same aircraft leaves New York for Paris and
+ * Paris for New York in the same wind (ERA5 at 250 hPa, 9 February 2020 at 00 UTC, frozen, 900 km/h),
+ * each on its fastest route. Clocks, kilos of fuel and euros run as they fly (C: costFacts, cost.js).
+ */
+export async function openMap(hero, C) {
   const stage = $("#open-map");
   const img = $("#open-sat");
   const svg = d3.select("#open-routes");
-  const [bytes] = await Promise.all([
-    fetch(asset("data/jet/hero.bin"))
-      .then((r) => r.arrayBuffer())
-      .then((b) => new Int8Array(b)),
-  ]);
+  const bytes = await fetch(asset("data/jet/hero.bin"))
+    .then((r) => r.arrayBuffer())
+    .then((b) => new Int8Array(b));
   const field = decodeField(bytes, hero);
   const [s, w, n, e] = hero.image.bbox;
   const box = { south: s, west: w, north: n, east: e };
   const wind = particles($("#open-wind"), { density: 1 / 210, rate: 0.045, width: 1.15, fade: 0.97 });
+
+  // each flight: its route, the minutes at each point (scaled to the build's total), its total
+  const flight = (key, path, total) => {
+    const t = [0];
+    for (let i = 1; i < path.length; i++)
+      t.push(t[i - 1] + legMinutes(field, path[i - 1][0], path[i - 1][1], path[i][0], path[i][1]));
+    const k = total / t.at(-1);
+    return { key, path, total, t: t.map((x) => x * k) };
+  };
+  const flights = [flight("east", hero.route.fast, hero.route.t_fast)];
+  if (hero.west) flights.push(flight("west", hero.west.fast, hero.west.t_fast));
+  const longest = d3.max(flights, (f) => f.total);
+  const at = (f, m) => {
+    const mm = Math.min(m, f.total);
+    const i = Math.max(1, d3.bisectLeft(f.t, mm));
+    const a = f.path[i - 1];
+    const b = f.path[Math.min(i, f.path.length - 1)];
+    const u = (mm - f.t[i - 1]) / Math.max(1e-9, f.t[i] - f.t[i - 1]);
+    return {
+      i,
+      lat: a[0] + (b[0] - a[0]) * u,
+      lon: a[1] + (b[1] - a[1]) * u,
+      brg: bearing(a[0], a[1], b[0], b[1]),
+    };
+  };
+
+  let view = null;
+  let minute = 0;
   const layout = () => {
     const width = stage.clientWidth;
     const height = stage.clientHeight;
-    const narrow = width < 700;
-    const view = plateCarree(box, width, height, { fit: "cover", focus: narrow ? [-38, 46] : [-40, 44] });
+    // a phone shows the whole crossing, from New York to Paris, under the headline
+    view =
+      width < 700
+        ? plateCarree({ west: -90, east: 16, south: 33, north: 67 }, width, height, { fit: "contain" })
+        : plateCarree(box, width, height, { fit: "cover", focus: [-42, 46] });
     Object.assign(img.style, {
       left: `${view.x(w)}px`,
       top: `${view.y(n)}px`,
@@ -92,19 +131,24 @@ export async function openMap(hero) {
     const r = hero.route;
     const L = line(view);
     svg.append("path").attr("d", L(r.gc)).attr("class", "route-gc");
-    svg.append("path").attr("d", L(r.fast)).attr("class", "route-halo");
-    svg.append("path").attr("d", L(r.fast)).attr("class", "route-east");
+    for (const f of flights) {
+      svg.append("path").attr("d", L(f.path)).attr("class", `route-ghost route-${f.key}`);
+      svg.append("path").attr("class", "route-halo").attr("id", `flown-halo-${f.key}`);
+      svg.append("path").attr("class", `route-${f.key}`).attr("id", `flown-${f.key}`);
+    }
     const ends = [
       [r.gc[0], "New York", "end"],
       [r.gc.at(-1), "Paris", "start"],
     ];
     for (const [[la, lo], name, anchor] of ends) {
       svg.append("circle").attr("cx", view.x(lo)).attr("cy", view.y(la)).attr("r", 4).attr("class", "apt");
+      // on a phone, New York sits near the left edge: its name goes under the dot
+      const under = anchor === "end" && view.x(lo) < 90;
       svg
         .append("text")
-        .attr("x", view.x(lo) + (anchor === "end" ? -8 : 8))
-        .attr("y", view.y(la) + 4)
-        .attr("text-anchor", anchor)
+        .attr("x", view.x(lo) + (under ? 0 : anchor === "end" ? -14 : 14))
+        .attr("y", view.y(la) + (under ? 20 : 4))
+        .attr("text-anchor", under ? "middle" : anchor)
         .attr("class", "apt-label")
         .text(name);
     }
@@ -118,24 +162,128 @@ export async function openMap(hero) {
       .attr("text-anchor", "middle")
       .attr("class", "max-label")
       .text(kmh(hero.max.kmh));
+    for (const f of flights)
+      svg
+        .append("g")
+        .attr("class", `race-plane race-${f.key}`)
+        .attr("id", `plane-${f.key}`)
+        .append("path")
+        .attr("d", PLANE);
+    paint(minute);
   };
+
+  // the race panel: one row per direction, a bar against the time without wind, clocks and money
+  const panel = $("#open-race");
+  const rows = {};
+  if (panel) {
+    const names = { east: "New York → Paris", west: "Paris → New York" };
+    const wrap = el("div", { class: "race-rows" });
+    for (const f of flights) {
+      const fill = el("i", { class: "rr-fill" });
+      const time = el("b", { class: "rr-time" });
+      const fuel = el("span", { class: "rr-fuel" });
+      const money = el("span", { class: "rr-eur" });
+      wrap.append(
+        el("div", { class: `race-row race-${f.key}` }, [
+          el("span", { class: "rr-name", text: names[f.key] }),
+          el("span", { class: "rr-bar" }, [
+            fill,
+            el("s", { class: "rr-calm", style: `left:${(100 * hero.route.nowind) / (longest * 1.04)}%` }),
+          ]),
+          time,
+          fuel,
+          money,
+        ]),
+      );
+      rows[f.key] = { fill, time, fuel, money };
+    }
+    const calm = el("p", { class: "race-calm" }, [
+      el("s", { "aria-hidden": "true" }),
+      `sans vent : ${hm(hero.route.nowind)}`,
+    ]);
+    const gap = el("p", { class: "race-gap", "aria-live": "polite" });
+    const replay = el("button", { type: "button", class: "race-replay", text: "Rejouer" });
+    panel.replaceChildren(wrap, calm, gap, replay);
+    replay.addEventListener("click", () => play(true));
+    rows.gap = gap;
+  }
+
+  function paint(m) {
+    minute = m;
+    if (!view) return;
+    const L = line(view);
+    for (const f of flights) {
+      const p = at(f, m);
+      const flown = [...f.path.slice(0, p.i), [p.lat, p.lon]];
+      const d = m > 0 ? L(flown) : null;
+      svg.select(`#flown-${f.key}`).attr("d", d);
+      svg.select(`#flown-halo-${f.key}`).attr("d", d);
+      // the heading on screen, from two points along the track
+      const q = at(f, Math.min(f.total, m + 4));
+      const x = view.x(p.lon);
+      const y = view.y(p.lat);
+      const angle = (Math.atan2(view.y(q.lat) - y, view.x(q.lon) - x) * 180) / Math.PI + 90;
+      svg
+        .select(`#plane-${f.key}`)
+        .attr("transform", `translate(${x},${y}) rotate(${Number.isFinite(angle) ? angle : 90}) scale(1.35)`)
+        .attr("opacity", m > 0 ? 1 : 0);
+      const R = rows[f.key];
+      if (R) {
+        const mm = Math.min(m, f.total);
+        R.fill.style.width = `${(100 * mm) / (longest * 1.04)}%`;
+        R.time.textContent = hm(mm);
+        R.fuel.textContent = tonnes((mm * C.KG) / 1000);
+        R.money.textContent = euros(mm * C.EUR);
+        R.fill.parentElement.parentElement.classList.toggle("arrived", m >= f.total);
+      }
+    }
+    if (rows.gap) {
+      const done = m >= longest && flights.length > 1;
+      const dt = flights[1]?.total - flights[0].total;
+      rows.gap.textContent = done
+        ? `Même distance, même nuit : ${hm(dt)} et ${fmtNum((dt * C.KG) / 1000, 1)} tonnes de kérosène d'écart, environ ${euros(dt * C.EUR)}.`
+        : "Les deux avions partent en même temps, à la même vitesse par rapport à l'air. Seul le vent change.";
+    }
+  }
+
+  // ten seconds for the longest flight; once, when the opening is on screen, or at once without motion
+  let raf = 0;
+  function play(again = false) {
+    cancelAnimationFrame(raf);
+    if (reduced()) return paint(longest);
+    const ms = 9000 / longest; // per minute of flight
+    let t0 = 0;
+    const tick = (t) => {
+      t0 ||= t;
+      const m = (t - t0) / ms;
+      paint(Math.min(m, longest));
+      if (m < longest) raf = requestAnimationFrame(tick);
+    };
+    if (again) paint(0);
+    raf = requestAnimationFrame(tick);
+  }
+
   wind.setField(field);
   layout();
   wind.start();
   onResize(stage, layout);
   speedLegend($("#open-legend"));
   $("#open-legend").append(
-    el("span", { class: "ol-routes" }, [
-      el("i", { class: "k-gc" }),
-      "route la plus courte",
-      el("i", { class: "k-east" }),
-      "route la plus rapide (modèle)",
-    ]),
     el("span", {
       class: "ol-credit",
-      text: "Image : NASA Worldview, VIIRS, 8 février 2020. Vent : ERA5 (Copernicus), 250 hPa, 9 février 2020 à 00 h UTC.",
+      text: "Image : NASA Worldview, VIIRS, 8 février 2020. Vent : ERA5 (Copernicus), 250 hPa, 9 février 2020 à 00 h UTC, figé ; avion à 900 km/h par rapport à l'air, chacun sur sa route la plus rapide.",
     }),
   );
+  let started = false;
+  new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting && !started) {
+        started = true;
+        setTimeout(() => play(), 500);
+      }
+    },
+    { threshold: 0.35 },
+  ).observe(stage);
 }
 
 /* ------------------------------------------------------------------ seasonal climatology */
