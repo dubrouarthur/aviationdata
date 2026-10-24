@@ -27,7 +27,7 @@
     <meta property="og:title" content="aviationdata" />
     <meta
       property="og:description"
-      content="Enquêtes en données ouvertes sur le transport aérien : le trafic français depuis 1990, le courant-jet et les vols transatlantiques."
+      content="Enquêtes en données ouvertes sur le transport aérien : le facteur humain dans les accidents, le courant-jet et les vols transatlantiques, le trafic français depuis 1990."
     />
     <meta property="og:image" content="%VITE_SITE_URL%og-jet.jpg" />
     <meta property="og:image:width" content="1200" />
@@ -50,26 +50,34 @@
     </header>
 
     <main>
-      <!-- lead story: the jet stream, drawn live behind the headline -->
-      <section class="lead" aria-labelledby="lead-title">
-        <canvas class="lead-wind" id="lead-wind" aria-hidden="true"></canvas>
-        <div class="wrap lead-body">
-          <p class="lead-tag">Nouvelle enquête</p>
-          <h1 class="lead-title" id="lead-title">
-            <a href="courant-jet">Le vent dans le dos</a>
-          </h1>
-          <p class="lead-dek">
-            Vers New York, le même avion met une heure de plus que vers Paris et brûle plusieurs tonnes de
-            kérosène en plus. En cause, le courant-jet, un fleuve d'air à l'altitude des avions de ligne.
-            Jouer avec ce vent, et le prévoir, peut-il faire baisser le coût d'un vol ? La réponse, sur 105
-            000 vols, quatre ans de vents, de vraies prévisions météo et le prix du kérosène.
-          </p>
-          <p class="lead-actions">
-            <a class="btn primary" href="courant-jet">Lire l'enquête</a>
-            <span class="lead-caption" id="lead-caption"
-              >Vents à 10 km d'altitude, nuit du 8 au 9 février 2020</span
-            >
-          </p>
+      <!-- lead story: the newest investigation, with its own opening figure -->
+      <section class="lead lead-split" aria-labelledby="lead-title">
+        <div class="wrap lead-grid">
+          <div class="lead-body">
+            <p class="lead-tag">Nouvelle enquête</p>
+            <h1 class="lead-title" id="lead-title">
+              <a href="facteur-humain">L'erreur est humaine</a>
+            </h1>
+            <p class="lead-dek">
+              Une personne est citée dans trois accidents aériens sur quatre. Le facteur humain est-il
+              vraiment la première cause des accidents ? Seize ans de verdicts des enquêteurs américains, 21
+              400 accidents, lus avec les grands modèles du risque aérien.
+            </p>
+            <p class="lead-actions">
+              <a class="btn primary" href="facteur-humain">Lire l'enquête</a>
+            </p>
+          </div>
+          <figure class="lead-mosaic">
+            <canvas
+              id="lead-mosaic"
+              role="img"
+              aria-label="Les accidents aériens enquêtés par le NTSB de 2008 à 2023, année par année, ceux qui citent une personne en orange."
+            ></canvas>
+            <figcaption class="lead-caption" id="lead-caption">
+              Accidents aériens aux États-Unis, 2008-2023, un carré par accident ; en orange, ceux dont la
+              cause probable cite une personne.
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -104,7 +112,7 @@
             <p>
               Chaque chiffre vient d'un jeu de données ouvert, cité à côté : la DGAC pour le trafic français,
               Copernicus et la NOAA pour les vents, Météo-France pour les ballons-sondes, la NASA pour les
-              images satellites, OpenSky pour les vols.
+              images satellites, OpenSky pour les vols, le NTSB pour les accidents.
             </p>
           </div>
           <div>

@@ -97,6 +97,64 @@
   color: var(--night-muted);
 }
 
+/* the lead as two columns: the headline, and the story's own opening figure */
+.lead-split {
+  height: auto;
+  min-height: 0;
+  display: block;
+  padding-block: clamp(40px, 8vh, 80px) 40px;
+}
+
+.lead-split::after {
+  display: none;
+}
+
+.lead-split canvas {
+  position: static;
+  display: block;
+}
+
+.lead-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 32px 56px;
+  align-items: end;
+}
+
+.lead-split .lead-body {
+  padding-bottom: 0;
+}
+
+.lead-split .lead-tag {
+  color: #ff9a52;
+}
+
+.lead-split .lead-title {
+  font-size: clamp(3.4rem, 7.4vw, 6.8rem);
+}
+
+.lead-split .lead-title a:hover,
+.lead-split .lead-title a:focus-visible {
+  color: #ff9a52;
+}
+
+.lead-mosaic {
+  margin: 0;
+  min-width: 0;
+}
+
+.lead-mosaic .lead-caption {
+  display: block;
+  margin-top: 10px;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .lead-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* ------------------------------------------------------------------ every investigation, as flight strips */
 .issues {
   padding-top: 64px;

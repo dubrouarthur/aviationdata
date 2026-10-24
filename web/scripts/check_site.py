@@ -26,6 +26,9 @@ J["cost"] = json.loads((ROOT / "public" / "data" / "jet" / "cost.json").read_tex
 for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their sections when missing
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
+# every investigation, newest first (web/src/site/issues.js), and every page of the magazine
+SLUGS = ["facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
+PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes"]
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 failures = []
 
@@ -146,14 +149,14 @@ with sync_playwright() as pw:
     pg = page_(viewport={"width": 1440, "height": 900})
     pg.goto(base + "/", wait_until="networkidle")
     links = pg.eval_on_selector_all(".strip-link", "as => as.map(a => a.getAttribute('href'))")
-    check("home lists both investigations", links == ["courant-jet", "le-ciel-a-deux-vitesses"], str(links))
+    check("home lists every investigation", links == SLUGS, str(links))
     pg.wait_for_timeout(800)
     painted = pg.evaluate(
-        "() => { const c = document.getElementById('lead-wind');"
+        "() => { const c = document.getElementById('lead-mosaic');"
         " const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;"
         " let n = 0; for (let i = 3; i < d.length; i += 64) n += d[i] > 0; return n; }"
     )
-    check("home wind is drawn", painted > 200, f"{painted} painted samples")
+    check("home lead figure is drawn", painted > 200, f"{painted} painted samples")
     pg.click(".strip-link[href='courant-jet']")
     pg.wait_for_load_state("networkidle")
     check("home strip opens the story", pg.title().startswith("Le vent dans le dos"), pg.url)
@@ -169,17 +172,17 @@ with sync_playwright() as pw:
     check("first story links back home", pg.title().startswith("aviationdata"), pg.url)
 
     # ------------------------------------------------------------ the magazine: menu, footer, about, feed
-    for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos", "/enquetes"):
+    for path in PAGES:
         pg.goto(base + path, wait_until="networkidle")
         foot = pg.eval_on_selector_all(".site-foot a", "as => as.map(a => a.getAttribute('href'))")
-        n_issues = sum("courant-jet" in h or "le-ciel" in h for h in foot)
-        check(f"{path}: site footer lists every investigation", n_issues == 2, str(foot))
+        n_issues = sum(any(h.rstrip("/").endswith(slug) for slug in SLUGS) for h in foot)
+        check(f"{path}: site footer lists every investigation", n_issues == len(SLUGS), str(foot))
         pg.click("[data-menu-open]")
         pg.wait_for_timeout(300)
         check(f"{path}: the menu opens", pg.evaluate("document.getElementById('site-menu').open"))
         home = pg.eval_on_selector_all("#site-menu .wordmark", "as => as.map(a => a.getAttribute('href'))")
         check(f"{path}: the menu leads home", home in (["./"], ["../"]), str(home))
-        if path in ("/courant-jet", "/le-ciel-a-deux-vitesses"):
+        if path.strip("/") in SLUGS:
             n = pg.locator("#menu-chapters a").count()
             check(f"{path}: the menu lists the chapters", n >= pg.locator(".topnav a").count() and n > 8, f"{n}")
         pg.keyboard.press("Escape")
@@ -190,19 +193,21 @@ with sync_playwright() as pw:
     has("about page", norm(pg.inner_text("main")), "La charte", "Corrections", "Les sources", "Citer et réutiliser")
     pg.goto(base + "/enquetes", wait_until="networkidle")
     arc = pg.eval_on_selector_all(".arc-link", "as => as.map(a => a.getAttribute('href'))")
-    check("archive lists every investigation", arc == ["../courant-jet", "../le-ciel-a-deux-vitesses"], str(arc))
+    check("archive lists every investigation", arc == [f"../{slug}" for slug in SLUGS], str(arc))
     pg.click("#archive-topics button:has-text('Trafic')")
     pg.wait_for_timeout(200)
     shown = pg.eval_on_selector_all(".arc-item:not([hidden]) .arc-title", "ts => ts.map(t => t.textContent)")
     check("archive filters by topic", shown == ["Le ciel à deux vitesses"] and "theme=" in pg.url, f"{shown} {pg.url}")
-    for path, no in (("/courant-jet", 2), ("/le-ciel-a-deux-vitesses", 1)):
-        pg.goto(base + path, wait_until="networkidle")
-        has(f"{path}: kicker", norm(pg.inner_text(".issue-kicker")), f"Enquête n° {no}")
+    for k, slug in enumerate(SLUGS):
+        no = len(SLUGS) - k
+        pg.goto(base + "/" + slug, wait_until="networkidle")
+        has(f"/{slug}: kicker", norm(pg.inner_text(".issue-kicker")), f"Enquête n° {no}")
         nxt = pg.eval_on_selector_all("#lire-aussi .also", "as => as.map(a => a.getAttribute('href'))")
-        check(f"{path}: the story leads to the other one", len(nxt) == 1, str(nxt))
+        neighbours = (no > 1) + (no < len(SLUGS))
+        check(f"/{slug}: the story leads to the previous and next ones", len(nxt) == neighbours, str(nxt))
     feed = pg.request.get(base + "/feed.xml")
     entries = ET.fromstring(feed.text()).findall("{http://www.w3.org/2005/Atom}entry") if feed.ok else []
-    check("Atom feed lists both investigations", len(entries) == 2, f"{feed.status} {len(entries)}")
+    check("Atom feed lists every investigation", len(entries) == len(SLUGS), f"{feed.status} {len(entries)}")
     check("sitemap", pg.request.get(base + "/sitemap.xml").ok)
 
     # ------------------------------------------------------------ the jet-stream story
@@ -596,7 +601,7 @@ with sync_playwright() as pw:
       } return out.slice(0, 5); }"""
     for width in (1280, 1024):
         ep = page_(viewport={"width": width, "height": 900})
-        for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos", "/enquetes"):
+        for path in PAGES:
             ep.goto(base + path, wait_until="networkidle")
             ep.wait_for_timeout(600)
             touching = ep.evaluate(EDGE, 8)
@@ -605,7 +610,7 @@ with sync_playwright() as pw:
 
     # ------------------------------------------------------------ phone
     mp = page_(viewport={"width": 390, "height": 844}, device_scale_factor=2)
-    for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos", "/enquetes"):
+    for path in PAGES:
         mp.goto(base + path, wait_until="networkidle")
         mp.wait_for_timeout(800)
         wide = mp.evaluate(

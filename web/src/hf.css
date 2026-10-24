@@ -1,0 +1,606 @@
+/* The human-factor story. One accent, the orange of a flight recorder, for the human; the other
+   families keep the site's inks: environment teal, aircraft failure blue, organization violet. */
+:root {
+  --issue-accent: #b3460a; /* text-safe orange on paper, 5.1:1 */
+  --human: #d4550b;
+  --human-2: #8f3a12;
+  --human-3: #b87a00;
+  --handling: #b86b3c;
+  --env: #138a6e;
+  --machine: #2a78d6;
+  --org: #6d4bb5;
+  --undet: #9aa5b1;
+  --pre: #5f6b79;
+  --rule-strong: #b6c1bc;
+  --night: #0d2236;
+  --night-ink: #e9f0f6;
+  --night-muted: #a9bccd;
+  --flare: #ff9a52;
+}
+
+.hf .brand span {
+  color: var(--issue-accent);
+}
+
+.hf .topnav a[aria-current="true"] {
+  border-bottom-color: var(--issue-accent);
+}
+
+/* ------------------------------------------------------------------ the opening */
+.hf-open {
+  background: var(--night);
+  color: var(--night-ink);
+  padding-block: clamp(36px, 7vh, 72px) 36px;
+  overflow: hidden;
+}
+
+.hf-open-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 32px 48px;
+  align-items: end;
+}
+
+.hf-open .display {
+  color: #fff;
+  margin-bottom: 0;
+}
+
+.hf-open .display em {
+  color: var(--flare);
+}
+
+.hf-open .issue-kicker,
+.hf-open .issue-kicker a {
+  color: var(--night-muted);
+}
+
+.hf-open .issue-kicker span {
+  color: var(--night-muted);
+  border-left-color: rgba(169, 188, 205, 0.4);
+}
+
+.hf-open .open-q {
+  max-width: 24em;
+  margin: 18px 0 0;
+  font-family: var(--f-text);
+  font-size: clamp(1.1rem, 1.9vw, 1.35rem);
+  line-height: 1.45;
+  color: #fff;
+  text-wrap: pretty;
+}
+
+.hf-count {
+  min-height: 3.2em;
+  margin: 26px 0 0;
+  max-width: 22em;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--night-muted);
+}
+
+.hf-count b {
+  display: block;
+  font-family: var(--f-display);
+  font-stretch: 64%;
+  font-weight: 820;
+  font-size: clamp(2.6rem, 5vw, 3.8rem);
+  line-height: 1;
+  color: var(--flare);
+  font-variant-numeric: tabular-nums;
+}
+
+.hf-mosaic {
+  margin: 0;
+  min-width: 0;
+}
+
+.hf-mosaic canvas {
+  display: block;
+}
+
+.hf-mosaic-cap {
+  margin-top: 10px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--night-muted);
+  max-width: 46em;
+}
+
+/* ------------------------------------------------------------------ bars */
+.hb {
+  display: grid;
+  gap: 8px;
+}
+
+.hb-row {
+  display: grid;
+  grid-template-columns: minmax(11em, 38%) minmax(0, 1fr) 4.6em;
+  gap: 4px 14px;
+  align-items: center;
+}
+
+.hb-label {
+  font-size: 0.92rem;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.hb-label small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.hb-track {
+  position: relative;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--paper-2);
+}
+
+.hb-track > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  background: var(--c);
+}
+
+.hb-val {
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ink);
+}
+
+.hb-head .hb-label {
+  font-weight: 750;
+}
+
+.hb-head + .hb-sub,
+.hb-sub + .hb-head {
+  margin-top: 0;
+}
+
+.hb-row.hb-head:not(:first-child) {
+  margin-top: 10px;
+}
+
+.hb-sub .hb-label {
+  padding-left: 1.1em;
+  color: var(--ink-2);
+}
+
+.hb-sub .hb-track {
+  height: 9px;
+}
+
+.hb-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 12px;
+  font-size: 0.84rem;
+  color: var(--ink-2);
+}
+
+.hb-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hb-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--c);
+}
+
+/* ------------------------------------------------------------------ the pyramid of severity */
+.pyr {
+  display: grid;
+  gap: 6px;
+}
+
+.pyr-row {
+  display: grid;
+  grid-template-columns: 10em minmax(0, 1fr) 4.6em;
+  gap: 14px;
+  align-items: center;
+}
+
+.pyr-label {
+  display: grid;
+  line-height: 1.25;
+}
+
+.pyr-label b {
+  font-size: 0.95rem;
+}
+
+.pyr-label small {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.pyr-track {
+  position: relative;
+  height: 34px;
+}
+
+.pyr-track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 3px;
+}
+
+.pyr-all {
+  background: var(--rule-strong);
+}
+
+.pyr-human {
+  background: var(--human);
+}
+
+.pyr-val {
+  text-align: right;
+  font-size: 1rem;
+  color: var(--issue-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ TEM chain */
+.ch-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.ch-stage {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 16px 16px 18px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  border-top: 4px solid var(--c);
+}
+
+.ch-threat {
+  --c: var(--env);
+}
+
+.ch-error {
+  --c: var(--human);
+}
+
+.ch-state {
+  --c: var(--ink-2);
+}
+
+.ch-title {
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.ch-n {
+  font-family: var(--f-display);
+  font-stretch: 64%;
+  font-weight: 820;
+  font-size: 2.6rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ch-text {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+.ch-arrow {
+  align-self: center;
+  justify-self: center;
+  width: 0;
+  height: 0;
+  border-block: 8px solid transparent;
+  border-left: 11px solid var(--axis);
+}
+
+.ch-split {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.ch-split p {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--ink-2);
+}
+
+.ch-split b {
+  color: var(--ink);
+}
+
+.ch-bar {
+  position: relative;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--rule-strong);
+  overflow: hidden;
+}
+
+.ch-bar-err {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--human);
+}
+
+/* ------------------------------------------------------------------ Swiss cheese */
+.ck {
+  display: grid;
+  gap: 8px;
+}
+
+.ck-head {
+  display: none;
+}
+
+.ck-row {
+  display: grid;
+  grid-template-columns: auto minmax(9em, 32%) minmax(0, 1fr) 4.6em;
+  gap: 14px;
+  align-items: center;
+}
+
+.ck-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.ck-dots i {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule-strong);
+}
+
+.ck-dots i.on {
+  border-color: transparent;
+}
+
+.ck-person {
+  background: var(--human);
+}
+
+.ck-machine {
+  background: var(--machine);
+}
+
+.ck-env {
+  background: var(--env);
+}
+
+.ck-org {
+  background: var(--org);
+}
+
+.ck-name {
+  font-size: 0.92rem;
+}
+
+.ck-none {
+  margin: 14px 0 0;
+}
+
+/* ------------------------------------------------------------------ defining events */
+.ev-track > i.ev-all {
+  background: var(--rule-strong);
+}
+
+.ev-track > i.ev-human {
+  background: var(--human);
+}
+
+.ev-fatal-key {
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ segments */
+.sg {
+  display: grid;
+  gap: 14px;
+}
+
+.sg-row {
+  display: grid;
+  grid-template-columns: minmax(10em, 30%) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.sg-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.sg-name {
+  display: grid;
+  line-height: 1.3;
+}
+
+.sg-name small {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.sg-hi .sg-name b {
+  color: var(--issue-accent);
+}
+
+.sg-bars {
+  display: grid;
+  gap: 5px;
+}
+
+.sg-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.2em;
+  gap: 12px;
+  align-items: center;
+}
+
+.sg-bar .hb-track {
+  height: 11px;
+}
+
+/* ------------------------------------------------------------------ the tool */
+.hf-tool-panel {
+  margin-top: 26px;
+}
+
+.hf-tool-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+}
+
+.hf-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hf-field > span {
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
+.hf-field .seg {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.hf-tool-read {
+  margin: 20px 0 6px;
+  font-family: var(--f-text);
+  font-size: 1.08rem;
+  line-height: 1.5;
+}
+
+.hf-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 36px;
+  margin-top: 14px;
+}
+
+.hf-tool-grid figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.hf-tool-grid h3 {
+  margin: 0 0 12px;
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 780;
+  font-size: 1.15rem;
+}
+
+.hf-tool-wide {
+  grid-column: 1 / -1;
+}
+
+.hf-tool-grid .hb-row {
+  grid-template-columns: minmax(9em, 44%) minmax(0, 1fr) 4.2em;
+}
+
+/* ------------------------------------------------------------------ narrow screens */
+@media (max-width: 900px) {
+  .hf-open-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hf-tool-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .hb-row,
+  .hf-tool-grid .hb-row {
+    grid-template-columns: minmax(0, 1fr) 4.2em;
+    grid-template-areas: "label label" "track val";
+    gap: 3px 10px;
+  }
+
+  .hb-row > .hb-label {
+    grid-area: label;
+  }
+
+  .hb-row > .hb-track {
+    grid-area: track;
+  }
+
+  .hb-row > .hb-val {
+    grid-area: val;
+  }
+
+  .pyr-row {
+    grid-template-columns: 6.6em minmax(0, 1fr) 3.6em;
+    gap: 10px;
+  }
+
+  .ch-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .ch-arrow {
+    height: 20px;
+    border-inline: 8px solid transparent;
+    border-block: 0;
+    border-top: 11px solid var(--axis);
+    width: 0;
+    margin: 4px 0;
+  }
+
+  .ck-row {
+    grid-template-columns: auto minmax(0, 1fr) 4em;
+    grid-template-areas: "dots name val" "track track track";
+    gap: 4px 10px;
+  }
+
+  .ck-row > .ck-dots {
+    grid-area: dots;
+  }
+
+  .ck-row > .ck-name {
+    grid-area: name;
+  }
+
+  .ck-row > .hb-track {
+    grid-area: track;
+  }
+
+  .ck-row > .hb-val {
+    grid-area: val;
+  }
+
+  .sg-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -15,6 +15,21 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "hf",
+    slug: "facteur-humain",
+    no: 3,
+    topic: "Sécurité",
+    title: "L'erreur est humaine",
+    dek: "Dans les accidents aériens, le facteur humain est-il vraiment la première cause ? Seize ans de verdicts des enquêteurs américains, 21 400 accidents, lus avec les grands modèles du risque aérien.",
+    published: "2026-10-24",
+    updated: "2026-10-24",
+    minutes: 20,
+    chapters: 11,
+    image: "og-hf.jpg",
+    accent: "#b3460a",
+    sources: "NTSB",
+  },
+  {
     key: "jet",
     slug: "courant-jet",
     no: 2,
@@ -48,6 +63,12 @@ export const ISSUES = [
 
 // interactive tools inside the investigations, offered on their own from the home page and the menu
 export const TOOLS = [
+  {
+    issue: "hf",
+    hash: "explorer",
+    title: "Les causes d'accidents, segment par segment",
+    dek: "Aviation générale, taxi aérien, compagnies ou travail aérien, accidents mortels ou non : ce que citent les enquêteurs, qui ils nomment et ce qui s'est passé.",
+  },
   {
     issue: "jet",
     hash: "placer",
