@@ -5,8 +5,19 @@ import "./jet.css";
 import { $, el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import { shareUrl, linkedInShare } from "./lib/datasets.js";
-import { kmh } from "./jet/fmt.js";
-import { storyFacts, writeStory } from "./jet/text.js";
+import { kmh, longDate } from "./jet/fmt.js";
+import {
+  storyFacts,
+  writeStory,
+  writeAvion,
+  recordMarks,
+  initSim,
+  initVol,
+  writeBref,
+  writeJet,
+  writePlacer,
+  writeHistoire,
+} from "./jet/text.js";
 import { addJetSourceLines, initJetSources } from "./jet/sources.js";
 import {
   histogram,
@@ -17,20 +28,44 @@ import {
   gainsChart,
   roundTripChart,
   wintersChart,
-  trappesMonths,
-  trappesYears,
+  typesChart,
+  profileChart,
+  levelsChart,
+  stripesChart,
+  simChart,
+  volChart,
 } from "./jet/charts.js";
-import { openMap, explorer, climMap, coreAt } from "./jet/maps.js";
+import { openMap, climMap, coreAt } from "./jet/maps.js";
+import { explorer } from "./jet/explorer.js";
+import { simulator } from "./jet/simulator.js";
 
-const FILES = ["flights", "routing", "hero", "climate", "trappes", "winds", "meta"];
+const FILES = [
+  "flights",
+  "routing",
+  "hero",
+  "climate",
+  "trappes",
+  "winds",
+  "meta",
+  "sim",
+  "sim_stats",
+  "history",
+];
+
+const OPTIONAL = new Set(["sim_stats", "history"]); // the story still stands without them
 
 async function load() {
   const parts = await Promise.all(
     FILES.map((f) =>
-      fetch(asset(`data/jet/${f}.json`)).then((r) => {
-        if (!r.ok) throw new Error(`${f}.json: HTTP ${r.status}`);
-        return r.json();
-      }),
+      fetch(asset(`data/jet/${f}.json`))
+        .then((r) => {
+          if (!r.ok) throw new Error(`${f}.json: HTTP ${r.status}`);
+          return r.json();
+        })
+        .catch((err) => {
+          if (OPTIONAL.has(f)) return null;
+          throw err;
+        }),
     ),
   );
   return Object.fromEntries(FILES.map((f, i) => [f, parts[i]]));
@@ -66,16 +101,32 @@ async function main() {
   safely("histogram", () => histogram($("#chart-hist"), data.flights.pair, { east: F.medE, west: F.medW }));
   safely("routes", () => routesChart($("#chart-routes"), data.flights.routes));
   safely("monthly", () => monthlyChart($("#chart-monthly"), data.flights.pair.monthly));
-  safely("scatter", () => scatterChart($("#chart-scatter"), data.flights.pair.days, data.flights.pair.fit));
+  const pair = data.flights.pair;
+  safely("scatter", () => scatterChart($("#chart-scatter"), pair.days, pair.fit, recordMarks(pair.records)));
+  safely("aircraft", () => {
+    writeAvion(data.flights);
+    typesChart($("#chart-types"), data.flights.aircraft.types);
+  });
   const exp = safely("explorer", () =>
-    explorer({ grid: data.winds, flights: data.flights, onDay: (iso) => strip?.select(iso) }),
+    explorer({
+      grid: data.winds,
+      flights: data.flights,
+      routing: data.routing,
+      onDay: (iso) => strip?.select(iso),
+    }),
   );
   const strip = safely("strip", () =>
     dayStrip($("#chart-strip"), data.routing.days, (iso) => exp?.setDay(iso)),
   );
-  strip?.select("2020-02-08");
+  strip?.select(exp?.day ?? "2020-02-08");
+  safely("strip scale", () => stripScale($("#strip-scale")));
   safely("gains", () => gainsChart($("#chart-gains"), data.routing.days));
   safely("round trip", () => roundTripChart($("#chart-rt"), data.routing));
+  safely("simulator", () => {
+    const km = pair.km;
+    const sim = simChart($("#chart-sim"), { km, tas: data.routing.tas, winter: data.climate.mean });
+    initSim(sim, { km, tas: data.routing.tas });
+  });
   safely("winters", () => wintersChart($("#chart-winters"), data.climate));
   safely("clim", async () => {
     const a = data.winds.airports;
@@ -85,12 +136,86 @@ async function main() {
     $("#clim-note").textContent =
       `Vitesse du vent moyen à 250 hPa, 1991-2020, réanalyse NCEP/NCAR (grille de 2,5°). Au large de l'Amérique (60° ouest), le jet d'hiver passe vers ${Math.round(w.lat)}° nord à ${kmh(w.kmh)} ; l'été, il remonte vers ${Math.round(s.lat)}° nord et faiblit à ${kmh(s.kmh)}.`;
   });
-  safely("trappes months", () => trappesMonths($("#chart-tmonths"), data.trappes.months));
-  safely("trappes years", () => trappesYears($("#chart-tyears"), data.trappes.years));
+  safely("jet", () => {
+    writeJet(data);
+    profileChart($("#chart-profile"), data.trappes.profile);
+  });
+  const sim = safely("simulator", () => {
+    writePlacer({ sim: data.sim, stats: data.sim_stats });
+    if (data.sim_stats) levelsChart($("#chart-levels"), data.sim_stats);
+    else $("#bilan").hidden = true;
+    return simulator({ sim: data.sim, grid: data.winds });
+  });
+  safely("history", () => {
+    if (!data.history) return ($("#histoire").hidden = true);
+    writeHistoire(data);
+    const simDays = data.sim.days.map((d) => d.day);
+    const open = (iso) => {
+      if (!simDays.includes(iso)) return;
+      sim?.setDay(iso);
+      document.getElementById("simulateur").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    stripesChart($("#chart-stripes"), data.history, { simDays, onPick: (p) => open(p.iso) });
+    recordsList(data.history, simDays, open);
+  });
+  safely("your flight", () => initVol(data.flights, volChart($("#chart-vol"))));
+  safely("in short", () => writeBref(data, F));
   safely("sources", () => initJetSources(data));
+  numberChapters();
   addJetSourceLines();
   share();
   scrollHints(".topnav, .seg");
+}
+
+/** The record days since 1948, with the storms; those the simulator holds open in it. */
+function recordsList(history, simDays, open) {
+  const item = (iso, v, title) =>
+    el("li", {}, [
+      el("span", { class: "rec-date", text: longDate(iso) }),
+      el("span", { class: "rec-val", text: `${kmh(Math.abs(v))} ${v >= 0 ? "dans le dos" : "de face"}` }),
+      title ? el("span", { class: "rec-title", text: title }) : null,
+      simDays.includes(iso)
+        ? el("button", {
+            type: "button",
+            class: "rec-open",
+            text: "Ouvrir dans le simulateur",
+            onclick: () => open(iso),
+          })
+        : null,
+    ]);
+  $("#records-list").replaceChildren(
+    el("li", { class: "rec-head", text: "Les plus forts vents arrière vers Paris" }),
+    ...history.top.slice(0, 6).map(([iso, v]) => item(iso, v)),
+    el("li", { class: "rec-head", text: "Les vents les plus contraires" }),
+    ...history.reversed.slice(0, 3).map(([iso, v]) => item(iso, v)),
+    el("li", { class: "rec-head", text: "Les tempêtes" }),
+    ...history.storms.map(([iso, title, v]) => item(iso, v, title)),
+  );
+}
+
+/** The colour scale of the day strip: what a dark day means. */
+function stripScale(node) {
+  node.replaceChildren(
+    el("span", { text: "0" }),
+    el("i", { class: "ss-ramp", "aria-hidden": "true" }),
+    el("span", { text: "60 min et plus gagnées" }),
+  );
+}
+
+/** "03 / 10" above each chapter title: where the reader is in the story. */
+function numberChapters() {
+  const titles = [...document.querySelectorAll("main .jet-chapter h2.section-title")].filter(
+    (h) => h.id !== "h-bref",
+  );
+  titles.forEach((h, i) => {
+    if (h.previousElementSibling?.classList.contains("chapter-num")) return;
+    h.before(
+      el("p", { class: "chapter-num" }, [
+        el("b", { text: String(i + 1).padStart(2, "0") }),
+        ` / ${String(titles.length).padStart(2, "0")}`,
+      ]),
+    );
+  });
 }
 
 function share() {

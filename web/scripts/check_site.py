@@ -19,7 +19,10 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 base = sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "http://127.0.0.1:4173"
 J = {k: json.loads((ROOT / "public" / "data" / "jet" / f"{k}.json").read_text()) for k in
-     ("flights", "routing", "hero", "climate", "trappes", "winds")}  # fmt: skip
+     ("flights", "routing", "hero", "climate", "trappes", "winds", "sim")}  # fmt: skip
+for k in ("sim_stats", "history"):  # optional: the page hides their sections when missing
+    f = ROOT / "public" / "data" / "jet" / f"{k}.json"
+    J[k] = json.loads(f.read_text()) if f.exists() else None
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 failures = []
 
@@ -215,16 +218,71 @@ with sync_playwright() as pw:
         f"en moyenne {mins(s['rt_gc'])} de plus que sans vent ({hm(2 * rt['nowind'])})",
         f"tombe à {mins(s['rt_opt'])}",
     )
+    R = p["records"]
     has(
-        "climate",
-        text("#climat-prose"),
-        f"de {kmh(loV)} en {loY - 1}-{loY} à {kmh(hiV)} en {hiY - 1}-{hiY}",
-        f"moyenne de {kmh(cl['mean'])} sur 1991-2020",
-        f"corrélation de {fr(cl['nao']['r'], 2)} sur {cl['nao']['n']} hivers",
-        f"environ {kmh(cl['nao']['slope'])} de vent",
-        f"{'+' if t79['slope'] >= 0 else '−'}{kmh(abs(t79['slope']), 1)} par décennie",
-        f"plus ou moins {kmh(t79['ci'], 1)}",
+        "record days",
+        text("#vent-prose"),
+        f"Le {long_date(R['fast_e']['day'])}, les vols New York–Paris ont mis {hm(R['fast_e']['dur'])}",
+        f"poussés par {kmh(R['fast_e']['w'])}",
+        f"Le {long_date(R['slow_w']['day'])}, il a fallu {hm(R['slow_w']['dur'])}",
+        f"contre {kmh(-R['slow_w']['w'])} de vent de face",
     )
+    types = fl["aircraft"]["types"]
+    mean = lambda t: (t["e"] + t["w"]) / 2  # noqa: E731
+    has("aircraft", text("#avion-prose"), f"il y a {mins(mean(types[-1]) - mean(types[0]))}")
+    prof = tr["profile"]
+    peak = max(prof["djf"], key=lambda d: d["p50"])
+    peak_s = max(prof["jja"], key=lambda d: d["p50"])
+    has(
+        "the jet above Paris",
+        text("#jet-prose"),
+        f"de {kmh(prof['djf'][0]['p50'])} vers {fr(prof['djf'][0]['km'], 1)} km d'altitude",
+        f"à {kmh(peak['p50'])} vers {fr(peak['km'], 1)} km, au niveau de {peak['hpa']} hPa",
+        f"le maximum, {kmh(peak_s['p50'])}, se tient à {fr(peak_s['km'], 1)} km",
+        f"a mesuré {kmh(tr['ciara']['kmh'])}",
+        f"remonter au {long_date(tr['ciara']['stronger_before'])}",
+        f"corrélation de {fr(tr['check']['r'], 3)}",
+        f"écart moyen de {kmh(tr['check']['mae'])}",
+        f"{fr(tr['check']['n'])} sondages",
+    )
+    sim = J["sim"]
+    cells = [(row["hour"], lv, v) for row in sim["ciara"]["west"] for lv, v in enumerate(row["best"][:3])]
+    fl_ = lambda lv: f"FL{sim['levels'][lv]['fl']}"  # noqa: E731
+    fast = min(cells, key=lambda c: c[2])
+    slow = max(cells, key=lambda c: c[2])
+    has(
+        "placing the aircraft",
+        text("#placer-prose"),
+        f"aurait mis {hm(fast[2])} par la meilleure route en partant à {fast[0]:02d} h UTC à {fl_(fast[1])}",
+        f"et {hm(slow[2])} en partant à {slow[0]:02d} h UTC à {fl_(slow[1])}",
+        f"{mins(slow[2] - fast[2])} d'écart",
+    )
+    st = J["sim_stats"]
+    if st:
+        w, e = st["west"], st["east"]
+        has(
+            "four years of choices",
+            text("#bilan-prose"),
+            f"chacun des {fr(len(st['days']))} jours",
+            f"fait gagner {mins(w['gain_gc_l1'], 1)} en moyenne",
+            f"la meilleure altitude {mins(w['gain_level'], 1)} de plus",
+            f"encore {mins(w['gain_free'], 1)}",
+        )
+    H = J["history"]
+    if H:
+        has(
+            "seventy-five years",
+            text("#histoire-prose"),
+            f"{fr(H['share_strong'], 1)} %",
+            f"{fr(H['share_reversed'], 1)} %",
+            f"date du {long_date(H['top'][0][0])}, avec {kmh(H['top'][0][1])}",
+            f"du {long_date(H['reversed'][0][0])} : {kmh(abs(H['reversed'][0][1]))}",
+            f"de {kmh(loV)} en {loY - 1}-{loY} à {kmh(hiV)} en {hiY - 1}-{hiY}",
+            f"moyenne de {kmh(cl['mean'])} sur 1991-2020",
+            f"corrélation de {fr(cl['nao']['r'], 2)} sur {cl['nao']['n']} hivers",
+            f"{'+' if t79['slope'] >= 0 else '−'}{kmh(abs(t79['slope']), 1)} par décennie",
+            f"plus ou moins {kmh(t79['ci'], 1)}",
+        )
     (wl, wk), (sl, sk) = core("djf"), core("jja")
     pg.locator("#clim-map").scroll_into_view_if_needed()
     pg.wait_for_timeout(600)
@@ -234,19 +292,35 @@ with sync_playwright() as pw:
         f"vers {round(wl)}° nord à {kmh(wk)}",
         f"remonte vers {round(sl)}° nord et faiblit à {kmh(sk)}",
     )
-    has(
-        "Trappes",
-        text("#trappes-prose"),
-        f"{fr(tr['n'])} sondages",
-        f"la moitié dépassent {kmh(jan['p50'])} et un sur dix {kmh(jan['p90'])}",
-        f"en {MONTHS[low['m'] - 1]}, le vent médian retombe à {kmh(low['p50'])}",
-        f"a mesuré {kmh(tr['ciara']['kmh'])}",
-        f"remonter au {long_date(tr['ciara']['stronger_before'])}",
-        f"maximum de la série, {kmh(tr['top'][0][2])}, date du {long_date(tr['top'][0][0])}",
-        f"corrélation de {fr(tr['check']['r'], 3)}",
-        f"écart moyen de {kmh(tr['check']['mae'])}",
-        f"{fr(tr['check']['n'])} sondages",
-    )
+
+    # ------------------------------------------------------------ simulator: the browser flies as Python did
+    pg.locator("#sim-stage").scroll_into_view_if_needed()
+    pg.wait_for_function("document.querySelector('#sim-matrix-note')?.textContent.length > 0", timeout=60000)
+    got = [norm(t) for t in pg.eval_on_selector_all(".sim-cell", "cs => cs.map(c => c.textContent)")]
+    want = [hm(v) for row in sim["ciara"]["west"] for v in row["best"]]
+    check("simulator grid matches the Python routes (Ciara, Paris → New York)", got == want, f"{got} vs {want}")
+    noon = next(r for r in sim["ciara"]["west"] if r["hour"] == 12)
+    has("simulator key figures", text("#sim-kpis"), hm(noon["gc"]), hm(noon["best"][1]))
+    pg.click("#sim-level button:has-text('Libre')")
+    pg.wait_for_timeout(1500)
+    has("simulator free altitude", text("#sim-kpis"), hm(noon["best"][3]))
+    pg.click("#sim-level button:has-text('FL340')")
+    h = pg.locator(".sim-handle").nth(1).bounding_box()
+    before = text("#sim-kpis")
+    pg.mouse.move(h["x"] + h["width"] / 2, h["y"] + h["height"] / 2)
+    pg.mouse.down()
+    pg.mouse.move(h["x"] + h["width"] / 2, h["y"] - 80, steps=6)
+    pg.mouse.up()
+    pg.wait_for_timeout(800)
+    check("your route follows the dragged point", text("#sim-kpis") != before)
+    pg.click("#sim-play")
+    pg.wait_for_timeout(1500)
+    planes = pg.locator(".sim-plane").count()
+    check("the three planes fly", planes == 3, f"{planes} planes")
+    pg.click("#sim-play")
+    pg.select_option("#sim-day", sim["days"][0]["day"])
+    pg.wait_for_timeout(1500)
+    check("another day loads", sim["days"][0]["day"][:4] in text("#sim-clock"), text("#sim-clock"))
 
     # ------------------------------------------------------------ explorer: the browser solves as Python did
     pg.locator("#exp-stage").scroll_into_view_if_needed()

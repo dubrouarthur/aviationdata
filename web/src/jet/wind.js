@@ -241,6 +241,11 @@ export function particles(
   document.addEventListener("visibilitychange", run);
 
   return {
+    /** Change the wind without wiping the trails (a field that evolves during a flight). */
+    swapField(f) {
+      field = f;
+      if (view && !n) reset();
+    },
     setField(f) {
       field = f;
       if (view && !n) reset();

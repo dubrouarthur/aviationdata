@@ -289,7 +289,7 @@ export function monthlyChart(node, monthly) {
 }
 
 /* ------------------------------------------------------------------ one day = one dot */
-export function scatterChart(node, days, fit) {
+export function scatterChart(node, days, fit, records = []) {
   const pts = [
     ...days.e.map(([d, dur, w, n]) => ({ d, dur, w, n, dir: "east" })),
     ...days.w.map(([d, dur, w, n]) => ({ d, dur, w, n, dir: "west" })),
@@ -358,18 +358,36 @@ export function scatterChart(node, days, fit) {
         .attr("y2", yy(b))
         .attr("stroke", c[dir])
         .attr("stroke-width", 2.4);
-      const tx = dir === "east" ? x(b) : x(a);
+      // "Vers Paris" under the start of its line (its far end holds a record), "Vers New York" above its start
       label(
         g,
-        tx,
-        yy(dir === "east" ? b : a) + (dir === "east" ? -16 : -14),
+        x(a) + (dir === "east" ? 4 : 0),
+        yy(a) + (dir === "east" ? 26 : -14),
         dir === "east" ? "Vers Paris" : "Vers New York",
         {
-          anchor: dir === "east" ? "end" : "start",
           color: c[dir],
           halo: c.paper,
         },
       );
+    }
+    // the days the text tells about
+    for (const r of records) {
+      const px = x(r.w);
+      const py = y(r.dur);
+      g.append("circle")
+        .attr("cx", px)
+        .attr("cy", py)
+        .attr("r", 7)
+        .attr("fill", "none")
+        .attr("stroke", c.ink)
+        .attr("stroke-width", 1.5);
+      const right = px < x(0);
+      label(g, px + (right ? 12 : -12), py + (r.below ? 18 : -10), r.label, {
+        anchor: right ? "start" : "end",
+        color: c.ink,
+        size: 12,
+        halo: c.paper,
+      });
     }
     const delaunay = d3.Delaunay.from(
       pts,
@@ -859,3 +877,529 @@ export function trappesYears(node, years) {
 }
 
 export { el };
+
+/* ------------------------------------------------------------------ at equal wind: aircraft types */
+export function typesChart(node, types) {
+  const draw = () => {
+    const c = C();
+    const narrow = (node.clientWidth || 640) < 560;
+    const rowH = 30;
+    const left = narrow ? 128 : 170;
+    const f = frame(node, types.length * rowH + 52, { top: 40, right: 64, bottom: 12, left });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const ext = Math.ceil(d3.max(types, (t) => Math.max(Math.abs(t.e), Math.abs(t.w))) / 5) * 5;
+    const x = d3.scaleLinear().domain([-ext, ext]).range([0, f.iw]);
+    g.append("g")
+      .attr("transform", "translate(0,-8)")
+      .call(
+        d3
+          .axisTop(x)
+          .ticks(narrow ? 5 : 9)
+          .tickFormat((v) => (v === 0 ? "0" : `${v > 0 ? "+" : "−"}${Math.abs(v)} min`))
+          .tickSize(-(types.length * rowH)),
+      )
+      .call((a) => axisStyle(a, c));
+    g.append("line")
+      .attr("x1", x(0))
+      .attr("x2", x(0))
+      .attr("y1", -8)
+      .attr("y2", types.length * rowH)
+      .attr("stroke", c.ink)
+      .attr("stroke-width", 1.2);
+    label(g, x(-ext), -30, "← plus rapide", { color: c.ink2, weight: 600, size: 12 });
+    label(g, x(ext), -30, "plus lent →", { anchor: "end", color: c.ink2, weight: 600, size: 12 });
+    types.forEach((t, i) => {
+      const row = g.append("g").attr("transform", `translate(0,${i * rowH + rowH / 2})`);
+      label(row, -10, 4, t.name, { anchor: "end", color: c.ink2, weight: 500, size: narrow ? 12 : 13 });
+      row
+        .append("line")
+        .attr("x1", x(Math.min(t.e, t.w)))
+        .attr("x2", x(Math.max(t.e, t.w)))
+        .attr("stroke", c.axis)
+        .attr("stroke-width", 2);
+      for (const [k, dir] of [
+        ["e", "east"],
+        ["w", "west"],
+      ])
+        row
+          .append("circle")
+          .attr("cx", x(t[k]))
+          .attr("r", 5.5)
+          .attr("fill", c[dir])
+          .attr("stroke", c.paper)
+          .attr("stroke-width", 1.5);
+      const mean = (t.e + t.w) / 2;
+      label(row, x(Math.max(t.e, t.w)) + 10, 4, `${mean > 0 ? "+" : "−"}${fmtNum(Math.abs(mean), 0)} min`, {
+        color: c.ink,
+        size: 12,
+      });
+      row
+        .append("rect")
+        .attr("x", -left)
+        .attr("y", -rowH / 2)
+        .attr("width", f.iw + left + f.m.right)
+        .attr("height", rowH)
+        .attr("fill", "transparent")
+        .on("pointermove", (ev) =>
+          showTip(ev, t.name, [
+            { color: c.east, value: signed(t.e), label: `vers la France (${fmtNum(t.ne)} vols)` },
+            { color: c.west, value: signed(t.w), label: `vers l'Amérique (${fmtNum(t.nw)} vols)` },
+          ]),
+        )
+        .on("pointerleave", hideTip);
+    });
+  };
+  draw();
+  onResize(node, draw);
+  dataTable(node, {
+    head: ["Avion", "Vers la France", "Vers l'Amérique", "Vols"],
+    rows: types.map((t) => [t.name, signed(t.e), signed(t.w), fmtNum(t.ne + t.nw)]),
+  });
+}
+
+const signed = (v) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${fmtNum(Math.abs(v), 1)} min`;
+
+/* ------------------------------------------------------------------ the round-trip simulator */
+export function simChart(node, { km, tas, winter: mark }) {
+  const penalty = (w) => (km / (tas - w) + km / (tas + w) - (2 * km) / tas) * 60;
+  const curve = d3.range(0, 301, 5).map((w) => [w, penalty(w)]);
+  let current = 100;
+  let api;
+  const draw = () => {
+    const c = C();
+    const f = frame(node, 236, { top: 28, right: 14, bottom: 34, left: 44 });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const x = d3.scaleLinear().domain([0, 300]).range([0, f.iw]);
+    const y = d3
+      .scaleLinear()
+      .domain([0, Math.ceil(penalty(300) / 20) * 20])
+      .range([f.ih, 0]);
+    g.append("g")
+      .call(d3.axisLeft(y).ticks(4).tickSize(-f.iw))
+      .call((a) => axisStyle(a, c));
+    g.append("g")
+      .attr("transform", `translate(0,${f.ih})`)
+      .call(d3.axisBottom(x).ticks(6).tickSize(0).tickPadding(8))
+      .call((a) => axisStyle(a, c));
+    label(g, f.iw, f.ih + 30, "vent, km/h", { anchor: "end", color: c.muted, weight: 500, size: 11 });
+    label(g, -40, -14, "minutes perdues sur l'aller-retour", { color: c.muted, weight: 500, size: 11 });
+    if (mark) {
+      g.append("line")
+        .attr("x1", x(mark))
+        .attr("x2", x(mark))
+        .attr("y1", 0)
+        .attr("y2", f.ih)
+        .attr("stroke", c.east)
+        .attr("stroke-dasharray", "3 3");
+      label(g, x(mark) + 5, 12, "hiver moyen", { color: c.east, size: 11, weight: 600 });
+    }
+    g.append("path")
+      .datum(curve)
+      .attr(
+        "d",
+        d3
+          .line()
+          .x((d) => x(d[0]))
+          .y((d) => y(d[1])),
+      )
+      .attr("fill", "none")
+      .attr("stroke", c.ink)
+      .attr("stroke-width", 2);
+    const dot = g
+      .append("circle")
+      .attr("r", 6)
+      .attr("fill", c.west)
+      .attr("stroke", c.paper)
+      .attr("stroke-width", 2);
+    api = (w) => dot.attr("cx", x(w)).attr("cy", y(penalty(w)));
+    api(current);
+  };
+  draw();
+  onResize(node, draw);
+  return {
+    penalty,
+    set(w) {
+      current = w;
+      api?.(w);
+    },
+  };
+}
+
+/* ------------------------------------------------------------------ your flight: one line, month by month */
+export function volChart(node) {
+  let route = null;
+  const draw = () => {
+    if (!route) return;
+    const c = C();
+    const f = frame(node, 300, { top: 18, right: 120, bottom: 28, left: 52 });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const months = d3.range(1, 13);
+    const x = d3.scalePoint().domain(months).range([0, f.iw]).padding(0.3);
+    const vals = [...route.months.e, ...route.months.w].filter((v) => v !== null);
+    const y = d3
+      .scaleLinear()
+      .domain([Math.floor((d3.min(vals) - 10) / 30) * 30, Math.ceil((d3.max(vals) + 10) / 30) * 30])
+      .range([f.ih, 0]);
+    g.append("g")
+      .call(d3.axisLeft(y).ticks(5).tickFormat(hm).tickSize(-f.iw))
+      .call((a) => axisStyle(a, c));
+    g.append("g")
+      .attr("transform", `translate(0,${f.ih})`)
+      .call(
+        d3
+          .axisBottom(x)
+          .tickFormat((m) => monthShort(m).replace(".", "")[0].toUpperCase())
+          .tickSize(0)
+          .tickPadding(8),
+      )
+      .call((a) => axisStyle(a, c));
+    const both = months.map((m, i) => ({ m, e: route.months.e[i], w: route.months.w[i] }));
+    g.append("path")
+      .datum(both.filter((d) => d.e !== null && d.w !== null))
+      .attr(
+        "d",
+        d3
+          .area()
+          .x((d) => x(d.m))
+          .y0((d) => y(d.e))
+          .y1((d) => y(d.w)),
+      )
+      .attr("fill", c.axis)
+      .attr("fill-opacity", 0.22);
+    for (const [k, dir, name] of [
+      ["w", "west", `Vers ${route.to}`],
+      ["e", "east", `Vers ${route.from}`],
+    ]) {
+      const pts = both.filter((d) => d[k] !== null);
+      g.append("path")
+        .datum(pts)
+        .attr(
+          "d",
+          d3
+            .line()
+            .x((d) => x(d.m))
+            .y((d) => y(d[k])),
+        )
+        .attr("fill", "none")
+        .attr("stroke", c[dir])
+        .attr("stroke-width", 2.2);
+      g.selectAll(`.d${k}`)
+        .data(pts)
+        .join("circle")
+        .attr("cx", (d) => x(d.m))
+        .attr("cy", (d) => y(d[k]))
+        .attr("r", 3.5)
+        .attr("fill", c[dir]);
+      const last = pts.at(-1);
+      if (last) label(g, x(last.m) + 10, y(last[k]) + 4, name, { color: c[dir], size: 12 });
+    }
+    g.append("rect")
+      .attr("width", f.iw)
+      .attr("height", f.ih)
+      .attr("fill", "transparent")
+      .on("pointermove", (ev) => {
+        const [mx] = d3.pointer(ev);
+        const d = both[d3.minIndex(both, (r) => Math.abs(x(r.m) - mx))];
+        showTip(ev, monthName(d.m), [
+          { color: c.west, value: d.w === null ? "–" : hm(d.w), label: `vers ${route.to}` },
+          { color: c.east, value: d.e === null ? "–" : hm(d.e), label: `vers ${route.from}` },
+        ]);
+      })
+      .on("pointerleave", hideTip);
+  };
+  onResize(node, draw);
+  return {
+    set(r) {
+      route = r;
+      draw();
+      dataTable(node, {
+        head: ["Mois", `Vers ${r.to}`, `Vers ${r.from}`],
+        rows: d3
+          .range(12)
+          .map((i) => [
+            monthName(i + 1),
+            r.months.w[i] === null ? "–" : hm(r.months.w[i]),
+            r.months.e[i] === null ? "–" : hm(r.months.e[i]),
+          ]),
+      });
+    },
+  };
+}
+
+/* ------------------------------------------------------------------ the wind by altitude above Paris */
+export function profileChart(node, profile) {
+  const draw = () => {
+    const c = C();
+    const f = frame(node, 360, { top: 14, right: 18, bottom: 34, left: 48 });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const all = [...profile.djf, ...profile.jja];
+    const x = d3
+      .scaleLinear()
+      .domain([0, Math.ceil(d3.max(all, (d) => d.p90) / 50) * 50])
+      .range([0, f.iw]);
+    const y = d3
+      .scaleLinear()
+      .domain([0, Math.ceil(d3.max(all, (d) => d.km))])
+      .range([f.ih, 0]);
+    // cruise altitudes of long-haul jets, FL300 to FL390
+    g.append("rect")
+      .attr("x", 0)
+      .attr("width", f.iw)
+      .attr("y", y(11.9))
+      .attr("height", y(9.1) - y(11.9))
+      .attr("fill", c.grid)
+      .attr("fill-opacity", 0.9);
+    label(g, f.iw - 4, y(11.9) + 14, "altitudes de croisière (FL300 à FL390)", {
+      anchor: "end",
+      color: c.ink2,
+      weight: 600,
+      size: 12,
+    });
+    g.append("g")
+      .call(
+        d3
+          .axisLeft(y)
+          .ticks(8)
+          .tickFormat((v) => `${v} km`)
+          .tickSize(-f.iw),
+      )
+      .call((a) => axisStyle(a, c));
+    g.append("g")
+      .attr("transform", `translate(0,${f.ih})`)
+      .call(d3.axisBottom(x).ticks(6).tickSize(0).tickPadding(8))
+      .call((a) => axisStyle(a, c));
+    label(g, f.iw, f.ih + 30, "vent, km/h", { anchor: "end", color: c.muted, weight: 500, size: 11 });
+    for (const [key, color, name] of [
+      ["djf", c.east, "hiver"],
+      ["jja", c.west, "été"],
+    ]) {
+      const rows = profile[key];
+      g.append("path")
+        .datum(rows)
+        .attr(
+          "d",
+          d3
+            .area()
+            .curve(d3.curveMonotoneY)
+            .y((d) => y(d.km))
+            .x0((d) => x(d.p50))
+            .x1((d) => x(d.p90)),
+        )
+        .attr("fill", color)
+        .attr("fill-opacity", 0.12);
+      g.append("path")
+        .datum(rows)
+        .attr(
+          "d",
+          d3
+            .line()
+            .curve(d3.curveMonotoneY)
+            .y((d) => y(d.km))
+            .x((d) => x(d.p50)),
+        )
+        .attr("fill", "none")
+        .attr("stroke", color)
+        .attr("stroke-width", 2.4);
+      g.selectAll(`.p${key}`)
+        .data(rows)
+        .join("circle")
+        .attr("cx", (d) => x(d.p50))
+        .attr("cy", (d) => y(d.km))
+        .attr("r", 3.5)
+        .attr("fill", color);
+      const peak = d3.greatest(rows, (d) => d.p50);
+      label(g, x(peak.p50) + 8, y(peak.km) + (key === "djf" ? -8 : 16), `${name} : ${kmh(peak.p50)}`, {
+        color,
+        size: 12,
+        halo: c.paper,
+      });
+    }
+    g.append("rect")
+      .attr("width", f.iw)
+      .attr("height", f.ih)
+      .attr("fill", "transparent")
+      .on("pointermove", (ev) => {
+        const [, my] = d3.pointer(ev);
+        const i = d3.minIndex(profile.djf, (d) => Math.abs(y(d.km) - my));
+        const w = profile.djf[i];
+        const s = profile.jja[i];
+        showTip(ev, `${w.hpa} hPa, vers ${fmtNum(w.km, 1)} km`, [
+          { color: c.east, value: kmh(w.p50), label: `hiver (1 fois sur 10 : ${kmh(w.p90)})` },
+          { color: c.west, value: kmh(s.p50), label: `été (1 fois sur 10 : ${kmh(s.p90)})` },
+        ]);
+      })
+      .on("pointerleave", hideTip);
+  };
+  draw();
+  onResize(node, draw);
+  dataTable(node, {
+    head: ["Niveau", "Altitude", "Hiver, médiane", "Été, médiane"],
+    rows: profile.djf.map((d, i) => [
+      `${d.hpa} hPa`,
+      `${fmtNum(d.km, 1)} km`,
+      kmh(d.p50),
+      kmh(profile.jja[i].p50),
+    ]),
+  });
+}
+
+/* ------------------------------------------------------------------ four years of choices */
+export function levelsChart(node, stats) {
+  const steps = [
+    ["gain_gc_l1", "Meilleure route à FL340"],
+    ["gain_level", "Meilleure altitude du jour"],
+    ["gain_free", "Changer d'altitude en vol"],
+  ];
+  const draw = () => {
+    const c = C();
+    const narrow = (node.clientWidth || 600) < 520;
+    const f = frame(node, 250, { top: 20, right: 60, bottom: 10, left: narrow ? 8 : 190 });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const groups = [
+      ["west", "Vers New York", c.west],
+      ["east", "Vers Paris", c.east],
+    ];
+    const max = d3.max(groups, ([k]) => d3.sum(steps, ([s]) => stats[k][s]));
+    const x = d3.scaleLinear().domain([0, max]).range([0, f.iw]);
+    const rowH = 30;
+    groups.forEach(([k, name, color], gi) => {
+      const top = gi * (rowH * 3 + 34);
+      label(g, narrow ? 0 : -f.m.left + 8, top + 2, name, { color, size: 13 });
+      let acc = 0;
+      steps.forEach(([s, text], i) => {
+        const v = stats[k][s];
+        const yy = top + 10 + i * rowH;
+        if (!narrow) label(g, -10, yy + 16, text, { anchor: "end", color: c.ink2, weight: 500, size: 12 });
+        g.append("rect")
+          .attr("x", x(acc))
+          .attr("y", yy + 4)
+          .attr("width", Math.max(1, x(acc + v) - x(acc)))
+          .attr("height", rowH - 10)
+          .attr("fill", color)
+          .attr("fill-opacity", 1 - i * 0.28);
+        label(g, x(acc + v) + 6, yy + 18, `${fmtNum(v, 1)} min${narrow ? `, ${text.toLowerCase()}` : ""}`, {
+          color: c.ink,
+          size: 12,
+        });
+        acc += v;
+      });
+    });
+  };
+  draw();
+  onResize(node, draw);
+}
+
+/* ------------------------------------------------------------------ every day since 1948 */
+export function stripesChart(node, history, { onPick, simDays }) {
+  const start = new Date(`${history.start}T00:00Z`);
+  const firstYear = start.getUTCFullYear();
+  const lastYear = +history.end.slice(0, 4);
+  const years = lastYear - firstYear + 1;
+  const dayOf = (i) => {
+    const d = new Date(start);
+    d.setUTCDate(d.getUTCDate() + i);
+    return d;
+  };
+  const color = (v) =>
+    v === null
+      ? "transparent"
+      : v >= 0
+        ? d3.interpolateRgb("#e8eef3", "#123f78")(Math.min(1, v / 250) ** 0.85)
+        : d3.interpolateRgb("#f6e2cf", "#c2410c")(Math.min(1, -v / 120) ** 0.85);
+  const canvas = el("canvas", { class: "stripes-canvas", "aria-hidden": "true" });
+  const axis = d3.create("svg").attr("class", "stripes-axis");
+  const mark = el("div", { class: "stripes-mark", hidden: true });
+  node.replaceChildren(canvas, axis.node(), mark);
+  let geo = null;
+  const draw = () => {
+    const width = node.clientWidth || 800;
+    const left = 40;
+    const rowH = Math.max(3, Math.min(6, Math.floor(420 / years)));
+    const height = years * rowH;
+    const cw = (width - left) / 366;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round((width - left) * dpr);
+    canvas.height = Math.round(height * dpr);
+    Object.assign(canvas.style, {
+      width: `${width - left}px`,
+      height: `${height}px`,
+      marginLeft: `${left}px`,
+    });
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    history.daily.forEach((v, i) => {
+      const d = dayOf(i);
+      const y = d.getUTCFullYear() - firstYear;
+      const doy = d3.timeDay.count(d3.utcYear(d), d);
+      ctx.fillStyle = color(v);
+      ctx.fillRect(doy * cw, y * rowH, Math.ceil(cw), rowH);
+    });
+    // the days the simulator holds
+    ctx.fillStyle = "#ffd166";
+    for (const iso of simDays) {
+      const d = new Date(`${iso}T00:00Z`);
+      if (d < start) continue;
+      const y = d.getUTCFullYear() - firstYear;
+      const doy = d3.timeDay.count(d3.utcYear(d), d);
+      ctx.fillRect(doy * cw - 1, y * rowH - 1, Math.max(3, cw + 2), rowH + 2);
+    }
+    axis
+      .attr("viewBox", `0 0 ${width} ${height + 22}`)
+      .attr("width", width)
+      .attr("height", height + 22);
+    axis.selectAll("*").remove();
+    const c = C();
+    for (let y = firstYear; y <= lastYear; y++)
+      if (y % 10 === 0)
+        axis
+          .append("text")
+          .attr("x", left - 6)
+          .attr("y", (y - firstYear) * rowH + rowH)
+          .attr("text-anchor", "end")
+          .attr("font-size", 11)
+          .attr("fill", c.muted)
+          .text(y);
+    d3.range(12).forEach((m) => {
+      const doy = d3.timeDay.count(new Date(Date.UTC(2001, 0, 1)), new Date(Date.UTC(2001, m, 1)));
+      axis
+        .append("text")
+        .attr("x", left + doy * cw + 2)
+        .attr("y", height + 16)
+        .attr("font-size", 11)
+        .attr("fill", c.muted)
+        .text(width < 520 && m % 2 ? "" : monthShort(m + 1));
+    });
+    geo = { left, rowH, cw, height };
+  };
+  const pick = (ev) => {
+    const r = canvas.getBoundingClientRect();
+    const x = ev.clientX - r.left;
+    const y = ev.clientY - r.top;
+    if (!geo || x < 0 || y < 0 || y > geo.height) return null;
+    const yr = firstYear + Math.floor(y / geo.rowH);
+    const doy = Math.floor(x / geo.cw);
+    const d = new Date(Date.UTC(yr, 0, 1 + doy));
+    if (d.getUTCFullYear() !== yr) return null;
+    const i = d3.timeDay.count(start, d);
+    const v = history.daily[i];
+    return v === undefined ? null : { iso: d.toISOString().slice(0, 10), v };
+  };
+  canvas.addEventListener("pointermove", (ev) => {
+    const p = pick(ev);
+    if (!p || p.v === null) return hideTip();
+    showTip(ev, longDate(p.iso), [
+      {
+        value: kmh(Math.abs(p.v)),
+        label: p.v >= 0 ? "dans le dos vers Paris" : "de face vers Paris",
+      },
+      ...(simDays.includes(p.iso) ? [{ value: "Simulateur", label: "cliquez pour ouvrir ce jour" }] : []),
+    ]);
+  });
+  canvas.addEventListener("pointerleave", hideTip);
+  canvas.addEventListener("click", (ev) => {
+    const p = pick(ev);
+    if (p) onPick(p);
+  });
+  draw();
+  onResize(node, draw);
+}

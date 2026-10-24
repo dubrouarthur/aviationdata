@@ -30,6 +30,16 @@ export const JSOURCES = {
       "Radiosondages de Météo-France à Trappes (station 07145), archive IGRA 2, NOAA NCEI (Durre et al., 2016)",
     url: "https://www.ncei.noaa.gov/products/weather-balloon/integrated-global-radiosonde-archive",
   },
+  openap: {
+    short: "OpenAP, TU Delft",
+    label: "OpenAP, modèle ouvert de performances des avions (Sun, Hoekstra et Ellerbroek, 2020, Aerospace)",
+    url: "https://doi.org/10.3390/aerospace7080104",
+  },
+  dgac: {
+    short: "DGAC",
+    label: "Émissions de CO2 du trafic aérien commercial en France, DGAC (data.gouv.fr)",
+    url: "https://www.data.gouv.fr/datasets/emissions-nettes-annuelles-de-co2-du-trafic-aerien-commercial-en-france",
+  },
   nasa: {
     short: "NASA Worldview",
     label: "Image VIIRS (satellite Suomi NPP), NASA Worldview / GIBS",
@@ -54,7 +64,7 @@ export function addJetSourceLines(root = document) {
       { class: "source-line" },
       el("p", {}, ["Source : ", ...links, ". Calculs aviationdata."]),
     );
-    (node.classList.contains("explorer") ? node.querySelector(".explorer-foot") : node).append(line);
+    (node.querySelector(":scope > .explorer-foot") ?? node).append(line);
   }
 }
 
@@ -74,6 +84,21 @@ export const FACTS = {
     text: "Williams, P. D. (2016), « Transatlantic flight times and climate change », Environmental Research Letters, publié le 10 février 2016 : avec un doublement du CO2, le vent d'hiver sur Londres–New York passerait de 77 à 89 km/h, les allers vers l'Amérique s'allongeraient et les retours raccourciraient, pour environ 2 000 heures de vol de plus par an.",
     source: "IOP Publishing",
     url: "https://ioppublishing.org/news/climate-change-will-delay-transatlantic-flights/",
+  },
+  lothar: {
+    text: "Tempêtes Lothar (26 décembre 1999, nord de la France) et Martin (nuit du 27 au 28 décembre 1999, sud de la France).",
+    source: "Encyclopædia Universalis, « Tempêtes en France (1999 et 2009) »",
+    url: "https://www.universalis.fr/encyclopedie/tempetes-en-france/",
+  },
+  klaus: {
+    text: "Tempête Klaus, du 23 au 25 janvier 2009, arrivée sur la côte aquitaine dans la nuit du 23 au 24 janvier.",
+    source: "Encyclopædia Universalis, « Tempêtes en France (1999 et 2009) »",
+    url: "https://www.universalis.fr/encyclopedie/tempetes-en-france/",
+  },
+  xynthia: {
+    text: "Tempête Xynthia, 27 et 28 février 2010.",
+    source: "Météo Paris",
+    url: "https://www.meteo-paris.com/actualites/27-28-fevrier-2010-tempete-xynthia-sur-la-france-01-mars-2014",
   },
   prosser: {
     text: "Prosser, M. C., Williams, P. D., Marlton, G. J. et Harrison, R. G. (2023), « Evidence for large increases in clear-air turbulence over the past four decades », Geophysical Research Letters : en un point moyen de l'Atlantique Nord, la turbulence sévère en air clair est passée de 17,7 heures par an en 1979 à 27,4 en 2020 (+55 %).",
@@ -136,7 +161,10 @@ export function initJetSources({ flights, trappes, climate, meta }) {
         "Vent le long de la route : composante du vent ERA5 à 250 hPa (environ 10 400 m) dans l'axe du grand cercle, moyennée sur le trajet, au pas de 6 heures le plus proche du milieu du vol. Positive quand elle pousse l'avion.",
       ]),
       li([
-        "Meilleure route : programmation dynamique sur 64 points le long du grand cercle et 61 écarts latéraux possibles en chacun (jusqu'à 1 800 km de part et d'autre), pour un avion à 900 km/h par rapport à l'air dont le cap corrige le vent de travers, dans le champ de vent d'une heure donnée, figé. Le modèle ignore la montée, la descente, les changements d'altitude, les couloirs imposés par le contrôle et l'évolution du vent pendant le vol : ses temps sont des ordres de grandeur.",
+        "Meilleure route : programmation dynamique sur 64 points le long du grand cercle et 61 écarts latéraux possibles en chacun (jusqu'à 1 800 km de part et d'autre). Dans l'explorateur, un avion à 900 km/h par rapport à l'air, dans le vent de midi à 250 hPa, figé.",
+      ]),
+      li([
+        "Simulateur : vents et températures ERA5 toutes les 6 heures à 300, 250 et 200 hPa (niveaux de vol 300, 340 et 390), interpolés dans l'espace et dans le temps pendant le vol. L'avion vole à son nombre de Mach de croisière (OpenAP) : sa vitesse par rapport à l'air dépend de la température. Quand l'altitude est libre, la route peut changer d'un niveau à chaque point, sans coût de montée. Le carburant suit le temps de vol et la consommation relative de chaque niveau (OpenAP, à 80 % de la masse maximale au décollage) ; le CO2 par passager part du facteur moyen des vols long-courriers au départ de la France publié par la DGAC, appliqué à la distance de la ligne. Le modèle ignore la montée, la descente, les couloirs imposés et les contraintes du contrôle : ses temps sont des ordres de grandeur.",
       ]),
       li([
         "Tendances : droite des moindres carrés, avec une marge à 95 % (± 1,96 erreur type). Corrélations de Pearson.",

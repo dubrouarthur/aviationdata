@@ -59,12 +59,15 @@
         <nav class="topnav" aria-label="Chapitres">
           <a href="#nuit">Ciara</a>
           <a href="#ecart">Une heure</a>
-          <a href="#saisons">Saisons</a>
-          <a href="#vent">10 km/h</a>
-          <a href="#route">La route</a>
+          <a href="#vent">Le vent</a>
+          <a href="#jet">Le jet</a>
+          <a href="#placer">Simulateur</a>
+          <a href="#route">Jour par jour</a>
+          <a href="#avion">L'avion</a>
           <a href="#aller-retour">Aller-retour</a>
-          <a href="#climat">Climat</a>
-          <a href="#trappes">Trappes</a>
+          <a href="#histoire">Histoire</a>
+          <a href="#votre-vol">Votre vol</a>
+          <a href="#en-bref">En bref</a>
         </nav>
       </div>
     </header>
@@ -109,6 +112,7 @@
         <div class="chapter-lede">
           <h2 class="section-title" id="h-ecart">Une heure de plus vers l'ouest</h2>
           <div class="prose" id="ecart-prose"></div>
+          <div class="prose" id="saisons-prose"></div>
         </div>
         <div class="grid-2 jet-grid">
           <figure class="panel" data-jsource="opensky">
@@ -122,14 +126,7 @@
             <div class="chart" id="chart-routes" tabindex="0" aria-labelledby="h-routes"></div>
           </figure>
         </div>
-      </section>
-
-      <section class="chapter wrap jet-chapter" id="saisons" aria-labelledby="h-saisons">
-        <div class="chapter-lede">
-          <h2 class="section-title" id="h-saisons">L'hiver, l'écart se creuse</h2>
-          <div class="prose" id="saisons-prose"></div>
-        </div>
-        <figure class="panel" data-jsource="opensky era5">
+        <figure class="panel" data-jsource="opensky era5" style="margin-top: 22px">
           <h3 id="h-monthly"></h3>
           <p class="note">
             Durée médiane des vols de chaque mois, et vent moyen le long de la route des vols vers Paris. Les
@@ -151,36 +148,203 @@
         </figure>
       </section>
 
+      <section class="chapter wrap jet-chapter" id="jet" aria-labelledby="h-jet">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-jet">Un fleuve à l'altitude des avions</h2>
+            <div class="prose" id="jet-prose"></div>
+          </div>
+          <aside class="keyfig" id="kf-jet" aria-label="Chiffres clés"></aside>
+        </div>
+        <div class="grid-wide">
+          <figure class="panel" data-jsource="igra">
+            <h3 id="h-profile">Au-dessus de Paris, le vent selon l'altitude</h3>
+            <p class="note" id="profile-note"></p>
+            <div class="chart" id="chart-profile" tabindex="0" aria-labelledby="h-profile"></div>
+          </figure>
+          <figure class="panel dark-panel" data-jsource="r1">
+            <h3 id="h-clim">Où passe le jet, en moyenne</h3>
+            <div class="seg" id="clim-season" role="group" aria-label="Saison"></div>
+            <div class="clim-map" id="clim-map"></div>
+            <p class="note" id="clim-note"></p>
+          </figure>
+        </div>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="placer" aria-labelledby="h-placer">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-placer">Placez l'avion</h2>
+            <div class="prose" id="placer-prose"></div>
+          </div>
+          <aside class="keyfig" id="kf-placer" aria-label="Chiffres clés"></aside>
+        </div>
+      </section>
+      <section class="sim-band" id="simulateur" aria-labelledby="h-sim" data-jsource="era5 openap dgac">
+        <div class="wrap sim-head">
+          <div class="sim-title">
+            <h3 id="h-sim">Le simulateur de vol</h3>
+            <p class="explorer-hint">
+              Choisissez un jour, un trajet, une heure de départ, une altitude et un avion. La route optimale
+              est recalculée dans votre navigateur ; déplacez les trois points jaunes pour tracer la vôtre,
+              puis lancez le vol : le vent évolue heure par heure.
+            </p>
+          </div>
+          <button type="button" class="btn primary sim-play" id="sim-play" aria-pressed="false">
+            Lancer le vol
+          </button>
+        </div>
+        <div class="wrap sim-controls">
+          <label class="sim-field sim-field-day">
+            <span>Jour</span>
+            <select id="sim-day"></select>
+          </label>
+          <div class="sim-field">
+            <span id="l-sim-dest">Trajet</span>
+            <div class="sim-row">
+              <div class="seg" id="sim-dest" role="group" aria-labelledby="l-sim-dest"></div>
+              <button
+                type="button"
+                class="btn ghost sim-dir"
+                id="sim-dir"
+                aria-pressed="false"
+                title="Inverser le sens"
+              ></button>
+            </div>
+          </div>
+          <div class="sim-field">
+            <span id="l-sim-hour">Départ (UTC)</span>
+            <div class="seg" id="sim-hour" role="group" aria-labelledby="l-sim-hour"></div>
+          </div>
+          <div class="sim-field">
+            <span id="l-sim-level">Altitude</span>
+            <div class="seg" id="sim-level" role="group" aria-labelledby="l-sim-level"></div>
+          </div>
+          <label class="sim-field">
+            <span>Avion</span>
+            <select id="sim-plane"></select>
+          </label>
+          <div class="sim-field">
+            <span id="l-sim-goal">Objectif de la route optimale</span>
+            <div class="seg" id="sim-goal" role="group" aria-labelledby="l-sim-goal"></div>
+          </div>
+        </div>
+        <div class="wrap sim-kpis" id="sim-kpis" aria-live="polite"></div>
+        <div
+          class="explorer-stage sim-stage"
+          id="sim-stage"
+          role="group"
+          aria-label="Carte du vent et des trois routes ; les trois points de votre route se déplacent à la souris ou aux flèches du clavier."
+        >
+          <canvas id="sim-base" aria-hidden="true"></canvas>
+          <canvas id="sim-speed" aria-hidden="true"></canvas>
+          <canvas id="sim-wind" aria-hidden="true"></canvas>
+          <svg id="sim-svg"></svg>
+          <p class="sim-clock" id="sim-clock" aria-live="off"></p>
+          <div class="exp-legend sim-legend">
+            <span class="el-row"><i class="k-gc"></i>Ligne droite (grand cercle)</span>
+            <span class="el-row"><i class="k-best"></i>Route optimale</span>
+            <span class="el-row"><i class="k-you"></i>Votre route</span>
+          </div>
+        </div>
+        <div class="wrap sim-under">
+          <div class="exp-speed-legend" id="sim-speed-legend"></div>
+          <button type="button" class="btn ghost" id="sim-reset">
+            Remettre votre route sur la ligne droite
+          </button>
+        </div>
+        <p class="wrap sim-day-note" id="sim-day-note"></p>
+        <div class="wrap sim-panels">
+          <figure class="sim-panel">
+            <h4>Le vent rencontré le long de chaque route</h4>
+            <div class="chart" id="sim-profile"></div>
+          </figure>
+          <figure class="sim-panel">
+            <h4>Quand et à quelle altitude partir ?</h4>
+            <p class="note">
+              Durée de la route optimale pour chaque heure de départ et chaque altitude. Cliquez pour
+              l'afficher.
+            </p>
+            <div id="sim-matrix"></div>
+            <p class="note" id="sim-matrix-note"></p>
+          </figure>
+        </div>
+        <div class="wrap explorer-foot sim-foot"></div>
+      </section>
+      <section class="chapter wrap jet-chapter after-explorer" id="bilan" aria-labelledby="h-bilan">
+        <div class="grid-2 jet-grid">
+          <div>
+            <h3 class="sub-title" id="h-bilan">Sur quatre ans, ce que vaut chaque choix</h3>
+            <div class="prose" id="bilan-prose"></div>
+          </div>
+          <figure class="panel" data-jsource="era5 openap">
+            <h3 id="h-levels">Les minutes gagnées, choix après choix</h3>
+            <p class="note" id="levels-note"></p>
+            <div class="chart" id="chart-levels"></div>
+          </figure>
+        </div>
+      </section>
+
       <section class="chapter wrap jet-chapter" id="route" aria-labelledby="h-route">
         <div class="chapter-lede">
-          <h2 class="section-title" id="h-route">La ligne droite n'est pas la plus rapide</h2>
+          <h2 class="section-title" id="h-route">Jour après jour, ce que vaut la meilleure route</h2>
           <div class="prose" id="route-prose"></div>
         </div>
       </section>
-      <section class="explorer" aria-labelledby="h-explorer" data-jsource="era5">
+      <section class="explorer" id="explorateur" aria-labelledby="h-explorer" data-jsource="era5 opensky">
         <div class="wrap explorer-head">
-          <h3 id="h-explorer">Choisissez un jour, une destination</h3>
+          <div class="explorer-title">
+            <h3 id="h-explorer">Choisissez un jour, une destination</h3>
+            <p class="explorer-hint">
+              Le vent de midi (UTC) à 10 km d'altitude et, dans chaque sens, la route la plus rapide, calculée
+              dans votre navigateur. Survolez la carte pour lire le vent ; les flèches du clavier changent de
+              jour.
+            </p>
+          </div>
           <div class="explorer-controls">
             <div class="seg" id="exp-dest" role="group" aria-label="Destination"></div>
-            <label class="exp-date">
-              <span>Jour</span>
-              <input type="date" id="exp-day" min="2019-01-01" max="2022-12-31" value="2020-02-08" />
-            </label>
+            <div class="exp-days" role="group" aria-label="Jour">
+              <button type="button" class="icon-btn" id="exp-prev" aria-label="Jour précédent"></button>
+              <input
+                type="date"
+                id="exp-day"
+                min="2019-01-01"
+                max="2022-12-31"
+                value="2020-02-08"
+                aria-label="Jour"
+              />
+              <button type="button" class="icon-btn" id="exp-next" aria-label="Jour suivant"></button>
+            </div>
             <button type="button" class="btn ghost" id="exp-play" aria-pressed="false">Faire défiler</button>
           </div>
         </div>
-        <div class="explorer-stage" id="exp-stage">
+        <div class="wrap exp-moments" id="exp-moments" role="group" aria-label="Jours remarquables"></div>
+        <div
+          class="explorer-stage"
+          id="exp-stage"
+          tabindex="0"
+          role="group"
+          aria-label="Carte des vents et des routes. Flèches gauche et droite : jour précédent ou suivant."
+        >
           <canvas class="exp-base" id="exp-base" aria-hidden="true"></canvas>
           <canvas class="exp-speed" id="exp-speed" aria-hidden="true"></canvas>
           <canvas class="exp-wind" id="exp-wind" aria-hidden="true"></canvas>
-          <svg class="exp-svg" id="exp-svg" role="img" aria-labelledby="exp-read"></svg>
+          <svg class="exp-svg" id="exp-svg" aria-hidden="true"></svg>
+          <div class="exp-legend" id="exp-legend"></div>
+          <div class="exp-probe" id="exp-probe" hidden></div>
         </div>
+        <div class="wrap exp-speed-legend" id="exp-speed-legend"></div>
         <div class="wrap explorer-read" id="exp-read" aria-live="polite"></div>
         <div class="wrap explorer-strip">
-          <p class="note" id="strip-note"></p>
+          <div class="strip-head">
+            <p class="note" id="strip-note"></p>
+            <div class="strip-scale" id="strip-scale"></div>
+          </div>
           <div class="chart" id="chart-strip"></div>
         </div>
-        <div class="wrap explorer-foot" id="exp-foot"></div>
+        <div class="wrap explorer-foot" id="exp-foot">
+          <button type="button" class="btn ghost" id="exp-copy">Copier le lien de ce jour</button>
+        </div>
       </section>
       <section class="chapter wrap jet-chapter after-explorer" aria-labelledby="h-model">
         <div class="grid-2 jet-grid">
@@ -196,54 +360,101 @@
         </div>
       </section>
 
+      <section class="chapter wrap jet-chapter" id="avion" aria-labelledby="h-avion">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-avion">À vent égal, l'avion compte</h2>
+            <div class="prose" id="avion-prose"></div>
+          </div>
+          <aside class="keyfig" id="kf-avion" aria-label="Chiffre clé"></aside>
+        </div>
+        <figure class="panel" data-jsource="opensky era5">
+          <h3 id="h-types">Minutes gagnées ou perdues sur la moyenne, une fois le vent retiré</h3>
+          <p class="note" id="types-note"></p>
+          <div class="chart" id="chart-types" tabindex="0" aria-labelledby="h-types"></div>
+        </figure>
+      </section>
+
       <section class="chapter wrap jet-chapter" id="aller-retour" aria-labelledby="h-ar">
         <div class="chapter-lede">
           <h2 class="section-title" id="h-ar">Le vent ne s'annule pas</h2>
           <div class="prose" id="ar-prose"></div>
         </div>
-        <figure class="panel" data-jsource="era5">
-          <h3 id="h-rt">Un aller-retour Paris–New York, en moyenne sur 2019-2022</h3>
-          <div class="chart" id="chart-rt"></div>
-        </figure>
+        <div class="grid-2 jet-grid">
+          <figure class="panel sim" aria-labelledby="h-sim">
+            <h3 id="h-sim">Faites souffler le vent</h3>
+            <p class="note">
+              Un avion à 900 km/h sur les 5 834 km de Paris–New York, avec un vent constant dans l'axe de la
+              route.
+            </p>
+            <label class="sim-control" for="sim-wind">
+              <span>Vent</span>
+              <input type="range" id="sim-wind" min="0" max="300" step="10" value="100" />
+              <output id="sim-out" for="sim-wind"></output>
+            </label>
+            <div class="sim-read" id="sim-read" aria-live="polite"></div>
+            <div class="chart" id="chart-sim"></div>
+          </figure>
+          <figure class="panel" data-jsource="era5">
+            <h3 id="h-rt">Un aller-retour Paris–New York, en moyenne sur 2019-2022</h3>
+            <p class="note">
+              Vents ERA5 de chaque jour, à midi, sur la ligne droite et sur la route la plus rapide.
+            </p>
+            <div class="chart" id="chart-rt"></div>
+          </figure>
+        </div>
       </section>
 
-      <section class="chapter wrap jet-chapter" id="climat" aria-labelledby="h-climat">
-        <div class="chapter-lede">
-          <h2 class="section-title" id="h-climat">Un jet qui bat au rythme de l'Atlantique</h2>
-          <div class="prose" id="climat-prose"></div>
+      <section class="chapter wrap jet-chapter" id="histoire" aria-labelledby="h-histoire">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-histoire">Soixante-quinze ans de vent sur l'Atlantique</h2>
+            <div class="prose" id="histoire-prose"></div>
+          </div>
+          <aside class="keyfig" id="kf-histoire" aria-label="Chiffres clés"></aside>
         </div>
-        <div class="grid-wide">
+        <figure class="panel" data-jsource="r1">
+          <h3 id="h-stripes">Le vent sur New York–Paris, chaque jour depuis 1948</h3>
+          <p class="note" id="stripes-note"></p>
+          <div class="chart stripes" id="chart-stripes" tabindex="0" aria-labelledby="h-stripes"></div>
+          <div class="stripes-read" id="stripes-read" aria-live="polite"></div>
+        </figure>
+        <div class="grid-wide" style="margin-top: 22px">
           <figure class="panel" data-jsource="r1 nao">
-            <h3 id="h-winters">Le vent arrière de l'hiver sur New York–Paris, depuis 1949</h3>
+            <h3 id="h-winters">Le vent arrière de l'hiver, et l'oscillation nord-atlantique</h3>
             <p class="note" id="winters-note"></p>
             <div class="chart" id="chart-winters" tabindex="0" aria-labelledby="h-winters"></div>
           </figure>
-          <figure class="panel dark-panel" data-jsource="r1">
-            <h3 id="h-clim">Où passe le jet, en moyenne</h3>
-            <div class="seg" id="clim-season" role="group" aria-label="Saison"></div>
-            <div class="clim-map" id="clim-map"></div>
-            <p class="note" id="clim-note"></p>
+          <figure class="panel" data-jsource="r1">
+            <h3 id="h-records">Les jours records</h3>
+            <p class="note" id="records-note"></p>
+            <ol class="records" id="records-list"></ol>
           </figure>
         </div>
       </section>
 
-      <section class="chapter wrap jet-chapter" id="trappes" aria-labelledby="h-trappes">
+      <section class="chapter wrap jet-chapter" id="votre-vol" aria-labelledby="h-vol">
         <div class="chapter-lede">
-          <h2 class="section-title" id="h-trappes">Au-dessus de Paris, les ballons de Météo-France</h2>
-          <div class="prose" id="trappes-prose"></div>
+          <h2 class="section-title" id="h-vol">Et votre vol ?</h2>
+          <div class="prose" id="vol-prose"></div>
         </div>
-        <div class="grid-2 jet-grid">
-          <figure class="panel" data-jsource="igra">
-            <h3 id="h-tmonths">Le vent à 250 hPa au-dessus de Trappes, mois par mois</h3>
-            <p class="note" id="tmonths-note"></p>
-            <div class="chart" id="chart-tmonths" tabindex="0" aria-labelledby="h-tmonths"></div>
-          </figure>
-          <figure class="panel" data-jsource="igra">
-            <h3 id="h-tyears">Les sondages au-dessus de 200 km/h, année par année</h3>
-            <p class="note" id="tyears-note"></p>
-            <div class="chart" id="chart-tyears" tabindex="0" aria-labelledby="h-tyears"></div>
-          </figure>
-        </div>
+        <figure class="panel vol" data-jsource="opensky era5">
+          <div class="vol-head">
+            <label class="vol-pick">
+              <span>Ligne</span>
+              <select id="vol-route"></select>
+            </label>
+            <div class="vol-figs" id="vol-figs" aria-live="polite"></div>
+          </div>
+          <h3 id="h-vol-chart">Durée médiane mois par mois, 2019-2022</h3>
+          <div class="chart" id="chart-vol" tabindex="0" aria-labelledby="h-vol-chart"></div>
+          <p class="note" id="vol-note"></p>
+        </figure>
+      </section>
+
+      <section class="chapter wrap jet-chapter" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">En bref</h2>
+        <div class="resume-grid bref-grid" id="bref-grid"></div>
       </section>
 
       <section class="chapter wrap jet-chapter" id="lire-aussi" aria-labelledby="h-aussi">

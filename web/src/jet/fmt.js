@@ -54,3 +54,17 @@ export function longDate(iso) {
 
 /** Winter labelled by its January: 2014 -> "2013-2014". */
 export const winter = (y) => `${y - 1}-${y}`;
+
+/** "2020-02-08" -> "8 févr. 2020". */
+export function shortDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d === 1 ? "1er" : d} ${MONTHS_SHORT[m - 1]} ${y}`;
+}
+
+const POINTS = ["nord", "nord-est", "est", "sud-est", "sud", "sud-ouest", "ouest", "nord-ouest"];
+/** Where a wind (u east, v north) blows from, in words: "venu de l'ouest". */
+export function compass(u, v) {
+  const from = (Math.atan2(-u, -v) * 180) / Math.PI;
+  const p = POINTS[Math.round((((from % 360) + 360) % 360) / 45) % 8];
+  return `venu ${/^[aeiou]/.test(p) ? "de l'" : "du "}${p}`;
+}
