@@ -112,7 +112,7 @@ async function main() {
   const P = data.forecast ? forecastFacts(data.forecast) : null;
   safely("text", () => writeStory(data, F, C));
   safely("essentials", () => writeEssentiel(F, C, P));
-  safely("open map", () => openMap(data.hero));
+  safely("open map", () => openMap(data.hero, C));
   safely("histogram", () => histogram($("#chart-hist"), data.flights.pair, { east: F.medE, west: F.medW }));
   safely("routes", () => routesChart($("#chart-routes"), data.flights.routes));
   safely("monthly", () => monthlyChart($("#chart-monthly"), data.flights.pair.monthly));
@@ -321,23 +321,30 @@ function share() {
   );
 }
 
-/** Sticky chapter nav: the chapter crossing the upper third of the screen is marked current. */
+/**
+ * The bar of parts: the last part whose start has passed the upper third of the screen is current
+ * (none above the first part), and the bar scrolls to keep it in view.
+ */
 function trackChapters() {
-  const links = new Map([...document.querySelectorAll(".topnav a")].map((a) => [a.hash.slice(1), a]));
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        links.forEach((a, id) => a.setAttribute("aria-current", String(id === e.target.id)));
-        const a = links.get(e.target.id);
-        const nav = a?.parentElement;
-        if (nav && nav.scrollWidth > nav.clientWidth)
-          nav.scrollTo({ left: a.offsetLeft - nav.offsetLeft - 24, behavior: "smooth" });
-      }
-    },
-    { rootMargin: "-30% 0px -65% 0px" },
-  );
-  links.forEach((_, id) => document.getElementById(id) && io.observe(document.getElementById(id)));
+  const links = [...document.querySelectorAll(".topnav a")]
+    .map((a) => ({ a, target: document.getElementById(a.hash.slice(1)) }))
+    .filter((l) => l.target);
+  let current = null;
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    const line = innerHeight * 0.33;
+    let on = null;
+    for (const l of links) if (l.target.getBoundingClientRect().top <= line) on = l;
+    if (on === current) return;
+    current = on;
+    links.forEach((l) => l.a.setAttribute("aria-current", String(l === on)));
+    const nav = on?.a.parentElement;
+    if (nav && nav.scrollWidth > nav.clientWidth)
+      nav.scrollTo({ left: on.a.offsetLeft - nav.offsetLeft - 24, behavior: "smooth" });
+  };
+  addEventListener("scroll", () => (raf ||= requestAnimationFrame(update)), { passive: true });
+  update();
 }
 
 function readingProgress() {

@@ -181,7 +181,7 @@ with sync_playwright() as pw:
         check(f"{path}: the menu leads home", home in (["./"], ["../"]), str(home))
         if path in ("/courant-jet", "/le-ciel-a-deux-vitesses"):
             n = pg.locator("#menu-chapters a").count()
-            check(f"{path}: the menu lists the chapters", n == pg.locator(".topnav a").count() and n > 8, f"{n}")
+            check(f"{path}: the menu lists the chapters", n >= pg.locator(".topnav a").count() and n > 8, f"{n}")
         pg.keyboard.press("Escape")
         check(f"{path}: Escape closes the menu", not pg.evaluate("document.getElementById('site-menu').open"))
     pg.goto(base + "/courant-jet", wait_until="networkidle")
@@ -222,6 +222,19 @@ with sync_playwright() as pw:
     EUR = KG / 1000 * price
     kgf = lambda v: f"{fr(round(v) if v < 200 else round(v / 10) * 10)} kg"  # noqa: E731
     gapm = p["gap"]
+    # the opening race: both flights in the frozen wind of 9 February 2020, then the gap in time, fuel, euros
+    pg.wait_for_function("() => document.querySelector('#open-race .race-gap')?.textContent.includes('Même distance')", timeout=20000)
+    east_t, west_t = hero["route"]["t_fast"], hero["west"]["t_fast"]
+    dt = west_t - east_t
+    has(
+        "the opening race",
+        text("#open-race"),
+        hm(east_t),
+        hm(west_t),
+        f"sans vent : {hm(hero['route']['nowind'])}",
+        f"Même distance, même nuit : {hm(dt)} et {fr(KG * dt / 1000, 1)} tonnes de kérosène d'écart, "
+        f"environ {euros(EUR * dt)}",
+    )
     has(
         "standfirst",
         text("#open-dek"),
@@ -400,11 +413,18 @@ with sync_playwright() as pw:
         has(
             "the essentials",
             text("#essentiel"),
-            f"brûle environ {kgf(KG)} de kérosène, {euros(EUR)}",
-            f"soit environ {tonnes(KG * gapm / 1000)} et {euros(EUR * gapm)} par vol",
+            f"Une minute de croisière brûle environ {kgf(KG)}, {euros(EUR)}",
+            f"soit environ {tonnes(KG * gapm / 1000)} de kérosène et {euros(EUR * gapm)} par vol",
             f"fait gagner {euros(west * EUR)} par vol vers New York",
             f"environ {fr(ty * price / 1e6, 1)} millions d'euros",
             f"un jour sur dix fait {pct(share_top)}",
+        )
+        big = pg.eval_on_selector_all("#essentiel .es-n", "els => els.map(e => e.textContent)")
+        want = [f"{fr(KG * gapm / 1000, 1)} t", euros(west * EUR)]
+        check(
+            "the essentials' big numbers",
+            [norm(x) for x in big[:2]] == [norm(x) for x in want] and norm(big[-1]) == norm(pct(share_top)),
+            f"{big} vs {want} … {pct(share_top)}",
         )
     FC = J["forecast"]
     if FC:
@@ -424,6 +444,12 @@ with sync_playwright() as pw:
             f"avant en capte {pct(share(fe_, 'hres12'))}",
             f"se trompe en moyenne de {kmh(err['hres12'], 1)}, celle à 4 jours et demi de {kmh(err['hres108'])}",
             f"le vent moyen du mois de {kmh(err['clim'])}",
+        )
+        has(
+            "forecasts in the essentials",
+            text("#essentiel"),
+            f"la route capte {pct(share(fw_, 'hres12'))} du gain possible",
+            f"avec le seul vent moyen du mois, {pct(share(fw_, 'clim'))}",
         )
         has(
             "forecasts in euros",

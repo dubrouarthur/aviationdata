@@ -155,6 +155,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
   dirBtn.addEventListener("click", () => {
     state.west = !state.west;
     dirBtn.setAttribute("aria-pressed", String(!state.west));
+    writeDayNote();
     resetHandles();
     solve();
   });
@@ -619,7 +620,8 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
       const [lo, hi] = d3.extent(results);
       const color = d3.scaleLinear().domain([lo, hi]).range([0, 1]);
       cells.forEach((c, i) => {
-        c.btn.style.setProperty("--k", color(results[i]).toFixed(3));
+        const k = color(results[i]);
+        c.btn.style.setProperty("--k", k.toFixed(3));
         const current = c.h === state.hour && String(c.lv) === String(state.level);
         c.btn.setAttribute("aria-pressed", String(current));
         c.btn.title = `${hm(results[i])}`;
@@ -695,13 +697,19 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
     const f = await loadDay(day);
     if (state.day !== day) return;
     state.field = f;
-    const meta = sim.days.find((d) => d.day === day);
-    $("#sim-day-note").textContent = dayNote(meta);
+    writeDayNote();
     showField(state.hour, true);
     solve();
   }
-  const dayNote = (d) =>
-    `Vent le plus fort de la journée sur la carte : ${kmh(d.max.kmh)}, à FL${sim.levels[d.max.level].fl}, ${String(d.max.hour % 24).padStart(2, "0")} h UTC${d.max.hour >= 24 ? " le lendemain" : ""}. Vent moyen sur la ligne droite New York → Paris à midi : ${kmh(Math.abs(d.tail))} ${d.tail >= 0 ? "dans le dos" : "de face"}.`;
+  // d.tail is measured towards Paris; on the same straight line towards New York it changes sign
+  function writeDayNote() {
+    const d = sim.days.find((x) => x.day === state.day);
+    if (!d) return;
+    const tail = state.west ? -d.tail : d.tail;
+    const line = state.west ? "Paris → New York" : "New York → Paris";
+    $("#sim-day-note").textContent =
+      `Vent le plus fort de la journée sur la carte : ${kmh(d.max.kmh)}, à FL${sim.levels[d.max.level].fl}, ${String(d.max.hour % 24).padStart(2, "0")} h UTC${d.max.hour >= 24 ? " le lendemain" : ""}. Vent moyen sur la ligne droite ${line} à midi : ${kmh(Math.abs(tail))} ${tail >= 0 ? "dans le dos" : "de face"}.`;
+  }
 
   let started = false;
   async function start() {

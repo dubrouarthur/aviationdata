@@ -10,8 +10,43 @@ export function initSiteMenu() {
   const nav = document.querySelector(".topnav");
   let opener = null;
 
+  // a story in parts (the jet stream): the parts and their chapters, read from the page itself
+  const fillFromParts = () => {
+    const nodes = [...document.querySelectorAll("main > .part, main > section.chapter")];
+    const line = innerHeight * 0.33;
+    let current = null;
+    const out = [];
+    for (const n of nodes) {
+      if (n.classList.contains("part")) {
+        const head = document.createElement("li");
+        head.className = "mc-part";
+        head.textContent = n.querySelector(".part-label")?.textContent.replace(/\s+/g, " ").trim() ?? "";
+        out.push(head);
+        continue;
+      }
+      const h = n.querySelector("h2.section-title");
+      if (!n.id || !h || n.hidden) continue;
+      const link = document.createElement("a");
+      link.href = `#${n.id}`;
+      const no = document.createElement("span");
+      no.className = "mc-no";
+      no.textContent = String(+(n.querySelector(".chapter-num b")?.textContent ?? "") || "");
+      const title = document.createElement("span");
+      title.className = "mc-t";
+      title.textContent = h.innerText.replace(/\s+/g, " ").trim();
+      link.append(no, title);
+      if (n.getBoundingClientRect().top <= line) current = link;
+      const li = document.createElement("li");
+      li.append(link);
+      out.push(li);
+    }
+    current?.setAttribute("aria-current", "true");
+    list.replaceChildren(...out);
+  };
+
   const fillChapters = () => {
     if (!list || !nav) return;
+    if (document.querySelector("main > .part")) return fillFromParts();
     const current = nav.querySelector('a[aria-current="true"]')?.getAttribute("href");
     const items = [...nav.querySelectorAll("a")].map((a) => {
       const id = a.getAttribute("href");

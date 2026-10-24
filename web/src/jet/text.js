@@ -681,45 +681,49 @@ export function writeHistoire({ climate, history }) {
 
 /* ------------------------------------------------------------------ the essentials, at the top */
 export function writeEssentiel(F, C, P) {
+  // each answer under its number: [chapter, number, question, answer]
   const items = [
     [
       "ecart",
+      tonnes(C.kgOf(F.gap) / 1000),
       "Combien coûte le vent ?",
       [
-        "Une minute de croisière brûle environ ",
-        { b: kg(C.KG) },
-        " de kérosène, ",
-        { b: euros(C.EUR) },
-        ". Vers New York, le vent ajoute en médiane ",
+        "Vers New York, le vent ajoute en médiane ",
         { b: hm(F.gap) },
-        `, soit environ ${tonnes(C.kgOf(F.gap) / 1000)} et ${euros(C.eurOf(F.gap))} par vol.`,
+        ` de vol, soit environ ${tonnes(C.kgOf(F.gap) / 1000)} de kérosène et ${euros(C.eurOf(F.gap))} par vol. Une minute de croisière brûle environ `,
+        { b: kg(C.KG) },
+        ", ",
+        { b: euros(C.EUR) },
+        ".",
       ],
     ],
   ];
   if (C.route)
     items.push([
       "bilan",
+      euros(C.eurOf(C.route.west)),
       "Jouer avec le vent rapporte-t-il ?",
       [
         "Oui, surtout vers l'ouest : la meilleure route fait gagner ",
         { b: euros(C.eurOf(C.route.west)) },
         " par vol vers New York, et environ ",
-        {
-          b: `${fmtNum((C.route.tonnesYear * C.price) / 1e6, 1)} millions d'euros`,
-        },
+        { b: `${fmtNum((C.route.tonnesYear * C.price) / 1e6, 1)} millions d'euros` },
         " par an sur la seule ligne Paris-CDG–New York-JFK.",
       ],
     ]);
   if (P) {
     const short = Math.min(...P.leads);
     const long = Math.max(...P.leads);
+    const a = P.west.share(`hres${long}`);
+    const b = P.west.share(`pangu${long}`);
     items.push([
       "prevoir",
+      pct(P.west.share(`hres${short}`)),
       "Faut-il une prévision parfaite ?",
       [
         `Non : calculée sur la prévision émise ${leadText(short)} avant le départ, la route capte `,
         { b: pct(P.west.share(`hres${short}`)) },
-        ` du gain possible ; à ${leadText(long)}, ${pct(Math.min(P.west.share(`hres${long}`), P.west.share(`pangu${long}`)))} à ${pct(Math.max(P.west.share(`hres${long}`), P.west.share(`pangu${long}`)))} selon le modèle ; avec le seul vent moyen du mois, `,
+        ` du gain possible ; à ${leadText(long)}, ${pct(Math.min(a, b))} à ${pct(Math.max(a, b))} selon le modèle ; avec le seul vent moyen du mois, `,
         { b: pct(P.west.share("clim")) },
         ".",
       ],
@@ -728,6 +732,7 @@ export function writeEssentiel(F, C, P) {
   if (C.route)
     items.push([
       "quels-vols",
+      pct(C.topShare("west")),
       "Quels vols y gagnent ?",
       [
         "Les vols vers l'ouest, l'hiver, les jours de jet fort : un jour sur dix fait ",
@@ -736,9 +741,10 @@ export function writeEssentiel(F, C, P) {
       ],
     ]);
   $("#essentiel-list").replaceChildren(
-    ...items.map(([id, q, a]) =>
+    ...items.map(([id, n, q, a]) =>
       el("li", {}, [
         el("a", { href: `#${id}` }, [
+          el("span", { class: "es-n", text: n }),
           el("b", { class: "es-q", text: q }),
           el("span", { class: "es-a" }, rich(a)),
         ]),
