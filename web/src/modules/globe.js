@@ -582,7 +582,7 @@ export function initGlobe(data, { dots }) {
         ],
       ];
     }
-    $("#globe-caption").replaceChildren(el("h3", { text: title }), ...parts.map((p) => el("p", {}, rich(p))));
+    $("#globe-caption").replaceChildren(el("h2", { text: title }), ...parts.map((p) => el("p", {}, rich(p))));
   }
 
   function apply(view) {

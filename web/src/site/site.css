@@ -69,10 +69,6 @@
   .site-head .wordmark {
     font-size: 1.25rem;
   }
-
-  .site-nav + .menu-open {
-    margin-left: auto;
-  }
 }
 
 /* ------------------------------------------------------------------ masthead: wordmark, story, menu */
@@ -108,8 +104,10 @@
   cursor: pointer;
 }
 
-.site-nav + .menu-open {
-  margin-left: 0;
+@media (min-width: 641px) {
+  .site-nav + .menu-open {
+    margin-left: 0;
+  }
 }
 
 .menu-open:hover,
@@ -123,7 +121,7 @@
   }
 
   .masthead .site-mark {
-    font-size: 0.9rem;
+    font-size: 1.02rem;
     padding-right: 10px;
     margin-right: -4px;
   }
@@ -669,5 +667,49 @@ html.menu-is-open {
 @media (max-width: 420px) {
   .foot-cols {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------------------------------------ touch: targets of at least 40 px */
+@media (pointer: coarse), (max-width: 640px) {
+  .masthead .site-mark,
+  .masthead .brand,
+  .site-head .wordmark {
+    padding-block: 12px;
+  }
+
+  .issue-kicker a {
+    padding-block: 10px;
+    margin-block: -10px;
+  }
+
+  .foot-cols li {
+    margin: 0;
+  }
+
+  .foot-cols li a,
+  .about-toc a {
+    display: inline-block;
+    padding-block: 9px;
+  }
+
+  .rec-open {
+    padding: 9px 14px !important;
+  }
+
+  .rk-name {
+    padding-block: 9px !important;
+  }
+
+  .timebar input[type="range"],
+  .sim-control input[type="range"] {
+    min-height: 36px;
+  }
+
+  .site-foot .ac-name,
+  .share-box a,
+  .author a {
+    display: inline-block;
+    padding-block: 8px;
   }
 }

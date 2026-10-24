@@ -222,12 +222,12 @@
     position: static;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 16px;
-    padding-top: 20px;
+    gap: 0 18px;
+    padding-top: 16px;
   }
 
   .about-toc a {
-    padding: 2px 0;
+    padding: 8px 0;
     border-left: 0;
   }
 }

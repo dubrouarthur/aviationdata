@@ -86,7 +86,7 @@ with sync_playwright() as p:
         page.click(f'#globe-moments [data-k="{key}"]')
         page.wait_for_timeout(300)
         check(
-            f"globe moment {key} updates the caption", page.locator("#globe-caption h3").inner_text().startswith(title)
+            f"globe moment {key} updates the caption", page.locator("#globe-caption h2").inner_text().startswith(title)
         )
         if key == "2020-04":
             check("April 2020 moment switches to month mode", "2020" in page.locator("#globe-out").inner_text())
@@ -106,7 +106,7 @@ with sync_playwright() as p:
     check(
         "slider to a free year clears the moments and writes a caption",
         page.locator('#globe-moments [aria-selected="true"]').count() == 0
-        and page.locator("#globe-caption h3").inner_text() == "2010",
+        and page.locator("#globe-caption h2").inner_text() == "2010",
     )
     scroll_to(page, "#explorer-title", 600)
     n_all = page.locator("#country-list li").count()
