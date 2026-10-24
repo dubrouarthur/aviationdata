@@ -51,7 +51,7 @@ export function explorer({ grid, flights, routing, onDay }) {
   const base = $("#exp-base");
   const speedCanvas = $("#exp-speed");
   const probe = $("#exp-probe");
-  const wind = particles($("#exp-wind"), { density: 1 / 300, speed: 0.007, width: 1, fade: 0.955 });
+  const wind = particles($("#exp-wind"), { density: 1 / 300, rate: 0.04, width: 1, fade: 0.97 });
   const years = {};
   const loadYear = (y) =>
     (years[y] ||= fetch(asset(`data/jet/winds-${y}.bin`))

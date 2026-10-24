@@ -132,12 +132,15 @@ const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce
 
 /**
  * Particles drifting with the wind on a transparent canvas (trails fade so the layer can sit on an
- * image). Returns { setField, resize, start, stop }. The loop runs only while the canvas is on
- * screen and the tab visible; with reduced motion, one still frame of short streaks is drawn.
+ * image). Returns { setField, swapField, resize, start, stop }. The loop runs only while the canvas is
+ * on screen and the tab visible; with reduced motion, one still frame of short streaks is drawn.
+ * Motion is timed, not counted in frames, so a 120 Hz screen shows the same speed as a 60 Hz one:
+ * `rate` is in degrees per second for a wind of 1 m/s (0.03: the core of a 300 km/h jet crosses about
+ * 2.5 degrees of longitude a second); `fade` is the share of a trail kept after 1/60 s.
  */
 export function particles(
   canvas,
-  { density = 1 / 260, max = 4200, speed = 0.022, width = 1.1, fade = 0.93 } = {},
+  { density = 1 / 260, max = 4200, rate = 0.03, width = 1.1, fade = 0.97, life = [2.5, 4.5] } = {},
 ) {
   let field = null;
   let view = null;
@@ -147,6 +150,7 @@ export function particles(
   let lat;
   let age;
   let raf = 0;
+  let last = 0;
   let onScreen = false;
   let wanted = false;
 
@@ -159,10 +163,11 @@ export function particles(
       north: Math.min(b.north, view.lat(0)),
     };
   };
-  const seed = (i, b) => {
+  const lifetime = () => life[0] + Math.random() * (life[1] - life[0]);
+  const seed = (i, b, fresh = false) => {
     lon[i] = b.west + Math.random() * (b.east - b.west);
     lat[i] = b.south + Math.random() * (b.north - b.south);
-    age[i] = Math.floor(Math.random() * 90);
+    age[i] = fresh ? Math.random() * life[1] : lifetime(); // seconds left
   };
   const reset = () => {
     if (!field || !view) return;
@@ -170,33 +175,34 @@ export function particles(
     n = Math.min(max, Math.round(view.width * view.height * density));
     lon = new Float64Array(n);
     lat = new Float64Array(n);
-    age = new Int16Array(n);
+    age = new Float32Array(n);
     const b = box();
-    for (let i = 0; i < n; i++) seed(i, b);
+    for (let i = 0; i < n; i++) seed(i, b, true);
   };
 
   const buckets = SPEED_STOPS.map(() => []);
-  function step(clear = true) {
+  function step(dt, clear = true) {
     if (clear) {
       ctx.globalCompositeOperation = "destination-in";
-      ctx.fillStyle = `rgba(0,0,0,${fade})`;
+      ctx.fillStyle = `rgba(0,0,0,${fade ** (dt * 60)})`;
       ctx.fillRect(0, 0, view.width, view.height);
       ctx.globalCompositeOperation = "source-over";
     }
     const b = box();
+    const k = rate * dt;
     for (const q of buckets) q.length = 0;
     for (let i = 0; i < n; i++) {
-      if (--age[i] < -60) {
+      age[i] -= dt;
+      if (age[i] <= 0) {
         seed(i, b);
-        age[i] = 60 + Math.floor(Math.random() * 40);
         continue;
       }
       const [u, v] = windAt(field, lat[i], lon[i]);
       const x0 = view.x(lon[i]);
       const y0 = view.y(lat[i]);
       // true trajectories: a degree of longitude shrinks with the cosine of the latitude
-      lon[i] += (u * speed) / Math.max(0.2, Math.cos((lat[i] * Math.PI) / 180));
-      lat[i] += v * speed;
+      lon[i] += (u * k) / Math.max(0.2, Math.cos((lat[i] * Math.PI) / 180));
+      lat[i] += v * k;
       if (lon[i] < b.west || lon[i] > b.east || lat[i] < b.south || lat[i] > b.north) {
         seed(i, b);
         continue;
@@ -210,25 +216,29 @@ export function particles(
       const [r, g, bl] = RAMP[c];
       ctx.strokeStyle = `rgba(${r},${g},${bl},${0.5 + 0.1 * c})`;
       ctx.beginPath();
-      for (let k = 0; k < q.length; k += 4) {
-        ctx.moveTo(q[k], q[k + 1]);
-        ctx.lineTo(q[k + 2], q[k + 3]);
+      for (let j = 0; j < q.length; j += 4) {
+        ctx.moveTo(q[j], q[j + 1]);
+        ctx.lineTo(q[j + 2], q[j + 3]);
       }
       ctx.stroke();
     });
   }
 
-  const loop = () => {
-    step();
+  const loop = (t) => {
+    // a long pause (tab in the background, a slow frame) must not throw the particles across the map
+    const dt = last ? Math.min(0.05, (t - last) / 1000) : 1 / 60;
+    last = t;
+    step(dt);
     raf = requestAnimationFrame(loop);
   };
   const still = () => {
     ctx.clearRect(0, 0, view.width, view.height);
-    for (let s = 0; s < 14; s++) step(false);
+    for (let s = 0; s < 40; s++) step(1 / 30, false);
   };
   const run = () => {
     cancelAnimationFrame(raf);
     raf = 0;
+    last = 0;
     if (!field || !view) return;
     if (reducedMotion()) return still();
     if (wanted && onScreen && !document.hidden) raf = requestAnimationFrame(loop);

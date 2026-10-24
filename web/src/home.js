@@ -31,7 +31,7 @@ async function leadWind() {
   ]);
   const field = decodeField(bytes, grid);
   const box = { ...fieldBox(field), south: 22, north: 72, west: -95 };
-  const wind = particles(canvas, { density: 1 / 230, speed: 0.008, width: 1.1, fade: 0.955 });
+  const wind = particles(canvas, { density: 1 / 230, rate: 0.045, width: 1.1, fade: 0.97 });
   const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const layout = () => {
     const width = section.clientWidth;

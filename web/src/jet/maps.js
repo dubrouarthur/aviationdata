@@ -74,7 +74,7 @@ export async function openMap(hero) {
   const field = decodeField(bytes, hero);
   const [s, w, n, e] = hero.image.bbox;
   const box = { south: s, west: w, north: n, east: e };
-  const wind = particles($("#open-wind"), { density: 1 / 210, speed: 0.009, width: 1.15, fade: 0.955 });
+  const wind = particles($("#open-wind"), { density: 1 / 210, rate: 0.045, width: 1.15, fade: 0.97 });
   const layout = () => {
     const width = stage.clientWidth;
     const height = stage.clientHeight;
