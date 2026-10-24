@@ -57,7 +57,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
   const svg = d3.select("#sim-svg");
   const base = $("#sim-base");
   const speedCanvas = $("#sim-speed");
-  const wind = particles($("#sim-wind"), { density: 1 / 300, speed: 0.007, width: 1, fade: 0.955 });
+  const wind = particles($("#sim-wind"), { density: 1 / 300, rate: 0.04, width: 1, fade: 0.97 });
   const cache = new Map();
   const loadDay = (day) =>
     cache.get(day) ??
@@ -426,7 +426,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
   function kpis() {
     const r = state.res;
     const gcMin = r.gc.minutes;
-    const price = cost?.last.eur_t;
+    const price = cost?.recent.eur_t;
     const gcT = fuel("gc", r.gc.burn);
     $("#sim-kpis").replaceChildren(
       ...ROUTES.map(({ key, name, cls }) => {
@@ -460,7 +460,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
     const p = lastPair(cost);
     $("#sim-kpi-note").textContent =
       `Kérosène et coût par vol : chargement moyen d'un Paris–New York en ${p.y} (${fmtNum(peqPerFlight(cost))} passagers-équivalents par vol, DGAC), ` +
-      `kérosène au prix de ${monthYear(cost.last.m)} (${perTonne(cost.last.eur_t)}, EIA et BCE), quel que soit l'avion choisi.`;
+      `kérosène au prix moyen des douze derniers mois (${perTonne(cost.recent.eur_t)}, de ${monthYear(cost.recent.from)} à ${monthYear(cost.recent.to)}, EIA et BCE), quel que soit l'avion choisi.`;
   }
 
   /* ---------------------------------------------------------------- wind met along each route */

@@ -16,14 +16,14 @@ export const pct = (v, d = 0) => `${fmtNum(v, d)}${NNBSP}%`;
 export const thousands = (n) => fmtNum(Math.round(n / 1000) * 1000);
 export const tonnes = (v, d = 1) => `${fmtNum(v, d)}${NNBSP}t`;
 
-/** Euros, rounded to what the model can support: 48 612 -> "48 600 €", 1 234 567 -> "1,2 million d'euros". */
+/** Euros, rounded to what the model can support: 87 -> "87 €", 48 612 -> "48 600 €", 1 234 567 -> "1,2 million d'euros". */
 export function euros(v) {
   const a = Math.abs(v);
   if (a >= 1e6) {
     const m = fmtNum(v / 1e6, a >= 1e7 ? 0 : 1);
     return `${m}${NNBSP}million${a >= 2e6 ? "s" : ""} d'euros`;
   }
-  const step = a >= 10000 ? 100 : 10;
+  const step = a >= 10000 ? 100 : a >= 100 ? 10 : 1;
   return `${fmtNum(Math.round(v / step) * step)}${NNBSP}€`;
 }
 

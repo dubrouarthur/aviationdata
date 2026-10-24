@@ -13,13 +13,15 @@ export function initSiteMenu() {
   const fillChapters = () => {
     if (!list || !nav) return;
     const current = nav.querySelector('a[aria-current="true"]')?.getAttribute("href");
-    const items = [...nav.querySelectorAll("a")].map((a, i) => {
+    const items = [...nav.querySelectorAll("a")].map((a) => {
       const id = a.getAttribute("href");
       const link = document.createElement("a");
       link.href = id;
       const no = document.createElement("span");
       no.className = "mc-no";
-      no.textContent = String(i + 1);
+      // the chapter's own number, as printed above its title (the opening and the closing have none)
+      const target = id.startsWith("#") ? document.getElementById(id.slice(1)) : null;
+      no.textContent = String(+(target?.querySelector(".chapter-num b")?.textContent ?? "") || "");
       const title = document.createElement("span");
       title.className = "mc-t";
       title.textContent = a.textContent.trim();
@@ -38,7 +40,22 @@ export function initSiteMenu() {
       li.append(link);
       return li;
     });
-    list.replaceChildren(...items);
+    // a story in parts: a heading before the first chapter of each part (data-part on the chapter bar)
+    let part = null;
+    const grouped = [];
+    [...nav.querySelectorAll("a")].forEach((a, i) => {
+      const n = a.dataset.part;
+      const label = n && document.querySelector(`#partie-${n} .part-label`);
+      if (n && n !== part && label) {
+        const head = document.createElement("li");
+        head.className = "mc-part";
+        head.textContent = label.textContent.replace(/\s+/g, " ").trim();
+        grouped.push(head);
+      }
+      part = n ?? part;
+      grouped.push(items[i]);
+    });
+    list.replaceChildren(...grouped);
   };
 
   const open = (ev) => {

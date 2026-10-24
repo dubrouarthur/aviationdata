@@ -58,18 +58,20 @@
         <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
         <a class="brand" href="#nuit">Le vent <span>dans le dos</span></a>
         <nav class="topnav" aria-label="Chapitres">
-          <a href="#nuit">Ciara</a>
-          <a href="#ecart">Une heure</a>
-          <a href="#vent">Le vent</a>
-          <a href="#jet">Le jet</a>
-          <a href="#placer">Simulateur</a>
-          <a href="#bilan">Les coûts</a>
-          <a href="#route">Jour par jour</a>
-          <a href="#avion">L'avion</a>
-          <a href="#aller-retour">Aller-retour</a>
-          <a href="#histoire">Histoire</a>
-          <a href="#votre-vol">Votre vol</a>
-          <a href="#en-bref">En bref</a>
+          <a href="#nuit-text" data-part="1">Ciara</a>
+          <a href="#ecart" data-part="1">L'écart</a>
+          <a href="#vent" data-part="1">Le vent</a>
+          <a href="#jet" data-part="2">Le jet</a>
+          <a href="#placer" data-part="3">Simulateur</a>
+          <a href="#bilan" data-part="3">Les gains</a>
+          <a href="#route" data-part="3">Jour par jour</a>
+          <a href="#prevoir" data-part="4">Prévoir</a>
+          <a href="#quels-vols" data-part="5">Quels vols</a>
+          <a href="#aller-retour" data-part="5">Aller-retour</a>
+          <a href="#avion" data-part="5">L'avion</a>
+          <a href="#histoire" data-part="6">Demain</a>
+          <a href="#votre-vol" data-part="6">Votre vol</a>
+          <a href="#en-bref">La réponse</a>
         </nav>
         <!--site:menu-button-->
       </div>
@@ -99,6 +101,18 @@
       <div class="wrap standfirst">
         <p class="open-dek" id="open-dek"></p>
         <!--site:byline-->
+      </div>
+
+      <section class="wrap essentiel" id="essentiel" aria-labelledby="h-essentiel">
+        <h2 class="essentiel-title" id="h-essentiel">L'essentiel</h2>
+        <ol class="essentiel-list" id="essentiel-list"></ol>
+      </section>
+
+      <div class="part wrap" id="partie-1">
+        <p class="part-label"><span class="part-no">Partie 1</span> Ce que coûte le vent</p>
+        <p class="part-dek">
+          Le même avion, la même distance : une heure et plusieurs tonnes de kérosène d'écart selon le sens.
+        </p>
       </div>
 
       <section class="chapter wrap jet-chapter" id="nuit-text" aria-labelledby="h-nuit">
@@ -151,6 +165,10 @@
         </figure>
       </section>
 
+      <div class="part wrap" id="partie-2">
+        <p class="part-label"><span class="part-no">Partie 2</span> Le courant-jet</p>
+        <p class="part-dek">Où souffle ce vent, à quelle altitude et en quelle saison.</p>
+      </div>
       <section class="chapter wrap jet-chapter" id="jet" aria-labelledby="h-jet">
         <div class="chapter-head">
           <div class="chapter-lede">
@@ -174,6 +192,12 @@
         </div>
       </section>
 
+      <div class="part wrap" id="partie-3">
+        <p class="part-label"><span class="part-no">Partie 3</span> S'en servir</p>
+        <p class="part-dek">
+          Choisir la route, l'altitude et l'heure : ce que cela change, vol par vol et sur une année.
+        </p>
+      </div>
       <section class="chapter wrap jet-chapter" id="placer" aria-labelledby="h-placer">
         <div class="chapter-head">
           <div class="chapter-lede">
@@ -278,19 +302,11 @@
       <section class="chapter wrap jet-chapter after-explorer" id="bilan" aria-labelledby="h-bilan">
         <div class="chapter-head">
           <div class="chapter-lede">
-            <h2 class="section-title" id="h-bilan">Ce que vaut la donnée</h2>
+            <h2 class="section-title" id="h-bilan">Ce que rapporte la meilleure route</h2>
             <div class="prose" id="bilan-prose"></div>
           </div>
           <aside class="keyfig" id="kf-bilan" aria-label="Chiffres clés"></aside>
         </div>
-        <figure class="panel ladder-panel" data-jsource="era5 openap dgac dgacpap">
-          <div class="ladder-head">
-            <h3 id="h-ladder">Chaque couche de données en plus</h3>
-            <div class="seg" id="ladder-unit" role="group" aria-label="Unité du graphique"></div>
-          </div>
-          <p class="note" id="ladder-note"></p>
-          <div class="chart" id="chart-ladder" tabindex="0" aria-labelledby="h-ladder"></div>
-        </figure>
         <div class="grid-2 jet-grid cost-grid">
           <div class="prose" id="cout-prose"></div>
           <figure class="panel" data-jsource="eia ecb dgac dgacpap">
@@ -364,20 +380,93 @@
           <button type="button" class="btn ghost" id="exp-copy">Copier le lien de ce jour</button>
         </div>
       </section>
-      <section class="chapter wrap jet-chapter after-explorer" aria-labelledby="h-model">
-        <div class="grid-2 jet-grid">
-          <div>
-            <h3 class="sub-title" id="h-model">Le modèle colle aux vols réels</h3>
-            <div class="prose" id="model-prose"></div>
+      <section class="chapter wrap jet-chapter after-explorer model-note" aria-labelledby="h-model">
+        <h3 class="sub-title" id="h-model">Le modèle colle aux vols réels</h3>
+        <div class="prose" id="model-prose"></div>
+      </section>
+
+      <div class="part wrap" id="partie-4">
+        <p class="part-label"><span class="part-no">Partie 4</span> Le prévoir</p>
+        <p class="part-dek">
+          Une route se décide avant le départ, sur une prévision. Est-elle assez juste pour que le gain reste
+          au rendez-vous ?
+        </p>
+      </div>
+      <section class="chapter wrap jet-chapter" id="prevoir" aria-labelledby="h-prevoir">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-prevoir">La prévision de la veille suffit</h2>
+            <div class="prose" id="prevoir-prose"></div>
           </div>
-          <figure class="panel" data-jsource="opensky era5">
-            <h3 id="h-gains">Ce que la meilleure route fait gagner</h3>
-            <p class="note" id="gains-note"></p>
-            <div class="chart" id="chart-gains"></div>
+          <aside class="keyfig" id="kf-prevoir" aria-label="Chiffres clés"></aside>
+        </div>
+        <figure class="panel" data-jsource="hres pangu era5">
+          <div class="ladder-head">
+            <h3 id="h-forecast">Ce que la route rapporte, selon ce que l'on savait au départ</h3>
+            <div class="seg" id="fc-dir" role="group" aria-label="Sens du vol"></div>
+          </div>
+          <p class="note" id="forecast-note"></p>
+          <div class="chart" id="chart-forecast" tabindex="0" aria-labelledby="h-forecast"></div>
+        </figure>
+        <div class="prose after-figure" id="prevoir-after"></div>
+      </section>
+
+      <div class="part wrap" id="partie-5">
+        <p class="part-label"><span class="part-no">Partie 5</span> Quels vols y gagnent</p>
+        <p class="part-dek">
+          Le gain n'est pas le même pour tous : il dépend du sens, de la saison, du jour et de l'avion.
+        </p>
+      </div>
+      <section class="chapter wrap jet-chapter" id="quels-vols" aria-labelledby="h-quels">
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-quels">Vers l'ouest, l'hiver, les jours de jet fort</h2>
+            <div class="prose" id="quels-prose"></div>
+          </div>
+          <aside class="keyfig" id="kf-quels" aria-label="Chiffres clés"></aside>
+        </div>
+        <div class="grid-2 jet-grid">
+          <figure class="panel" data-jsource="era5 openap dgac dgacpap eia">
+            <h3 id="h-months">Ce que la meilleure route fait économiser, mois par mois</h3>
+            <p class="note" id="months-note"></p>
+            <div class="chart" id="chart-months" tabindex="0" aria-labelledby="h-months"></div>
+          </figure>
+          <figure class="panel" data-jsource="era5 openap dgac dgacpap eia">
+            <h3 id="h-deciles">Un jour sur dix fait une grande part du gain</h3>
+            <p class="note" id="deciles-note"></p>
+            <div class="chart" id="chart-deciles" tabindex="0" aria-labelledby="h-deciles"></div>
           </figure>
         </div>
       </section>
-
+      <section class="chapter wrap jet-chapter" id="aller-retour" aria-labelledby="h-ar">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-ar">Le vent ne s'annule pas</h2>
+          <div class="prose" id="ar-prose"></div>
+        </div>
+        <div class="grid-2 jet-grid">
+          <figure class="panel sim" aria-labelledby="h-wind-slider">
+            <h3 id="h-wind-slider">Faites souffler le vent</h3>
+            <p class="note">
+              Un avion à 900 km/h sur les 5 834 km de Paris–New York, avec un vent constant dans l'axe de la
+              route.
+            </p>
+            <label class="sim-control" for="rt-wind">
+              <span>Vent</span>
+              <input type="range" id="rt-wind" min="0" max="300" step="10" value="100" />
+              <output id="rt-out" for="rt-wind"></output>
+            </label>
+            <div class="sim-read" id="rt-read" aria-live="polite"></div>
+            <div class="chart" id="chart-sim"></div>
+          </figure>
+          <figure class="panel" data-jsource="era5">
+            <h3 id="h-rt">Un aller-retour Paris–New York, en moyenne sur 2019-2022</h3>
+            <p class="note">
+              Vents ERA5 de chaque jour, à midi, sur la ligne droite et sur la route la plus rapide.
+            </p>
+            <div class="chart" id="chart-rt"></div>
+          </figure>
+        </div>
+      </section>
       <section class="chapter wrap jet-chapter" id="avion" aria-labelledby="h-avion">
         <div class="chapter-head">
           <div class="chapter-lede">
@@ -393,51 +482,21 @@
         </figure>
       </section>
 
-      <section class="chapter wrap jet-chapter" id="aller-retour" aria-labelledby="h-ar">
-        <div class="chapter-lede">
-          <h2 class="section-title" id="h-ar">Le vent ne s'annule pas</h2>
-          <div class="prose" id="ar-prose"></div>
-        </div>
-        <div class="grid-2 jet-grid">
-          <figure class="panel sim" aria-labelledby="h-sim">
-            <h3 id="h-sim">Faites souffler le vent</h3>
-            <p class="note">
-              Un avion à 900 km/h sur les 5 834 km de Paris–New York, avec un vent constant dans l'axe de la
-              route.
-            </p>
-            <label class="sim-control" for="sim-wind">
-              <span>Vent</span>
-              <input type="range" id="sim-wind" min="0" max="300" step="10" value="100" />
-              <output id="sim-out" for="sim-wind"></output>
-            </label>
-            <div class="sim-read" id="sim-read" aria-live="polite"></div>
-            <div class="chart" id="chart-sim"></div>
-          </figure>
-          <figure class="panel" data-jsource="era5">
-            <h3 id="h-rt">Un aller-retour Paris–New York, en moyenne sur 2019-2022</h3>
-            <p class="note">
-              Vents ERA5 de chaque jour, à midi, sur la ligne droite et sur la route la plus rapide.
-            </p>
-            <div class="chart" id="chart-rt"></div>
-          </figure>
-        </div>
-      </section>
-
+      <div class="part wrap" id="partie-6">
+        <p class="part-label"><span class="part-no">Partie 6</span> Et demain</p>
+        <p class="part-dek">
+          Le jet change-t-il ? Ce que disent soixante-dix-huit hivers de vent sur l'Atlantique.
+        </p>
+      </div>
       <section class="chapter wrap jet-chapter" id="histoire" aria-labelledby="h-histoire">
         <div class="chapter-head">
           <div class="chapter-lede">
-            <h2 class="section-title" id="h-histoire">Le vent sur l'Atlantique depuis 1948</h2>
+            <h2 class="section-title" id="h-histoire">Un jet plus fort demain ?</h2>
             <div class="prose" id="histoire-prose"></div>
           </div>
           <aside class="keyfig" id="kf-histoire" aria-label="Chiffres clés"></aside>
         </div>
-        <figure class="panel" data-jsource="r1">
-          <h3 id="h-stripes">Le vent sur New York–Paris, chaque jour depuis 1948</h3>
-          <p class="note" id="stripes-note"></p>
-          <div class="chart stripes" id="chart-stripes" tabindex="0" aria-labelledby="h-stripes"></div>
-          <div class="stripes-read" id="stripes-read" aria-live="polite"></div>
-        </figure>
-        <div class="grid-wide" style="margin-top: 22px">
+        <div class="grid-wide">
           <figure class="panel" data-jsource="r1 nao">
             <h3 id="h-winters">Le vent arrière de l'hiver, et l'oscillation nord-atlantique</h3>
             <p class="note" id="winters-note"></p>
@@ -471,7 +530,8 @@
       </section>
 
       <section class="chapter wrap jet-chapter" id="en-bref" aria-labelledby="h-bref">
-        <h2 class="section-title" id="h-bref">En bref</h2>
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
         <div class="resume-grid bref-grid" id="bref-grid"></div>
         <div class="share" id="share"></div>
       </section>

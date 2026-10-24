@@ -6,7 +6,8 @@ import { initSiteMenu } from "./site/menu.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import { shareUrl, linkedInShare } from "./lib/datasets.js";
-import { kmh, longDate } from "./jet/fmt.js";
+import * as d3 from "d3";
+import { euros, kmh, longDate, monthShort } from "./jet/fmt.js";
 import {
   storyFacts,
   writeStory,
@@ -19,7 +20,12 @@ import {
   writePlacer,
   writeHistoire,
   writeBilan,
-  ladderUnits,
+  writePrevoir,
+  writeQuels,
+  writeEssentiel,
+  costFacts,
+  forecastFacts,
+  forecastRows,
 } from "./jet/text.js";
 import { addJetSourceLines, initJetSources } from "./jet/sources.js";
 import {
@@ -28,14 +34,13 @@ import {
   monthlyChart,
   scatterChart,
   dayStrip,
-  gainsChart,
   roundTripChart,
   wintersChart,
   typesChart,
   profileChart,
-  ladderChart,
   valueChart,
-  stripesChart,
+  forecastChart,
+  pairedBars,
   simChart,
   volChart,
 } from "./jet/charts.js";
@@ -55,9 +60,10 @@ const FILES = [
   "sim_stats",
   "history",
   "cost",
+  "forecast",
 ];
 
-const OPTIONAL = new Set(["sim_stats", "history", "cost"]); // the story still stands without them
+const OPTIONAL = new Set(["sim_stats", "history", "forecast"]); // the story still stands without them
 
 async function load() {
   const parts = await Promise.all(
@@ -101,7 +107,11 @@ async function main() {
     return;
   }
   const F = storyFacts(data);
-  safely("text", () => writeStory(data, F));
+  // the money of the story: a minute of cruise in kilos and euros (cost.json), the forecasts if built
+  const C = costFacts(data);
+  const P = data.forecast ? forecastFacts(data.forecast) : null;
+  safely("text", () => writeStory(data, F, C));
+  safely("essentials", () => writeEssentiel(F, C, P));
   safely("open map", () => openMap(data.hero));
   safely("histogram", () => histogram($("#chart-hist"), data.flights.pair, { east: F.medE, west: F.medW }));
   safely("routes", () => routesChart($("#chart-routes"), data.flights.routes));
@@ -125,7 +135,6 @@ async function main() {
   );
   strip?.select(exp?.day ?? "2020-02-08");
   safely("strip scale", () => stripScale($("#strip-scale")));
-  safely("gains", () => gainsChart($("#chart-gains"), data.routing.days));
   safely("round trip", () => roundTripChart($("#chart-rt"), data.routing));
   safely("simulator", () => {
     const km = pair.km;
@@ -150,29 +159,46 @@ async function main() {
     return simulator({ sim: data.sim, grid: data.winds, cost: data.cost });
   });
   safely("costs", () => {
-    if (!data.sim_stats?.west.ladder || !data.cost) return ($("#bilan").hidden = true);
-    const B = writeBilan({ stats: data.sim_stats, sim: data.sim, cost: data.cost });
-    const units = ladderUnits({ stats: data.sim_stats, cost: data.cost });
-    const box = $("#ladder-unit");
-    box.replaceChildren(
-      ...Object.entries(units).map(([k, u]) => el("button", { type: "button", "data-v": k, text: u.label })),
-    );
-    const steps = [
-      "La meilleure route dans le vent",
-      "La meilleure altitude du jour",
-      "Changer d'altitude en vol",
-    ];
-    const chart = ladderChart($("#chart-ladder"), { ...units.eur, steps });
-    $("#ladder-note").textContent = units.eur.note;
-    segmented(box, "eur", (k) => {
-      chart.set(units[k]);
-      $("#ladder-note").textContent = units[k].note;
-    });
+    if (!C.route) return ($("#bilan").hidden = true);
+    writeBilan({ stats: data.sim_stats, sim: data.sim, cost: data.cost }, C);
     valueChart($("#chart-value"), {
       prices: data.cost.prices,
-      tonnes: B.yt,
+      tonnes: C.route.tonnesYear,
       mark: [data.cost.last.m],
       average: data.cost.year,
+    });
+  });
+  safely("forecasts", () => {
+    if (!P) return ($("#prevoir").hidden = $("#partie-4").hidden = true);
+    writePrevoir(data.forecast, C);
+    const box = $("#fc-dir");
+    const dirs = { west: "Vers New York", east: "Vers Paris" };
+    box.replaceChildren(
+      ...Object.entries(dirs).map(([k, t]) => el("button", { type: "button", "data-v": k, text: t })),
+    );
+    const opts = (dir) => ({
+      rows: forecastRows(data.forecast, dir),
+      color: dir === "west" ? "var(--west)" : "var(--east)",
+      eurOf: (m) => euros(C.eurOf(m)),
+    });
+    const chart = forecastChart($("#chart-forecast"), opts("west"));
+    segmented(box, "west", (k) => chart.set(opts(k)));
+  });
+  safely("which flights", () => {
+    if (!C.route) return ($("#quels-vols").hidden = $("#partie-5").hidden = true);
+    const Q = writeQuels(C);
+    const months = d3.range(1, 13).map((m) => monthShort(m).replace(".", ""));
+    const series = (w, e) => [
+      { name: "Vers New York", color: "var(--west)", values: w.map((v) => C.eurOf(v)) },
+      { name: "Vers Paris", color: "var(--east)", values: e.map((v) => C.eurOf(v)) },
+    ];
+    const fmt = (v) => euros(v);
+    pairedBars($("#chart-months"), { series: series(Q.mw, Q.me), ticks: months, fmt, unit: "€" });
+    pairedBars($("#chart-deciles"), {
+      series: series(Q.dw, Q.de),
+      ticks: d3.range(1, 11).map((k) => (k === 1 ? "1er" : `${k}e`)),
+      fmt,
+      unit: "€",
     });
   });
   safely("history", () => {
@@ -184,11 +210,10 @@ async function main() {
       sim?.setDay(iso);
       document.getElementById("simulateur").scrollIntoView({ behavior: "smooth", block: "start" });
     };
-    stripesChart($("#chart-stripes"), data.history, { simDays, onPick: (p) => open(p.iso) });
     recordsList(data.history, simDays, open);
   });
   safely("your flight", () => initVol(data.flights, volChart($("#chart-vol"))));
-  safely("in short", () => writeBref(data, F));
+  safely("in short", () => writeBref(data, F, C, P));
   safely("sources", () => initJetSources(data));
   numberChapters();
   addJetSourceLines();

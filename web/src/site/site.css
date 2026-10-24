@@ -254,6 +254,21 @@ html.menu-is-open {
   border-top: 1px solid var(--rule);
 }
 
+.menu-chapters .mc-part {
+  padding: 14px 0 4px;
+  border-top: 0 !important;
+  font: 700 0.8rem/1.3 var(--f-ui);
+  color: var(--muted);
+}
+
+.menu-chapters .mc-part:first-child {
+  padding-top: 0;
+}
+
+.menu-chapters .mc-part + li {
+  border-top: 0;
+}
+
 .menu-chapters a {
   display: grid;
   grid-template-columns: 2.1em minmax(0, 1fr);

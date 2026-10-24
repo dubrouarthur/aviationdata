@@ -528,67 +528,6 @@ export function dayStrip(node, days, onPick) {
   };
 }
 
-/* ------------------------------------------------------------------ mean gain by calendar month */
-export function gainsChart(node, days) {
-  const byMonth = d3.range(1, 13).map((m) => {
-    const ds = days.filter((d) => +d[0].slice(5, 7) === m);
-    return { m, e: d3.mean(ds, (d) => d[1] - d[2]), w: d3.mean(ds, (d) => d[3] - d[4]) };
-  });
-  const draw = () => {
-    const c = C();
-    const f = frame(node, 260, { top: 26, right: 8, bottom: 26, left: 40 });
-    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
-    const x0 = d3
-      .scaleBand()
-      .domain(byMonth.map((d) => d.m))
-      .range([0, f.iw])
-      .paddingInner(0.25);
-    const x1 = d3.scaleBand().domain(["w", "e"]).range([0, x0.bandwidth()]).padding(0.08);
-    const y = d3
-      .scaleLinear()
-      .domain([0, Math.ceil(d3.max(byMonth, (d) => d.w) / 5) * 5])
-      .range([f.ih, 0]);
-    g.append("g")
-      .call(
-        d3
-          .axisLeft(y)
-          .ticks(4)
-          .tickFormat((v) => `${v}`)
-          .tickSize(-f.iw),
-      )
-      .call((a) => axisStyle(a, c));
-    label(g, -36, -12, "minutes gagnées", { color: c.muted, weight: 500, size: 12 });
-    for (const k of ["w", "e"])
-      g.selectAll(`.b${k}`)
-        .data(byMonth)
-        .join("rect")
-        .attr("x", (d) => x0(d.m) + x1(k))
-        .attr("width", x1.bandwidth())
-        .attr("y", (d) => y(d[k]))
-        .attr("height", (d) => f.ih - y(d[k]))
-        .attr("fill", k === "w" ? c.west : c.east)
-        .on("pointermove", (ev, d) =>
-          showTip(ev, monthName(d.m), [
-            { color: c.west, value: minutes(d.w, 1), label: "vers New York" },
-            { color: c.east, value: minutes(d.e, 1), label: "vers Paris" },
-          ]),
-        )
-        .on("pointerleave", hideTip);
-    g.append("g")
-      .attr("transform", `translate(0,${f.ih})`)
-      .call(
-        d3
-          .axisBottom(x0)
-          .tickFormat((m) => monthShort(m).replace(".", "")[0].toUpperCase())
-          .tickSize(0)
-          .tickPadding(8),
-      )
-      .call((a) => axisStyle(a, c));
-  };
-  draw();
-  onResize(node, draw);
-}
-
 /* ------------------------------------------------------------------ the round trip */
 export function roundTripChart(node, routing) {
   const s = routing.summary;
@@ -733,150 +672,6 @@ export function wintersChart(node, climate) {
     rows: rows.map((r) => [winter(r.y), fmtNum(r.w), r.nao === null ? "–" : fmtNum(r.nao, 2)]),
   });
 }
-
-/* ------------------------------------------------------------------ Trappes: the year in the balloons */
-export function trappesMonths(node, months) {
-  const draw = () => {
-    const c = C();
-    const f = frame(node, 310, { top: 26, right: 10, bottom: 26, left: 44 });
-    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
-    const x = d3
-      .scalePoint()
-      .domain(months.map((d) => d.m))
-      .range([0, f.iw])
-      .padding(0.4);
-    const y = d3
-      .scaleLinear()
-      .domain([0, Math.ceil(d3.max(months, (d) => d.p90) / 50) * 50])
-      .range([f.ih, 0]);
-    g.append("g")
-      .call(d3.axisLeft(y).ticks(5).tickSize(-f.iw))
-      .call((a) => axisStyle(a, c));
-    label(g, -40, -14, "km/h", { color: c.muted, weight: 500, size: 11 });
-    const band = (lo, hi) =>
-      d3
-        .area()
-        .curve(d3.curveMonotoneX)
-        .x((d) => x(d.m))
-        .y0((d) => y(d[lo]))
-        .y1((d) => y(d[hi]));
-    g.append("path")
-      .datum(months)
-      .attr("d", band("p10", "p90"))
-      .attr("fill", c.east)
-      .attr("fill-opacity", 0.14);
-    g.append("path")
-      .datum(months)
-      .attr("d", band("p25", "p75"))
-      .attr("fill", c.east)
-      .attr("fill-opacity", 0.26);
-    g.append("path")
-      .datum(months)
-      .attr(
-        "d",
-        d3
-          .line()
-          .curve(d3.curveMonotoneX)
-          .x((d) => x(d.m))
-          .y((d) => y(d.p50)),
-      )
-      .attr("fill", "none")
-      .attr("stroke", c.east)
-      .attr("stroke-width", 2.4);
-    const jan = months[0];
-    label(g, x(1) + 6, y(jan.p90) - 6, "1 sondage sur 10 au-dessus", {
-      color: c.ink2,
-      weight: 500,
-      size: 12,
-      halo: c.paper,
-    });
-    label(g, x(1) + 6, y(jan.p50) - 8, "médiane", { color: c.ink, size: 12 });
-    g.append("g")
-      .attr("transform", `translate(0,${f.ih})`)
-      .call(
-        d3
-          .axisBottom(x)
-          .tickFormat((m) => monthShort(m).replace(".", "")[0].toUpperCase())
-          .tickSize(0)
-          .tickPadding(8),
-      )
-      .call((a) => axisStyle(a, c));
-    g.append("rect")
-      .attr("width", f.iw)
-      .attr("height", f.ih)
-      .attr("fill", "transparent")
-      .on("pointermove", (ev) => {
-        const [mx] = d3.pointer(ev);
-        const d = months[d3.minIndex(months, (r) => Math.abs(x(r.m) - mx))];
-        showTip(ev, monthName(d.m), [
-          { value: kmh(d.p50), label: "vent médian" },
-          { value: `${kmh(d.p25)} – ${kmh(d.p75)}`, label: "la moitié des sondages" },
-          { value: kmh(d.p90), label: "dépassé 1 fois sur 10" },
-        ]);
-      })
-      .on("pointerleave", hideTip);
-  };
-  draw();
-  onResize(node, draw);
-}
-
-export function trappesYears(node, years) {
-  const rows = years.map((d) => ({ ...d, share: (100 * d.strong) / d.n }));
-  const draw = () => {
-    const c = C();
-    const f = frame(node, 300, { top: 14, right: 10, bottom: 26, left: 36 });
-    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
-    const x = d3
-      .scaleBand()
-      .domain(rows.map((r) => r.y))
-      .range([0, f.iw])
-      .paddingInner(0.2);
-    const y = d3
-      .scaleLinear()
-      .domain([0, Math.ceil(d3.max(rows, (r) => r.share) / 2) * 2])
-      .range([f.ih, 0]);
-    g.append("g")
-      .call(
-        d3
-          .axisLeft(y)
-          .ticks(4)
-          .tickFormat((v) => `${v} %`)
-          .tickSize(-f.iw),
-      )
-      .call((a) => axisStyle(a, c));
-    g.selectAll("rect")
-      .data(rows)
-      .join("rect")
-      .attr("x", (r) => x(r.y))
-      .attr("width", x.bandwidth())
-      .attr("y", (r) => y(r.share))
-      .attr("height", (r) => f.ih - y(r.share))
-      .attr("fill", c.east)
-      .attr("fill-opacity", 0.8)
-      .on("pointermove", (ev, r) =>
-        showTip(ev, String(r.y), [{ value: `${r.strong} sur ${r.n}`, label: "sondages à 200 km/h ou plus" }]),
-      )
-      .on("pointerleave", hideTip);
-    g.append("g")
-      .attr("transform", `translate(0,${f.ih})`)
-      .call(
-        d3
-          .axisBottom(x)
-          .tickValues(rows.map((r) => r.y).filter((yy) => yy % 10 === 0))
-          .tickSize(0)
-          .tickPadding(8),
-      )
-      .call((a) => axisStyle(a, c));
-  };
-  draw();
-  onResize(node, draw);
-  dataTable(node, {
-    head: ["Année", "Sondages", "200 km/h ou plus"],
-    rows: rows.map((r) => [String(r.y), fmtNum(r.n), fmtNum(r.strong)]),
-  });
-}
-
-export { el };
 
 /* ------------------------------------------------------------------ at equal wind: aircraft types */
 export function typesChart(node, types) {
@@ -1243,64 +1038,7 @@ export function profileChart(node, profile) {
   });
 }
 
-/* ------------------------------------------------------------------ four years of choices */
-/**
- * What each layer of weather data is worth, stacked step after step for each direction.
- * rows: [{ name, color, values: [v1, v2, v3] }]; steps: three labels; fmt: value -> text.
- * On a phone each step's label sits above its bar instead of beside it.
- */
-export function ladderChart(node, opts) {
-  let st = opts;
-  const draw = () => {
-    const { rows, steps, fmt } = st;
-    const c = C();
-    const narrow = (node.clientWidth || 600) < 560;
-    const rowH = narrow ? 44 : 30;
-    const groupH = rowH * 3 + 34;
-    const f = frame(node, groupH * rows.length + 10, {
-      top: 20,
-      right: narrow ? 8 : 150,
-      bottom: 0,
-      left: narrow ? 8 : 230,
-    });
-    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
-    const max = d3.max(rows, (r) => d3.sum(r.values, (v) => Math.max(0, v))) || 1;
-    const x = d3.scaleLinear().domain([0, max]).range([0, f.iw]);
-    rows.forEach((r, gi) => {
-      const top = gi * groupH;
-      const total = d3.sum(r.values);
-      label(g, narrow ? 0 : -f.m.left + 8, top + 2, `${r.name}, ${fmt(total)} en tout`, {
-        color: r.color,
-        size: 13,
-      });
-      let acc = 0;
-      steps.forEach((text, i) => {
-        const v = r.values[i];
-        const yy = top + 10 + i * rowH + (narrow ? 14 : 0);
-        if (narrow) label(g, 0, yy, `${text} : ${fmt(v)}`, { color: c.ink2, weight: 500, size: 12 });
-        else label(g, -10, yy + 16, text, { anchor: "end", color: c.ink2, weight: 500, size: 12 });
-        g.append("rect")
-          .attr("x", x(acc))
-          .attr("y", yy + 4)
-          .attr("width", Math.max(1, x(acc + Math.max(0, v)) - x(acc)))
-          .attr("height", narrow ? rowH - 22 : rowH - 10)
-          .attr("fill", r.color)
-          .attr("fill-opacity", 1 - i * 0.28);
-        if (!narrow) label(g, x(acc + Math.max(0, v)) + 6, yy + 18, fmt(v), { color: c.ink, size: 12 });
-        acc += Math.max(0, v);
-      });
-    });
-  };
-  draw();
-  onResize(node, draw);
-  return {
-    set(next) {
-      st = { ...st, ...next };
-      draw();
-    },
-  };
-}
-
+/* ------------------------------------------------------------------ a year of savings at each month's price */
 /**
  * What a year of route optimisation on Paris-New York is worth at each month's fuel price:
  * tonnes saved in a year x euros per tonne, in millions of euros.
@@ -1427,117 +1165,162 @@ export function valueChart(node, { prices, tonnes, mark, average }) {
   });
 }
 
-/* ------------------------------------------------------------------ every day since 1948 */
-export function stripesChart(node, history, { onPick, simDays }) {
-  const start = new Date(`${history.start}T00:00Z`);
-  const firstYear = start.getUTCFullYear();
-  const lastYear = +history.end.slice(0, 4);
-  const years = lastYear - firstYear + 1;
-  const dayOf = (i) => {
-    const d = new Date(start);
-    d.setUTCDate(d.getUTCDate() + i);
-    return d;
-  };
-  const color = (v) =>
-    v === null
-      ? "transparent"
-      : v >= 0
-        ? d3.interpolateRgb("#e8eef3", "#123f78")(Math.min(1, v / 250) ** 0.85)
-        : d3.interpolateRgb("#f6e2cf", "#c2410c")(Math.min(1, -v / 120) ** 0.85);
-  const canvas = el("canvas", { class: "stripes-canvas", "aria-hidden": "true" });
-  const axis = d3.create("svg").attr("class", "stripes-axis");
-  const mark = el("div", { class: "stripes-mark", hidden: true });
-  node.replaceChildren(canvas, axis.node(), mark);
-  let geo = null;
+/* ------------------------------------------------------------------ forecasts: what was known at departure */
+/**
+ * One row per plan: a bar of the minutes gained on the great circle, its share of the maximum, and on
+ * the right the plan's error on the wind along the route. rows: forecastRows(); fmt: minutes -> text.
+ */
+export function forecastChart(node, opts) {
+  let st = opts;
   const draw = () => {
-    const width = node.clientWidth || 800;
-    const left = 40;
-    const rowH = Math.max(3, Math.min(6, Math.floor(420 / years)));
-    const height = years * rowH;
-    const cw = (width - left) / 366;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.round((width - left) * dpr);
-    canvas.height = Math.round(height * dpr);
-    Object.assign(canvas.style, {
-      width: `${width - left}px`,
-      height: `${height}px`,
-      marginLeft: `${left}px`,
-    });
-    const ctx = canvas.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    history.daily.forEach((v, i) => {
-      const d = dayOf(i);
-      const y = d.getUTCFullYear() - firstYear;
-      const doy = d3.timeDay.count(d3.utcYear(d), d);
-      ctx.fillStyle = color(v);
-      ctx.fillRect(doy * cw, y * rowH, Math.ceil(cw), rowH);
-    });
-    // the days the simulator holds
-    ctx.fillStyle = "#ffd166";
-    for (const iso of simDays) {
-      const d = new Date(`${iso}T00:00Z`);
-      if (d < start) continue;
-      const y = d.getUTCFullYear() - firstYear;
-      const doy = d3.timeDay.count(d3.utcYear(d), d);
-      ctx.fillRect(doy * cw - 1, y * rowH - 1, Math.max(3, cw + 2), rowH + 2);
-    }
-    axis
-      .attr("viewBox", `0 0 ${width} ${height + 22}`)
-      .attr("width", width)
-      .attr("height", height + 22);
-    axis.selectAll("*").remove();
+    const { rows, color, eurOf } = st;
     const c = C();
-    for (let y = firstYear; y <= lastYear; y++)
-      if (y % 10 === 0)
-        axis
-          .append("text")
-          .attr("x", left - 6)
-          .attr("y", (y - firstYear) * rowH + rowH)
-          .attr("text-anchor", "end")
-          .attr("font-size", 11)
-          .attr("fill", c.muted)
-          .text(y);
-    d3.range(12).forEach((m) => {
-      const doy = d3.timeDay.count(new Date(Date.UTC(2001, 0, 1)), new Date(Date.UTC(2001, m, 1)));
-      axis
-        .append("text")
-        .attr("x", left + doy * cw + 2)
-        .attr("y", height + 16)
-        .attr("font-size", 11)
-        .attr("fill", c.muted)
-        .text(width < 520 && m % 2 ? "" : monthShort(m + 1));
-    });
-    geo = { left, rowH, cw, height };
+    const narrow = (node.clientWidth || 600) < 600;
+    const rowH = narrow ? 50 : 36;
+    const gapH = 14;
+    const groups = [...new Set(rows.map((r) => r.group))];
+    const height = rows.length * rowH + groups.length * gapH + 30;
+    const f = frame(node, height, { top: 24, right: narrow ? 8 : 150, bottom: 6, left: narrow ? 8 : 250 });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const max = d3.max(rows, (r) => r.minutes) || 1;
+    const x = d3
+      .scaleLinear()
+      .domain([0, max])
+      .range([0, narrow ? f.iw - 4 : f.iw]);
+    if (!narrow) {
+      label(g, f.iw + 14, -10, "erreur sur le vent", { color: c.muted, weight: 500, size: 11.5 });
+    }
+    let y = 0;
+    let prev = null;
+    for (const r of rows) {
+      if (r.group !== prev) {
+        y += prev === null ? 0 : gapH;
+        prev = r.group;
+      }
+      const best = r.key === "perfect";
+      const textY = narrow ? y + 12 : y + rowH / 2 + 4;
+      const barY = narrow ? y + 18 : y + 7;
+      const barH = narrow ? rowH - 26 : rowH - 14;
+      const name = narrow ? `${r.label} : ${fmtNum(r.minutes, 1)} min` : r.label;
+      label(g, narrow ? 0 : -12, textY, name, {
+        anchor: narrow ? "start" : "end",
+        color: best ? c.ink : c.ink2,
+        weight: best ? 650 : 500,
+        size: 12.5,
+      });
+      g.append("rect")
+        .attr("x", 0)
+        .attr("y", barY)
+        .attr("width", Math.max(1.5, x(Math.max(0, r.minutes))))
+        .attr("height", barH)
+        .attr("rx", 2)
+        .attr("fill", best ? c.ink : color)
+        .attr("fill-opacity", best ? 0.85 : r.key.includes("pangu") ? 0.6 : 1);
+      if (!narrow) {
+        const v = `${fmtNum(r.minutes, 1)} min, ${eurOf(r.minutes)}${best ? "" : ` (${fmtNum(r.share, 0)} %)`}`;
+        const inside = x(r.minutes) > f.iw - 200;
+        label(g, inside ? x(r.minutes) - 8 : x(Math.max(0, r.minutes)) + 8, barY + barH / 2 + 4, v, {
+          anchor: inside ? "end" : "start",
+          color: inside ? "#fff" : c.ink,
+          size: 12,
+        });
+        if (!best)
+          label(g, f.iw + 14, barY + barH / 2 + 4, `${fmtNum(r.err, 1)} km/h`, { color: c.muted, size: 12 });
+      }
+      y += rowH;
+    }
   };
-  const pick = (ev) => {
-    const r = canvas.getBoundingClientRect();
-    const x = ev.clientX - r.left;
-    const y = ev.clientY - r.top;
-    if (!geo || x < 0 || y < 0 || y > geo.height) return null;
-    const yr = firstYear + Math.floor(y / geo.rowH);
-    const doy = Math.floor(x / geo.cw);
-    const d = new Date(Date.UTC(yr, 0, 1 + doy));
-    if (d.getUTCFullYear() !== yr) return null;
-    const i = d3.timeDay.count(start, d);
-    const v = history.daily[i];
-    return v === undefined ? null : { iso: d.toISOString().slice(0, 10), v };
-  };
-  canvas.addEventListener("pointermove", (ev) => {
-    const p = pick(ev);
-    if (!p || p.v === null) return hideTip();
-    showTip(ev, longDate(p.iso), [
-      {
-        value: kmh(Math.abs(p.v)),
-        label: p.v >= 0 ? "dans le dos vers Paris" : "de face vers Paris",
-      },
-      ...(simDays.includes(p.iso) ? [{ value: "Simulateur", label: "cliquez pour ouvrir ce jour" }] : []),
-    ]);
-  });
-  canvas.addEventListener("pointerleave", hideTip);
-  canvas.addEventListener("click", (ev) => {
-    const p = pick(ev);
-    if (p) onPick(p);
-  });
   draw();
   onResize(node, draw);
+  return {
+    set(next) {
+      st = { ...st, ...next };
+      draw();
+    },
+  };
+}
+
+/* ------------------------------------------------------------------ which flights: months and deciles */
+/**
+ * Paired bars for two series (towards New York, towards Paris) over categories, with a legend and the
+ * highest value labelled. series: [{ name, color, values }]; ticks: category labels; fmt: value -> text.
+ */
+export function pairedBars(node, { series, ticks, fmt, unit }) {
+  const draw = () => {
+    const c = C();
+    const f = frame(node, 260, { top: 34, right: 8, bottom: 26, left: 52 });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const x = d3.scaleBand().domain(d3.range(ticks.length)).range([0, f.iw]).paddingInner(0.25);
+    const xi = d3.scaleBand().domain(d3.range(series.length)).range([0, x.bandwidth()]).padding(0.08);
+    const max = d3.max(series, (s) => d3.max(s.values));
+    const y = d3
+      .scaleLinear()
+      .domain([0, max * 1.12])
+      .nice()
+      .range([f.ih, 0]);
+    g.append("g")
+      .call(
+        d3
+          .axisLeft(y)
+          .ticks(4)
+          .tickFormat((v) => `${fmtNum(v)}${unit ? ` ${unit}` : ""}`)
+          .tickSize(-f.iw),
+      )
+      .call((a) => axisStyle(a, c));
+    g.append("g")
+      .attr("transform", `translate(0,${f.ih})`)
+      .call(
+        d3
+          .axisBottom(x)
+          .tickFormat((i) => ticks[i])
+          .tickSize(0)
+          .tickPadding(8),
+      )
+      .call((a) => axisStyle(a, c));
+    series.forEach((s, k) => {
+      g.selectAll(`.b${k}`)
+        .data(s.values)
+        .join("rect")
+        .attr("x", (_, i) => x(i) + xi(k))
+        .attr("y", (v) => y(Math.max(0, v)))
+        .attr("width", xi.bandwidth())
+        .attr("height", (v) => f.ih - y(Math.max(0, v)))
+        .attr("fill", s.color)
+        .on("pointermove", (ev, v) => {
+          const i = s.values.indexOf(v);
+          showTip(
+            ev,
+            ticks[i],
+            series.map((t) => ({ color: t.color, value: fmt(t.values[i]), label: t.name })),
+          );
+        })
+        .on("pointerleave", hideTip);
+      const top = d3.maxIndex(s.values);
+      label(g, x(top) + xi(k) + xi.bandwidth() / 2, y(s.values[top]) - 6, fmt(s.values[top]), {
+        anchor: "middle",
+        color: s.color,
+        size: 11.5,
+        halo: c.paper,
+      });
+    });
+    // legend, top left
+    let lx = 0;
+    for (const s of series) {
+      g.append("rect")
+        .attr("x", lx)
+        .attr("y", -28)
+        .attr("width", 12)
+        .attr("height", 12)
+        .attr("rx", 2)
+        .attr("fill", s.color);
+      const t = label(g, lx + 18, -18, s.name, { color: c.ink, size: 12.5 });
+      lx += 18 + t.node().getComputedTextLength() + 20;
+    }
+  };
+  draw();
+  onResize(node, draw);
+  dataTable(node, {
+    head: ["", ...series.map((s) => s.name)],
+    rows: ticks.map((t, i) => [t, ...series.map((s) => fmt(s.values[i]))]),
+  });
 }

@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 base = sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "http://127.0.0.1:4173"
 J = {k: json.loads((ROOT / "public" / "data" / "jet" / f"{k}.json").read_text()) for k in
      ("flights", "routing", "hero", "climate", "trappes", "winds", "sim")}  # fmt: skip
-for k in ("sim_stats", "history", "cost"):  # optional: the page hides their sections when missing
+J["cost"] = json.loads((ROOT / "public" / "data" / "jet" / "cost.json").read_text())
+for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their sections when missing
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
@@ -65,7 +66,7 @@ def euros(v):
     a = abs(v)
     if a >= 1e6:
         return f"{fr(v / 1e6, 0 if a >= 1e7 else 1)} million{'s' if a >= 2e6 else ''} d'euros"
-    step = 100 if a >= 10000 else 10
+    step = 100 if a >= 10000 else 10 if a >= 100 else 1
     return f"{fr(round(v / step) * step)} €"
 
 
@@ -197,10 +198,23 @@ with sync_playwright() as pw:
     pg.wait_for_timeout(1200)
     text = lambda sel: norm(pg.inner_text(sel))  # noqa: E731
 
+    # the money of the story: a minute of cruise in kilos and euros (web/src/jet/cost.js)
+    co = J["cost"]
+    pr = co["pair"][-1]
+    peq = pr["peq"] / pr["mvt"]
+    km_cj = haversine((49.0097, 2.5479), (40.6413, -73.7781))
+    sound = lambda t: math.sqrt(1.4 * 287.05 * t) * 3.6  # noqa: E731
+    tref = km_cj / (0.84 * sound(220.8)) * 60
+    KG = co["factors"]["g_peqkm"] * km_cj / 1000 * peq / co["factors"]["co2_per_fuel"] / 1000 * 1000 / tref
+    price = co["recent"]["eur_t"]
+    EUR = KG / 1000 * price
+    kgf = lambda v: f"{fr(round(v) if v < 200 else round(v / 10) * 10)} kg"  # noqa: E731
+    gapm = p["gap"]
     has(
         "standfirst",
         text("#open-dek"),
-        f"dure en médiane {hm(p['gap'])} de plus",
+        f"met en médiane {hm(gapm)} de plus que vers Paris",
+        f"et brûle environ {tonnes(KG * gapm / 1000)} de kérosène",
         f"Enquête sur {fr(round(fl['n_valid'] / 1000) * 1000)} vols",
     )
     has(
@@ -208,8 +222,8 @@ with sync_playwright() as pw:
         text("#nuit-prose"),
         kmh(hero["max"]["kmh"]),
         f"par {fr(hero['max']['lat'])}° nord",
-        kmh(hero["route"]["tail"]),
-        f"en {hm(hero['route']['t_fast'])} par la route la plus rapide, contre {hm(hero['route']['nowind'])} sans vent",
+        f"en {hm(hero['route']['t_fast'])} par la route la plus rapide",
+        f"contre {hm(hero['route']['nowind'])} sans vent",
     )
     has(
         "key figures",
@@ -219,11 +233,15 @@ with sync_playwright() as pw:
         hm(hero["route"]["nowind"]),
     )
     has(
-        "one hour more",
-        text("#ecart-prose"),
+        "one hour and tonnes more",
+        text("#ecart"),
+        f"Une heure et {fr(KG * gapm / 1000, 1)} tonnes de kérosène de plus vers l'ouest",
         f"suivi {fr(round(fl['n_valid'] / 1000) * 1000)} vols",
         f"({fr(pair['east']['n'] + pair['west']['n'])} vols)",
-        f"dure en médiane {hm(pair['west']['med'])}, le retour {hm(pair['east']['med'])} : {hm(p['gap'])} d'écart",
+        f"dure en médiane {hm(pair['west']['med'])}, le retour {hm(pair['east']['med'])} : {hm(gapm)} d'écart",
+        f"brûle environ {kgf(KG)} de kérosène, soit {euros(EUR)}",
+        f"({per_tonne(price)}, de {month_year(co['recent']['from'])} à {month_year(co['recent']['to'])})",
+        f"pèse ainsi environ {tonnes(KG * gapm / 1000)} de kérosène et {euros(EUR * gapm)}",
         f"de {hm(gap(lo_r))} {toward(lo_r)} à {hm(gap(hi_r))} {toward(hi_r)}",
         ", ".join(f"{hm(gap(r))} vers {r['to']}" for r in coast),
     )
@@ -233,31 +251,33 @@ with sync_playwright() as pw:
         f"Vers Paris {hm(pair['east']['med'])}",
         f"Vers New York {hm(pair['west']['med'])}",
     )
+    djf, jja = season([12, 1, 2]), season([6, 7, 8])
     has(
         "seasons",
         text("#saisons-prose"),
-        f"en moyenne {hm(season([12, 1, 2]))} de décembre à février, contre {hm(season([6, 7, 8]))}",
-        f"{kmh(tail['2019-01'])} de vent arrière",
-        f", {kmh(tail['2019-07'])} en juillet",
+        f"atteint {hm(djf)} de décembre à février, contre {hm(jja)} de juin à août",
+        f"environ {tonnes(KG * (djf - jja) / 1000)} de kérosène d'écart en plus l'hiver",
     )
     fe, fw = p["fit"]["e"], p["fit"]["w"]
     has(
         "ten km/h",
-        text("#vent-prose"),
-        f"retire {mins(-fe['slope'], 1)} au vol",
-        f"en ajoute {mins(-fw['slope'], 1)}",
-        f"à lui seul {pct(100 * fe['r'] ** 2)}",
-        f"et {pct(100 * fw['r'] ** 2)} vers New York",
+        text("#vent"),
+        f"10 km/h de vent de face : {mins(-fw['slope'], 1)} et {kgf(-fw['slope'] * KG)} de plus",
+        f"ajoute {mins(-fw['slope'], 1)}, soit environ {kgf(-fw['slope'] * KG)} de kérosène",
+        f"et {euros(-fw['slope'] * EUR)}",
+        f"retire {mins(-fe['slope'], 1)}",
+        f"à lui seul {pct(100 * fw['r'] ** 2)} des écarts",
+        f"et {pct(100 * fe['r'] ** 2)} vers Paris",
         f"ligne droite, {mins(naive, 1)} par tranche",
     )
     has(
         "the fastest route",
         text("#route-prose"),
         f"que {mins(s['gain_e'], 1)} en moyenne",
-        f"fait gagner {mins(s['gain_w'], 1)}",
+        f"Vers New York, {mins(s['gain_w'], 1)}",
         f"plus de 10 minutes {pct(s['share_w_10'])} des jours",
         f"demandé {hm(ciara[3])} contre le vent",
-        f"très au nord, {hm(ciara[4])}",
+        f"très au nord, {hm(ciara[4])}, soit environ {euros(EUR * (ciara[3] - ciara[4]))}",
     )
     has(
         "model against flights",
@@ -270,7 +290,8 @@ with sync_playwright() as pw:
         "round trip",
         text("#ar-prose"),
         f"en moyenne {mins(s['rt_gc'])} de plus que sans vent ({hm(2 * rt['nowind'])})",
-        f"tombe à {mins(s['rt_opt'])}",
+        f"environ {euros(EUR * s['rt_gc'])}",
+        f"tombe à {mins(s['rt_opt'])}, environ {euros(EUR * s['rt_opt'])}",
     )
     R = p["records"]
     has(
@@ -290,9 +311,8 @@ with sync_playwright() as pw:
     has(
         "the jet above Paris",
         text("#jet-prose"),
-        f"de {kmh(prof['djf'][0]['p50'])} vers {fr(prof['djf'][0]['km'], 1)} km d'altitude",
-        f"à {kmh(peak['p50'])} vers {fr(peak['km'], 1)} km, au niveau de {peak['hpa']} hPa",
-        f"le maximum, {kmh(peak_s['p50'])}, se tient à {fr(peak_s['km'], 1)} km",
+        f"culmine à {kmh(peak['p50'])} vers {fr(peak['km'], 1)} km d'altitude, au niveau de {peak['hpa']} hPa",
+        f"l'été, à {kmh(peak_s['p50'])} vers {fr(peak_s['km'], 1)} km",
         f"a mesuré {kmh(tr['ciara']['kmh'])}",
         f"remonter au {long_date(tr['ciara']['stronger_before'])}",
         f"corrélation de {fr(tr['check']['r'], 3)}",
@@ -311,85 +331,121 @@ with sync_playwright() as pw:
         f"et {hm(slow[2])} en partant à {slow[0]:02d} h UTC à {fl_(slow[1])}",
         f"{mins(slow[2] - fast[2])} d'écart",
     )
-    st, co = J["sim_stats"], J["cost"]
-    if st and co and "ladder" in st["west"]:
-        # the costs chapter, recomputed: fuel from the DGAC factor and the Paris-New York load, euros from EIA/ECB
-        w, e = st["west"], st["east"]
-        pr = co["pair"][-1]
-        peq = pr["peq"] / pr["mvt"]
-        fuel_t = lambda kg: kg * peq / co["factors"]["co2_per_fuel"] / 1000  # noqa: E731
-
-        def steps(d):
-            L = d["ladder"]
-            f = [fuel_t(k) for k in L["co2"]]
-            gains = [L["time"][i - 1] - L["time"][i] for i in (1, 2, 3)]
-            return gains, [f[i - 1] - f[i] for i in (1, 2, 3)], f[0] - f[3]
-
-        (Wm, Wt, Wtot), (Em, Et, Etot) = steps(w), steps(e)
-        yt = pr["mvt"] / 2 * (Wtot + Etot)
+    ss = J["sim_stats"]
+    if ss:
+        # what the best route at FL340 is worth (2019-2022), recomputed
+        w, e = ss["west"], ss["east"]
+        west, east = w["gain_gc_l1"], e["gain_gc_l1"]
+        ty = pr["mvt"] / 2 * (west + east) * KG / 1000
         y, last = co["year"], co["last"]
-        kg10 = lambda t: f"{fr(round(t * 1000 / 10) * 10)} kg"  # noqa: E731
+        r10 = lambda v: round(v / 10) * 10  # noqa: E731
         lev = lambda i: f"FL{sim['levels'][i]['fl']}"  # noqa: E731
-        lo, hi = w["ladder"]["static_time"][0], w["ladder"]["static_fuel"][0]
-        km = haversine((49.0097, 2.5479), (40.6413, -73.7781))
-        tref = km / (st["mach"] * math.sqrt(1.4 * 287.05 * 220.8) * 3.6) * 60
-        per_min = st["g_pkm"] * km / 1000 / tref
-        ac = next(a for a in sim["aircraft"] if a["name"] == st["aircraft"])
-        st_mean = lambda xs: sum(xs) / len(xs)  # noqa: E731
-        mean_col = lambda i: st_mean([r[i + 1] for r in w["daily"]])  # noqa: E731
-        more = mean_col(2) - mean_col(0)
-        less = fuel_t(st_mean([r[1] * ac["fuel"][0] for r in w["daily"]]) * per_min) - fuel_t(
-            st_mean([r[3] * ac["fuel"][2] for r in w["daily"]]) * per_min
+        ac = next(a for a in sim["aircraft"] if a["name"] == ss["aircraft"])
+        per_min = ss["g_pkm"] * km_cj / 1000 / (km_cj / (ss["mach"] * sound(220.8)) * 60)
+        avg = lambda xs: sum(xs) / len(xs)  # noqa: E731
+        fuel_t = lambda kgpeq: kgpeq * peq / co["factors"]["co2_per_fuel"] / 1000  # noqa: E731
+        more = avg([r[3] for r in w["daily"]]) - avg([r[1] for r in w["daily"]])
+        less = fuel_t(avg([r[1] * ac["fuel"][0] for r in w["daily"]]) * per_min) - fuel_t(
+            avg([r[3] * ac["fuel"][2] for r in w["daily"]]) * per_min
         )
         has(
-            "what the data is worth: minutes",
+            "what the best route is worth",
             text("#bilan-prose"),
-            f"chacun des {fr(len(st['days']))} jours",
-            f"fait gagner {mins(Wm[0], 1)} en moyenne vers New York et {mins(Em[0], 1)} vers Paris",
-            f"rien ({mins(Wm[1], 1)} et {mins(Em[1], 1)})",
-            f"{lev(lo)}, le plus rapide {pct(w['share'][lo])} des jours",
-            f"rapporte encore {mins(Wm[2], 1)} et {mins(Em[2], 1)}",
-        )
-        has(
-            "what the data is worth: fuel",
-            text("#bilan-prose"),
-            f"{lev(hi)}, l'emporte {pct(w['ladder']['day_fuel_share'][hi])} des jours",
-            f"Paris–New York en {pr['y']} ({fr(peq)} passagers-équivalents par vol, DGAC)",
-            f"économise {kg10(Wt[0])} de kérosène par vol vers New York et {kg10(Et[0])} vers Paris",
-        )
-        has(
-            "what the data is worth: euros",
-            text("#cout-prose"),
+            f"chacun des {fr(len(ss['days']))} jours",
+            f"plutôt que la ligne droite : {mins(west, 1)} par vol vers New York",
+            f"soit environ {kgf(west * KG)} de kérosène et {euros(west * EUR)}",
+            f"{mins(east, 1)} vers Paris ({kgf(east * KG)}, {euros(east * EUR)})",
             f"Sur les {fr(pr['mvt'])} vols entre Paris-CDG et New York-JFK en {pr['y']}",
-            f"vaut {tonnes(round(yt / 10) * 10, 0)} de kérosène par an",
-            f"et {tonnes(round(yt * 3.16 / 10) * 10, 0)} de CO2",
-            f"Au prix moyen de {y['y']} ({per_tonne(y['eur_t'])}), cela fait {euros(yt * y['eur_t'])}",
-            f"au prix de {month_year(last['m'])} ({per_tonne(last['eur_t'])}), {euros(yt * last['eur_t'])}",
-            f"rallonge le vol de {mins(more, 1)} en moyenne mais économise {tonnes(less)}",
-            f"plus de {euros(less * y['eur_t'] / more)}",
-            f"ce seuil passe à {euros(less * last['eur_t'] / more)}",
+            f"environ {tonnes(r10(ty), 0)} de kérosène par an",
+            f"{tonnes(r10(ty * 3.16), 0)} de CO2, et {euros(ty * price)}",
+            f"{euros(ty * y['eur_t'])} au prix moyen de {y['y']}",
+            f"{euros(ty * last['eur_t'])} à celui de {month_year(last['m'])}",
+            f"voler à {lev(2)} plutôt qu'à {lev(0)} rallonge le vol de {mins(more, 1)} en moyenne",
+            f"mais économise {tonnes(less)}",
+            f"plus de {euros(less * price / more)}",
+            f"le seuil passe à {euros(less * last['eur_t'] / more)}",
         )
-        pg.locator("#chart-ladder").scroll_into_view_if_needed()
-        pg.wait_for_timeout(300)
-        has("ladder in euros", text("#chart-ladder"), euros(Wt[0] * last["eur_t"]))
-        pg.click("#ladder-unit button:has-text('Minutes')")
-        pg.wait_for_timeout(300)
-        has("ladder in minutes", text("#chart-ladder"), mins(Wm[0], 1), mins(Em[2], 1))
         check("fuel price chart", pg.locator("#chart-value path").count() >= 2)
+        # which flights gain: months, deciles, the top tenth of days (2019-2022)
+        gains_w = [r[0] - r[2] for r in w["daily"]]
+        months = [[g for g, d in zip(gains_w, ss["days"], strict=True) if int(d[5:7]) == k] for k in range(1, 13)]
+        mw = [avg(x) for x in months]
+        hi_m, lo_m = mw.index(max(mw)), mw.index(min(mw))
+        srt = sorted(gains_w)
+        n = len(srt)
+        top10 = avg(srt[(9 * n) // 10 :])
+        share_top = 100 * sum(sorted(gains_w, reverse=True)[: round(n / 10)]) / sum(gains_w)
+        med = srt[n // 2]
+        has(
+            "which flights gain",
+            text("#quels-prose"),
+            f"rapporte en moyenne {euros(mw[hi_m] * EUR)} par vol en {MONTHS[hi_m]}",
+            f"{euros(mw[lo_m] * EUR)} en {MONTHS[lo_m]}",
+            f"font {pct(share_top)} du gain de l'année vers New York",
+            f"ces jours-là, {mins(top10)} et {euros(top10 * EUR)} par vol",
+            f"le gain reste sous {mins(med, 1)}",
+        )
+        has(
+            "the essentials",
+            text("#essentiel"),
+            f"brûle environ {kgf(KG)} de kérosène, {euros(EUR)}",
+            f"soit environ {tonnes(KG * gapm / 1000)} et {euros(EUR * gapm)} par vol",
+            f"fait gagner {euros(west * EUR)} par vol vers New York",
+            f"environ {fr(ty * price / 1e6, 1)} millions d'euros",
+            f"un jour sur dix fait {pct(share_top)}",
+        )
+    FC = J["forecast"]
+    if FC:
+        fw_, fe_ = FC["west"]["mean"], FC["east"]["mean"]
+        gain_w = lambda k: fw_["gc"] - fw_[k]  # noqa: E731
+        share = lambda mm, k: 100 * (mm["gc"] - mm[k]) / (mm["gc"] - mm["perfect"])  # noqa: E731
+        err = FC["west"]["wind_error"]
+        has(
+            "forecasts",
+            text("#prevoir-prose"),
+            f"fait gagner {mins(gain_w('perfect'), 1)} sur la ligne droite en {FC['year']}",
+            f"avant le départ en capte {pct(share(fw_, 'hres12'))}",
+            f"il en reste {pct(share(fw_, 'hres108'))} avec le modèle du Centre européen (ECMWF)",
+            f"et {pct(share(fw_, 'pangu108'))} avec Pangu-Weather",
+            f"n'en rapporte que {pct(share(fw_, 'clim'))}",
+            f"plus petit ({mins(fe_['gc'] - fe_['perfect'], 1)})",
+            f"avant en capte {pct(share(fe_, 'hres12'))}",
+            f"se trompe en moyenne de {kmh(err['hres12'], 1)}, celle à 4 jours et demi de {kmh(err['hres108'])}",
+            f"le vent moyen du mois de {kmh(err['clim'])}",
+        )
+        has(
+            "forecasts in euros",
+            text("#prevoir-after"),
+            f"rapporte environ {euros(gain_w('hres12') * EUR)} par vol",
+            f"celle à 4 jours et demi {euros(gain_w('hres108') * EUR)}",
+            f"le vent moyen du mois {euros(gain_w('clim') * EUR)}",
+        )
+        has(
+            "forecast chart",
+            text("#chart-forecast"),
+            f"{fr(gain_w('hres12'), 1)} min",
+            f"{fr(gain_w('perfect'), 1)} min",
+        )
+        pg.click("#fc-dir button:has-text('Vers Paris')")
+        pg.wait_for_timeout(300)
+        has("forecast chart, towards Paris", text("#chart-forecast"), f"{fr(fe_['gc'] - fe_['perfect'], 1)} min")
+    has(
+        "the answer",
+        text("#reponse-prose"),
+        f"sur Paris–New York, {hm(gapm)} et environ {tonnes(KG * gapm / 1000)} de kérosène de plus que le retour",
+    )
     H = J["history"]
     if H:
+        top = H["top"][0]
         has(
-            "seventy-five years",
+            "tomorrow",
             text("#histoire-prose"),
-            f"{fr(H['share_strong'], 1)} %",
-            f"{fr(H['share_reversed'], 1)} %",
-            f"date du {long_date(H['top'][0][0])}, avec {kmh(H['top'][0][1])}",
-            f"du {long_date(H['reversed'][0][0])} : {kmh(abs(H['reversed'][0][1]))}",
-            f"de {kmh(loV)} en {loY - 1}-{loY} à {kmh(hiV)} en {hiY - 1}-{hiY}",
+            f"va de {kmh(loV)} en {loY - 1}-{loY} à {kmh(hiV)} en {hiY - 1}-{hiY}",
             f"moyenne de {kmh(cl['mean'])} sur 1991-2020",
             f"corrélation de {fr(cl['nao']['r'], 2)} sur {cl['nao']['n']} hivers",
             f"{'+' if t79['slope'] >= 0 else '−'}{kmh(abs(t79['slope']), 1)} par décennie",
             f"plus ou moins {kmh(t79['ci'], 1)}",
+            f"date du {long_date(top[0])} : {kmh(top[1])}",
         )
     (wl, wk), (sl, sk) = core("djf"), core("jja")
     pg.locator("#clim-map").scroll_into_view_if_needed()
@@ -409,9 +465,10 @@ with sync_playwright() as pw:
     check("simulator grid matches the Python routes (Ciara, Paris → New York)", got == want, f"{got} vs {want}")
     noon = next(r for r in sim["ciara"]["west"] if r["hour"] == 12)
     has("simulator key figures", text("#sim-kpis"), hm(noon["gc"]), hm(noon["best"][1]))
-    if co:
-        has("simulator fuel and cost", text("#sim-kpis"), "de kérosène", "€")
-        has("simulator cost note", text("#sim-kpi-note"), per_tonne(co["last"]["eur_t"]), month_year(co["last"]["m"]))
+    has("simulator fuel and cost", text("#sim-kpis"), "de kérosène", "€")
+    has(
+        "simulator cost note", text("#sim-kpi-note"), per_tonne(co["recent"]["eur_t"]), month_year(co["recent"]["from"])
+    )
     pg.click("#sim-level button:has-text('Libre')")
     pg.wait_for_timeout(1500)
     has("simulator free altitude", text("#sim-kpis"), hm(noon["best"][3]))
@@ -470,6 +527,30 @@ with sync_playwright() as pw:
         "today's data date",
         str(date.today().year) in text("#sources-body") or "Données traitées" in text("#sources-body"),
     )
+
+    # ------------------------------------------------------------ side margins at laptop and tablet widths
+    EDGE = """(pad) => { const w = innerWidth; const out = [];
+      for (const e of document.querySelectorAll('main *, footer *')) {
+        if (e.closest('svg, canvas, .site-menu, .tooltip, [hidden], details:not([open]), .wrap > .wrap')) continue;
+        if (e.classList.contains('wrap')) continue;
+        if (![...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1)) continue;
+        const r = e.getBoundingClientRect();
+        if (!r.width || (r.left >= pad && r.right <= w - pad)) continue;
+        let q = e.parentElement, scrolls = false;
+        while (q && q !== document.body) {
+          if (/(auto|scroll)/.test(getComputedStyle(q).overflowX)) { scrolls = true; break; }
+          q = q.parentElement;
+        }
+        if (!scrolls) out.push(e.tagName + '.' + e.className + ' ' + e.textContent.trim().slice(0, 30));
+      } return out.slice(0, 5); }"""
+    for width in (1280, 1024):
+        ep = page_(viewport={"width": width, "height": 900})
+        for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos"):
+            ep.goto(base + path, wait_until="networkidle")
+            ep.wait_for_timeout(600)
+            touching = ep.evaluate(EDGE, 8)
+            check(f"{width} px {path}: text keeps its side margins", not touching, str(touching))
+        ep.close()
 
     # ------------------------------------------------------------ phone
     mp = page_(viewport={"width": 390, "height": 844}, device_scale_factor=2)

@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { fuelTonnes, ladderSteps, peqPerFlight, priceOf, yearlyTonnes } from "./cost.js";
+import {
+  eurosPerMinute,
+  fuelTonnes,
+  kgPerMinute,
+  minutesWithoutWind,
+  peqPerFlight,
+  priceOf,
+  routeSavings,
+} from "./cost.js";
 import { euros as eurosFr } from "./fmt.js";
 
-const euros = (v) => eurosFr(v).replace(/\u202f/g, " ");
-
+const euros = (v) => eurosFr(v).replace(/ /g, " ");
 const pub = (p) => JSON.parse(readFileSync(resolve(import.meta.dirname, "../../public/data/jet", p), "utf8"));
 const cost = pub("cost.json");
 const stats = pub("sim_stats.json");
@@ -16,29 +23,26 @@ describe("the money side of the routes", () => {
     expect(peqPerFlight(cost)).toBeLessThan(450);
   });
   it("fuel follows CO2: 3.16 t of CO2 per t of fuel", () => {
-    const kg = 400; // kg of CO2 per passenger-equivalent
-    expect(fuelTonnes(cost, kg)).toBeCloseTo((kg * peqPerFlight(cost)) / 3.16 / 1000, 9);
+    expect(fuelTonnes(cost, 400)).toBeCloseTo((400 * peqPerFlight(cost)) / 3.16 / 1000, 9);
   });
-  it("a long-haul flight burns tens of tonnes, priced in hundreds of euros a tonne", () => {
-    const t = fuelTonnes(cost, stats.west.ladder.co2[0]);
-    expect(t).toBeGreaterThan(20);
-    expect(t).toBeLessThan(80);
-    expect(priceOf(cost)).toBe(cost.last.eur_t);
+  it("a minute of cruise burns about a hundred kilos", () => {
+    expect(minutesWithoutWind()).toBeGreaterThan(360);
+    expect(minutesWithoutWind()).toBeLessThan(420);
+    expect(kgPerMinute(cost)).toBeGreaterThan(60);
+    expect(kgPerMinute(cost)).toBeLessThan(160);
+    expect(eurosPerMinute(cost)).toBeCloseTo((kgPerMinute(cost) * cost.recent.eur_t) / 1000, 9);
+  });
+  it("prices: monthly, and a twelve-month reference", () => {
+    expect(priceOf(cost)).toBe(cost.recent.eur_t);
     expect(cost.prices.every(([, p]) => p > 100 && p < 2500)).toBe(true);
+    const last12 = cost.prices.slice(-12).map((p) => p[1]);
+    expect(cost.recent.eur_t).toBeCloseTo(last12.reduce((a, b) => a + b) / 12, 1);
   });
-  it("each layer of data saves something, and the steps add up to the whole", () => {
-    for (const dir of [stats.west, stats.east]) {
-      const L = ladderSteps(dir, cost);
-      L.minutes.forEach((v) => expect(v).toBeGreaterThanOrEqual(-1e-9));
-      L.tonnes.forEach((v) => expect(v).toBeGreaterThanOrEqual(-1e-9));
-      expect(L.minutes.reduce((a, b) => a + b)).toBeCloseTo(L.totalMinutes, 9);
-      expect(L.tonnes.reduce((a, b) => a + b)).toBeCloseTo(L.totalTonnes, 9);
-    }
-    const half = cost.pair.at(-1).mvt / 2;
-    expect(yearlyTonnes(stats, cost)).toBeCloseTo(
-      half * (ladderSteps(stats.west, cost).totalTonnes + ladderSteps(stats.east, cost).totalTonnes),
-      6,
-    );
+  it("the best route saves more towards New York than towards Paris", () => {
+    const r = routeSavings(stats, cost);
+    expect(r.west).toBeGreaterThan(r.east);
+    expect(r.kgWest).toBeCloseTo(r.west * kgPerMinute(cost), 9);
+    expect(r.tonnesYear).toBeCloseTo(((cost.pair.at(-1).mvt / 2) * (r.kgWest + r.kgEast)) / 1000, 6);
   });
   it("euros are rounded to what the model supports", () => {
     expect(euros(48612)).toBe("48 600 €");

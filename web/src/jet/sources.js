@@ -40,6 +40,17 @@ export const JSOURCES = {
     label: "Émissions de CO2 du trafic aérien commercial en France, DGAC (data.gouv.fr)",
     url: "https://www.data.gouv.fr/datasets/emissions-nettes-annuelles-de-co2-du-trafic-aerien-commercial-en-france",
   },
+  hres: {
+    short: "ECMWF HRES",
+    label:
+      "Prévisions HRES du Centre européen pour les prévisions météorologiques à moyen terme (ECMWF), via WeatherBench 2 (Rasp et al., 2024)",
+    url: "https://weatherbench2.readthedocs.io/en/latest/data-guide.html",
+  },
+  pangu: {
+    short: "Pangu-Weather",
+    label: "Prévisions Pangu-Weather (Bi et al., 2023, Nature), via WeatherBench 2",
+    url: "https://doi.org/10.1038/s41586-023-06185-3",
+  },
   dgacpap: {
     short: "DGAC (trafic par paire d'aéroports)",
     label: "Trafic aérien commercial mensuel par paire d'aéroports, DGAC (data.gouv.fr)",
@@ -163,6 +174,12 @@ export function initJetSources({ flights, trappes, climate, meta, cost }) {
         `. Vent à 250 hPa des sondages de 00 h et 12 h UTC, ${trappes.from}-${trappes.to}. ${trappes.rejected} valeurs isolées, supérieures de plus de 60 km/h au vent mesuré à la fois à 300 et à 200 hPa, sont écartées comme erreurs probables.`,
       ]),
       li([link(JSOURCES.nasa), ", image du 8 février 2020 (couleurs naturelles)."]),
+      li([
+        link(JSOURCES.hres),
+        " et ",
+        link(JSOURCES.pangu),
+        ". Vent à 250 hPa prévu 12 h et 108 h avant chaque départ de 2020, grille de 1,5°.",
+      ]),
       ...(cost
         ? [
             li([
@@ -206,12 +223,15 @@ export function initJetSources({ flights, trappes, climate, meta, cost }) {
         "Simulateur : vents et températures ERA5 toutes les 6 heures à 300, 250 et 200 hPa (niveaux de vol 300, 340 et 390), interpolés dans l'espace et dans le temps pendant le vol. L'avion vole à son nombre de Mach de croisière (OpenAP) : sa vitesse par rapport à l'air dépend de la température. Quand l'altitude est libre, la route peut changer d'un niveau à chaque point, sans coût de montée. Le carburant suit le temps de vol et la consommation relative de chaque niveau (OpenAP, à 80 % de la masse maximale au décollage) ; le CO2 par passager part du facteur moyen des vols long-courriers au départ de la France publié par la DGAC, appliqué à la distance de la ligne. Le modèle ignore la montée, la descente, les couloirs imposés et les contraintes du contrôle : ses temps sont des ordres de grandeur.",
       ]),
       li([
-        "Valeur de la donnée : chaque couche d'information est comparée au meilleur choix possible sans elle. Sans données de vent, la ligne droite au niveau de vol le meilleur en moyenne sur les quatre ans ; avec le vent à une altitude, la meilleure route à ce niveau ; avec trois altitudes, chaque jour la meilleure route au meilleur niveau du jour ; en quatre dimensions, la meilleure route avec des changements de niveau en vol. Le calcul est fait deux fois : pour arriver au plus tôt, et pour brûler le moins de carburant.",
+        "Gains de la meilleure route : pour chaque jour de 2019 à 2022, un Boeing 777-300ER à Mach 0,84 parti de Paris à 12 h UTC et de New York à 00 h UTC, au niveau de vol 340, dans les vents ERA5 qui évoluent pendant le vol ; la meilleure route est comparée à la ligne droite au même niveau.",
       ]),
       li([
-        "Coûts : le kérosène d'un vol part de ses émissions, le facteur long-courrier de la DGAC multiplié par la distance de la ligne et par les passagers-équivalents d'un vol Paris–New York (passagers, plus un passager par 100 kg de fret), divisé par 3,16 tonnes de CO2 par tonne de kérosène (",
+        "Prévisions : pour chaque jour de 2020 et chaque sens, la meilleure route au niveau de vol 340 est calculée sur une information (vent moyen du mois sur 2019-2022, prévision HRES ou Pangu-Weather émise 12 h ou 108 h avant le départ, ou vent ERA5 lui-même), à température standard, puis volée dans le vent et la température ERA5. Les prévisions viennent de WeatherBench 2, sur la même grille de 1,5° que ERA5. Pangu-Weather a été entraîné sur ERA5, ce qui l'avantage quand ERA5 sert de référence. L'erreur sur le vent est l'écart moyen, en valeur absolue, de la composante du vent le long de la ligne droite, six heures après le départ.",
+      ]),
+      li([
+        "Une minute de croisière en kilos et en euros : le kérosène d'un vol Paris–New York sans vent part de ses émissions, le facteur long-courrier de la DGAC multiplié par la distance de la ligne et par les passagers-équivalents d'un vol Paris–New York (passagers, plus un passager par 100 kg de fret), divisé par 3,16 tonnes de CO2 par tonne de kérosène (",
         link(JSOURCES.icao),
-        "). Le prix de l'EIA, en dollars par gallon, est converti en euros au taux mensuel de la BCE, à 0,8 kg par litre (le Jet A-1 pèse de 0,775 à 0,840 kg par litre). C'est un prix de marché américain : celui que paie une compagnie dépend de ses contrats, de ses couvertures et du lieu d'achat. Les euros sont des ordres de grandeur, et le temps de vol, qui a aussi un coût (équipage, entretien, correspondances), n'y est pas compté.",
+        "), réparti sur la durée de ce vol sans vent à Mach 0,84. Le prix de l'EIA, en dollars par gallon, est converti en euros au taux mensuel de la BCE, à 0,8 kg par litre (le Jet A-1 pèse de 0,775 à 0,840 kg par litre) ; le prix de référence est la moyenne des douze derniers mois publiés. C'est un prix de marché américain : celui que paie une compagnie dépend de ses contrats, de ses couvertures et du lieu d'achat. Les euros sont des ordres de grandeur, et le temps de vol, qui a aussi un coût (équipage, entretien, correspondances), n'y est pas compté.",
       ]),
       li([
         "Tendances : droite des moindres carrés, avec une marge à 95 % (± 1,96 erreur type). Corrélations de Pearson.",
