@@ -2,7 +2,8 @@ import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import "./jet.css";
-import { $, el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
+import { initSiteMenu } from "./site/menu.js";
+import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import { shareUrl, linkedInShare } from "./lib/datasets.js";
 import { kmh, longDate } from "./jet/fmt.js";
@@ -17,6 +18,8 @@ import {
   writeJet,
   writePlacer,
   writeHistoire,
+  writeBilan,
+  ladderUnits,
 } from "./jet/text.js";
 import { addJetSourceLines, initJetSources } from "./jet/sources.js";
 import {
@@ -30,7 +33,8 @@ import {
   wintersChart,
   typesChart,
   profileChart,
-  levelsChart,
+  ladderChart,
+  valueChart,
   stripesChart,
   simChart,
   volChart,
@@ -50,9 +54,10 @@ const FILES = [
   "sim",
   "sim_stats",
   "history",
+  "cost",
 ];
 
-const OPTIONAL = new Set(["sim_stats", "history"]); // the story still stands without them
+const OPTIONAL = new Set(["sim_stats", "history", "cost"]); // the story still stands without them
 
 async function load() {
   const parts = await Promise.all(
@@ -142,9 +147,33 @@ async function main() {
   });
   const sim = safely("simulator", () => {
     writePlacer({ sim: data.sim, stats: data.sim_stats });
-    if (data.sim_stats) levelsChart($("#chart-levels"), data.sim_stats);
-    else $("#bilan").hidden = true;
-    return simulator({ sim: data.sim, grid: data.winds });
+    return simulator({ sim: data.sim, grid: data.winds, cost: data.cost });
+  });
+  safely("costs", () => {
+    if (!data.sim_stats?.west.ladder || !data.cost) return ($("#bilan").hidden = true);
+    const B = writeBilan({ stats: data.sim_stats, sim: data.sim, cost: data.cost });
+    const units = ladderUnits({ stats: data.sim_stats, cost: data.cost });
+    const box = $("#ladder-unit");
+    box.replaceChildren(
+      ...Object.entries(units).map(([k, u]) => el("button", { type: "button", "data-v": k, text: u.label })),
+    );
+    const steps = [
+      "La meilleure route dans le vent",
+      "La meilleure altitude du jour",
+      "Changer d'altitude en vol",
+    ];
+    const chart = ladderChart($("#chart-ladder"), { ...units.eur, steps });
+    $("#ladder-note").textContent = units.eur.note;
+    segmented(box, "eur", (k) => {
+      chart.set(units[k]);
+      $("#ladder-note").textContent = units[k].note;
+    });
+    valueChart($("#chart-value"), {
+      prices: data.cost.prices,
+      tonnes: B.yt,
+      mark: [data.cost.last.m],
+      average: data.cost.year,
+    });
   });
   safely("history", () => {
     if (!data.history) return ($("#histoire").hidden = true);
@@ -293,6 +322,7 @@ function readingProgress() {
 }
 
 watchFrenchSpacing(document.body);
+initSiteMenu();
 trackChapters();
 readingProgress();
 main();

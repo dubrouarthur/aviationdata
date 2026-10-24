@@ -18,6 +18,7 @@
         "description": "Le courant-jet, les vols transatlantiques et l'art de choisir sa route au-dessus de l'Atlantique.",
         "inLanguage": "fr",
         "datePublished": "2026-10-24",
+        "dateModified": "2026-10-24",
         "author": {
           "@type": "Person",
           "name": "Arthur Dubrou",
@@ -62,6 +63,7 @@
           <a href="#vent">Le vent</a>
           <a href="#jet">Le jet</a>
           <a href="#placer">Simulateur</a>
+          <a href="#bilan">Les coûts</a>
           <a href="#route">Jour par jour</a>
           <a href="#avion">L'avion</a>
           <a href="#aller-retour">Aller-retour</a>
@@ -69,6 +71,7 @@
           <a href="#votre-vol">Votre vol</a>
           <a href="#en-bref">En bref</a>
         </nav>
+        <!--site:menu-button-->
       </div>
     </header>
 
@@ -95,7 +98,7 @@
       </section>
       <div class="wrap standfirst">
         <p class="open-dek" id="open-dek"></p>
-        <p class="open-by">Par Arthur Dubrou, octobre 2026</p>
+        <!--site:byline-->
       </div>
 
       <section class="chapter wrap jet-chapter" id="nuit-text" aria-labelledby="h-nuit">
@@ -230,6 +233,7 @@
           </div>
         </div>
         <div class="wrap sim-kpis" id="sim-kpis" aria-live="polite"></div>
+        <p class="wrap sim-kpi-note" id="sim-kpi-note"></p>
         <div
           class="explorer-stage sim-stage"
           id="sim-stage"
@@ -272,15 +276,29 @@
         <div class="wrap explorer-foot sim-foot"></div>
       </section>
       <section class="chapter wrap jet-chapter after-explorer" id="bilan" aria-labelledby="h-bilan">
-        <div class="grid-2 jet-grid">
-          <div>
-            <h3 class="sub-title" id="h-bilan">Sur quatre ans, ce que vaut chaque choix</h3>
+        <div class="chapter-head">
+          <div class="chapter-lede">
+            <h2 class="section-title" id="h-bilan">Ce que vaut la donnée</h2>
             <div class="prose" id="bilan-prose"></div>
           </div>
-          <figure class="panel" data-jsource="era5 openap">
-            <h3 id="h-levels">Les minutes gagnées, choix après choix</h3>
-            <p class="note" id="levels-note"></p>
-            <div class="chart" id="chart-levels"></div>
+          <aside class="keyfig" id="kf-bilan" aria-label="Chiffres clés"></aside>
+        </div>
+        <figure class="panel ladder-panel" data-jsource="era5 openap dgac dgacpap">
+          <div class="ladder-head">
+            <h3 id="h-ladder">Chaque couche de données en plus</h3>
+            <div class="seg" id="ladder-unit" role="group" aria-label="Unité du graphique"></div>
+          </div>
+          <p class="note" id="ladder-note"></p>
+          <div class="chart" id="chart-ladder" tabindex="0" aria-labelledby="h-ladder"></div>
+        </figure>
+        <div class="grid-2 jet-grid cost-grid">
+          <div class="prose" id="cout-prose"></div>
+          <figure class="panel" data-jsource="eia ecb dgac dgacpap">
+            <h3 id="h-value">
+              Une année d'optimisation sur Paris–New&nbsp;York, au prix du kérosène de chaque mois
+            </h3>
+            <p class="note" id="value-note"></p>
+            <div class="chart" id="chart-value" tabindex="0" aria-labelledby="h-value"></div>
           </figure>
         </div>
       </section>
@@ -455,37 +473,20 @@
       <section class="chapter wrap jet-chapter" id="en-bref" aria-labelledby="h-bref">
         <h2 class="section-title" id="h-bref">En bref</h2>
         <div class="resume-grid bref-grid" id="bref-grid"></div>
-      </section>
-
-      <section class="chapter wrap jet-chapter" id="lire-aussi" aria-labelledby="h-aussi">
-        <h2 class="sub-title" id="h-aussi">À lire aussi</h2>
-        <a class="also" href="../le-ciel-a-deux-vitesses">
-          <img src="../og.png" alt="" width="1200" height="630" loading="lazy" />
-          <span>
-            <b>Le ciel à deux vitesses</b>
-            Trente-cinq ans de transport aérien français : l'international repart, l'intérieur décroche.
-          </span>
-        </a>
-        <p class="all-stories"><a href="../">Toutes les enquêtes d'aviationdata</a></p>
         <div class="share" id="share"></div>
       </section>
+
+      <!--site:next-->
     </main>
 
     <footer class="footer" id="sources">
       <div class="wrap">
-        <div class="credit">
-          <p class="credit-name">Conçu et réalisé par Arthur Dubrou</p>
-          <p>
-            Une question, une idée, une collaboration ?
-            <a href="https://www.linkedin.com/in/arthur-dubrou/" target="_blank" rel="noopener"
-              >Écrivez-moi sur LinkedIn</a
-            >
-          </p>
-        </div>
         <h2>Méthode et sources</h2>
         <div id="sources-body"></div>
       </div>
     </footer>
+    <!--site:foot-->
+    <!--site:menu-->
     <div class="tooltip" id="tooltip" role="status"></div>
     <script type="module" src="/src/jet.js"></script>
   </body>

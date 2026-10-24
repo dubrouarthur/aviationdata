@@ -3,12 +3,30 @@
 import * as d3 from "d3";
 import { $, el, rich, keyFigures } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
-import { hm, kmh, longDate, minutes, monthName, pct, thousands, winter } from "./fmt.js";
+import {
+  euros,
+  hm,
+  kmh,
+  longDate,
+  minutes,
+  monthName,
+  monthYear,
+  pct,
+  perTonne,
+  thousands,
+  tonnes,
+  winter,
+} from "./fmt.js";
+import { haversine } from "./route.js";
+import { soundKmh } from "./sim.js";
+import { fuelTonnes, ladderSteps, lastPair, peqPerFlight, yearlyTonnes } from "./cost.js";
 
 // "vers Newark", or "entre Orly et Newark" when the French end is not Paris-CDG
 const toward = (r) => (r.fr === "LFPG" ? `vers ${r.to}` : `entre ${r.from.replace("Paris-", "")} et ${r.to}`);
 const prose = (id, paragraphs) => $(id).replaceChildren(...paragraphs.map((p) => el("p", {}, rich(p))));
 const WEST_COAST = ["KLAX", "KSFO", "KSEA", "CYVR"];
+const CDG = [49.0097, 2.5479]; // as in etl/jet/build_sim.py
+const JFK = [40.6413, -73.7781];
 
 export function storyFacts({ flights, routing, hero, climate, trappes }) {
   const p = flights.pair;
@@ -305,36 +323,145 @@ export function writePlacer({ sim, stats }) {
       color: "var(--west)",
     },
   ]);
-  if (stats) writeBilan(stats, sim);
 }
 
-export function writeBilan(stats, sim) {
+/** The costs chapter: what each layer of weather data is worth, in minutes, tonnes and euros. */
+export function bilanFacts({ stats, sim, cost }) {
+  const W = ladderSteps(stats.west, cost);
+  const E = ladderSteps(stats.east, cost);
+  const ac = sim.aircraft.find((a) => a.name === stats.aircraft);
+  // flying high (least fuel) or low (fastest): FL390 against FL300, every day of 2019-2022, west
+  const km = haversine(...JFK, ...CDG);
+  const tref = (km / (stats.mach * soundKmh(220.8))) * 60;
+  const kgPerMin = (stats.g_pkm * km) / 1000 / tref; // kg of CO2 per passenger-equivalent per fuel-minute
+  const trade = (dir) => {
+    const d = stats[dir].daily;
+    const t = (i) => d3.mean(d, (r) => r[i + 1]);
+    const f = (i) => fuelTonnes(cost, d3.mean(d, (r) => r[i + 1] * ac.fuel[i]) * kgPerMin);
+    const minutesMore = t(2) - t(0);
+    const tonnesLess = f(0) - f(2);
+    return { minutesMore, tonnesLess, breakEven: (p) => (tonnesLess * p) / minutesMore };
+  };
+  const yt = yearlyTonnes(stats, cost);
+  return {
+    W,
+    E,
+    ac,
+    yt,
+    west: trade("west"),
+    east: trade("east"),
+    pair: lastPair(cost),
+    peq: peqPerFlight(cost),
+  };
+}
+
+export function writeBilan({ stats, sim, cost }) {
+  const B = bilanFacts({ stats, sim, cost });
+  const { W, E, yt } = B;
   const w = stats.west;
-  const e = stats.east;
   const fl = (i) => `FL${sim.levels[i].fl}`;
-  const top = (x) => d3.maxIndex(x.share);
+  const low = w.ladder.static_time[0];
+  const high = w.ladder.static_fuel[0];
+  const kg = (t) => `${fmtNum(Math.round((t * 1000) / 10) * 10)} kg`;
+  const y = cost.year;
+  const last = cost.last;
   prose("#bilan-prose", [
     [
-      `Le même calcul, refait pour chacun des ${fmtNum(stats.days.length)} jours de 2019 à 2022 avec un avion à Mach ${fmtNum(stats.mach, 2)}, chiffre chaque choix. Vers New York, départ à midi UTC : la meilleure route à FL340 fait gagner `,
-      { b: minutes(w.gain_gc_l1, 1) },
-      " en moyenne sur la ligne droite, choisir chaque jour la meilleure altitude ",
-      { b: minutes(w.gain_level, 1) },
-      " de plus, et pouvoir en changer en vol encore ",
-      { b: minutes(w.gain_free, 1) },
+      `Le simulateur montre une journée. Refait pour chacun des ${fmtNum(stats.days.length)} jours de 2019 à 2022, avec un ${stats.aircraft} parti de Paris à midi UTC et de New York à minuit UTC, le calcul dit ce que rapporte chaque couche de données météo, comparée au meilleur choix possible sans elle : sans prévision de vent, l'avion volerait en ligne droite, à l'altitude la meilleure en moyenne.`,
+    ],
+    [
+      "Pour arriver au plus tôt, c'est la route qui compte. Suivre la meilleure route dans le vent du jour fait gagner ",
+      { b: minutes(W.minutes[0], 1) },
+      " en moyenne vers New York et ",
+      { b: minutes(E.minutes[0], 1) },
+      ` vers Paris. Choisir chaque jour la meilleure des trois altitudes n'ajoute presque rien (${minutes(W.minutes[1], 1)} et ${minutes(E.minutes[1], 1)}) : à nombre de Mach égal, l'avion va plus vite dans l'air plus chaud du niveau le plus bas, ${fl(low)}, le plus rapide ${pct(w.share[low])} des jours vers New York. Changer d'altitude en vol, pour aller chercher le vent là où il est, rapporte encore `,
+      { b: minutes(W.minutes[2], 1) },
+      " et ",
+      { b: minutes(E.minutes[2], 1) },
       ".",
     ],
     [
-      "Vers Paris, départ à minuit UTC, les gains sont plus minces : ",
-      { b: minutes(e.gain_gc_l1, 1) },
-      ", ",
-      { b: minutes(e.gain_level, 1) },
-      " et ",
-      { b: minutes(e.gain_free, 1) },
-      `. La meilleure altitude change d'un jour à l'autre : vers New York, ${fl(top(w))} l'emporte ${pct(w.share[top(w)])} des jours ; vers Paris, ${fl(top(e))} ${pct(e.share[top(e)])} des jours.`,
+      `Pour brûler le moins de kérosène, le niveau le plus haut, ${fl(high)}, l'emporte ${pct(w.ladder.day_fuel_share[high])} des jours dans ce modèle : la météo n'y change pas l'altitude, seulement la route. Avec le chargement moyen d'un Paris–New York en ${B.pair.y} (${fmtNum(B.peq)} passagers-équivalents par vol, DGAC), la meilleure route économise `,
+      { b: kg(W.tonnes[0]) },
+      " de kérosène par vol vers New York et ",
+      { b: kg(E.tonnes[0]) },
+      " vers Paris, où l'on profite déjà du vent en ligne droite.",
     ],
   ]);
-  $("#levels-note").textContent =
-    "Minutes gagnées en moyenne par jour, 2019-2022 : d'abord en suivant la meilleure route à FL340, puis en choisissant l'altitude du jour, puis en changeant d'altitude en vol.";
+  prose("#cout-prose", [
+    [
+      `Sur les ${fmtNum(B.pair.mvt)} vols entre Paris-CDG et New York-JFK en ${B.pair.y}, moitié dans chaque sens, l'optimisation sur les données météo vaut `,
+      { b: tonnes(Math.round(yt / 10) * 10, 0) },
+      " de kérosène par an, et ",
+      { b: tonnes(Math.round((yt * cost.factors.co2_per_fuel) / 10) * 10, 0) },
+      ` de CO2. Au prix moyen de ${y.y} (${perTonne(y.eur_t)}), cela fait `,
+      { b: euros(yt * y.eur_t) },
+      ` ; au prix de ${monthYear(last.m)} (${perTonne(last.eur_t)}), `,
+      { b: euros(yt * last.eur_t) },
+      ". Pour une seule ligne, à une seule heure de départ.",
+    ],
+    [
+      `L'altitude, elle, oppose le temps au carburant. Vers New York, voler à ${fl(high)} plutôt qu'à ${fl(low)} rallonge le vol de `,
+      { b: minutes(B.west.minutesMore, 1) },
+      " en moyenne mais économise ",
+      { b: tonnes(B.west.tonnesLess) },
+      ` de kérosène, ${euros(B.west.tonnesLess * y.eur_t)} au prix de ${y.y}. Rester bas pour arriver plus tôt ne se justifie que si une minute de vol coûte plus de `,
+      { b: euros(B.west.breakEven(y.eur_t)) },
+      ` à la compagnie (équipage, entretien, correspondances), un chiffre que ce calcul ne connaît pas. Au prix de ${monthYear(last.m)}, ce seuil passe à `,
+      { b: euros(B.west.breakEven(last.eur_t)) },
+      " : plus le kérosène est cher, plus il vaut la peine de voler haut.",
+    ],
+    [
+      "Ces chiffres mesurent ce que vaut la donnée face à un vol qui l'ignorerait, pas une économie qui resterait à faire : les routes de l'Atlantique Nord sont déjà tracées chaque jour selon les vents. Le modèle ignore aussi le poids de l'avion, qui l'empêche, lourd au départ, de monter tout de suite au niveau le plus économe, la montée, la descente et les couloirs imposés. Ce sont des ordres de grandeur.",
+    ],
+  ]);
+  keyFigures($("#kf-bilan"), [
+    {
+      value: `${fmtNum((yt * last.eur_t) / 1e6, 1)} M€`,
+      label: `par an sur le seul Paris–New York grâce aux données météo, au prix du kérosène de ${monthYear(last.m)}`,
+      color: "var(--east)",
+    },
+    {
+      value: euros(B.west.breakEven(last.eur_t)),
+      label:
+        "le prix d'une minute de vol au-delà duquel voler bas, plus vite, vaut le kérosène brûlé en plus",
+      color: "var(--west)",
+    },
+  ]);
+  $("#value-note").textContent =
+    `Kérosène économisé en un an sur Paris-CDG–New York-JFK par l'optimisation sur les données météo (${tonnes(Math.round(yt / 10) * 10, 0)}, trafic de ${B.pair.y}, météo de 2019-2022), multiplié par le prix de chaque mois, en millions d'euros.`;
+  return B;
+}
+
+/** The ladder chart's three units: minutes (aiming for time), kilos of fuel and euros (aiming for fuel). */
+export function ladderUnits({ stats, cost }) {
+  const W = ladderSteps(stats.west, cost);
+  const E = ladderSteps(stats.east, cost);
+  const price = cost.last.eur_t;
+  const rows = (k, f = (v) => v) => [
+    { name: "Vers New York", color: "var(--west)", values: W[k].map(f) },
+    { name: "Vers Paris", color: "var(--east)", values: E[k].map(f) },
+  ];
+  return {
+    min: {
+      label: "Minutes",
+      rows: rows("minutes"),
+      fmt: (v) => minutes(v, 1),
+      note: "Minutes gagnées en moyenne par vol, 2019-2022, en visant l'heure d'arrivée : chaque couche de données comparée au meilleur choix possible sans elle.",
+    },
+    kg: {
+      label: "Kérosène",
+      rows: rows("tonnes", (t) => t * 1000),
+      fmt: (v) => `${fmtNum(v)} kg`,
+      note: "Kilos de kérosène économisés en moyenne par vol, 2019-2022, en visant le carburant, avec le chargement moyen d'un Paris–New York.",
+    },
+    eur: {
+      label: "Euros",
+      rows: rows("tonnes", (t) => t * price),
+      fmt: (v) => euros(v),
+      note: `Euros de kérosène économisés en moyenne par vol, au prix de ${monthYear(cost.last.m)} (${perTonne(price)}).`,
+    },
+  };
 }
 
 /* ------------------------------------------------------------------ seventy-five years */

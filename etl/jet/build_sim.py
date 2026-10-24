@@ -231,6 +231,49 @@ def write_fixture(F, planes):
 
 
 # ---------------------------------------------------------------- every day of 2019-2022
+def gc_minutes(F, pts, h, mach, level, n):
+    """Minutes along the great circle at one level for every day of a StackField, leaving at h UTC."""
+    total = np.zeros(n)
+    tt = np.full(n, float(h))
+    for i in range(len(pts) - 1):
+        la1, lo1, la2, lo2 = pts[i, 0], pts[i, 1], pts[i + 1, 0], pts[i + 1, 1]
+        seg = A.haversine(la1, lo1, la2, lo2)
+        trk = A.bearing(la1, lo1, la2, lo2)
+        uu, vv, te = F.sample(
+            np.array([(la1 + la2) / 2]),
+            np.array([(lo1 + lo2) / 2]),
+            (tt + seg / (mach * 1080) / 2)[:, None],
+            level,
+        )
+        gs = A.ground_speed(uu[:, 0], vv[:, 0], trk, mach * S.sound_kmh(te[:, 0]))
+        mins = seg / gs * 60
+        total += mins
+        tt += mins / 60
+    return total
+
+
+def ladder(gcs, levels, free_time, free_burn, fuel, kg):
+    """What each layer of weather data is worth, against the best one could do without it:
+    0. no wind data: the great circle at the level that is best on average;
+    1. the wind at one level: the best route at the level that is best on average;
+    2. the wind at three levels: each day, the best route at that day's best level;
+    3. the wind in four dimensions: the best route changing level on the way.
+    In minutes (aiming for time) and in kg of CO2 per passenger-equivalent (aiming for fuel)."""
+    burn_gc = gcs * fuel[:, None]
+    burn_rt = levels * fuel[:, None]
+    time = [gcs.mean(axis=1).min(), levels.mean(axis=1).min(), levels.min(axis=0).mean(), free_time.mean()]
+    burn = [burn_gc.mean(axis=1).min(), burn_rt.mean(axis=1).min(), burn_rt.min(axis=0).mean(), free_burn.mean()]
+    return {
+        "time": [round(float(x), 2) for x in time],
+        "co2": [round(float(x * kg), 2) for x in burn],
+        "static_time": [int(gcs.mean(axis=1).argmin()), int(levels.mean(axis=1).argmin())],
+        "static_fuel": [int(burn_gc.mean(axis=1).argmin()), int(burn_rt.mean(axis=1).argmin())],
+        "day_fuel_share": [
+            round(100 * float(x), 1) for x in np.bincount(burn_rt.argmin(axis=0), minlength=3) / burn_rt.shape[1]
+        ],
+    }
+
+
 def stats(plane="B77W"):
     """For every day of 2019-2022, for one aircraft: the fastest Paris-New York route at 12 UTC and
     New York-Paris at 00 UTC, at each level and with a free level, against the great circle at flight
@@ -269,22 +312,8 @@ def stats(plane="B77W"):
         res["free"] = free["minutes"]
         free_fuel = S.best_route_stack(F, a, b, h, planes_mach, fuel=fuel)
         pts = S.great_circle_points(a, b)
-        gc = np.zeros(len(days))
-        tt = np.full(len(days), float(h))
-        for i in range(len(pts) - 1):
-            la1, lo1, la2, lo2 = pts[i, 0], pts[i, 1], pts[i + 1, 0], pts[i + 1, 1]
-            seg = A.haversine(la1, lo1, la2, lo2)
-            trk = A.bearing(la1, lo1, la2, lo2)
-            uu, vv, te = F.sample(
-                np.array([(la1 + la2) / 2]),
-                np.array([(lo1 + lo2) / 2]),
-                (tt + seg / (planes_mach * 1080) / 2)[:, None],
-                1,
-            )
-            gs = A.ground_speed(uu[:, 0], vv[:, 0], trk, planes_mach * S.sound_kmh(te[:, 0]))
-            mins = seg / gs * 60
-            gc += mins
-            tt += mins / 60
+        gcs = np.stack([gc_minutes(F, pts, h, planes_mach, lv, len(days)) for lv in range(3)])
+        gc = gcs[1]
         res["gc"] = gc
         levels = np.stack([res["l0"], res["l1"], res["l2"]])
         best_fixed = levels.min(axis=0)
@@ -317,6 +346,7 @@ def stats(plane="B77W"):
             "daily": [
                 [r1(x) for x in row] for row in zip(gc, res["l0"], res["l1"], res["l2"], res["free"], strict=True)
             ],
+            "ladder": ladder(gcs, levels, res["free"], free_fuel["burn"], fuel, kg),
         }
         o = out[key]
         print(f"  sim_stats {key}: {o['gain_gc_l1']} + {o['gain_level']} + {o['gain_free']} min, CO2 {o['co2']}")

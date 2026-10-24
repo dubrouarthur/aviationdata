@@ -40,6 +40,27 @@ export const JSOURCES = {
     label: "Émissions de CO2 du trafic aérien commercial en France, DGAC (data.gouv.fr)",
     url: "https://www.data.gouv.fr/datasets/emissions-nettes-annuelles-de-co2-du-trafic-aerien-commercial-en-france",
   },
+  dgacpap: {
+    short: "DGAC (trafic par paire d'aéroports)",
+    label: "Trafic aérien commercial mensuel par paire d'aéroports, DGAC (data.gouv.fr)",
+    url: "https://www.data.gouv.fr/datasets/trafic-aerien-commercial-mensuel-francais-par-paire-daeroports-par-sens-depuis-1990",
+  },
+  eia: {
+    short: "EIA",
+    label:
+      "Prix spot du kérosène sur la côte américaine du golfe du Mexique, en dollars par gallon, U.S. Energy Information Administration (série EER_EPJK_PF4_RGC_DPG)",
+    url: "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=EER_EPJK_PF4_RGC_DPG&f=M",
+  },
+  ecb: {
+    short: "BCE",
+    label: "Taux de change de référence dollar-euro, moyenne mensuelle, Banque centrale européenne",
+    url: "https://data.ecb.europa.eu/data/datasets/EXR/EXR.M.USD.EUR.SP00.A",
+  },
+  icao: {
+    short: "OACI",
+    label: "OACI, méthodologie du calculateur d'émissions de carbone, version 8, mai 2015",
+    url: "https://www.icao.int/sites/default/files/sp-files/environmental-protection/CarbonOffset/Documents/Methodology%20ICAO%20Carbon%20Calculator_v8-2015.pdf",
+  },
   nasa: {
     short: "NASA Worldview",
     label: "Image VIIRS (satellite Suomi NPP), NASA Worldview / GIBS",
@@ -109,7 +130,7 @@ export const FACTS = {
 
 const link = (s) => el("a", { href: s.url, target: "_blank", rel: "noopener", text: s.label || s.source });
 
-export function initJetSources({ flights, trappes, climate, meta }) {
+export function initJetSources({ flights, trappes, climate, meta, cost }) {
   const li = (children) => el("li", {}, children);
   $("#sources-body").replaceChildren(
     el("p", {}, [
@@ -142,6 +163,24 @@ export function initJetSources({ flights, trappes, climate, meta }) {
         `. Vent à 250 hPa des sondages de 00 h et 12 h UTC, ${trappes.from}-${trappes.to}. ${trappes.rejected} valeurs isolées, supérieures de plus de 60 km/h au vent mesuré à la fois à 300 et à 200 hPa, sont écartées comme erreurs probables.`,
       ]),
       li([link(JSOURCES.nasa), ", image du 8 février 2020 (couleurs naturelles)."]),
+      ...(cost
+        ? [
+            li([
+              link(JSOURCES.dgacpap),
+              `. Mouvements, passagers et passagers-équivalents entre Paris-CDG et New York-JFK, les deux sens confondus, ${cost.pair[0].y}-${cost.pair.at(-1).y}. Cette série ne détaille que les liaisons exploitées par au moins trois compagnies : elle sert ici au chargement moyen d'un vol, jamais à un total.`,
+            ]),
+            li([
+              link(JSOURCES.dgac),
+              `. Facteur moyen des vols internationaux long-courriers, ${cost.factors.g_peqkm_year}.`,
+            ]),
+            li([
+              link(JSOURCES.eia),
+              `, et `,
+              link(JSOURCES.ecb),
+              `. Prix mensuels de ${cost.prices[0][0].slice(0, 4)} à ${cost.last.m}.`,
+            ]),
+          ]
+        : []),
       li([
         el("a", {
           href: "https://ourairports.com/data/",
@@ -165,6 +204,14 @@ export function initJetSources({ flights, trappes, climate, meta }) {
       ]),
       li([
         "Simulateur : vents et températures ERA5 toutes les 6 heures à 300, 250 et 200 hPa (niveaux de vol 300, 340 et 390), interpolés dans l'espace et dans le temps pendant le vol. L'avion vole à son nombre de Mach de croisière (OpenAP) : sa vitesse par rapport à l'air dépend de la température. Quand l'altitude est libre, la route peut changer d'un niveau à chaque point, sans coût de montée. Le carburant suit le temps de vol et la consommation relative de chaque niveau (OpenAP, à 80 % de la masse maximale au décollage) ; le CO2 par passager part du facteur moyen des vols long-courriers au départ de la France publié par la DGAC, appliqué à la distance de la ligne. Le modèle ignore la montée, la descente, les couloirs imposés et les contraintes du contrôle : ses temps sont des ordres de grandeur.",
+      ]),
+      li([
+        "Valeur de la donnée : chaque couche d'information est comparée au meilleur choix possible sans elle. Sans données de vent, la ligne droite au niveau de vol le meilleur en moyenne sur les quatre ans ; avec le vent à une altitude, la meilleure route à ce niveau ; avec trois altitudes, chaque jour la meilleure route au meilleur niveau du jour ; en quatre dimensions, la meilleure route avec des changements de niveau en vol. Le calcul est fait deux fois : pour arriver au plus tôt, et pour brûler le moins de carburant.",
+      ]),
+      li([
+        "Coûts : le kérosène d'un vol part de ses émissions, le facteur long-courrier de la DGAC multiplié par la distance de la ligne et par les passagers-équivalents d'un vol Paris–New York (passagers, plus un passager par 100 kg de fret), divisé par 3,16 tonnes de CO2 par tonne de kérosène (",
+        link(JSOURCES.icao),
+        "). Le prix de l'EIA, en dollars par gallon, est converti en euros au taux mensuel de la BCE, à 0,8 kg par litre (le Jet A-1 pèse de 0,775 à 0,840 kg par litre). C'est un prix de marché américain : celui que paie une compagnie dépend de ses contrats, de ses couvertures et du lieu d'achat. Les euros sont des ordres de grandeur, et le temps de vol, qui a aussi un coût (équipage, entretien, correspondances), n'y est pas compté.",
       ]),
       li([
         "Tendances : droite des moindres carrés, avec une marge à 95 % (± 1,96 erreur type). Corrélations de Pearson.",

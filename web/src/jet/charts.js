@@ -1244,49 +1244,187 @@ export function profileChart(node, profile) {
 }
 
 /* ------------------------------------------------------------------ four years of choices */
-export function levelsChart(node, stats) {
-  const steps = [
-    ["gain_gc_l1", "Meilleure route à FL340"],
-    ["gain_level", "Meilleure altitude du jour"],
-    ["gain_free", "Changer d'altitude en vol"],
-  ];
+/**
+ * What each layer of weather data is worth, stacked step after step for each direction.
+ * rows: [{ name, color, values: [v1, v2, v3] }]; steps: three labels; fmt: value -> text.
+ * On a phone each step's label sits above its bar instead of beside it.
+ */
+export function ladderChart(node, opts) {
+  let st = opts;
   const draw = () => {
+    const { rows, steps, fmt } = st;
     const c = C();
-    const narrow = (node.clientWidth || 600) < 520;
-    const f = frame(node, 250, { top: 20, right: 60, bottom: 10, left: narrow ? 8 : 190 });
+    const narrow = (node.clientWidth || 600) < 560;
+    const rowH = narrow ? 44 : 30;
+    const groupH = rowH * 3 + 34;
+    const f = frame(node, groupH * rows.length + 10, {
+      top: 20,
+      right: narrow ? 8 : 150,
+      bottom: 0,
+      left: narrow ? 8 : 230,
+    });
     const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
-    const groups = [
-      ["west", "Vers New York", c.west],
-      ["east", "Vers Paris", c.east],
-    ];
-    const max = d3.max(groups, ([k]) => d3.sum(steps, ([s]) => stats[k][s]));
+    const max = d3.max(rows, (r) => d3.sum(r.values, (v) => Math.max(0, v))) || 1;
     const x = d3.scaleLinear().domain([0, max]).range([0, f.iw]);
-    const rowH = 30;
-    groups.forEach(([k, name, color], gi) => {
-      const top = gi * (rowH * 3 + 34);
-      label(g, narrow ? 0 : -f.m.left + 8, top + 2, name, { color, size: 13 });
+    rows.forEach((r, gi) => {
+      const top = gi * groupH;
+      const total = d3.sum(r.values);
+      label(g, narrow ? 0 : -f.m.left + 8, top + 2, `${r.name}, ${fmt(total)} en tout`, {
+        color: r.color,
+        size: 13,
+      });
       let acc = 0;
-      steps.forEach(([s, text], i) => {
-        const v = stats[k][s];
-        const yy = top + 10 + i * rowH;
-        if (!narrow) label(g, -10, yy + 16, text, { anchor: "end", color: c.ink2, weight: 500, size: 12 });
+      steps.forEach((text, i) => {
+        const v = r.values[i];
+        const yy = top + 10 + i * rowH + (narrow ? 14 : 0);
+        if (narrow) label(g, 0, yy, `${text} : ${fmt(v)}`, { color: c.ink2, weight: 500, size: 12 });
+        else label(g, -10, yy + 16, text, { anchor: "end", color: c.ink2, weight: 500, size: 12 });
         g.append("rect")
           .attr("x", x(acc))
           .attr("y", yy + 4)
-          .attr("width", Math.max(1, x(acc + v) - x(acc)))
-          .attr("height", rowH - 10)
-          .attr("fill", color)
+          .attr("width", Math.max(1, x(acc + Math.max(0, v)) - x(acc)))
+          .attr("height", narrow ? rowH - 22 : rowH - 10)
+          .attr("fill", r.color)
           .attr("fill-opacity", 1 - i * 0.28);
-        label(g, x(acc + v) + 6, yy + 18, `${fmtNum(v, 1)} min${narrow ? `, ${text.toLowerCase()}` : ""}`, {
-          color: c.ink,
-          size: 12,
-        });
-        acc += v;
+        if (!narrow) label(g, x(acc + Math.max(0, v)) + 6, yy + 18, fmt(v), { color: c.ink, size: 12 });
+        acc += Math.max(0, v);
       });
     });
   };
   draw();
   onResize(node, draw);
+  return {
+    set(next) {
+      st = { ...st, ...next };
+      draw();
+    },
+  };
+}
+
+/**
+ * What a year of route optimisation on Paris-New York is worth at each month's fuel price:
+ * tonnes saved in a year x euros per tonne, in millions of euros.
+ */
+export function valueChart(node, { prices, tonnes, mark, average }) {
+  const data = prices.map(([m, p]) => ({ d: new Date(`${m}-15T00:00Z`), m, p, v: (tonnes * p) / 1e6 }));
+  const draw = () => {
+    const c = C();
+    const narrow = (node.clientWidth || 600) < 520;
+    const f = frame(node, 280, { top: 22, right: narrow ? 14 : 96, bottom: 28, left: 44 });
+    const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
+    const x = d3
+      .scaleUtc()
+      .domain(d3.extent(data, (d) => d.d))
+      .range([0, f.iw]);
+    const y = d3
+      .scaleLinear()
+      .domain([0, d3.max(data, (d) => d.v) * 1.08])
+      .nice()
+      .range([f.ih, 0]);
+    g.append("g")
+      .call(
+        d3
+          .axisLeft(y)
+          .ticks(5)
+          .tickFormat((v) => `${fmtNum(v)} M€`)
+          .tickSize(-f.iw),
+      )
+      .call((a) => axisStyle(a, c));
+    g.append("g")
+      .attr("transform", `translate(0,${f.ih})`)
+      .call(
+        d3
+          .axisBottom(x)
+          .ticks(d3.utcYear.every(narrow ? 2 : 1))
+          .tickFormat(d3.utcFormat("%Y"))
+          .tickSize(0)
+          .tickPadding(8),
+      )
+      .call((a) => axisStyle(a, c));
+    g.append("path")
+      .datum(data)
+      .attr(
+        "d",
+        d3
+          .area()
+          .x((d) => x(d.d))
+          .y0(f.ih)
+          .y1((d) => y(d.v))
+          .curve(d3.curveMonotoneX),
+      )
+      .attr("fill", c.east)
+      .attr("fill-opacity", 0.12);
+    g.append("path")
+      .datum(data)
+      .attr(
+        "d",
+        d3
+          .line()
+          .x((d) => x(d.d))
+          .y((d) => y(d.v))
+          .curve(d3.curveMonotoneX),
+      )
+      .attr("fill", "none")
+      .attr("stroke", c.east)
+      .attr("stroke-width", 2.2);
+    if (average) {
+      // the year's mean price, as a level across that year
+      const v = (tonnes * average.eur_t) / 1e6;
+      const x0 = x(new Date(`${average.y}-01-01T00:00Z`));
+      const x1 = x(new Date(`${average.y}-12-31T00:00Z`));
+      g.append("line")
+        .attr("x1", x0)
+        .attr("x2", x1)
+        .attr("y1", y(v))
+        .attr("y2", y(v))
+        .attr("stroke", c.ink)
+        .attr("stroke-width", 1.5)
+        .attr("stroke-dasharray", "4 3");
+      label(g, (x0 + x1) / 2, y(v) + 18, `${fmtNum(v, 1)} M€ en ${average.y}`, {
+        anchor: "middle",
+        color: c.ink,
+        size: 12,
+        halo: c.paper,
+      });
+    }
+    for (const k of mark) {
+      const d = data.find((r) => r.m === k);
+      if (!d) continue;
+      g.append("circle").attr("cx", x(d.d)).attr("cy", y(d.v)).attr("r", 4).attr("fill", c.east);
+      const right = x(d.d) > f.iw - 60;
+      label(g, x(d.d) + (right ? 8 : 0), y(d.v) - 10, `${fmtNum(d.v, 1)} M€`, {
+        anchor: right ? "start" : "middle",
+        color: c.ink,
+        size: 12,
+        halo: c.paper,
+      });
+    }
+    const dot = g.append("circle").attr("r", 4).attr("fill", c.ink).attr("opacity", 0);
+    g.append("rect")
+      .attr("width", f.iw)
+      .attr("height", f.ih)
+      .attr("fill", "transparent")
+      .on("pointermove", (ev) => {
+        const [mx] = d3.pointer(ev);
+        const d = data[d3.minIndex(data, (r) => Math.abs(x(r.d) - mx))];
+        dot.attr("cx", x(d.d)).attr("cy", y(d.v)).attr("opacity", 1);
+        const [yy, mm] = d.m.split("-");
+        showTip(ev, `${monthName(+mm)} ${yy}`, [
+          { color: c.east, value: `${fmtNum(d.v, 1)} M€`, label: "par an sur Paris–New York" },
+          { value: `${fmtNum(d.p)} €`, label: "la tonne de kérosène" },
+        ]);
+      })
+      .on("pointerleave", () => {
+        dot.attr("opacity", 0);
+        hideTip();
+      });
+  };
+  draw();
+  onResize(node, draw);
+  dataTable(node, {
+    head: ["Mois", "Kérosène, € la tonne", "Valeur sur un an, M€"],
+    rows: data.map((d) => [d.m, fmtNum(d.p), fmtNum(d.v, 2)]),
+  });
 }
 
 /* ------------------------------------------------------------------ every day since 1948 */

@@ -10,7 +10,8 @@ import { drawSpeed, particles, plateCarree } from "./wind.js";
 import { bearing, greatCircle, haversine } from "./route.js";
 import { bestRoute, decodeSimDay, pathTime, soundKmh } from "./sim.js";
 import { drawLand, line, loadLand, css, speedLegend } from "./maps.js";
-import { hm, kmh, minutes, shortDate } from "./fmt.js";
+import { euros, hm, kmh, minutes, monthYear, perTonne, shortDate, tonnes } from "./fmt.js";
+import { fuelTonnes, lastPair, peqPerFlight } from "./cost.js";
 
 const HOURS = [0, 6, 12, 18];
 const GROUPS = {
@@ -50,7 +51,7 @@ export function splinePath(points, n = 64) {
   return out;
 }
 
-export function simulator({ sim, grid: winds, onReady }) {
+export function simulator({ sim, grid: winds, cost, onReady }) {
   const G = sim.grid;
   const stage = $("#sim-stage");
   const svg = d3.select("#sim-svg");
@@ -419,25 +420,34 @@ export function simulator({ sim, grid: winds, onReady }) {
   }
 
   /* ---------------------------------------------------------------- key figures */
+  // a flight's fuel and its price, when cost.json is there: DGAC load of a Paris-New York flight, last price
+  const fuel = (key, burn) => (cost ? fuelTonnes(cost, co2(key, burn)) : null);
+  const sign = (v) => (v < 0 ? "−" : "+");
   function kpis() {
     const r = state.res;
     const gcMin = r.gc.minutes;
+    const price = cost?.last.eur_t;
+    const gcT = fuel("gc", r.gc.burn);
     $("#sim-kpis").replaceChildren(
       ...ROUTES.map(({ key, name, cls }) => {
         const x = r[key];
-        const diff = x.minutes - gcMin;
+        const t = fuel(key, x.burn);
+        const dm = x.minutes - gcMin;
+        const de = cost ? (t - gcT) * price : 0;
+        const bits = [];
+        if (Math.abs(dm) >= 0.5) bits.push(`${sign(dm)}${minutes(Math.abs(dm))}`);
+        if (Math.abs(de) >= 5) bits.push(`${sign(de)}${euros(Math.abs(de))}`);
+        const diff =
+          key === "gc"
+            ? "la référence"
+            : bits.length
+              ? `${bits.join(" et ")} sur la ligne droite`
+              : "comme la ligne droite";
         return el("div", { class: `sim-kpi ${cls}` }, [
           el("p", { class: "sk-name" }, [el("i", { "aria-hidden": "true" }), name]),
           el("b", { text: hm(x.minutes) }),
-          el("p", {
-            class: "sk-diff",
-            text:
-              key === "gc"
-                ? "la référence"
-                : Math.abs(diff) < 0.5
-                  ? "comme la ligne droite"
-                  : `${diff < 0 ? "−" : "+"}${minutes(Math.abs(diff))} sur la ligne droite`,
-          }),
+          el("p", { class: "sk-diff", text: diff }),
+          cost ? el("p", { class: "sk-fuel", text: `${tonnes(t)} de kérosène, ${euros(t * price)}` }) : null,
           el("p", {
             class: "sk-co2",
             text: `≈ ${fmtNum(Math.round(co2(key, x.burn)))} kg de CO2 par passager`,
@@ -445,6 +455,12 @@ export function simulator({ sim, grid: winds, onReady }) {
         ]);
       }),
     );
+  }
+  if (cost) {
+    const p = lastPair(cost);
+    $("#sim-kpi-note").textContent =
+      `Kérosène et coût par vol : chargement moyen d'un Paris–New York en ${p.y} (${fmtNum(peqPerFlight(cost))} passagers-équivalents par vol, DGAC), ` +
+      `kérosène au prix de ${monthYear(cost.last.m)} (${perTonne(cost.last.eur_t)}, EIA et BCE), quel que soit l'avion choisi.`;
   }
 
   /* ---------------------------------------------------------------- wind met along each route */

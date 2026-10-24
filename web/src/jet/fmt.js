@@ -14,6 +14,24 @@ export const minutes = (v, d = 0) => `${fmtNum(v, d)}${NNBSP}min`;
 export const kmh = (v, d = 0) => `${fmtNum(v, d)}${NNBSP}km/h`;
 export const pct = (v, d = 0) => `${fmtNum(v, d)}${NNBSP}%`;
 export const thousands = (n) => fmtNum(Math.round(n / 1000) * 1000);
+export const tonnes = (v, d = 1) => `${fmtNum(v, d)}${NNBSP}t`;
+
+/** Euros, rounded to what the model can support: 48 612 -> "48 600 €", 1 234 567 -> "1,2 million d'euros". */
+export function euros(v) {
+  const a = Math.abs(v);
+  if (a >= 1e6) {
+    const m = fmtNum(v / 1e6, a >= 1e7 ? 0 : 1);
+    return `${m}${NNBSP}million${a >= 2e6 ? "s" : ""} d'euros`;
+  }
+  const step = a >= 10000 ? 100 : 10;
+  return `${fmtNum(Math.round(v / step) * step)}${NNBSP}€`;
+}
+
+/** Euros per tonne of fuel: 1258.5 -> "1 259 € la tonne". */
+export const perTonne = (v) => `${fmtNum(v)}${NNBSP}€ la tonne`;
+
+/** "2026-09" -> "septembre 2026" */
+export const monthYear = (m) => `${MONTHS[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}`;
 
 const MONTHS = [
   "janvier",
