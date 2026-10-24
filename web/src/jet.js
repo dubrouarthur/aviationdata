@@ -1,11 +1,12 @@
 import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
+import "./site/story.css";
 import "./jet.css";
 import { initSiteMenu } from "./site/menu.js";
+import { numberChapters, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
-import { shareUrl, linkedInShare } from "./lib/datasets.js";
 import * as d3 from "d3";
 import { euros, kmh, longDate, monthShort } from "./jet/fmt.js";
 import {
@@ -222,9 +223,9 @@ async function main() {
   safely("your flight", () => initVol(data.flights, volChart($("#chart-vol"))));
   safely("in short", () => writeBref(data, F, C, P));
   safely("sources", () => initJetSources(data));
-  numberChapters();
+  numberChapters(".jet-chapter");
   addJetSourceLines();
-  share();
+  shareBlock();
   scrollHints(".topnav, .seg");
 }
 
@@ -261,103 +262,6 @@ function stripScale(node) {
     el("i", { class: "ss-ramp", "aria-hidden": "true" }),
     el("span", { text: "60 min et plus gagnées" }),
   );
-}
-
-/** "03 / 10" above each chapter title: where the reader is in the story. */
-function numberChapters() {
-  const titles = [...document.querySelectorAll("main .jet-chapter h2.section-title")].filter(
-    (h) => h.id !== "h-bref",
-  );
-  titles.forEach((h, i) => {
-    if (h.previousElementSibling?.classList.contains("chapter-num")) return;
-    h.before(
-      el("p", { class: "chapter-num" }, [
-        el("b", { text: String(i + 1).padStart(2, "0") }),
-        ` / ${String(titles.length).padStart(2, "0")}`,
-      ]),
-    );
-  });
-}
-
-function share() {
-  const url = shareUrl();
-  const copy = el("button", { type: "button", class: "btn", text: "Copier le lien" });
-  copy.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      copy.textContent = "Lien copié";
-    } catch {
-      copy.textContent = url;
-    }
-    setTimeout(() => (copy.textContent = "Copier le lien"), 2500);
-  });
-  $("#share").replaceChildren(
-    el("div", { class: "author-card" }, [
-      el("img", { src: asset("auteur.jpg"), alt: "Arthur Dubrou", width: 76, height: 76, loading: "lazy" }),
-      el("div", {}, [
-        el("p", { class: "ac-by", text: "Une enquête en données de" }),
-        el("p", { class: "ac-name", text: "Arthur Dubrou" }),
-        el("a", {
-          href: "https://www.linkedin.com/in/arthur-dubrou/",
-          target: "_blank",
-          rel: "noopener",
-          text: "Me suivre sur LinkedIn",
-        }),
-      ]),
-    ]),
-    el("div", { class: "share-box" }, [
-      el("p", { text: "Cette enquête vous a appris quelque chose ? Partagez-la." }),
-      el("div", { class: "share-actions" }, [
-        el("a", {
-          class: "btn primary",
-          href: linkedInShare(url),
-          target: "_blank",
-          rel: "noopener",
-          text: "Partager sur LinkedIn",
-        }),
-        copy,
-      ]),
-    ]),
-  );
-}
-
-/**
- * The bar of parts: the last part whose start has passed the upper third of the screen is current
- * (none above the first part), and the bar scrolls to keep it in view.
- */
-function trackChapters() {
-  const links = [...document.querySelectorAll(".topnav a")]
-    .map((a) => ({ a, target: document.getElementById(a.hash.slice(1)) }))
-    .filter((l) => l.target);
-  let current = null;
-  let raf = 0;
-  const update = () => {
-    raf = 0;
-    const line = innerHeight * 0.33;
-    let on = null;
-    for (const l of links) if (l.target.getBoundingClientRect().top <= line) on = l;
-    if (on === current) return;
-    current = on;
-    links.forEach((l) => l.a.setAttribute("aria-current", String(l === on)));
-    const nav = on?.a.parentElement;
-    if (nav && nav.scrollWidth > nav.clientWidth)
-      nav.scrollTo({ left: on.a.offsetLeft - nav.offsetLeft - 24, behavior: "smooth" });
-  };
-  addEventListener("scroll", () => (raf ||= requestAnimationFrame(update)), { passive: true });
-  update();
-}
-
-function readingProgress() {
-  const bar = document.getElementById("read-progress");
-  let raf = 0;
-  const update = () => {
-    raf = 0;
-    const max = document.documentElement.scrollHeight - innerHeight;
-    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max).toFixed(4) : 0})`;
-  };
-  addEventListener("scroll", () => (raf ||= requestAnimationFrame(update)), { passive: true });
-  addEventListener("resize", update);
-  update();
 }
 
 watchFrenchSpacing(document.body);

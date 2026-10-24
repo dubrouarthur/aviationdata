@@ -3,6 +3,8 @@
    Markup comes from src/site/partials.js at build time. */
 :root {
   --night: #0d2236; /* as in jet.css: the accent of the jet-stream story, used on every page */
+  --night-ink: #e9f0f6;
+  --night-muted: #a9bccd; /* 8:1 on --night */
   --mag-night: #0d2236;
   --mag-night-ink: #e9f0f6;
   --mag-night-muted: #a9bccd; /* 8:1 on --mag-night */

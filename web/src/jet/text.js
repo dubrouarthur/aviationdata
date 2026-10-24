@@ -3,7 +3,7 @@
 // follows the data when it is rebuilt; web/scripts/check_site.py recomputes them independently.
 // One conversion runs through the story: a minute of cruise in kilos of fuel and in euros (cost.js).
 import * as d3 from "d3";
-import { $, el, rich, keyFigures } from "../lib/ui.js";
+import { $, el, rich, keyFigures, lecture } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import {
   euros,
@@ -26,17 +26,6 @@ import { CDG, JFK, fuelTonnes, kgPerMinute, lastPair, peqPerFlight, routeSavings
 // "vers Newark", or "entre Orly et Newark" when the French end is not Paris-CDG
 const toward = (r) => (r.fr === "LFPG" ? `vers ${r.to}` : `entre ${r.from.replace("Paris-", "")} et ${r.to}`);
 const prose = (id, paragraphs) => $(id).replaceChildren(...paragraphs.map((p) => el("p", {}, rich(p))));
-/** How to read a chart: one "Lecture" line under it, never in the story itself. */
-function lecture(sel, text) {
-  const chart = $(sel);
-  if (!chart) return;
-  let p = chart.nextElementSibling;
-  if (!p?.classList.contains("lecture")) {
-    p = el("p", { class: "note lecture" });
-    chart.after(p);
-  }
-  p.replaceChildren(el("b", { text: "Lecture : " }), text);
-}
 const WEST_COAST = ["KLAX", "KSFO", "KSEA", "CYVR"];
 const r10 = (v) => Math.round(v / 10) * 10;
 /** 12 -> "12 heures", 108 -> "4 jours et demi", 48 -> "2 jours" */

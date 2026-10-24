@@ -275,21 +275,6 @@
   border-left-color: rgba(169, 188, 205, 0.4);
 }
 
-/* the standfirst, on paper right under the map */
-.standfirst {
-  padding-top: 34px;
-  padding-bottom: 8px;
-}
-
-.open-dek {
-  font-family: var(--f-text);
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
-  line-height: 1.45;
-  max-width: 34em;
-  color: var(--ink);
-  margin: 0 0 12px;
-}
-
 .open-by {
   font-size: 0.88rem;
   color: var(--muted);
@@ -443,23 +428,6 @@
 
 .jet-chapter > figure.panel {
   margin-top: 28px;
-}
-
-.sub-title {
-  font-family: var(--f-display);
-  font-stretch: 70%;
-  font-weight: 800;
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
-  line-height: 1;
-  margin: 0 0 14px;
-}
-
-.grid-wide {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: 22px;
-  margin-top: 28px;
-  align-items: start;
 }
 
 .after-explorer {
@@ -684,12 +652,6 @@
   font-stretch: 75%;
   font-size: 1.15rem;
   margin: 26px 0 8px;
-}
-
-@media (max-width: 900px) {
-  .grid-wide {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 720px) {
@@ -1803,154 +1765,4 @@
 .cost-grid {
   margin-top: 22px;
   align-items: start;
-}
-
-/* ------------------------------------------------------------------ parts of the story */
-/* A story in six parts: a heavy rule, the part's name in display type, one line of what it answers. */
-.part {
-  padding-block: 64px 0;
-}
-
-.part-label {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 16px;
-  margin: 0;
-  padding-top: 14px;
-  border-top: 3px solid var(--ink);
-  font-family: var(--f-display);
-  font-stretch: 64%;
-  font-weight: 820;
-  font-size: clamp(2.1rem, 4.4vw, 3.4rem);
-  line-height: 0.95;
-}
-
-.part-no {
-  font: 700 0.92rem/1 var(--f-ui);
-  color: var(--west);
-  font-variant-numeric: tabular-nums;
-}
-
-.part-dek {
-  max-width: 40em;
-  margin: 10px 0 0;
-  font-family: var(--f-text);
-  font-size: 1.08rem;
-  line-height: 1.5;
-  color: var(--ink-2);
-}
-
-.part + .chapter {
-  border-top: 0;
-  padding-top: 36px;
-}
-
-/* ------------------------------------------------------------------ the essentials, under the standfirst */
-.essentiel {
-  padding-block: 36px 8px;
-}
-
-.essentiel-title {
-  margin: 0 0 12px;
-  font-family: var(--f-display);
-  font-stretch: 70%;
-  font-weight: 800;
-  font-size: 1.5rem;
-}
-
-.essentiel-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0 28px;
-  border-top: 2px solid var(--ink);
-}
-
-.es-n {
-  font-family: var(--f-display);
-  font-stretch: 64%;
-  font-weight: 820;
-  font-size: clamp(2.4rem, 4vw, 3.4rem);
-  line-height: 0.95;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-.essentiel-list a {
-  display: grid;
-  align-content: start;
-  gap: 4px;
-  height: 100%;
-  padding: 16px 0 18px;
-  border-bottom: 1px solid var(--rule);
-  text-decoration: none;
-}
-
-.es-q {
-  margin-top: 6px;
-  font-family: var(--f-display);
-  font-stretch: 72%;
-  font-weight: 800;
-  font-size: 1.2rem;
-  line-height: 1.1;
-  color: var(--ink);
-}
-
-.es-a {
-  font-family: var(--f-text);
-  font-size: 0.98rem;
-  line-height: 1.5;
-  color: var(--ink-2);
-}
-
-.essentiel-list a:hover .es-q,
-.essentiel-list a:focus-visible .es-q {
-  color: var(--blue-text);
-}
-
-.model-note {
-  padding-block: 32px 8px;
-}
-
-.after-figure {
-  margin-top: 24px;
-}
-
-.reponse-prose {
-  max-width: 40em;
-  margin-bottom: 26px;
-}
-
-.reponse-prose p:first-child {
-  font-size: 1.12em;
-  color: var(--ink);
-}
-
-@media (max-width: 1100px) and (min-width: 721px) {
-  .essentiel-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .essentiel-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .essentiel-list a {
-    grid-template-columns: 5.6em minmax(0, 1fr);
-    column-gap: 14px;
-  }
-
-  .es-n {
-    grid-row: span 2;
-    font-size: 2.2rem;
-  }
-
-  .part {
-    padding-top: 48px;
-  }
 }

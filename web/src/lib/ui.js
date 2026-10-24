@@ -156,6 +156,18 @@ export function dataTable(anchor, { head, rows, summary = "Voir les chiffres" })
   return box;
 }
 
+/** How to read a chart: one "Lecture" line right under it, never in the story itself. */
+export function lecture(sel, text) {
+  const chart = typeof sel === "string" ? $(sel) : sel;
+  if (!chart) return;
+  let p = chart.nextElementSibling;
+  if (!p?.classList.contains("lecture")) {
+    p = el("p", { class: "note lecture" });
+    chart.after(p);
+  }
+  p.replaceChildren(el("b", { text: "Lecture : " }), text);
+}
+
 /** A chapter's key figures: [{value, label, color}] -> big number in ink, label with a colour swatch. */
 export function keyFigures(node, items) {
   node.replaceChildren(
