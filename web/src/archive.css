@@ -1,0 +1,121 @@
+/* aviationdata, every investigation: a filter by topic, one wide row per issue (image, number and topic,
+   title, dek, dates), then the tools. Built to hold many issues. */
+.archive main section[id] {
+  scroll-margin-top: 76px;
+}
+
+.archive-head {
+  padding: 64px 0 28px;
+}
+
+.archive-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding: 14px 0;
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+.archive-topics {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.archive-count {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.arc-item + .arc-item {
+  border-top: 1px solid var(--rule);
+}
+
+.arc-link {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  padding: 26px 0;
+  text-decoration: none;
+}
+
+.arc-link img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+}
+
+.arc-text {
+  display: grid;
+  gap: 8px;
+}
+
+.arc-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font: 650 0.84rem/1.3 var(--f-ui);
+  color: var(--west, var(--magenta));
+}
+
+.arc-kicker span {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+  color: var(--muted);
+}
+
+.arc-title {
+  font-family: var(--f-display);
+  font-stretch: 66%;
+  font-weight: 820;
+  font-size: clamp(1.9rem, 3.6vw, 2.8rem);
+  line-height: 0.95;
+  color: var(--ink);
+}
+
+.arc-dek {
+  max-width: 38em;
+  font-family: var(--f-text);
+  font-size: 1.08rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.arc-meta {
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.arc-link:hover .arc-title,
+.arc-link:focus-visible .arc-title {
+  color: var(--blue-text);
+}
+
+.archive-tools {
+  padding: 56px 0 72px;
+}
+
+@media (max-width: 720px) {
+  .arc-link {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .archive-head {
+    padding-top: 40px;
+  }
+}

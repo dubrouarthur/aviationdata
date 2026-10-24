@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Toutes les enquêtes d'aviationdata</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Toutes les enquêtes d'aviationdata sur le transport aérien, construites sur des données ouvertes, et les outils qu'elles contiennent."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <meta name="theme-color" content="#f6f8f6" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Toutes les enquêtes d'aviationdata" />
+    <meta
+      property="og:description"
+      content="Enquêtes en données ouvertes sur le transport aérien, et leurs outils à manipuler soi-même."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-jet.jpg" />
+    <meta property="og:url" content="%VITE_SITE_URL%enquetes" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="archive">
+    <a class="skip-link" href="#liste">Aller aux enquêtes</a>
+    <header class="site-head">
+      <div class="wrap">
+        <a class="wordmark" href="../" aria-label="aviationdata, accueil">aviation<b>data</b></a>
+        <nav class="site-nav" aria-label="Site">
+          <a href="./" aria-current="page">Enquêtes</a>
+          <a href="#outils">Outils</a>
+          <a href="../a-propos">À propos</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main class="wrap archive-page">
+      <header class="archive-head">
+        <h1 class="about-title">Toutes les enquêtes</h1>
+        <p class="about-dek">
+          Chaque enquête pose une question sur le transport aérien et y répond avec des données ouvertes, en
+          chapitres, avec ses graphiques, ses outils, sa méthode et ses limites. La plus récente en premier.
+        </p>
+      </header>
+
+      <section id="liste" aria-labelledby="h-liste">
+        <div class="archive-bar">
+          <h2 class="visually-hidden" id="h-liste">Les enquêtes</h2>
+          <div class="seg archive-topics" id="archive-topics" role="group" aria-label="Thème">
+            <!--site:topics-->
+          </div>
+          <p class="archive-count" id="archive-count" aria-live="polite"></p>
+        </div>
+        <ol class="archive-list" id="archive-list">
+          <!--site:archive-->
+        </ol>
+      </section>
+
+      <section class="archive-tools" id="outils" aria-labelledby="h-outils">
+        <h2 class="home-h2" id="h-outils">Les outils</h2>
+        <p class="home-dek">
+          Les outils vivent dans les enquêtes et tournent sur les mêmes données que le texte. Chacun s'ouvre
+          directement à sa place.
+        </p>
+        <ul class="tools-list">
+          <!--site:tools-->
+        </ul>
+      </section>
+    </main>
+
+    <!--site:foot-->
+    <!--site:menu-->
+    <script type="module" src="/src/archive.js"></script>
+  </body>
+</html>

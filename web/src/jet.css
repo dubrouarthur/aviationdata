@@ -93,8 +93,14 @@
   color: var(--speed-core);
 }
 
-.open-kicker {
+.open-text .issue-kicker,
+.open-text .issue-kicker a {
   color: var(--night-muted);
+}
+
+.open-text .issue-kicker span {
+  color: var(--night-muted);
+  border-left-color: rgba(169, 188, 205, 0.4);
 }
 
 /* the standfirst, on paper right under the map */
@@ -1085,8 +1091,17 @@
 }
 
 .sim-dir.btn.ghost {
+  flex: none;
   padding: 5px 12px;
   font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* the route field holds five destinations and the direction: give it room on wide screens */
+@media (min-width: 901px) {
+  .sim-field-route {
+    grid-column: span 2;
+  }
 }
 
 .sim-kpis {

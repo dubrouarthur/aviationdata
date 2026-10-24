@@ -193,7 +193,14 @@ async function main() {
       { name: "Vers Paris", color: "var(--east)", values: e.map((v) => C.eurOf(v)) },
     ];
     const fmt = (v) => euros(v);
-    pairedBars($("#chart-months"), { series: series(Q.mw, Q.me), ticks: months, fmt, unit: "€" });
+    const letters = months.map((m) => m[0].toUpperCase());
+    pairedBars($("#chart-months"), {
+      series: series(Q.mw, Q.me),
+      ticks: months,
+      short: letters,
+      fmt,
+      unit: "€",
+    });
     pairedBars($("#chart-deciles"), {
       series: series(Q.dw, Q.de),
       ticks: d3.range(1, 11).map((k) => (k === 1 ? "1er" : `${k}e`)),

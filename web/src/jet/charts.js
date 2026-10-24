@@ -1245,9 +1245,11 @@ export function forecastChart(node, opts) {
  * Paired bars for two series (towards New York, towards Paris) over categories, with a legend and the
  * highest value labelled. series: [{ name, color, values }]; ticks: category labels; fmt: value -> text.
  */
-export function pairedBars(node, { series, ticks, fmt, unit }) {
+export function pairedBars(node, { series, ticks, short, fmt, unit }) {
   const draw = () => {
     const c = C();
+    // on a phone, the short labels (one letter per month)
+    const labels = (node.clientWidth || 600) < 480 && short ? short : ticks;
     const f = frame(node, 260, { top: 34, right: 8, bottom: 26, left: 52 });
     const g = f.svg.append("g").attr("transform", `translate(${f.m.left},${f.m.top})`);
     const x = d3.scaleBand().domain(d3.range(ticks.length)).range([0, f.iw]).paddingInner(0.25);
@@ -1272,7 +1274,7 @@ export function pairedBars(node, { series, ticks, fmt, unit }) {
       .call(
         d3
           .axisBottom(x)
-          .tickFormat((i) => ticks[i])
+          .tickFormat((i) => labels[i])
           .tickSize(0)
           .tickPadding(8),
       )

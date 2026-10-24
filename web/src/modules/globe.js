@@ -514,7 +514,6 @@ export function initGlobe(data, { dots }) {
     kpi(fmtPct(dIntl), `vols internationaux depuis 2019`, "var(--blue)"),
     kpi(fmtPct(dNat), `vols intérieurs depuis 2019`, "var(--magenta)"),
   );
-  $("#hero-kicker").textContent = `Données publiques DGAC, ${y0}–${lastYear}`;
 
   // ---------------------------------------------------------------- moments (preset views) and captions
   const MOMENTS = [

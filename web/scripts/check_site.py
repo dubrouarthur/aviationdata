@@ -169,7 +169,7 @@ with sync_playwright() as pw:
     check("first story links back home", pg.title().startswith("aviationdata"), pg.url)
 
     # ------------------------------------------------------------ the magazine: menu, footer, about, feed
-    for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos"):
+    for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos", "/enquetes"):
         pg.goto(base + path, wait_until="networkidle")
         foot = pg.eval_on_selector_all(".site-foot a", "as => as.map(a => a.getAttribute('href'))")
         n_issues = sum("courant-jet" in h or "le-ciel" in h for h in foot)
@@ -188,6 +188,18 @@ with sync_playwright() as pw:
     has("byline", norm(pg.inner_text(".article-meta")), "Par Arthur Dubrou", "Publiée le 24 octobre 2026")
     pg.goto(base + "/a-propos", wait_until="networkidle")
     has("about page", norm(pg.inner_text("main")), "La charte", "Corrections", "Les sources", "Citer et réutiliser")
+    pg.goto(base + "/enquetes", wait_until="networkidle")
+    arc = pg.eval_on_selector_all(".arc-link", "as => as.map(a => a.getAttribute('href'))")
+    check("archive lists every investigation", arc == ["../courant-jet", "../le-ciel-a-deux-vitesses"], str(arc))
+    pg.click("#archive-topics button:has-text('Trafic')")
+    pg.wait_for_timeout(200)
+    shown = pg.eval_on_selector_all(".arc-item:not([hidden]) .arc-title", "ts => ts.map(t => t.textContent)")
+    check("archive filters by topic", shown == ["Le ciel à deux vitesses"] and "theme=" in pg.url, f"{shown} {pg.url}")
+    for path, no in (("/courant-jet", 2), ("/le-ciel-a-deux-vitesses", 1)):
+        pg.goto(base + path, wait_until="networkidle")
+        has(f"{path}: kicker", norm(pg.inner_text(".issue-kicker")), f"Enquête n° {no}")
+        nxt = pg.eval_on_selector_all("#lire-aussi .also", "as => as.map(a => a.getAttribute('href'))")
+        check(f"{path}: the story leads to the other one", len(nxt) == 1, str(nxt))
     feed = pg.request.get(base + "/feed.xml")
     entries = ET.fromstring(feed.text()).findall("{http://www.w3.org/2005/Atom}entry") if feed.ok else []
     check("Atom feed lists both investigations", len(entries) == 2, f"{feed.status} {len(entries)}")
@@ -545,7 +557,7 @@ with sync_playwright() as pw:
       } return out.slice(0, 5); }"""
     for width in (1280, 1024):
         ep = page_(viewport={"width": width, "height": 900})
-        for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos"):
+        for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos", "/enquetes"):
             ep.goto(base + path, wait_until="networkidle")
             ep.wait_for_timeout(600)
             touching = ep.evaluate(EDGE, 8)
@@ -554,7 +566,7 @@ with sync_playwright() as pw:
 
     # ------------------------------------------------------------ phone
     mp = page_(viewport={"width": 390, "height": 844}, device_scale_factor=2)
-    for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos"):
+    for path in ("/", "/courant-jet", "/le-ciel-a-deux-vitesses", "/a-propos", "/enquetes"):
         mp.goto(base + path, wait_until="networkidle")
         mp.wait_for_timeout(800)
         wide = mp.evaluate(

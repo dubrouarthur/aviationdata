@@ -151,7 +151,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
   );
   const dirBtn = $("#sim-dir");
   const dirText = () =>
-    (dirBtn.textContent = state.west ? `Paris → ${short(state.dest)}` : `${short(state.dest)} → Paris`);
+    (dirBtn.textContent = `${state.west ? `Paris → ${short(state.dest)}` : `${short(state.dest)} → Paris`} ⇄`);
   dirBtn.addEventListener("click", () => {
     state.west = !state.west;
     dirBtn.setAttribute("aria-pressed", String(!state.west));

@@ -70,6 +70,7 @@ function menu({ root, issue, page }) {
         <h3>Le magazine</h3>
         <ul class="menu-links">
           <li><a href="${root}"${!issue && !page ? ' aria-current="page"' : ""}>Accueil</a></li>
+          <li><a href="${href(root, "enquetes")}"${page?.key === "archive" ? ' aria-current="page"' : ""}>Toutes les enquêtes</a></li>
           <li><a href="${href(root, "a-propos")}"${page?.key === "about" ? ' aria-current="page"' : ""}>À propos et charte</a></li>
           <li><a href="${href(root, "a-propos")}#corrections">Corrections</a></li>
           <li><a href="${href(root, "feed.xml")}">Flux RSS</a></li>
@@ -81,9 +82,10 @@ function menu({ root, issue, page }) {
 }
 
 function foot({ root }) {
-  const issues = ISSUES.map(
-    (i) => `<li><a href="${href(root, i.slug)}"><span>N° ${i.no}</span> ${esc(i.title)}</a></li>`,
-  ).join("");
+  // the five latest, then the archive
+  const issues = ISSUES.slice(0, 5)
+    .map((i) => `<li><a href="${href(root, i.slug)}"><span>N° ${i.no}</span> ${esc(i.title)}</a></li>`)
+    .join("");
   const year = new Date().getFullYear();
   return `<footer class="site-foot" id="colophon">
   <div class="wrap">
@@ -94,7 +96,7 @@ function foot({ root }) {
     <div class="foot-cols">
       <nav aria-labelledby="foot-h-issues">
         <h2 id="foot-h-issues">Les enquêtes</h2>
-        <ul>${issues}</ul>
+        <ul>${issues}<li><a href="${href(root, "enquetes")}">Toutes les enquêtes</a></li></ul>
       </nav>
       <nav aria-labelledby="foot-h-mag">
         <h2 id="foot-h-mag">Le magazine</h2>
@@ -134,26 +136,67 @@ function byline({ issue }) {
   return `<p class="article-meta">Par <a href="${SITE.author.url}" target="_blank" rel="noopener">${esc(SITE.author.name)}</a>. Publiée le ${pub}${upd}. Environ ${issue.minutes} minutes de lecture, plus les outils.</p>`;
 }
 
-function next({ root, issue }) {
-  const others = ISSUES.filter((i) => i !== issue);
-  const cards = others
-    .map(
-      (i) => `<a class="also" href="${href(root, i.slug)}">
+/** An issue as a card: image, number and date, title, dek. */
+function card(root, i, kicker = `Enquête n° ${i.no}, ${frDate(i.published)}`) {
+  return `<a class="also" href="${href(root, i.slug)}">
         <img src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
-        <span><small>Enquête n° ${i.no}, ${frDate(i.published)}</small><b>${esc(i.title)}</b>${esc(i.dek)}</span>
-      </a>`,
-    )
-    .join("");
+        <span><small>${esc(kicker)}</small><b>${esc(i.title)}</b>${esc(i.dek)}</span>
+      </a>`;
+}
+
+/** The end of a story: the previous and the next investigation by number, then the archive. */
+function next({ root, issue }) {
+  const prev = ISSUES.find((i) => i.no === issue.no - 1);
+  const nxt = ISSUES.find((i) => i.no === issue.no + 1);
+  const cards = [
+    prev && card(root, prev, `Enquête précédente, n° ${prev.no}`),
+    nxt && card(root, nxt, `Enquête suivante, n° ${nxt.no}`),
+  ].filter(Boolean);
   return `<section class="chapter wrap read-next" id="lire-aussi" aria-labelledby="h-aussi">
-  <h2 class="sub-title" id="h-aussi">À lire aussi</h2>
-  <div class="next-grid">${cards}</div>
-  <p class="all-stories"><a href="${root}">Toutes les enquêtes d'aviationdata</a></p>
+  <h2 class="sub-title" id="h-aussi">Continuer la lecture</h2>
+  <div class="next-grid">${cards.join("")}</div>
+  <p class="all-stories"><a href="${href(root, "enquetes")}">Toutes les enquêtes d'aviationdata</a></p>
 </section>`;
 }
 
-function issuesList({ root }) {
+/** The story's kicker: its number, linked to the archive, and its topic. */
+function kicker({ root, issue }) {
+  if (!issue) throw new Error("site:kicker outside an investigation");
+  return `<p class="kicker issue-kicker"><a href="${href(root, "enquetes")}">Enquête n° ${issue.no}</a><span>${esc(issue.topic)}</span></p>`;
+}
+
+/** The archive: every investigation, newest first, with its topic for the filter. */
+function archive({ root }) {
   return ISSUES.map(
-    (i) => `<li class="strip" style="--c: ${i.accent}">
+    (i) => `<li class="arc-item" data-topic="${esc(i.topic)}">
+  <a class="arc-link" href="${href(root, i.slug)}">
+    <img src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
+    <span class="arc-text">
+      <span class="arc-kicker">Enquête n° ${i.no}<span>${esc(i.topic)}</span></span>
+      <span class="arc-title">${esc(i.title)}</span>
+      <span class="arc-dek">${esc(i.dek)}</span>
+      <span class="arc-meta">Publiée le ${frDate(i.published)}${i.updated !== i.published ? `, mise à jour le ${frDate(i.updated)}` : ""}. ${i.chapters} chapitres, environ ${i.minutes} minutes de lecture. Données : ${esc(i.sources)}.</span>
+    </span>
+  </a>
+</li>`,
+  ).join("\n");
+}
+
+/** Topic filter buttons for the archive. */
+function topics() {
+  const all = [...new Set(ISSUES.map((i) => i.topic))];
+  return [`<button type="button" data-topic="" aria-pressed="true">Toutes</button>`]
+    .concat(
+      all.map((t) => `<button type="button" data-topic="${esc(t)}" aria-pressed="false">${esc(t)}</button>`),
+    )
+    .join("");
+}
+
+function issuesList({ root }) {
+  // the six latest on the home page; the archive holds them all
+  return ISSUES.slice(0, 6)
+    .map(
+      (i) => `<li class="strip" style="--c: ${i.accent}">
   <a class="strip-link" href="${href(root, i.slug)}">
     <span class="strip-no">${String(i.no).padStart(2, "0")}</span>
     <span class="strip-main">
@@ -167,7 +210,8 @@ function issuesList({ root }) {
     <span class="strip-go">Lire</span>
   </a>
 </li>`,
-  ).join("\n");
+    )
+    .join("\n");
 }
 
 function toolsList({ root }) {
@@ -210,6 +254,9 @@ const PARTIALS = {
   tools: toolsList,
   corrections,
   cite,
+  kicker,
+  archive,
+  topics,
 };
 
 /** Replace every <!--site:name--> in a page; an unknown name fails the build. */

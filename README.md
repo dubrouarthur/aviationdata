@@ -3,9 +3,10 @@
 Un magazine d'enquêtes sur le transport aérien construites uniquement sur des données publiques. Le site est en ligne sur [aviationdata.vercel.app](https://aviationdata.vercel.app/) :
 
 - la page d'accueil (`web/index.html`) présente les enquêtes et leurs outils ;
+- **Toutes les enquêtes** (`/enquetes`) : les archives, filtrables par thème, et les outils ;
 - **À propos** (`/a-propos`) : le magazine, sa charte, ses corrections, ses sources et son auteur ;
 - **Le ciel à deux vitesses** (`/le-ciel-a-deux-vitesses`) : trente-cinq ans de transport aérien français d'après la DGAC (data.gouv.fr), avec un globe des destinations, la carte des liaisons intérieures, un explorateur par aéroport, la course des compagnies, le pavillon français, les prix, le fret et le CO2 ;
-- **Le vent dans le dos** (`/courant-jet`) : le courant-jet et les vols transatlantiques, d'après les vols OpenSky, les vents ERA5 (Copernicus/ECMWF), la réanalyse NCEP/NCAR et l'indice NAO de la NOAA, les ballons-sondes de Météo-France (archive IGRA de la NOAA) et l'imagerie de la NASA. On y trouve une carte animée des vents, un simulateur de vol (route, altitude, heure, avion, kérosène et coût par vol), un explorateur jour par jour de la route la plus rapide, ce que vaut l'optimisation des routes en euros, et soixante-dix-huit ans de vent sur l'Atlantique.
+- **Le vent dans le dos** (`/courant-jet`) : jouer avec le courant-jet et le prévoir peut-il réduire le coût de certains vols transatlantiques ? D'après d'après les vols OpenSky, les vents ERA5 (Copernicus/ECMWF), la réanalyse NCEP/NCAR et l'indice NAO de la NOAA, les ballons-sondes de Météo-France (archive IGRA de la NOAA) et l'imagerie de la NASA. On y trouve une carte animée des vents, un simulateur de vol (route, altitude, heure, avion, kérosène et coût par vol), un explorateur jour par jour de la route la plus rapide, ce que vaut l'optimisation des routes en euros, et soixante-dix-huit ans de vent sur l'Atlantique.
 
 Toutes les pages partagent un sommaire, un pied de page, une signature et un « À lire aussi » écrits à la construction depuis `web/src/site/issues.js`, qui sert aussi au flux Atom (`/feed.xml`) et au plan du site (`/sitemap.xml`).
 
@@ -42,6 +43,7 @@ python3 etl/jet/reanalysis.py --years 1948,...,2025          # vent 6-horaire à
 python3 etl/jet/era5_levels.py 2020-02-08 ...                # vents et températures à FL300/340/390 des jours du simulateur
 python3 etl/jet/era5_levels.py --years 2019,2020,2021,2022   # les mêmes pour chaque jour de 2019-2022
 python3 etl/jet/prices.py        # prix du kérosène (EIA) et taux dollar-euro (BCE)
+python3 etl/jet/forecasts.py     # prévisions ECMWF HRES et Pangu-Weather de 2020 (WeatherBench 2)
 python3 etl/jet/build_jet.py     # écrit web/public/data/jet/ (--skip-stats garde sim_stats.json, dix minutes de calcul)
 ```
 
@@ -92,6 +94,6 @@ Les fichiers produits vont dans `promo/out/`, qui n'est pas versionné. La photo
 ## Sources
 
 - Le ciel à deux vitesses : Direction générale de l'aviation civile (DGAC), trafic commercial mensuel, indices des prix du transport aérien de passagers, émissions de CO2.
-- Le vent dans le dos : The OpenSky Network (https://opensky-network.org, Strohmeier et al., 2021) ; ERA5, Copernicus Climate Change Service / ECMWF (contient des informations modifiées du Copernicus Climate Change Service) ; NCEP/NCAR Reanalysis 1 et indice NAO, NOAA ; radiosondages de Météo-France à Trappes, archive IGRA 2 de la NOAA NCEI ; NASA Worldview / GIBS ; OpenAP (TU Delft) ; DGAC (trafic par paire d'aéroports, émissions de CO2) ; prix du kérosène de l'EIA ; taux de change de la BCE ; facteur de 3,16 t de CO2 par tonne de kérosène de l'OACI ; OurAirports.
+- Le vent dans le dos : The OpenSky Network (https://opensky-network.org, Strohmeier et al., 2021) ; ERA5, Copernicus Climate Change Service / ECMWF (contient des informations modifiées du Copernicus Climate Change Service) ; NCEP/NCAR Reanalysis 1 et indice NAO, NOAA ; radiosondages de Météo-France à Trappes, archive IGRA 2 de la NOAA NCEI ; NASA Worldview / GIBS ; OpenAP (TU Delft) ; DGAC (trafic par paire d'aéroports, émissions de CO2) ; prévisions ECMWF HRES et Pangu-Weather (WeatherBench 2) ; prix du kérosène de l'EIA ; taux de change de la BCE ; facteur de 3,16 t de CO2 par tonne de kérosène de l'OACI ; OurAirports.
 
 La méthode détaillée figure en bas de chaque enquête.

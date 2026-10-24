@@ -1,6 +1,6 @@
 # aviationdata
 
-Magazine d'enquêtes en données ouvertes sur le transport aérien : une page d'accueil (`web/index.html`), une page À propos (`web/a-propos/`, charte, corrections, sources) et une page par enquête, chacune dans son dossier (`web/le-ciel-a-deux-vitesses/`, données DGAC ; `web/courant-jet/`, courant-jet et vols transatlantiques). Une nouvelle enquête = un dossier + une entrée dans `ISSUES` (`web/src/site/issues.js`) : pages Vite, sommaire, pied de page, signature, « À lire aussi », liste et outils de l'accueil, flux Atom et sitemap en découlent. Une correction de fait = une entrée datée dans `CORRECTIONS` (même fichier).
+Magazine d'enquêtes en données ouvertes sur le transport aérien : une page d'accueil (`web/index.html`), les archives (`web/enquetes/`, filtre par thème `?theme=`), une page À propos (`web/a-propos/`, charte, corrections, sources) et une page par enquête, chacune dans son dossier (`web/le-ciel-a-deux-vitesses/`, données DGAC ; `web/courant-jet/`, courant-jet et vols transatlantiques). Une nouvelle enquête = un dossier + une entrée dans `ISSUES` (`web/src/site/issues.js`) : pages Vite, sommaire, pied de page, surtitre (n° et thème), signature, enquête précédente et suivante, archives, liste et outils de l'accueil, flux Atom et sitemap en découlent. Une correction de fait = une entrée datée dans `CORRECTIONS` (même fichier).
 
 ## Commandes
 

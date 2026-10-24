@@ -2,6 +2,7 @@
    its panel, the byline under a title, "read also" at the end of a story and the site footer.
    Markup comes from src/site/partials.js at build time. */
 :root {
+  --night: #0d2236; /* as in jet.css: the accent of the jet-stream story, used on every page */
   --mag-night: #0d2236;
   --mag-night-ink: #e9f0f6;
   --mag-night-muted: #a9bccd; /* 8:1 on --mag-night */
@@ -414,6 +415,31 @@ html.menu-is-open {
   .menu-top .wordmark {
     font-size: 1.2rem;
   }
+}
+
+/* ------------------------------------------------------------------ a story's kicker: number, topic */
+.issue-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.issue-kicker a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.issue-kicker a:hover,
+.issue-kicker a:focus-visible {
+  text-decoration: underline;
+}
+
+.issue-kicker span {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+  color: var(--muted);
+  font-weight: 600;
 }
 
 /* ------------------------------------------------------------------ byline under a story's title */
