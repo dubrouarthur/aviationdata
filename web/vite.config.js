@@ -1,11 +1,12 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
+import { ISSUES, PAGES as MAGAZINE } from "./src/site/issues.js";
+import { sitePartials } from "./src/site/partials.js";
 
-// One page per investigation, plus the home page that presents them.
+// The home page, one page per investigation and the magazine's own pages, all listed in issues.js
 const PAGES = {
   home: "index.html",
-  ciel: "le-ciel-a-deux-vitesses/index.html",
-  jet: "courant-jet/index.html",
+  ...Object.fromEntries([...ISSUES, ...MAGAZINE].map((p) => [p.key, `${p.slug}/index.html`])),
 };
 
 // Absolute site URL for social previews (og:image must be absolute). Vercel exposes the production domain at
@@ -37,7 +38,7 @@ function rewrite(req, _res, next) {
 
 export default defineConfig(({ mode }) => ({
   base: "./",
-  plugins: [cleanUrls],
+  plugins: [cleanUrls, sitePartials(import.meta.dirname, process.env.VITE_SITE_URL)],
   build: {
     outDir: mode === "artifact" ? "dist-artifact" : "dist",
     // artifact pages may not load fonts from other hosts: inline them as data URIs

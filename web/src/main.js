@@ -1,6 +1,7 @@
 import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
+import { initSiteMenu } from "./site/menu.js";
 import { loadAll } from "./lib/data.js";
 import { el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { addSourceLines } from "./lib/datasets.js";
@@ -84,6 +85,7 @@ function trackChapters() {
 }
 
 watchFrenchSpacing(document.body); // "Source : DGAC" never breaks before its colon
+initSiteMenu();
 trackChapters();
 numberChapters();
 readingProgress();

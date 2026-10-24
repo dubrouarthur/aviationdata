@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>À propos d'aviationdata : le magazine, sa charte, ses sources</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="aviationdata publie des enquêtes sur le transport aérien construites uniquement sur des données ouvertes. Sa charte, sa politique de corrections, ses sources et son auteur."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <meta name="theme-color" content="#f6f8f6" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="À propos d'aviationdata" />
+    <meta
+      property="og:description"
+      content="Un magazine d'enquêtes en données ouvertes sur le transport aérien : sa charte, ses corrections, ses sources."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-jet.jpg" />
+    <meta property="og:url" content="%VITE_SITE_URL%a-propos" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="about">
+    <a class="skip-link" href="#magazine">Aller au contenu</a>
+    <header class="site-head">
+      <div class="wrap">
+        <a class="wordmark" href="../" aria-label="aviationdata, accueil">aviation<b>data</b></a>
+        <nav class="site-nav" aria-label="Site">
+          <a href="../#enquetes">Enquêtes</a>
+          <a href="../#outils">Outils</a>
+          <a href="./" aria-current="page">À propos</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main class="wrap about-page">
+      <header class="about-head">
+        <h1 class="about-title">Lire les données publiques du ciel, une question à la fois</h1>
+        <p class="about-dek">
+          aviationdata est un magazine d'enquêtes sur le transport aérien construites uniquement sur des
+          données ouvertes. Chaque chiffre cité est recalculé depuis sa source, chaque graphique nomme la
+          sienne, et les outils permettent de vérifier soi-même.
+        </p>
+      </header>
+
+      <div class="about-body">
+        <nav class="about-toc" aria-label="Sur cette page">
+          <a href="#magazine">Le magazine</a>
+          <a href="#charte">La charte</a>
+          <a href="#corrections">Corrections</a>
+          <a href="#sources">Les sources</a>
+          <a href="#auteur">L'auteur</a>
+          <a href="#citer">Citer et réutiliser</a>
+        </nav>
+
+        <div class="about-text">
+          <section id="magazine" aria-labelledby="h-magazine">
+            <h2 id="h-magazine">Le magazine</h2>
+            <p>
+              Le transport aérien produit chaque jour une masse de données publiques : le trafic des aéroports
+              publié par la Direction générale de l'aviation civile, les trajectoires captées par les
+              récepteurs bénévoles du réseau OpenSky, les vents d'altitude calculés par Copernicus et la NOAA.
+              Elles sont ouvertes à tous, mais rarement lues jusqu'au bout.
+            </p>
+            <p>
+              Chaque enquête part d'une question simple et la suit jusqu'au bout des données, chapitre après
+              chapitre. Pourquoi Paris–New York dure-t-il une heure de plus que le retour ? Le trafic français
+              a-t-il retrouvé son niveau d'avant Covid ? Les graphiques s'explorent, les outils se manipulent,
+              et chaque enquête se termine par sa méthode, ses sources et ce qu'elle ne permet pas de dire.
+            </p>
+            <h3>Trois formats</h3>
+            <dl class="about-formats">
+              <dt>Les enquêtes</dt>
+              <dd>
+                Longues, en chapitres, numérotées et datées. Elles paraissent quand elles sont prêtes, pas à
+                date fixe.
+              </dd>
+              <dt>Les outils</dt>
+              <dd>
+                Simulateur de vol, explorateurs d'aéroports et de journées de vent : ils vivent dans les
+                enquêtes et tournent sur les mêmes données que le texte.
+              </dd>
+              <dt>Les mises à jour</dt>
+              <dd>
+                Quand une source publie de nouvelles données, l'enquête est recalculée : le texte suit les
+                chiffres, et la date de mise à jour figure sous le titre.
+              </dd>
+            </dl>
+          </section>
+
+          <section id="charte" aria-labelledby="h-charte">
+            <h2 id="h-charte">La charte</h2>
+            <p>Sept règles, appliquées à chaque enquête avant sa publication.</p>
+            <dl class="about-rules">
+              <dt>Des données ouvertes, et nommées</dt>
+              <dd>
+                Toutes les données utilisées sont publiques et téléchargeables par chacun. Chaque graphique
+                cite le jeu de données dont il est tiré, avec un lien vers son producteur.
+              </dd>
+              <dt>Des chiffres recalculés, pas recopiés</dt>
+              <dd>
+                Le texte est écrit à partir des données traitées. Avant chaque publication, un script
+                indépendant recalcule chaque nombre cité et le compare à la page affichée.
+              </dd>
+              <dt>Les trous restent visibles</dt>
+              <dd>
+                Une donnée absente n'est pas inventée : pas d'interpolation, et un aéroport passé sous le
+                seuil de diffusion disparaît du graphique le mois où il manque.
+              </dd>
+              <dt>Une corrélation n'est pas une cause</dt>
+              <dd>
+                Les faits extérieurs aux données (une taxe, une tempête, un record) sont datés et sourcés. Ils
+                situent une courbe dans le temps, ils ne sont pas présentés comme sa cause.
+              </dd>
+              <dt>Les limites dites</dt>
+              <dd>
+                Chaque enquête précise ce que ses données ne disent pas. Les modèles, comme la route la plus
+                rapide ou le simulateur de vol, donnent des ordres de grandeur, et leurs hypothèses sont
+                écrites dans la méthode.
+              </dd>
+              <dt>Indépendance</dt>
+              <dd>Pas de publicité, pas de traceur, pas de contenu sponsorisé.</dd>
+              <dt>Le code ouvert</dt>
+              <dd>
+                Les traitements, de la donnée brute au graphique, sont publiés sur
+                <a href="https://github.com/dubrouarthur/aviationdata" target="_blank" rel="noopener"
+                  >GitHub</a
+                >. Chacun peut refaire les calculs.
+              </dd>
+            </dl>
+          </section>
+
+          <section id="corrections" aria-labelledby="h-corrections">
+            <h2 id="h-corrections">Corrections</h2>
+            <p>
+              Une erreur dans un chiffre, une carte ou une source ? Signalez-la en
+              <a href="https://github.com/dubrouarthur/aviationdata/issues/new" target="_blank" rel="noopener"
+                >ouvrant un ticket sur GitHub</a
+              >
+              ou par message sur
+              <a href="https://www.linkedin.com/in/arthur-dubrou/" target="_blank" rel="noopener">LinkedIn</a
+              >. Une erreur de fait est corrigée dans l'enquête et la correction est inscrite ici, datée, avec
+              ce qui a changé.
+            </p>
+            <!--site:corrections-->
+          </section>
+
+          <section id="sources" aria-labelledby="h-sources">
+            <h2 id="h-sources">Les sources</h2>
+            <p>
+              Les producteurs des données utilisées à ce jour. Le détail des séries, de leurs traitements et
+              de leurs conditions d'utilisation figure à la fin de chaque enquête.
+            </p>
+            <div class="table-scroll">
+              <table class="about-sources">
+                <thead>
+                  <tr>
+                    <th scope="col">Producteur</th>
+                    <th scope="col">Données</th>
+                    <th scope="col">Enquêtes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <a
+                        href="https://www.data.gouv.fr/datasets/trafic-aerien-commercial-mensuel-francais-par-paire-daeroports-par-sens-depuis-1990"
+                        target="_blank"
+                        rel="noopener"
+                        >DGAC</a
+                      >, via data.gouv.fr
+                    </td>
+                    <td>Trafic commercial mensuel depuis 1990, prix des billets, émissions de CO2</td>
+                    <td>n° 1, n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a
+                        href="https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels"
+                        target="_blank"
+                        rel="noopener"
+                        >Copernicus, ERA5</a
+                      >
+                    </td>
+                    <td>Vents et températures en altitude depuis 1959</td>
+                    <td>n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a
+                        href="https://psl.noaa.gov/data/gridded/data.ncep.reanalysis.html"
+                        target="_blank"
+                        rel="noopener"
+                        >NOAA, réanalyse NCEP/NCAR</a
+                      >
+                    </td>
+                    <td>Vent à 250 hPa depuis 1948</td>
+                    <td>n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a
+                        href="https://www.ncei.noaa.gov/products/weather-balloon/integrated-global-radiosonde-archive"
+                        target="_blank"
+                        rel="noopener"
+                        >NOAA, IGRA 2</a
+                      >
+                    </td>
+                    <td>Ballons-sondes lâchés par Météo-France à Trappes</td>
+                    <td>n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a
+                        href="https://www.cpc.ncep.noaa.gov/products/precip/CWlink/pna/nao.shtml"
+                        target="_blank"
+                        rel="noopener"
+                        >NOAA, CPC</a
+                      >
+                    </td>
+                    <td>Oscillation nord-atlantique</td>
+                    <td>n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener"
+                        >NASA, Worldview</a
+                      >
+                    </td>
+                    <td>Images satellites VIIRS</td>
+                    <td>n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="https://doi.org/10.5281/zenodo.7923702" target="_blank" rel="noopener"
+                        >The OpenSky Network</a
+                      >
+                    </td>
+                    <td>Vols observés de 2019 à 2022, publiés en agrégats seulement</td>
+                    <td>n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="https://doi.org/10.3390/aerospace7080104" target="_blank" rel="noopener"
+                        >OpenAP, TU Delft</a
+                      >
+                    </td>
+                    <td>Vitesses de croisière et consommations des avions</td>
+                    <td>n° 2</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a href="https://ourairports.com/data/" target="_blank" rel="noopener">OurAirports</a>,
+                      Natural Earth
+                    </td>
+                    <td>Coordonnées des aéroports, contours des pays</td>
+                    <td>n° 1, n° 2</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="auteur" aria-labelledby="h-auteur">
+            <h2 id="h-auteur">L'auteur</h2>
+            <div class="about-author">
+              <img src="../auteur.jpg" alt="Arthur Dubrou" width="120" height="120" loading="lazy" />
+              <div>
+                <p>
+                  Arthur Dubrou conçoit et réalise les enquêtes d'aviationdata : collecte et traitement des
+                  données, textes, graphiques, outils et code.
+                </p>
+                <p>
+                  Une question, une idée d'enquête, une donnée à signaler ?
+                  <a href="https://www.linkedin.com/in/arthur-dubrou/" target="_blank" rel="noopener"
+                    >Écrivez-moi sur LinkedIn</a
+                  >.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="citer" aria-labelledby="h-citer">
+            <h2 id="h-citer">Citer et réutiliser</h2>
+            <p>Pour citer une enquête :</p>
+            <ul class="about-cite">
+              <!--site:cite-->
+            </ul>
+            <p>
+              Les données restent soumises aux conditions de leurs producteurs, rappelées dans la méthode de
+              chaque enquête. Les données brutes d'OpenSky ne sont pas redistribuées : seuls des agrégats
+              quittent le traitement. Pour suivre les nouvelles enquêtes, abonnez-vous au
+              <a href="../feed.xml">flux RSS</a> ou suivez l'auteur sur LinkedIn.
+            </p>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!--site:foot-->
+    <!--site:menu-->
+    <script type="module" src="/src/about.js"></script>
+  </body>
+</html>

@@ -5,55 +5,6 @@
   scroll-margin-top: 64px;
 }
 
-.site-head {
-  position: sticky;
-  top: env(safe-area-inset-top, 0px);
-  z-index: 30;
-  background: color-mix(in srgb, var(--paper) 92%, transparent);
-  backdrop-filter: saturate(1.4) blur(10px);
-  -webkit-backdrop-filter: saturate(1.4) blur(10px);
-  border-bottom: 1px solid var(--rule);
-}
-
-.site-head .wrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  min-height: 58px;
-}
-
-.wordmark {
-  font-family: var(--f-display);
-  font-stretch: 75%;
-  font-weight: 520;
-  font-size: 1.45rem;
-  letter-spacing: -0.005em;
-  text-decoration: none;
-  color: var(--ink-2);
-}
-
-.wordmark b {
-  font-weight: 830;
-  color: var(--ink);
-}
-
-.site-nav {
-  display: flex;
-  gap: 20px;
-  font-size: 0.9rem;
-}
-
-.site-nav a {
-  text-decoration: none;
-  color: var(--ink-2);
-}
-
-.site-nav a:hover,
-.site-nav a:focus-visible {
-  color: var(--blue-text);
-}
-
 /* ------------------------------------------------------------------ the lead story */
 .lead {
   position: relative;
@@ -258,30 +209,90 @@
   border-left-color: var(--c);
 }
 
-/* ------------------------------------------------------------------ the first story, featured */
-.feature {
-  display: grid;
-  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-  gap: 36px;
-  align-items: center;
+/* ------------------------------------------------------------------ the tools inside the stories */
+.tools {
   padding-top: 64px;
 }
 
-.feature-img img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  border: 1px solid var(--rule);
+.home-dek {
+  max-width: 40em;
+  margin: -8px 0 22px;
+  font-family: var(--f-text);
+  font-size: 1.06rem;
+  line-height: 1.55;
+  color: var(--ink-2);
 }
 
-.feature .prose {
-  margin-bottom: 18px;
+.home-dek a {
+  color: var(--blue-text);
+}
+
+.tools-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 40px;
+}
+
+.tool a {
+  display: grid;
+  gap: 6px;
+  height: 100%;
+  padding: 16px 0 20px;
+  border-top: 1px solid var(--rule);
+  text-decoration: none;
+}
+
+.tool-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-display);
+  font-stretch: 70%;
+  font-weight: 800;
+  font-size: 1.55rem;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.tool-title::before {
+  content: "";
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.tool-dek {
+  font-family: var(--f-text);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+  max-width: 34em;
+}
+
+.tool-from {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tool a:hover .tool-title,
+.tool a:focus-visible .tool-title {
+  color: var(--blue-text);
 }
 
 /* ------------------------------------------------------------------ method */
 .method {
-  padding: 72px 0 40px;
+  padding-block: 72px 40px;
+}
+
+.method .home-dek {
+  margin: -8px 0 24px;
+  font-size: 1.06rem;
 }
 
 .method-grid {
@@ -306,28 +317,6 @@
   margin: 0;
 }
 
-/* ------------------------------------------------------------------ footer */
-.site-foot {
-  border-top: 1px solid var(--rule);
-  padding: 36px 0 48px;
-  background: var(--paper-2);
-}
-
-.foot-grid {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px 40px;
-}
-
-.foot-note {
-  font-size: 0.86rem;
-  color: var(--muted);
-  margin: 0;
-  max-width: 34em;
-}
-
 @media (max-width: 900px) {
   .strip-link {
     grid-template-columns: 64px minmax(0, 1fr);
@@ -343,9 +332,8 @@
     display: none !important;
   }
 
-  .feature {
+  .tools-list {
     grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
   }
 
   .method-grid {
@@ -354,11 +342,6 @@
 }
 
 @media (max-width: 520px) {
-  .site-nav {
-    gap: 14px;
-    font-size: 0.84rem;
-  }
-
   .strip-link {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -379,19 +362,4 @@
 
 .home {
   --jet: var(--night);
-}
-
-.site-foot .author-card .ac-by {
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.site-foot .author-card .ac-name {
-  font-family: var(--f-display);
-  font-stretch: 72%;
-  font-weight: 780;
-  font-size: 1.6rem;
-  line-height: 1.1;
-  color: var(--ink);
 }

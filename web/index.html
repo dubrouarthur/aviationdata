@@ -42,9 +42,10 @@
         <a class="wordmark" href="./" aria-label="aviationdata, accueil">aviation<b>data</b></a>
         <nav class="site-nav" aria-label="Site">
           <a href="#enquetes">Enquêtes</a>
-          <a href="#methode">Méthode</a>
-          <a href="#auteur">Auteur</a>
+          <a href="#outils">Outils</a>
+          <a href="a-propos">À propos</a>
         </nav>
+        <!--site:menu-button-->
       </div>
     </header>
 
@@ -75,61 +76,27 @@
       <section class="wrap issues" id="enquetes" aria-labelledby="h-enquetes">
         <h2 class="home-h2" id="h-enquetes">Les enquêtes</h2>
         <ol class="strips" reversed>
-          <li class="strip" style="--c: var(--jet)">
-            <a class="strip-link" href="courant-jet">
-              <span class="strip-no">02</span>
-              <span class="strip-main">
-                <span class="strip-title">Le vent dans le dos</span>
-                <span class="strip-dek"
-                  >Le courant-jet et les vols transatlantiques : où placer l'avion, à quelle altitude et à
-                  quelle heure, avec un simulateur de vol sur des journées réelles depuis 1999.</span
-                >
-              </span>
-              <span class="strip-meta">
-                <span><b>Octobre 2026</b> 10 chapitres et un simulateur</span>
-                <span>ERA5 Copernicus, NOAA, Météo-France, NASA, OpenSky</span>
-              </span>
-              <span class="strip-go">Lire</span>
-            </a>
-          </li>
-          <li class="strip" style="--c: var(--magenta)">
-            <a class="strip-link" href="le-ciel-a-deux-vitesses">
-              <span class="strip-no">01</span>
-              <span class="strip-main">
-                <span class="strip-title">Le ciel à deux vitesses</span>
-                <span class="strip-dek"
-                  >Trente-cinq ans de transport aérien français : l'international repart, l'intérieur
-                  décroche. Destinations, aéroports, compagnies, prix, fret et CO2.</span
-                >
-              </span>
-              <span class="strip-meta">
-                <span><b>2026</b> 12 chapitres</span>
-                <span>DGAC, data.gouv.fr</span>
-              </span>
-              <span class="strip-go">Lire</span>
-            </a>
-          </li>
+          <!--site:issues-->
         </ol>
       </section>
 
-      <section class="wrap feature" aria-labelledby="h-ciel">
-        <a class="feature-img" href="le-ciel-a-deux-vitesses" tabindex="-1" aria-hidden="true">
-          <img src="og.png" alt="" width="1200" height="630" loading="lazy" />
-        </a>
-        <div class="feature-text">
-          <h2 class="home-h2" id="h-ciel"><a href="le-ciel-a-deux-vitesses">Le ciel à deux vitesses</a></h2>
-          <p class="prose">
-            Depuis 2019, le trafic international des aéroports français a dépassé son niveau d'avant Covid
-            quand les vols intérieurs restent loin derrière. L'enquête suit 35 ans de données de la DGAC,
-            aéroport par aéroport et compagnie par compagnie, jusqu'au prix du billet et aux émissions par
-            passager.
-          </p>
-          <p><a class="btn" href="le-ciel-a-deux-vitesses">Lire l'enquête</a></p>
-        </div>
+      <section class="wrap tools" id="outils" aria-labelledby="h-outils">
+        <h2 class="home-h2" id="h-outils">Les outils</h2>
+        <p class="home-dek">
+          Chaque enquête contient des outils à manipuler soi-même, sur les mêmes données que le texte. Ils
+          s'ouvrent directement à leur place dans l'enquête.
+        </p>
+        <ul class="tools-list">
+          <!--site:tools-->
+        </ul>
       </section>
 
       <section class="wrap method" id="methode" aria-labelledby="h-methode">
         <h2 class="home-h2" id="h-methode">Comment ces enquêtes sont faites</h2>
+        <p class="home-dek">
+          Trois règles, détaillées dans <a href="a-propos#charte">la charte du magazine</a>, avec la politique
+          de corrections.
+        </p>
         <div class="method-grid">
           <div>
             <h3>Des données publiques, et seulement elles</h3>
@@ -157,24 +124,8 @@
       </section>
     </main>
 
-    <footer class="site-foot" id="auteur">
-      <div class="wrap foot-grid">
-        <div class="author-card">
-          <img src="auteur.jpg" alt="Arthur Dubrou" width="76" height="76" loading="lazy" />
-          <div>
-            <p class="ac-by">Enquêtes conçues et réalisées par</p>
-            <p class="ac-name">Arthur Dubrou</p>
-            <a href="https://www.linkedin.com/in/arthur-dubrou/" target="_blank" rel="noopener"
-              >Me suivre sur LinkedIn</a
-            >
-          </div>
-        </div>
-        <p class="foot-note">
-          Site indépendant, sans publicité ni traceur. Code et traitements :
-          <a href="https://github.com/dubrouarthur/aviationdata" target="_blank" rel="noopener">GitHub</a>.
-        </p>
-      </div>
-    </footer>
+    <!--site:foot-->
+    <!--site:menu-->
     <script type="module" src="/src/home.js"></script>
   </body>
 </html>

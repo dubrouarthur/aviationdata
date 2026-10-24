@@ -1,0 +1,248 @@
+/* aviationdata, "À propos": the magazine, its charter, corrections, sources and author. A reading page:
+   a table of contents on the left, one serif column on the right. */
+.about main section[id] {
+  scroll-margin-top: 76px;
+}
+
+.about-head {
+  padding: 64px 0 36px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.about-title {
+  font-family: var(--f-display);
+  font-stretch: 64%;
+  font-weight: 820;
+  font-size: clamp(2.6rem, 6.4vw, 5.4rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  max-width: 13em;
+  margin: 0 0 22px;
+}
+
+.about-dek {
+  max-width: 34em;
+  margin: 0;
+  font-family: var(--f-text);
+  font-size: clamp(1.15rem, 1.8vw, 1.32rem);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.about-body {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 44em);
+  gap: 64px;
+  padding: 8px 0 80px;
+}
+
+.about-toc {
+  position: sticky;
+  top: 84px;
+  align-self: start;
+  display: grid;
+  padding-top: 36px;
+  font-size: 0.92rem;
+}
+
+.about-toc a {
+  padding: 6px 0 6px 12px;
+  border-left: 2px solid var(--rule);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.about-toc a:hover,
+.about-toc a:focus-visible {
+  color: var(--ink);
+}
+
+.about-toc a[aria-current="true"] {
+  color: var(--ink);
+  font-weight: 650;
+  border-left-color: var(--ink);
+}
+
+.about-text section {
+  padding-top: 36px;
+}
+
+.about-text section + section {
+  margin-top: 28px;
+  border-top: 1px solid var(--rule);
+}
+
+.about-text h2 {
+  font-family: var(--f-display);
+  font-stretch: 68%;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+  line-height: 1;
+  margin: 0 0 16px;
+}
+
+.about-text h3 {
+  font: 700 1rem/1.3 var(--f-ui);
+  margin: 26px 0 10px;
+}
+
+.about-text p,
+.about-text dd,
+.about-cite {
+  font-family: var(--f-text);
+  font-size: 1.1rem;
+  line-height: 1.62;
+  color: var(--ink-2);
+}
+
+.about-text p {
+  margin: 0 0 0.9em;
+}
+
+.about-text a {
+  color: var(--blue-text);
+}
+
+.about-formats,
+.about-rules {
+  margin: 0;
+}
+
+.about-formats dt,
+.about-rules dt {
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 780;
+  font-size: 1.3rem;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-top: 18px;
+}
+
+.about-rules dt {
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.about-rules dt:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.about-formats dd,
+.about-rules dd {
+  margin: 4px 0 0;
+}
+
+.corr-empty {
+  padding: 14px 16px;
+  border-left: 3px solid var(--rule);
+  background: var(--paper-2);
+}
+
+.corr-list {
+  padding-left: 1.2em;
+  font-family: var(--f-text);
+}
+
+.corr-list time {
+  font-family: var(--f-ui);
+  font-weight: 650;
+}
+
+.about-sources {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.about-sources th {
+  text-align: left;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--muted);
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--ink);
+}
+
+.about-sources td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  color: var(--ink-2);
+}
+
+.about-sources td:first-child {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.about-sources td:last-child {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.about-author {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+}
+
+.about-author img {
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.about-cite {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+}
+
+.about-cite li {
+  padding: 8px 0 8px 14px;
+  border-left: 3px solid var(--rule);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.about-cite li + li {
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .about-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .about-toc {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding-top: 20px;
+  }
+
+  .about-toc a {
+    padding: 2px 0;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .about-head {
+    padding-top: 40px;
+  }
+
+  .about-author {
+    flex-direction: column;
+  }
+
+  .about-author img {
+    width: 88px;
+    height: 88px;
+  }
+}

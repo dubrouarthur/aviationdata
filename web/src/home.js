@@ -3,6 +3,7 @@ import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import "./jet.css";
 import "./home.css";
+import { initSiteMenu } from "./site/menu.js";
 import * as d3 from "d3";
 import { watchFrenchSpacing } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
@@ -10,6 +11,7 @@ import { decodeField, particles, plateCarree, fieldBox } from "./jet/wind.js";
 import { loadLand } from "./jet/maps.js";
 
 watchFrenchSpacing(document.body);
+initSiteMenu();
 
 /** The lead story's map, live behind its headline: the jet stream of the night of storm Ciara. */
 async function leadWind() {
