@@ -455,7 +455,9 @@ export function initFrance(data, { france }) {
           { b: `${fmtNum(fsc("MET_RAD", pk) / 1e6, 1)} millions` },
           ` de passagers en ${pk}, leur record. Il en reste `,
           { b: `${fmtNum(fsc("MET_RAD", lastYear) / 1e6, 1)} millions` },
-          ` en ${lastYear}. Choisissez un moment ou faites glisser les années pour voir la carte s'éclaircir.`,
+          ` en ${lastYear}, `,
+          { b: fmtPctAbs(pctChange(fsc("MET_RAD", pk), fsc("MET_RAD", lastYear)), 0) },
+          ` de moins.`,
         ]),
       ),
     );
@@ -477,13 +479,18 @@ export function initFrance(data, { france }) {
   const exits = RYANAIR_EXITS.map((c) => A.airports.find((a) => a.code === c)).filter(Boolean);
   const peak = peakYear;
   const vs19 = (a) => fmtPct(pctChange(aYear.get(a.code).get(2019), aYear.get(a.code).get(lastYear)), 0);
+  const changes = A.airports
+    .map((a) => pctChange(aYear.get(a.code)?.get(2019), aYear.get(a.code)?.get(lastYear)))
+    .filter(isNum);
+  const compared = changes.length;
+  const lost = changes.filter((d) => d < 0).length;
   const CAPTIONS = {
     peak: [
       `${peak}, l'âge d'or des lignes intérieures`,
       [
         `Les liaisons entre Paris et la province transportent `,
         { b: `${fmtNum(fsc("MET_RAD", peak) / 1e6, 1)} millions` },
-        ` de passagers, leur record. Les arcs magenta partent de Paris vers toutes les grandes villes.`,
+        ` de passagers, leur record. Paris est alors relié par avion à la plupart des grandes villes de province.`,
       ],
     ],
     2019: [
@@ -508,7 +515,9 @@ export function initFrance(data, { france }) {
     ],
     delta: [
       "Les aéroports régionaux décrochent",
-      [`En bleu, les aéroports qui ont gagné des passagers depuis 2019 ; en magenta, ceux qui en ont perdu.`],
+      [
+        `${lost} des ${compared} aéroports suivis en 2019 et en ${lastYear} ont perdu des passagers (en magenta), ${compared - lost} en ont gagné (en bleu).`,
+      ],
       [
         `Ryanair a cessé de desservir Brive et Strasbourg à l'hiver 2025, puis Clermont-Ferrand fin mars 2026, et réduit son programme à Bergerac, en invoquant la hausse de la taxe sur les billets. Ces départs n'apparaîtront pleinement que dans les chiffres 2026. En ${lastYear}, par rapport à 2019 : ${exits
           .map((a) => `${shortName(a)} ${vs19(a)}`)
@@ -534,7 +543,7 @@ export function initFrance(data, { france }) {
             { b: fmtPax(fsc("MET_RAD", state.year)) },
             ` passagers entre Paris et la province, `,
             { b: fmtPax(fsc("MET_TRA", state.year)) },
-            ` entre villes de province. ${routesCount(state.year)} liaisons détaillées sur la carte.`,
+            ` entre villes de province, sur ${routesCount(state.year)} liaisons assez fréquentées pour être détaillées.`,
           ]),
         ),
       );

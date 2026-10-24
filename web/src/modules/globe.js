@@ -546,10 +546,10 @@ export function initGlobe(data, { dots }) {
     let title;
     let parts;
     if (state.mode === "delta") {
-      title = `Depuis 2019, une nouvelle carte`;
+      title = `Depuis 2019, des gagnants et des perdants`;
       parts = [
-        [`Les arcs bleus ont grandi : ${gainers.map(moved).join(", ")}.`],
-        [`Les arcs magenta ont reculé : ${losers.map(moved).join(", ")}.`],
+        [`En hausse : ${gainers.map(moved).join(", ")}.`],
+        [`En baisse : ${losers.map(moved).join(", ")}.`],
       ];
     } else if (P.kind === "month") {
       title = `${fmtMonth(months[P.i]).replace(/^\w/, (m) => m.toUpperCase())}, le ciel s'éteint`;

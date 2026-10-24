@@ -20,7 +20,7 @@ export const ISSUES = [
     no: 2,
     topic: "Météo et coûts",
     title: "Le vent dans le dos",
-    dek: "Le courant-jet rallonge d'une heure les vols vers l'Amérique. Jouer avec le vent et le prévoir peut-il faire baisser le coût d'un vol ? Simulateur, prévisions et prix du kérosène.",
+    dek: "Le courant-jet rallonge d'une heure les vols vers l'Amérique. Jouer avec le vent et le prévoir peut-il faire baisser le coût d'un vol ? La réponse, sur 105 000 vols et quatre ans de vents.",
     published: "2026-10-24",
     updated: "2026-10-24",
     minutes: 30,

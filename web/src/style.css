@@ -346,6 +346,21 @@ footer[id] {
   max-width: 64em;
 }
 
+/* how to read a chart, under it: the story never explains the chart, the chart explains itself */
+.note.lecture {
+  margin: 12px 0 0;
+}
+
+.note.lecture b {
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
+.dark-panel .note.lecture b,
+.explorer .note.lecture b {
+  color: var(--night-ink);
+}
+
 .tag {
   display: inline-block;
   font-size: 0.78rem;

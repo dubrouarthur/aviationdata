@@ -67,7 +67,7 @@ export function initSpiral(data) {
       "p",
       {},
       rich([
-        `En vue « Intérieur », les anneaux extérieurs pâlissent : les vols intérieurs pesaient `,
+        `Les vols intérieurs, eux, s'effacent : ils pesaient `,
         { b: `${fmtNum(share(years[0]), 0)} %` },
         ` du trafic en ${years[0]}, `,
         { b: `${fmtNum(share(2000), 0)} %` },

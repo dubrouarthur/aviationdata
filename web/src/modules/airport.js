@@ -82,7 +82,7 @@ export function initAirport(data, { world }) {
       ]),
     ),
     el("p", {
-      text: "Cherchez un aéroport : son trafic depuis 1990, ses saisons, ses liaisons, et sa place parmi tous les aéroports français.",
+      text: "Derrière ces extrêmes, chaque aéroport a sa trajectoire : son trafic depuis 1990, ses saisons, ses liaisons et son rang parmi les aéroports français.",
     }),
   );
   keyFigures($("#kf-apt"), [

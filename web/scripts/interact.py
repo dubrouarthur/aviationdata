@@ -128,7 +128,9 @@ with sync_playwright() as p:
     page.locator('#spirale-mode button[data-v="nat"]').click()
     page.wait_for_timeout(300)
     check("spiral mode recolours", fills(page, "#chart-spirale") != before)
-    page.locator("#chart-spirale path").nth(300).hover(force=True)
+    cell = page.locator("#chart-spirale path").nth(300)
+    cell.evaluate("e => e.scrollIntoView({ block: 'center' })")  # clear of the sticky header
+    cell.hover(force=True)
     page.wait_for_timeout(150)
     check("spiral hover tooltip", tip_on() and "passagers" in tip.inner_text())
 
