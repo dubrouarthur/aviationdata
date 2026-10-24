@@ -76,7 +76,7 @@ export function writeStory(data, F) {
       { b: hm(F.gap) },
       " de plus que New York–Paris. En cause, un fleuve d'air qui coule d'ouest en est à dix kilomètres d'altitude, à la hauteur exacte où volent les avions de ligne. Où placer l'avion pour en profiter, ou pour l'éviter : quelle route, quelle altitude, quelle heure ? Enquête sur ",
       { b: thousands(F.n) },
-      " vols entre la France et l'Amérique du Nord et soixante-quinze ans de vents, avec un simulateur pour essayer soi-même.",
+      " vols entre la France et l'Amérique du Nord et du vent jour par jour depuis 1948, avec un simulateur pour essayer soi-même.",
     ]),
   );
 
