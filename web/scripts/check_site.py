@@ -223,7 +223,8 @@ with sync_playwright() as pw:
     kgf = lambda v: f"{fr(round(v) if v < 200 else round(v / 10) * 10)} kg"  # noqa: E731
     gapm = p["gap"]
     # the opening race: both flights in the frozen wind of 9 February 2020, then the gap in time, fuel, euros
-    pg.wait_for_function("() => document.querySelector('#open-race .race-gap')?.textContent.includes('Même distance')", timeout=20000)
+    race_done = "() => document.querySelector('#open-race .race-gap')?.textContent.includes('Même distance')"
+    pg.wait_for_function(race_done, timeout=20000)
     east_t, west_t = hero["route"]["t_fast"], hero["west"]["t_fast"]
     dt = west_t - east_t
     has(
@@ -327,6 +328,17 @@ with sync_playwright() as pw:
         f"Le {long_date(R['slow_w']['day'])}, il a fallu {hm(R['slow_w']['dur'])}",
         f"contre {kmh(-R['slow_w']['w'])} de vent de face",
     )
+    # your flight: every line longer westbound, and the month it is longest
+    vr = fl["routes"]
+    longest = lambda r: max((v, i + 1) for i, v in enumerate(r["months"]["w"]) if v is not None)[1]  # noqa: E731
+    n_long = sum(r["west"]["med"] > r["east"]["med"] for r in vr)
+    has(
+        "your flight",
+        text("#vol-prose"),
+        f"Sur les {len(vr)} lignes",
+        "sur toutes" if n_long == len(vr) else f"sur {n_long},",
+        f"et sur {sum(longest(r) in (12, 1, 2, 3) for r in vr)}, son mois le plus long",
+    )
     types = fl["aircraft"]["types"]
     mean = lambda t: (t["e"] + t["w"]) / 2  # noqa: E731
     has("aircraft", text("#avion-prose"), f"il y a {mins(mean(types[-1]) - mean(types[0]))}")
@@ -401,6 +413,7 @@ with sync_playwright() as pw:
         top10 = avg(srt[(9 * n) // 10 :])
         share_top = 100 * sum(sorted(gains_w, reverse=True)[: round(n / 10)]) / sum(gains_w)
         med = srt[n // 2]
+        has("months chart title", text("#h-months"), f"le gain culmine en {MONTHS[hi_m]}")
         has(
             "which flights gain",
             text("#quels-prose"),

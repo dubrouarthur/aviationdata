@@ -184,12 +184,12 @@
         </div>
         <div class="grid-wide">
           <figure class="panel" data-jsource="igra">
-            <h3 id="h-profile">Au-dessus de Paris, le vent selon l'altitude</h3>
+            <h3 id="h-profile">Au-dessus de Paris, le vent culmine à l'altitude des avions</h3>
             <p class="note" id="profile-note"></p>
             <div class="chart" id="chart-profile" tabindex="0" aria-labelledby="h-profile"></div>
           </figure>
           <figure class="panel dark-panel" data-jsource="r1">
-            <h3 id="h-clim">Où passe le jet, en moyenne</h3>
+            <h3 id="h-clim">L'hiver, le jet descend vers le sud et forcit</h3>
             <div class="seg" id="clim-season" role="group" aria-label="Saison"></div>
             <div class="clim-map" id="clim-map"></div>
             <p class="note" id="clim-note"></p>
@@ -206,7 +206,7 @@
       <section class="chapter wrap jet-chapter" id="placer" aria-labelledby="h-placer">
         <div class="chapter-head">
           <div class="chapter-lede">
-            <h2 class="section-title" id="h-placer">Placez l'avion</h2>
+            <h2 class="section-title" id="h-placer">La route, l'altitude et l'heure</h2>
             <div class="prose" id="placer-prose"></div>
           </div>
           <aside class="keyfig" id="kf-placer" aria-label="Chiffres clés"></aside>
@@ -217,9 +217,9 @@
           <div class="sim-title">
             <h3 id="h-sim">Le simulateur de vol</h3>
             <p class="explorer-hint">
-              Choisissez un jour, un trajet, une heure de départ, une altitude et un avion. La route optimale
-              est recalculée dans votre navigateur ; déplacez les trois points jaunes pour tracer la vôtre,
-              puis lancez le vol : le vent évolue heure par heure.
+              Les choix d'une compagnie, sur une journée réelle : jour, trajet, heure de départ, altitude et
+              avion. La route optimale se recalcule à chaque choix ; déplacez les trois points jaunes pour
+              tracer la vôtre, puis lancez le vol.
             </p>
           </div>
           <button type="button" class="btn primary sim-play" id="sim-play" aria-pressed="false">
@@ -315,9 +315,7 @@
         <div class="grid-2 jet-grid cost-grid">
           <div class="prose" id="cout-prose"></div>
           <figure class="panel" data-jsource="eia ecb dgac dgacpap">
-            <h3 id="h-value">
-              Une année d'optimisation sur Paris–New&nbsp;York, au prix du kérosène de chaque mois
-            </h3>
+            <h3 id="h-value">Plus le kérosène est cher, plus la bonne route rapporte</h3>
             <p class="note" id="value-note"></p>
             <div class="chart" id="chart-value" tabindex="0" aria-labelledby="h-value"></div>
           </figure>
@@ -407,7 +405,7 @@
         </div>
         <figure class="panel" data-jsource="hres pangu era5">
           <div class="ladder-head">
-            <h3 id="h-forecast">Ce que la route rapporte, selon ce que l'on savait au départ</h3>
+            <h3 id="h-forecast">Plus la prévision est récente, plus la route rapporte</h3>
             <div class="seg" id="fc-dir" role="group" aria-label="Sens du vol"></div>
           </div>
           <p class="note" id="forecast-note"></p>
@@ -432,7 +430,7 @@
         </div>
         <div class="grid-2 jet-grid">
           <figure class="panel" data-jsource="era5 openap dgac dgacpap eia">
-            <h3 id="h-months">Ce que la meilleure route fait économiser, mois par mois</h3>
+            <h3 id="h-months">Vers New York, le gain culmine en hiver</h3>
             <p class="note" id="months-note"></p>
             <div class="chart" id="chart-months" tabindex="0" aria-labelledby="h-months"></div>
           </figure>
@@ -450,10 +448,10 @@
         </div>
         <div class="grid-2 jet-grid">
           <figure class="panel sim" aria-labelledby="h-wind-slider">
-            <h3 id="h-wind-slider">Faites souffler le vent</h3>
+            <h3 id="h-wind-slider">Le vent de face prend plus qu'il ne rend</h3>
             <p class="note">
               Un avion à 900 km/h sur les 5 834 km de Paris–New York, avec un vent constant dans l'axe de la
-              route.
+              route, à régler soi-même.
             </p>
             <label class="sim-control" for="rt-wind">
               <span>Vent</span>
@@ -464,9 +462,10 @@
             <div class="chart" id="chart-sim"></div>
           </figure>
           <figure class="panel" data-jsource="era5">
-            <h3 id="h-rt">Un aller-retour Paris–New York, en moyenne sur 2019-2022</h3>
+            <h3 id="h-rt">Sur un aller-retour, le vent coûte toujours</h3>
             <p class="note">
-              Vents ERA5 de chaque jour, à midi, sur la ligne droite et sur la route la plus rapide.
+              Aller-retour Paris–New York, moyenne 2019-2022 : vents ERA5 de chaque jour, à midi, sur la ligne
+              droite et sur la route la plus rapide.
             </p>
             <div class="chart" id="chart-rt"></div>
           </figure>
@@ -481,7 +480,7 @@
           <aside class="keyfig" id="kf-avion" aria-label="Chiffre clé"></aside>
         </div>
         <figure class="panel" data-jsource="opensky era5">
-          <h3 id="h-types">Minutes gagnées ou perdues sur la moyenne, une fois le vent retiré</h3>
+          <h3 id="h-types">À vent égal, des avions plus rapides que d'autres</h3>
           <p class="note" id="types-note"></p>
           <div class="chart" id="chart-types" tabindex="0" aria-labelledby="h-types"></div>
         </figure>
@@ -503,7 +502,7 @@
         </div>
         <div class="grid-wide">
           <figure class="panel" data-jsource="r1 nao">
-            <h3 id="h-winters">Le vent arrière de l'hiver, et l'oscillation nord-atlantique</h3>
+            <h3 id="h-winters">Le vent de l'hiver suit l'oscillation nord-atlantique</h3>
             <p class="note" id="winters-note"></p>
             <div class="chart" id="chart-winters" tabindex="0" aria-labelledby="h-winters"></div>
           </figure>
@@ -528,7 +527,7 @@
             </label>
             <div class="vol-figs" id="vol-figs" aria-live="polite"></div>
           </div>
-          <h3 id="h-vol-chart">Durée médiane mois par mois, 2019-2022</h3>
+          <h3 id="h-vol-chart">Sur votre ligne, mois par mois</h3>
           <div class="chart" id="chart-vol" tabindex="0" aria-labelledby="h-vol-chart"></div>
           <p class="note" id="vol-note"></p>
         </figure>

@@ -26,6 +26,17 @@ import { CDG, JFK, fuelTonnes, kgPerMinute, lastPair, peqPerFlight, routeSavings
 // "vers Newark", or "entre Orly et Newark" when the French end is not Paris-CDG
 const toward = (r) => (r.fr === "LFPG" ? `vers ${r.to}` : `entre ${r.from.replace("Paris-", "")} et ${r.to}`);
 const prose = (id, paragraphs) => $(id).replaceChildren(...paragraphs.map((p) => el("p", {}, rich(p))));
+/** How to read a chart: one "Lecture" line under it, never in the story itself. */
+function lecture(sel, text) {
+  const chart = $(sel);
+  if (!chart) return;
+  let p = chart.nextElementSibling;
+  if (!p?.classList.contains("lecture")) {
+    p = el("p", { class: "note lecture" });
+    chart.after(p);
+  }
+  p.replaceChildren(el("b", { text: "Lecture : " }), text);
+}
 const WEST_COAST = ["KLAX", "KSFO", "KSEA", "CYVR"];
 const r10 = (v) => Math.round(v / 10) * 10;
 /** 12 -> "12 heures", 108 -> "4 jours et demi", 48 -> "2 jours" */
@@ -174,7 +185,7 @@ export function writeStory(data, F, C) {
       { b: tonnes(C.kgOf(F.gap) / 1000) },
       " de kérosène de plus. En cause, le courant-jet, un fleuve d'air qui souffle d'ouest en est à l'altitude des avions de ligne. Les compagnies peuvent-elles réduire ce coût en jouant avec le vent, et en le prévoyant ? Enquête sur ",
       { b: thousands(F.n) },
-      " vols, quatre ans de vents, deux systèmes de prévision et le prix du kérosène, avec un simulateur pour essayer soi-même.",
+      " vols, quatre ans de vents, deux systèmes de prévision et le prix du kérosène.",
     ]),
   );
 
@@ -253,7 +264,8 @@ export function writeStory(data, F, C) {
   ]);
   $("#h-hist").textContent = `Paris-CDG–New York-JFK : ${hm(F.gap)} d'écart en médiane`;
   $("#routes-note").textContent =
-    "Durée médiane vers l'Amérique (rose) et vers la France (bleu), lignes d'au moins 300 vols dans chaque sens, 2019-2022. Comment lire : plus le trait est long, plus l'aller coûte de minutes de plus que le retour.";
+    "Durée médiane vers l'Amérique (rose) et vers la France (bleu), lignes d'au moins 300 vols dans chaque sens, 2019-2022.";
+  lecture("#chart-routes", "plus le trait est long, plus l'aller coûte de minutes de plus que le retour.");
 
   prose("#saisons-prose", [
     [
@@ -271,7 +283,7 @@ export function writeStory(data, F, C) {
     `10 km/h de vent de face : ${minutes(-F.fit.w.slope, 1)} et ${kg(C.kgOf(-F.fit.w.slope))} de plus`;
   prose("#vent-prose", [
     [
-      "Chaque point du graphique est une journée de 2019 à 2022 : la durée médiane des vols, et le vent moyen le long de la route au milieu du vol. Vers New York, chaque tranche de 10 km/h de vent de face ajoute ",
+      "D'un jour à l'autre, la durée du vol se joue presque entièrement dans le vent. Vers New York, chaque tranche de 10 km/h de vent de face ajoute ",
       { b: minutes(-F.fit.w.slope, 1) },
       ", soit environ ",
       { b: kg(C.kgOf(-F.fit.w.slope)) },
@@ -281,7 +293,7 @@ export function writeStory(data, F, C) {
       { b: minutes(-F.fit.e.slope, 1) },
       ". Le vent explique à lui seul ",
       { b: r2(F.fit.w.r) },
-      " des écarts de durée d'un jour à l'autre vers New York, et ",
+      " des écarts de durée vers New York, et ",
       { b: r2(F.fit.e.r) },
       " vers Paris.",
     ],
@@ -292,14 +304,18 @@ export function writeStory(data, F, C) {
     ],
     recordsParagraph(data.flights.pair.records),
   ]);
-  $("#h-scatter").textContent = "Une journée, un point : plus de vent de face, plus de minutes";
+  $("#h-scatter").textContent = "Plus de vent de face, plus de minutes";
   $("#scatter-note").textContent =
-    "Paris-CDG–New York-JFK, 2019-2022, journées d'au moins deux vols dans le sens indiqué. Comment lire : à gauche, les journées de vent de face (vers New York) ; à droite, de vent arrière (vers Paris). La pente de chaque droite donne les minutes par tranche de 10 km/h. Vent : composante moyenne le long du grand cercle à 250 hPa, ERA5, au pas de 6 heures le plus proche du milieu du vol.";
+    "Durée médiane des vols Paris-CDG–New York-JFK de chaque journée, selon le vent, 2019-2022.";
+  lecture(
+    "#chart-scatter",
+    "chaque point est une journée d'au moins deux vols dans le sens indiqué ; à gauche, le vent de face (vers New York), à droite, le vent arrière (vers Paris). La pente de chaque droite donne les minutes par tranche de 10 km/h. Vent : composante moyenne le long du grand cercle à 250 hPa (ERA5), au pas de 6 heures le plus proche du milieu du vol.",
+  );
 
   const [cd, , , cgw, cow] = F.ciara;
   prose("#route-prose", [
     [
-      "Le simulateur montre une journée à la fois. L'explorateur ci-dessous les montre toutes, de 2019 à 2022, dans un modèle plus simple : le vent de midi, figé, à 250 hPa, et un avion à 900 km/h. Vers Paris, la meilleure route n'y fait gagner que ",
+      "Ce que montre une journée se vérifie sur quatre ans : jour après jour, de 2019 à 2022, la même asymétrie revient, même dans un modèle plus simple (le vent de midi, figé, à 250 hPa, et un avion à 900 km/h). Vers Paris, la meilleure route ne fait gagner que ",
       { b: minutes(s.gain_e, 1) },
       " en moyenne : le jet souffle déjà le long de la ligne droite. Vers New York, ",
       { b: minutes(s.gain_w, 1) },
@@ -312,7 +328,7 @@ export function writeStory(data, F, C) {
       { b: hm(cgw) },
       " contre le vent, la route la plus rapide, qui passe très au nord, ",
       { b: hm(cow) },
-      `, soit environ ${euros(C.eurOf(cgw - cow))} de kérosène en moins. Choisissez un jour, une destination : la carte et la bande de jours les montrent tous.`,
+      `, soit environ ${euros(C.eurOf(cgw - cow))} de kérosène en moins.`,
     ],
   ]);
   $("#strip-note").textContent =
@@ -390,7 +406,11 @@ export function writeJet({ trappes }) {
     },
   ]);
   $("#profile-note").textContent =
-    "Vent médian (trait) et vent dépassé une fois sur dix (zone claire) à chaque niveau standard, sondages de 00 h et 12 h UTC, 1991-2020. Comment lire : la bande grise marque les altitudes de croisière ; le vent y est le plus fort.";
+    "Vent au-dessus de Trappes à chaque niveau standard, ballons-sondes de 00 h et 12 h UTC, 1991-2020.";
+  lecture(
+    "#chart-profile",
+    "le trait donne le vent médian, la zone claire le vent dépassé une fois sur dix ; la bande grise marque les altitudes de croisière.",
+  );
 }
 
 /* ------------------------------------------------------------------ the simulator chapter */
@@ -407,7 +427,7 @@ export function writePlacer({ sim }) {
       "Sur une sphère, le chemin le plus court entre deux villes est un arc de grand cercle : c'est pour cela que Paris–New York passe au-dessus de l'Irlande et de Terre-Neuve. Mais le plus court n'est pas le plus rapide quand le vent souffle à 300 km/h. Deux fois par jour, les centres de contrôle de Shanwick (Royaume-Uni et Irlande) et de Gander (Canada) publient déjà les North Atlantic Tracks, des couloirs placés pour profiter du jet vers l'Europe et l'éviter vers l'Amérique.",
     ],
     [
-      "Placer un avion dans le jet, c'est choisir la route, l'altitude et l'heure. Le simulateur les fait varier dans les vents ERA5 de journées réelles, à trois niveaux de vol et heure par heure, pour un avion volant à son nombre de Mach de croisière (modèle ouvert OpenAP). Chaque route affiche sa durée, son kérosène et son coût.",
+      "Avant chaque vol, une compagnie tranche donc trois questions : par où passer, à quelle altitude voler, à quelle heure partir. Le vent change d'un niveau à l'autre et d'heure en heure, si bien que la bonne réponse change aussi, et l'écart entre un bon et un mauvais choix se compte en dizaines de minutes.",
     ],
     [
       `Le 8 février 2020, veille de Ciara, un ${plane.name} parti de Paris pour New York aurait mis `,
@@ -438,7 +458,7 @@ export function writeBilan({ stats, sim, cost }, C) {
   const last = cost.last;
   prose("#bilan-prose", [
     [
-      `Le simulateur montre une journée. Refait pour chacun des ${fmtNum(stats.days.length)} jours de 2019 à 2022, avec un ${stats.aircraft} parti de Paris à midi UTC et de New York à minuit UTC, le calcul chiffre ce que rapporte la meilleure route à ${fl(1)} plutôt que la ligne droite : `,
+      `Sur quatre ans, le bénéfice se concentre vers l'ouest. Rejoué pour chacun des ${fmtNum(stats.days.length)} jours de 2019 à 2022, avec un ${stats.aircraft} parti de Paris à midi UTC et de New York à minuit UTC, le calcul donne le gain de la meilleure route à ${fl(1)} plutôt que la ligne droite : `,
       { b: minutes(R.west, 1) },
       " par vol vers New York, soit environ ",
       { b: kg(R.kgWest) },
@@ -483,7 +503,11 @@ export function writeBilan({ stats, sim, cost }, C) {
     },
   ]);
   $("#value-note").textContent =
-    `Kérosène économisé en un an sur Paris-CDG–New York-JFK par la meilleure route (${tonnes(r10(R.tonnesYear), 0)}, trafic de ${C.pair.y}, vents de 2019-2022), multiplié par le prix de chaque mois. Comment lire : la courbe suit le prix du kérosène ; le trait pointillé, la moyenne de ${y.y}.`;
+    `Valeur du kérosène économisé en un an sur Paris-CDG–New York-JFK par la meilleure route (${tonnes(r10(R.tonnesYear), 0)}, trafic de ${C.pair.y}, vents de 2019-2022), au prix de chaque mois.`;
+  lecture(
+    "#chart-value",
+    `la courbe suit le prix du kérosène ; le trait pointillé marque la moyenne de ${y.y}.`,
+  );
 }
 
 /* ------------------------------------------------------------------ forecasting the wind */
@@ -495,13 +519,9 @@ export function writePrevoir(fc, C) {
   const lead = leadText;
   prose("#prevoir-prose", [
     [
-      "Une route se décide avant le départ, sur une prévision du vent, pas sur le vent qui soufflera vraiment. Pour mesurer ce que cela change, nous avons rejoué chaque Paris–New York de ",
+      "Une route se décide avant le départ, sur une prévision du vent, pas sur le vent qui soufflera vraiment. Si la prévision se trompe, l'avion part chercher un vent qui n'est pas au rendez-vous. Pour le mesurer, chaque Paris–New York de ",
       { b: String(fc.year) },
-      " : la meilleure route est calculée sur ce que l'on savait au départ, puis volée dans le vent réel (ERA5). Cinq cas : aucune donnée (la ligne droite), le vent moyen du mois, une prévision émise ",
-      lead(long),
-      " avant le départ, une prévision émise ",
-      lead(short),
-      " avant, et la connaissance parfaite du vent.",
+      " a été rejoué : la route est tracée sur ce que l'on savait au départ, puis volée dans le vent réel (ERA5).",
     ],
     [
       "Vers New York, connaître parfaitement le vent fait gagner ",
@@ -560,7 +580,11 @@ export function writePrevoir(fc, C) {
     },
   ]);
   $("#forecast-note").textContent =
-    `Minutes gagnées en moyenne sur la ligne droite, chaque jour de ${fc.year}, quand la route est calculée sur l'information de chaque ligne puis volée dans le vent réel (ERA5), à FL340. À droite, l'erreur moyenne de cette information sur le vent le long de la route. Comment lire : plus la barre est longue, plus la route rapporte ; la dernière barre est le maximum possible.`;
+    `Minutes gagnées par vol sur la ligne droite en ${fc.year}, selon l'information utilisée pour tracer la route ; à droite, l'erreur de cette information sur le vent le long de la route.`;
+  lecture(
+    "#chart-forecast",
+    `chaque route est tracée sur l'information de sa ligne (aucune prévision, prévision émise ${lead(long)} ou ${lead(short)} avant le départ), puis volée dans le vent réel (ERA5) à FL340 ; la dernière barre, le vent connu d'avance, est le maximum possible.`,
+  );
   return P;
 }
 
@@ -630,8 +654,13 @@ export function writeQuels(C) {
   ]);
   $("#months-note").textContent =
     `Euros de kérosène économisés en moyenne par vol par la meilleure route à FL340 plutôt que la ligne droite, par mois, 2019-2022, au prix des douze derniers mois (${perTonne(C.price)}).`;
+  $("#h-months").textContent = `Vers New York, le gain culmine en ${monthName(hi + 1)}`;
   $("#deciles-note").textContent =
-    "Les 1 461 jours de 2019-2022 rangés du gain le plus faible au plus fort, par dixièmes : chaque barre est le gain moyen par vol d'un dixième des jours. Comment lire : la dernière barre, les 10 % de jours au jet le plus fort.";
+    "Gain moyen par vol de la meilleure route, par dixième des 1 461 jours de 2019-2022.";
+  lecture(
+    "#chart-deciles",
+    "les jours sont rangés du gain le plus faible au plus fort ; la dernière barre regroupe les 10 % de jours où la meilleure route rapporte le plus.",
+  );
   return { mw, me, dw, de: C.deciles("east") };
 }
 
@@ -663,7 +692,7 @@ export function writeHistoire({ climate, history }) {
     [
       `Le record de la série, depuis ${history.start.slice(0, 4)}, date du ${longDate(top[0])} : `,
       { b: kmh(top[1]) },
-      " de vent arrière en moyenne sur New York–Paris. Les jours records s'ouvrent dans le simulateur.",
+      " de vent arrière en moyenne sur New York–Paris.",
     ],
   ]);
   keyFigures($("#kf-histoire"), [
@@ -674,7 +703,11 @@ export function writeHistoire({ climate, history }) {
     },
   ]);
   $("#winters-note").textContent =
-    "Composante moyenne du vent le long du grand cercle New York–Paris à 250 hPa, de décembre à février (l'hiver 2014 va de décembre 2013 à février 2014). En dessous, l'indice NAO du même hiver. Comment lire : les barres hautes sont les hivers coûteux vers l'ouest ; avant 1979, sans satellites, la réanalyse est moins fiable (barres claires).";
+    "Vent arrière moyen le long du grand cercle New York–Paris à 250 hPa, de décembre à février ; en dessous, l'indice NAO du même hiver.";
+  lecture(
+    "#chart-winters",
+    "les barres hautes sont les hivers coûteux vers l'ouest ; avant 1979, sans satellites, la réanalyse est moins fiable (barres claires). L'hiver 2014 va de décembre 2013 à février 2014.",
+  );
   $("#records-note").textContent =
     "Vent moyen de la journée le long de New York–Paris, un jour par épisode. Les jours marqués d'un avion s'ouvrent dans le simulateur.";
 }
@@ -951,6 +984,8 @@ export function writeAvion(flights) {
       color: "var(--ink)",
     },
   ]);
+  $("#h-types").textContent =
+    `Les ${listNames(A.fast.slice(0, 2))} devant, les ${listNames(A.slow.slice(-2))} derrière`;
   $("#types-note").textContent =
     "Écart médian à la durée prévue par le vent sur la même ligne et dans le même sens, toutes lignes de la grille de vent, 2019-2022. Bleu : vers la France ; rose : vers l'Amérique. Avions d'au moins 150 vols dans chaque sens.";
 }
@@ -1028,9 +1063,20 @@ export function initVol(flights, chart) {
   };
   select.addEventListener("change", () => pick(+select.value));
   pick(0);
+  const longest = (r) =>
+    d3.greatest(
+      r.months.w.map((v, m) => [m + 1, v]).filter((d) => d[1] !== null),
+      (d) => d[1],
+    )[0];
+  const longer = routes.filter((r) => r.west.med > r.east.med).length;
+  const winterPeak = routes.filter((r) => [12, 1, 2, 3].includes(longest(r))).length;
   prose("#vol-prose", [
     [
-      `Les ${routes.length} lignes suivies plus de 300 fois dans chaque sens entre 2019 et 2022, de la plus fréquentée à la plus rare. Choisissez la vôtre : la durée médiane dans chaque sens, mois par mois, et ce que le vent y change.`,
+      "Paris–New York n'est pas une exception. Sur les ",
+      { b: String(routes.length) },
+      ` lignes entre la France et l'Amérique du Nord suivies plus de 300 fois dans chaque sens de 2019 à 2022, le vol vers l'Amérique dure plus longtemps que le retour ${longer === routes.length ? "sur toutes" : `sur ${longer}`}, et sur `,
+      { b: String(winterPeak) },
+      ", son mois le plus long tombe entre décembre et mars, quand le jet est au plus fort.",
     ],
   ]);
 }
