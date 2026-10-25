@@ -1,8 +1,9 @@
 import * as d3 from "d3";
-import { $, el, rich, showTip, hideTip, onResize, dataTable, keyFigures } from "../lib/ui.js";
+import { $, el, rich, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
+import { addSummary } from "../lib/summary.js";
 import { stackedArea } from "../lib/stacked.js";
 import { pctChange } from "../lib/series.js";
-import { fmtPct, fmtPctAbs, fmtNum } from "../lib/format.js";
+import { fmtPctAbs, fmtNum } from "../lib/format.js";
 import { shortName } from "./names.js";
 
 const kt = (v) => `${fmtNum(v / 1e3, 0)} kt`;
@@ -50,7 +51,20 @@ export function initFret(data) {
         { b: `${fmtNum(T[L] / 1e6, 2)} millions de tonnes` },
         ` de fret et de courrier ont voyagé en avion, entre la France et le reste du monde ou à l'intérieur du pays. C'est `,
         { b: `${fmtPctAbs(pctChange(T[i19], T[L]), 0)} de moins` },
-        ` qu'en 2019 (${fmtNum(T[i19] / 1e6, 2)} Mt). En 2020, le fret n'avait reculé que de ${fmtPctAbs(fretCovid, 0)}, quand les passagers chutaient de ${fmtPctAbs(paxCovid, 0)}.`,
+        ` qu'en 2019 (${fmtNum(T[i19] / 1e6, 2)} Mt).`,
+      ]),
+    ),
+  );
+  $("#fret-after").replaceChildren(
+    el(
+      "p",
+      {},
+      rich([
+        `Le fret a pourtant mieux traversé la crise sanitaire que les passagers. En 2020, il n'avait reculé que de `,
+        { b: fmtPctAbs(fretCovid, 0) },
+        `, quand les passagers chutaient de `,
+        { b: fmtPctAbs(paxCovid, 0) },
+        `.`,
       ]),
     ),
     el(
@@ -74,19 +88,11 @@ export function initFret(data) {
       ]),
     ),
   );
-
-  keyFigures($("#kf-fret"), [
-    {
-      value: tonnes(T[L]),
-      label: `de fret et de courrier par avion en ${years[L]}, ${fmtPct(pctChange(T[i19], T[L]), 0)} par rapport à 2019`,
-      color: "var(--blue)",
-    },
-    {
-      value: fmtPctAbs(topShare, 0),
-      label: `du fret des aéroports passe par ${shortName(top.a)}`,
-      color: "var(--ink-2)",
-    },
-  ]);
+  addSummary("fret", {
+    value: tonnes(T[L]),
+    label: `de fret et de courrier par avion en ${years[L]}, ${fmtPctAbs(pctChange(T[i19], T[L]), 0)} ${T[L] < T[i19] ? "de moins" : "de plus"} qu'en 2019`,
+    color: "var(--blue)",
+  });
 
   // ---------------------------------------------------------------- by continent (stacked, largest at the bottom)
   const other = years.map((_, i) => get("Afrique")[i] + get("Océanie")[i]);

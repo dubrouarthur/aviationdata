@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { feature } from "topojson-client";
-import { $, el, rich, segmented, showTip, hideTip, onResize, dataTable, keyFigures } from "../lib/ui.js";
+import { $, el, rich, segmented, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
+import { addSummary } from "../lib/summary.js";
 import { lineChart } from "../lib/linechart.js";
 import { rolling12, yearSum, pctChange, toDate, isNum } from "../lib/series.js";
 import {
@@ -85,18 +86,11 @@ export function initAirport(data, { world }) {
       text: "Derrière ces extrêmes, chaque aéroport a sa trajectoire : son trafic depuis 1990, ses saisons, ses liaisons et son rang parmi les aéroports français.",
     }),
   );
-  keyFigures($("#kf-apt"), [
-    {
-      value: `${recovered.length} sur ${big.length}`,
-      label: `aéroports de plus de 200 000 passagers ont retrouvé leur niveau de 2019`,
-      color: "var(--blue)",
-    },
-    {
-      value: fmtPct(g1.d, 0),
-      label: `à ${shortName(g1.a)}, la plus forte hausse depuis 2019`,
-      color: "var(--ink-2)",
-    },
-  ]);
+  addSummary("aeroport", {
+    value: `${recovered.length} sur ${big.length}`,
+    label: "aéroports de plus de 200 000 passagers ont retrouvé leur niveau de 2019",
+    color: "var(--blue)",
+  });
 
   // ---------------------------------------------------------------- search and quick picks
   const input = $("#apt-input");

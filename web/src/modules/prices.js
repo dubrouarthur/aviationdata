@@ -1,16 +1,6 @@
 import * as d3 from "d3";
-import {
-  $,
-  el,
-  rich,
-  segmented,
-  showTip,
-  hideTip,
-  onResize,
-  reducedMotion,
-  dataTable,
-  keyFigures,
-} from "../lib/ui.js";
+import { $, el, rich, segmented, showTip, hideTip, onResize, reducedMotion, dataTable } from "../lib/ui.js";
+import { addSummary } from "../lib/summary.js";
 import { whileVisible } from "../lib/scrolly.js";
 import { yoy, isNum, pctChange } from "../lib/series.js";
 import { fmtPct, fmtPctAbs, fmtNum, fmtMonth, monthShort } from "../lib/format.js";
@@ -115,6 +105,8 @@ export function initPrices(data) {
           : "",
       ]),
     ),
+  );
+  $("#prix-after").replaceChildren(
     el(
       "p",
       {},
@@ -131,15 +123,11 @@ export function initPrices(data) {
       ]),
     ),
   );
-
-  keyFigures($("#kf-prix"), [
-    {
-      value: fmtPct(dom.dPrice, 0),
-      label: `prix des billets intérieurs entre 2019 et ${lastT}`,
-      color: "var(--magenta)",
-    },
-    { value: fmtPct(dom.dTraffic, 0), label: "de passagers sur ces mêmes lignes", color: "var(--blue)" },
-  ]);
+  addSummary("prix", {
+    value: fmtPct(dom.dPrice, 0),
+    label: `prix des billets intérieurs entre 2019 et ${lastT}`,
+    color: "var(--magenta)",
+  });
 
   // ---------------------------------------------------------------- heatmap
   const heatNode = $("#chart-heat");

@@ -284,7 +284,7 @@ with sync_playwright() as p:
     scroll_to(page, "#chart-pav", 1200)
     check("French vs foreign lines", page.locator("#chart-pav path.series-line").count() == 2)
     check("foreign carriers by country", page.locator("#chart-pav-pays path.series-line").count() == 4)
-    check("flag text computed", "Autriche" in page.locator("#pav-text").inner_text())
+    check("flag text computed", "Autriche" in page.locator("#pavillon").inner_text())
 
     # --- prices
     scroll_to(page, "#chart-heat")

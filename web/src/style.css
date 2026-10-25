@@ -287,6 +287,35 @@ footer[id] {
   max-width: 16em;
 }
 
+/* a chapter's prose after its figure, and the method caveats of an "À savoir" aside */
+.after-figure {
+  margin-top: 28px;
+}
+
+.after-figure:empty {
+  display: none;
+}
+
+.story-aside {
+  max-width: 36em;
+  margin: 22px 0 0;
+  padding: 14px 18px 15px;
+  border-left: 3px solid var(--axis);
+  border-radius: 0 8px 8px 0;
+  background: var(--paper-2);
+  font-family: var(--f-ui);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.story-aside b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+
 .prose {
   font-family: var(--f-text);
   font-size: 1.14rem;

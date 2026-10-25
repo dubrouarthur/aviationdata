@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import { $, el, rich, moments, showTip, hideTip, onResize, cssVar, keyFigures } from "../lib/ui.js";
+import { $, el, rich, moments, showTip, hideTip, onResize, cssVar } from "../lib/ui.js";
+import { addSummary } from "../lib/summary.js";
 import { player } from "../lib/scrolly.js";
 import { yearSum, pctChange, isNum } from "../lib/series.js";
 import { fmtPax, fmtPct, fmtPctAbs, fmtNum, monthShort } from "../lib/format.js";
@@ -443,7 +444,7 @@ export function initFrance(data, { france }) {
     },
   });
 
-  // ---------------------------------------------------------------- intro and key figures
+  // ---------------------------------------------------------------- intro, and the change since 2019
   {
     const pk = d3.greatest(years, (y) => fsc("MET_RAD", y));
     $("#france-text").replaceChildren(
@@ -461,18 +462,26 @@ export function initFrance(data, { france }) {
         ]),
       ),
     );
-    keyFigures($("#kf-france"), [
-      {
-        value: fmtPct(pctChange(fsc("MET_RAD", 2019), fsc("MET_RAD", lastYear)), 0),
-        label: `de passagers entre Paris et la province depuis 2019`,
-        color: "var(--magenta)",
-      },
-      {
-        value: fmtPct(pctChange(fsc("MET_TRA", 2019), fsc("MET_TRA", lastYear)), 0),
-        label: "entre villes de province",
-        color: "var(--teal)",
-      },
-    ]);
+    const rad = pctChange(fsc("MET_RAD", 2019), fsc("MET_RAD", lastYear));
+    const tra = pctChange(fsc("MET_TRA", 2019), fsc("MET_TRA", lastYear));
+    $("#france-after").replaceChildren(
+      el(
+        "p",
+        {},
+        rich([
+          `Depuis 2019, les liaisons entre Paris et la province ${rad < 0 ? "ont perdu" : "ont gagné"} `,
+          { b: fmtPctAbs(rad, 0) },
+          ` de leurs passagers, celles entre villes de province ${tra < 0 ? "en ont perdu" : "en ont gagné"} `,
+          { b: fmtPctAbs(tra, 0) },
+          `.`,
+        ]),
+      ),
+    );
+    addSummary("france", {
+      value: fmtPct(rad, 0),
+      label: "de passagers entre Paris et la province depuis 2019",
+      color: "var(--magenta)",
+    });
   }
 
   // ---------------------------------------------------------------- moments (preset views) and captions

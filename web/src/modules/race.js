@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import { $, el, rich, onResize, reducedMotion, keyFigures } from "../lib/ui.js";
+import { $, el, rich, onResize, reducedMotion } from "../lib/ui.js";
+import { addSummary } from "../lib/summary.js";
 import { player, whileVisible } from "../lib/scrolly.js";
 import { ranksByYear, pctChange } from "../lib/series.js";
 import { fmtPax, fmtPctAbs, fmtNum } from "../lib/format.js";
@@ -37,16 +38,14 @@ export function initRace(data) {
       ]),
     ),
   );
+  addSummary("compagnies", {
+    value: `${fmtNum(share[L] * 100, 0)} %`,
+    label: `des passagers voyagent en low-cost en ${years[L]}, contre ${fmtNum(share[0] * 100, 0)} % en ${years[0]}`,
+    color: "var(--teal)",
+  });
   $("#cie-note").textContent =
     "Compagnies regroupées par marque (Malta Air avec Ryanair, par exemple). Classées à bas coûts : easyJet, Ryanair, Transavia, Volotea, Vueling, Wizz Air, Eurowings, Norwegian, Jet2 (choix éditorial). Passagers au départ et à l'arrivée de la France.";
 
-  keyFigures($("#kf-cie"), [
-    {
-      value: `${fmtNum(share[L] * 100, 0)} %`,
-      label: `des passagers voyagent en low-cost en ${years[L]}, contre ${fmtNum(share[0] * 100, 0)} % en ${years[0]}`,
-      color: "var(--teal)",
-    },
-  ]);
   $("#race-legend").replaceChildren(
     el("span", { class: "lg" }, [
       el("i", { class: "sq", style: "--c:var(--teal)" }),

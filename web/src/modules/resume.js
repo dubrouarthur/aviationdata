@@ -1,32 +1,41 @@
 import { $, el } from "../lib/ui.js";
 import { shareUrl, linkedInShare } from "../lib/datasets.js";
 import { asset } from "../lib/site.js";
+import { summary } from "../lib/summary.js";
 
-// one card per chapter, built from what the chapters already computed (their first key figure),
-// so the summary can never disagree with the story
+// one card per chapter, in the order of the story: the opening's first figure, then the card each
+// chapter handed over (lib/summary.js) with the numbers it computed
 const CARDS = [
-  { id: "monde", from: "#hero-kpis .kpi", title: "Le monde vu de France" },
-  { id: "france", from: "#kf-france .kf", title: "La France intérieure" },
-  { id: "prix", from: "#kf-prix .kf", title: "Le prix du billet" },
-  { id: "compagnies", from: "#kf-cie .kf", title: "Les compagnies" },
-  { id: "pavillon", from: "#kf-pav .kf", title: "Le pavillon français" },
-  { id: "co2", from: "#kf-co2 .kf", title: "Le CO2" },
-  { id: "fret", from: "#kf-fret .kf", title: "Le fret" },
-  { id: "aeroport", from: "#kf-apt .kf", title: "Les aéroports" },
+  ["monde", "Le monde vu de France"],
+  ["france", "La France intérieure"],
+  ["prix", "Le prix du billet"],
+  ["compagnies", "Les compagnies"],
+  ["pavillon", "Le pavillon français"],
+  ["co2", "Le CO2"],
+  ["fret", "Le fret"],
+  ["aeroport", "Les aéroports"],
 ];
+
+/** The opening's first figure, read from the page. */
+function openingCard() {
+  const src = document.querySelector("#hero-kpis .kpi");
+  if (!src) return null;
+  return {
+    value: src.querySelector("b")?.textContent || "",
+    label: src.querySelector("span")?.textContent || "",
+    color: src.querySelector("i")?.style.getPropertyValue("--c") || "var(--ink)",
+  };
+}
 
 /** Closing summary: the key figure of each chapter, with a link back to it, and ways to share the page. */
 export function initResume() {
-  const cards = CARDS.map(({ id, from, title }) => {
-    const src = document.querySelector(from);
-    if (!src) return null;
-    const value = src.querySelector("b")?.textContent || "";
-    const label = src.querySelector("span")?.textContent || "";
-    const color = src.querySelector("i")?.style.getPropertyValue("--c") || "var(--ink)";
+  const cards = CARDS.map(([id, title]) => {
+    const card = id === "monde" ? openingCard() : summary.get(id);
+    if (!card) return null;
     return el("a", { class: "resume-card", href: `#${id}` }, [
-      el("span", { class: "rc-title" }, [el("i", { style: `--c:${color}` }), title]),
-      el("b", { text: value }),
-      el("span", { class: "rc-label", text: label }),
+      el("span", { class: "rc-title" }, [el("i", { style: `--c:${card.color}` }), title]),
+      el("b", { text: card.value }),
+      el("span", { class: "rc-label", text: card.label }),
       el("span", { class: "rc-go", text: "Revoir le chapitre" }),
     ]);
   }).filter(Boolean);

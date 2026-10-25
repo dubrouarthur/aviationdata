@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { $, el, rich, moments, showTip, hideTip, cssVar, reducedMotion } from "../lib/ui.js";
 import { whileVisible, player } from "../lib/scrolly.js";
 import { pctChange, isNum } from "../lib/series.js";
-import { fmtPax, fmtPct, fmtPctAbs, fmtNum, fmtMonth, fmtMonthShort } from "../lib/format.js";
+import { fmtPax, fmtPct, fmtNum, fmtMonth, fmtMonthShort } from "../lib/format.js";
 
 const CONTINENTS = ["Europe", "Afrique", "Amérique", "Asie", "Océanie"];
 const DEG = Math.PI / 180;

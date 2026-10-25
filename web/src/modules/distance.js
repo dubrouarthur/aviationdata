@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, chips, keyFigures } from "../lib/ui.js";
+import { $, el, rich, chips } from "../lib/ui.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, pctChange } from "../lib/series.js";
 import { fmtPct, fmtNum } from "../lib/format.js";
@@ -36,26 +36,26 @@ export function initDistance(data) {
         { b: `${fmtNum(values.all[L])} km` },
         ` par vol en ${years[L]}, contre ${fmtNum(values.all[0])} km en ${years[0]} (`,
         { b: fmtPct(pctChange(values.all[0], values.all[L]), 0) },
-        `). Les vols intérieurs reculent, les destinations lointaines progressent.`,
+        `).`,
+      ]),
+    ),
+  );
+  $("#dist-after").replaceChildren(
+    el(
+      "p",
+      {},
+      rich([
+        `Les vols intérieurs reculent, les destinations lointaines progressent. Un vol international emmène ses passagers à `,
+        { b: `${fmtNum(values.intl[L])} km` },
+        ` en moyenne, un Paris–province à `,
+        { b: `${fmtNum(values.rad[L])} km` },
+        `.`,
       ]),
     ),
     el("p", {}, [
       "Plus de kilomètres par passager, c'est aussi plus de CO2 pour chaque voyage : le chapitre suivant fait le compte.",
     ]),
   );
-
-  keyFigures($("#kf-dist"), [
-    {
-      value: `${fmtNum(values.all[L])} km`,
-      label: `parcourus en moyenne par passager en ${years[L]}, ${fmtPct(pctChange(values.all[0], values.all[L]), 0)} depuis ${years[0]}`,
-      color: "var(--ink)",
-    },
-    {
-      value: `${fmtNum(values.intl[L])} km`,
-      label: `pour un vol international, contre ${fmtNum(values.rad[L])} km pour un Paris–province`,
-      color: "var(--blue)",
-    },
-  ]);
 
   const node = $("#chart-dist");
   let on = new Set(GROUPS.filter((g) => !g.off).map((g) => g.key));

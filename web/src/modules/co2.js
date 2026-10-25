@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import { $, el, rich, segmented, showTip, hideTip, onResize, dataTable, keyFigures } from "../lib/ui.js";
+import { $, el, rich, segmented, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
+import { addSummary } from "../lib/summary.js";
 import { lineChart } from "../lib/linechart.js";
 import { stackedArea } from "../lib/stacked.js";
 import { toDate, pctChange } from "../lib/series.js";
@@ -40,9 +41,22 @@ export function initCo2(data) {
         { b: `${fmtNum(T[L], 1)} millions de tonnes de CO2` },
         `. Le long-courrier international en pèse à lui seul `,
         { b: fmtPctAbs((lc / T[L]) * 100, 0) },
-        ` (${mt(lc)}). Les vols intérieurs en métropole n'en représentent que ${mt(dom[L])}, `,
-        { b: `${fmtPctAbs(pctChange(dom[i0], dom[L]), 0)} de moins` },
-        ` qu'en ${years[i0]}.`,
+        ` (${mt(lc)}).`,
+      ]),
+    ),
+  );
+  $("#co2-after").replaceChildren(
+    el(
+      "p",
+      {},
+      rich([
+        `De ${p1.from} à ${p1.to}, la hausse du trafic aurait ajouté `,
+        { b: mt(p1.trafic) },
+        ` de CO2 à efficacité constante ; des vols plus sobres en ont retiré `,
+        { b: mt(-p1.intensite) },
+        `. Bilan : ${mt(Math.abs(p1.c1 - p1.c0))} ${p1.c1 >= p1.c0 ? "de plus" : "de moins"}. Depuis ${p2.from}, les émissions ont reculé de `,
+        { b: fmtPctAbs(pctChange(p2.c0, p2.c1), 1) },
+        ` : les deux effets jouent dans le même sens, un peu moins de trafic (${fmtPct(p2.trafic_pct, 1)}) et un peu moins de CO2 par passager-kilomètre (${fmtPct(p2.intensite_pct, 1)}).`,
       ]),
     ),
     el(
@@ -58,29 +72,17 @@ export function initCo2(data) {
       "p",
       {},
       rich([
-        `De ${p1.from} à ${p1.to}, la hausse du trafic aurait ajouté `,
-        { b: mt(p1.trafic) },
-        ` de CO2 à efficacité constante ; des vols plus sobres en ont retiré `,
-        { b: mt(-p1.intensite) },
-        `. Bilan : ${mt(Math.abs(p1.c1 - p1.c0))} ${p1.c1 >= p1.c0 ? "de plus" : "de moins"}. Depuis ${p2.from}, les émissions ont reculé de `,
-        { b: fmtPctAbs(pctChange(p2.c0, p2.c1), 1) },
-        ` : les deux effets jouent dans le même sens, un peu moins de trafic (${fmtPct(p2.trafic_pct, 1)}) et un peu moins de CO2 par passager-kilomètre (${fmtPct(p2.intensite_pct, 1)}).`,
+        `Les vols intérieurs en métropole n'émettent plus que ${mt(dom[L])}, `,
+        { b: `${fmtPctAbs(pctChange(dom[i0], dom[L]), 0)} de moins` },
+        ` qu'en ${years[i0]}.`,
       ]),
     ),
   );
-
-  keyFigures($("#kf-co2"), [
-    {
-      value: mt(T[L]),
-      label: `de CO2 émis en ${years[L]}, dont ${fmtPctAbs((lc / T[L]) * 100, 0)} en long-courrier`,
-      color: "var(--blue)",
-    },
-    {
-      value: fmtPct(pctChange(G.FRANCE_TOT[i0], G.FRANCE_TOT[L]), 0),
-      label: `de CO2 par passager-kilomètre depuis ${years[i0]}`,
-      color: DOWN,
-    },
-  ]);
+  addSummary("co2", {
+    value: mt(T[L]),
+    label: `de CO2 émis en ${years[L]}, dont ${fmtPctAbs((lc / T[L]) * 100, 0)} en long-courrier`,
+    color: "var(--blue)",
+  });
 
   // ---------------------------------------------------------------- A. emissions by segment (stacked)
   stackedArea($("#chart-co2-seg"), {

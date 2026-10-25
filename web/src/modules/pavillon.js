@@ -1,4 +1,5 @@
-import { $, el, rich, keyFigures } from "../lib/ui.js";
+import { $, el, rich } from "../lib/ui.js";
+import { addSummary } from "../lib/summary.js";
 import { lineChart } from "../lib/linechart.js";
 import { toDate, pctChange } from "../lib/series.js";
 import { fmtPax, fmtPaxAxis, fmtPct, fmtPctAbs, fmtNum } from "../lib/format.js";
@@ -57,6 +58,8 @@ export function initPavillon(data) {
         ` (${fmtPct(gE, 0)}, ${M(E[L])}).`,
       ]),
     ),
+  );
+  $("#pav-after").replaceChildren(
     el(
       "p",
       {},
@@ -69,19 +72,11 @@ export function initPavillon(data) {
       ]),
     ),
   );
-
-  keyFigures($("#kf-pav"), [
-    {
-      value: fmtPctAbs(share(L), 0),
-      label: `des passagers voyagent sur une compagnie française en ${years[L]}, contre ${fmtPctAbs(share(0), 0)} en ${years[0]}`,
-      color: "var(--blue)",
-    },
-    {
-      value: fmtPct(gE, 0),
-      label: `de passagers pour les compagnies étrangères depuis ${years[0]}, ${fmtPct(gF, 0)} pour les françaises`,
-      color: "var(--ink-2)",
-    },
-  ]);
+  addSummary("pavillon", {
+    value: fmtPctAbs(share(L), 0),
+    label: `des passagers voyagent sur une compagnie française en ${years[L]}, contre ${fmtPctAbs(share(0), 0)} en ${years[0]}`,
+    color: "var(--blue)",
+  });
 
   const dates = years.map((y) => toDate(y));
   const covid = { date: toDate(2020), label: "Covid", short: "Covid" };

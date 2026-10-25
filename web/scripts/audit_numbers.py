@@ -231,7 +231,7 @@ with sync_playwright() as p:
     )
     check(
         "covid",
-        text("#covid-text"),
+        text("#covid"),
         f"{fr(abs(covid['pax']), 1)} %",
         f"{fr(abs(covid['vols']))} %",
         f"{fr(abs(covid['fret']))} %",
@@ -254,7 +254,7 @@ with sync_playwright() as p:
     km = [avg_km(allk, i) for i in range(len(Y))]
     check(
         "distance",
-        text("#dist-text") + text("#kf-dist"),
+        text("#distance"),
         f"{fr(km[iL])} km",
         f"{fr(km[0])} km en {Y[0]}",
         f"+{fr(pct(km[0], km[iL]))} %",
@@ -265,7 +265,7 @@ with sync_playwright() as p:
     T, G = CM["FRANCE_TOT"], CG["FRANCE_TOT"]
     check(
         "CO2",
-        text("#co2-text"),
+        text("#co2-text") + text("#co2-after"),
         f"{fr(T[-1], 1)} millions de tonnes",
         f"{fr(CM['INTL_LC'][-1] / T[-1] * 100)} %",
         f"{fr(CM['MET_INTERIEUR'][-1], 1)} Mt",
@@ -280,7 +280,6 @@ with sync_playwright() as p:
         f"{fr(p2['trafic_pct'], 1)} %".replace("-", "−"),
         f"{fr(p2['intensite_pct'], 1)} %".replace("-", "−"),
     )
-    check("CO2 key figures", text("#kf-co2"), f"{fr(T[-1], 1)} Mt", f"−{fr(abs(pct(G[0], G[-1])))} %")
     # CO2 overview, index 100 in the first year: traffic, passengers per flight, emissions, CO2 per passenger-km
     cy = D["co2"]["years"]
     pv = [asum(N["pax"], y) / asum(N["vols"], y) for y in (cy[0], cy[-1])]
@@ -312,11 +311,11 @@ with sync_playwright() as p:
     paxc = pct(fa["TOTAL"][Y.index(2019)], fa["TOTAL"][Y.index(2020)])
     check(
         "freight",
-        text("#fret-text"),
+        text("#fret-text") + text("#fret-after"),
         f"{fr(FT[-1] / 1e6, 2)} millions de tonnes",
         f"{fr(abs(pct(FT[f19], FT[-1])))} % de moins",
         f"({fr(FT[f19] / 1e6, 2)} Mt)",
-        f"reculé que de {fr(abs(pct(FT[f19], FT[f20])))} %",
+        f"reculé que de {fr(abs(pct(FT[f19], FT[f20])))} %, quand les passagers",
         f"chutaient de {fr(abs(paxc))} %",
         f"Asie ({fr(FC['Asie'][-1] / 1e3)} kt)",
         f"Europe ({fr(FC['Europe'][-1] / 1e3)} kt)",
@@ -325,11 +324,10 @@ with sync_playwright() as p:
         f"{fr(abs(pct(dom[dom_peak], dom[-1])))} % depuis son sommet de {FY[dom_peak]}",
         f"{fr(cdg_share)} % à lui seul, contre {fr(cdg_pax_share)} %",
     )
-    check("freight key figures", text("#kf-fret"), f"{fr(FT[-1] / 1e6, 2)} Mt", f"{fr(cdg_share)} %")
     times = round(gE / gF)
     check(
         "flag carriers",
-        text("#pav-text"),
+        text("#pav-text") + text("#pav-after"),
         f"({fr(fshare(0), 1)} %)",
         f"plus que {fr(fshare(-1), 1)} %",
         f"+{fr(gF)} %, {fr(PV['F'][-1] / 1e6, 1)} M",
@@ -340,21 +338,12 @@ with sync_playwright() as p:
         f"Irlande ({fr(pays['Irlande'][-1] / 1e6, 1)} M)",
         f"Espagne ({fr(pays['Espagne'][-1] / 1e6, 1)} M)",
     )
-    check(
-        "flag key figures",
-        text("#kf-pav"),
-        f"{fr(fshare(-1))} %",
-        f"contre {fr(fshare(0))} %",
-        f"+{fr(gE)} %",
-        f"+{fr(gF)} %",
-    )
     assert C["pays"][0]["nom"] == "Autriche", "story says Austria is the first foreign country"
     check(
         "airports, recovery",
-        text("#apt-intro") + text("#kf-apt"),
+        text("#apt-intro"),
         f"Sur les {len(big)} aéroports",
         f"{len(recov)} ont retrouvé",
-        f"{len(recov)} sur {len(big)}",
         f"+{fr(apt_mv[0])} %",
         f"+{fr(apt_mv[1])} %",
         f"−{fr(abs(apt_mv[-1]))} %",
@@ -384,7 +373,7 @@ with sync_playwright() as p:
 
     check(
         "prices",
-        text("#prix-text"),
+        text("#prix-text") + text("#prix-after"),
         month_name(PM[L]),
         f"{fr(cur, 1)} %",
         month_name(since),
@@ -393,16 +382,25 @@ with sync_playwright() as p:
         f"{fr(pct(pmean('MET_INTAL_TOT', 2019), pmean('MET_INTAL_TOT', last)))} %",
         f"{fr(pct(traffic(['MET_INTL'], 2019), traffic(['MET_INTL'], last)))} %",
     )
-    # chapter key figures repeat numbers of the text: they must agree with the recomputation too
     check(
-        "key figures",
-        text("#kf-rempl") + text("#kf-covid") + text("#kf-france") + text("#kf-cie") + text("#kf-prix"),
-        f"+{fr(pct(asum(N['pax'], 2000), asum(N['pax'], AY[-1])))} %",
-        f"−{fr(abs(covid['pax']))} %",
+        "France since 2019",
+        text("#france-after"),
+        f"{fr(abs(pct(rad[2019], rad[last])))} % de leurs passagers",
+        f"{fr(abs(pct(fsum(['MET_TRA'], 2019), fsum(['MET_TRA'], last))))} %",
+    )
+    check(
+        "summary cards",
+        text("#resume-grid"),
         f"−{fr(abs(pct(rad[2019], rad[last])))} %",
         f"{fr(C['lowcost_share'][-1] * 100)} %",
         f"+{fr(pct(pmean('MET_INTER_MET', 2019), pmean('MET_INTER_MET', last)))} %",
+        f"{fr(T[-1], 1)} Mt",
+        f"{fr(FT[-1] / 1e6, 2)} Mt",
     )
+    nkf = page.locator(".keyfig").count()
+    print(("PASS " if not nkf else "FAIL ") + f"no key-figure box is left  {nkf}")
+    if nkf:
+        failures.append("key-figure boxes remain")
     b.close()
 
 print(f"\n{len(failures)} failure(s)")
