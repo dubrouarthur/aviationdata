@@ -233,6 +233,10 @@ with sync_playwright() as p:
     check("no key-figure box is left", pg.locator(".keyfig").count() == 0)
 
     # six accidents under the loupe: investigation types, then each case, finding by finding
+    order = pg.eval_on_selector_all("main section.story-chapter", "ss => ss.map(s => s.id)")
+    check("loupe comes right after HFACS", order.index("loupe") == order.index("hfacs") + 1, str(order))
+    es = pg.eval_on_selector_all("#essentiel-list a", "as => as.map(a => a.getAttribute('href'))")
+    check("essentials follow the page", es == ["#verdict", "#gravite", "#loupe", "#compagnies"], str(es))
     has(
         "loupe: the deeper the investigation",
         text("#loupe"),

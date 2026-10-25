@@ -53,9 +53,9 @@
         <nav class="topnav" aria-label="Parties">
           <a href="#partie-1">Le verdict</a>
           <a href="#partie-2">Qui, quelles erreurs</a>
-          <a href="#partie-3">Les modèles</a>
-          <a href="#partie-4">Les compagnies</a>
-          <a href="#partie-5">À la loupe</a>
+          <a href="#partie-3">À la loupe</a>
+          <a href="#partie-4">Les modèles</a>
+          <a href="#partie-5">Les compagnies</a>
           <a href="#explorer">Explorer</a>
           <a href="#en-bref">La réponse</a>
         </nav>
@@ -196,7 +196,40 @@
       </section>
 
       <div class="part wrap" id="partie-3">
-        <p class="part-label"><span class="part-no">Partie 3</span> Les modèles à l'épreuve</p>
+        <p class="part-label"><span class="part-no">Partie 3</span> Six accidents à la loupe</p>
+        <p class="part-dek">Les enquêtes les plus poussées, et ce qu'elles trouvent derrière l'erreur.</p>
+      </div>
+      <section class="chapter wrap story-chapter" id="loupe" aria-labelledby="h-loupe">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-loupe">Plus l'enquête creuse, plus l'organisation apparaît</h2>
+          <div class="prose" id="loupe-prose"></div>
+        </div>
+        <figure class="panel" data-hsource="ntsb">
+          <h3 id="h-kinds">Les enquêtes majeures remontent jusqu'à l'organisation</h3>
+          <p class="note" id="kinds-note"></p>
+          <div class="chart" id="chart-kinds"></div>
+        </figure>
+        <div class="prose after-figure" id="loupe-after"></div>
+        <figure class="panel lp" id="lp" data-hsource="ntsb hfacs reason tem" aria-labelledby="h-lp">
+          <h3 id="h-lp">Six accidents célèbres, constat par constat</h3>
+          <p class="note" id="lp-note"></p>
+          <div class="lp-top"><table class="lp-pick" id="lp-pick"></table></div>
+          <div class="lp-head" id="lp-head"></div>
+          <div class="lp-diagram" id="lp-diagram"></div>
+          <div class="lp-under">
+            <p class="lp-count" id="lp-count"></p>
+            <button type="button" class="btn ghost" id="lp-others" aria-pressed="true"></button>
+          </div>
+          <div class="lp-read">
+            <div class="lp-detail" id="lp-detail" aria-live="polite"></div>
+            <div class="lp-ntsb" id="lp-ntsb"></div>
+          </div>
+        </figure>
+        <div class="prose after-figure" id="loupe-end"></div>
+      </section>
+
+      <div class="part wrap" id="partie-4">
+        <p class="part-label"><span class="part-no">Partie 4</span> Les modèles à l'épreuve</p>
         <p class="part-dek">
           Menaces et erreurs, fromage suisse, événement redouté : trois façons de lire un accident, trois
           réponses des données.
@@ -248,8 +281,8 @@
         <div class="prose after-figure" id="evenements-after"></div>
       </section>
 
-      <div class="part wrap" id="partie-4">
-        <p class="part-label"><span class="part-no">Partie 4</span> Les compagnies aériennes</p>
+      <div class="part wrap" id="partie-5">
+        <p class="part-label"><span class="part-no">Partie 5</span> Les compagnies aériennes</p>
         <p class="part-dek">
           Les vols de ligne pèsent peu dans les accidents. Ils racontent pourtant une autre histoire.
         </p>
@@ -268,39 +301,6 @@
           <div class="chart" id="chart-segments" tabindex="0" aria-labelledby="h-segments"></div>
         </figure>
         <div class="prose after-figure" id="compagnies-after"></div>
-      </section>
-
-      <div class="part wrap" id="partie-5">
-        <p class="part-label"><span class="part-no">Partie 5</span> Six accidents à la loupe</p>
-        <p class="part-dek">Les enquêtes les plus poussées, et ce qu'elles trouvent derrière l'erreur.</p>
-      </div>
-      <section class="chapter wrap story-chapter" id="loupe" aria-labelledby="h-loupe">
-        <div class="chapter-lede">
-          <h2 class="section-title" id="h-loupe">Plus l'enquête creuse, plus l'organisation apparaît</h2>
-          <div class="prose" id="loupe-prose"></div>
-        </div>
-        <figure class="panel" data-hsource="ntsb">
-          <h3 id="h-kinds">Les enquêtes majeures remontent jusqu'à l'organisation</h3>
-          <p class="note" id="kinds-note"></p>
-          <div class="chart" id="chart-kinds"></div>
-        </figure>
-        <div class="prose after-figure" id="loupe-after"></div>
-        <figure class="panel lp" id="lp" data-hsource="ntsb hfacs reason tem" aria-labelledby="h-lp">
-          <h3 id="h-lp">Six accidents célèbres, constat par constat</h3>
-          <p class="note" id="lp-note"></p>
-          <div class="lp-top"><table class="lp-pick" id="lp-pick"></table></div>
-          <div class="lp-head" id="lp-head"></div>
-          <div class="lp-diagram" id="lp-diagram"></div>
-          <div class="lp-under">
-            <p class="lp-count" id="lp-count"></p>
-            <button type="button" class="btn ghost" id="lp-others" aria-pressed="true"></button>
-          </div>
-          <div class="lp-read">
-            <div class="lp-detail" id="lp-detail" aria-live="polite"></div>
-            <div class="lp-ntsb" id="lp-ntsb"></div>
-          </div>
-        </figure>
-        <div class="prose after-figure" id="loupe-end"></div>
       </section>
 
       <section class="chapter wrap story-chapter hf-tool" id="explorer" aria-labelledby="h-explorer">

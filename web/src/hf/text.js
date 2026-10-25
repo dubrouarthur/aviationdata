@@ -61,16 +61,6 @@ export function writeEssentiel(F) {
       ],
     ],
     [
-      "compagnies",
-      pct(air.person),
-      "Partout ?",
-      [
-        "Non. Dans les compagnies aériennes, une personne n'est citée que dans ",
-        { b: pct(air.person) },
-        ` des accidents, l'environnement dans ${pct(air.env)} : ${pct(ratio(F.airline.turbulence, F.airline.n))} de leurs accidents sont des turbulences.`,
-      ],
-    ],
-    [
       "loupe",
       pct(F.kinds.M.org),
       "Que cache « l'erreur humaine » ?",
@@ -80,6 +70,16 @@ export function writeEssentiel(F) {
         " des accidents, mais dans ",
         { b: pct(F.kinds.M.org) },
         " des enquêtes majeures.",
+      ],
+    ],
+    [
+      "compagnies",
+      pct(air.person),
+      "Partout ?",
+      [
+        "Non. Dans les compagnies aériennes, une personne n'est citée que dans ",
+        { b: pct(air.person) },
+        ` des accidents, l'environnement dans ${pct(air.env)} : ${pct(ratio(F.airline.turbulence, F.airline.n))} de leurs accidents sont des turbulences.`,
       ],
     ],
   ];
@@ -517,7 +517,7 @@ export function writeLoupe(F, cases) {
     "le type d'enquête est la cinquième lettre du numéro de dossier du NTSB : M pour une enquête majeure, F régionale, L limitée.",
   );
   $("#lp-note").textContent =
-    "Les constats que le NTSB a codés pour six accidents, rangés selon les modèles de cette enquête : la chaîne humaine de Reason et de HFACS, puis les menaces du modèle TEM, l'appareil et l'environnement.";
+    "Les constats que le NTSB a codés pour six accidents, rangés selon la chaîne humaine de Reason et de HFACS (organisation, conditions préalables, actes), puis selon les menaces extérieures à l'équipage, l'appareil et l'environnement, que le modèle TEM décrit plus loin.";
   lecture(
     "#lp-note",
     "choisissez un accident dans le tableau : un point plein signale une couche retenue dans la cause probable, un cercle une couche relevée seulement hors de la cause probable. Dans le schéma, chaque constat est relié à l'accident, d'un trait épais pour une cause, plein pour un facteur, pointillé hors de la cause probable ; touchez-en un pour le lire.",
