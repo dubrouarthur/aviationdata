@@ -3,7 +3,7 @@
 // follows the data when it is rebuilt; web/scripts/check_site.py recomputes them independently.
 // One conversion runs through the story: a minute of cruise in kilos of fuel and in euros (cost.js).
 import * as d3 from "d3";
-import { $, el, rich, keyFigures, lecture } from "../lib/ui.js";
+import { $, el, rich, lecture } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import {
   euros,
@@ -21,11 +21,36 @@ import {
 } from "./fmt.js";
 import { haversine } from "./route.js";
 import { soundKmh } from "./sim.js";
-import { CDG, JFK, fuelTonnes, kgPerMinute, lastPair, peqPerFlight, routeSavings } from "./cost.js";
+import {
+  CDG,
+  JFK,
+  costSteps,
+  fuelTonnes,
+  kgPerMinute,
+  lastPair,
+  peqPerFlight,
+  routeSavings,
+} from "./cost.js";
+import { JSOURCES } from "./sources.js";
 
 // "vers Newark", or "entre Orly et Newark" when the French end is not Paris-CDG
 const toward = (r) => (r.fr === "LFPG" ? `vers ${r.to}` : `entre ${r.from.replace("Paris-", "")} et ${r.to}`);
 const prose = (id, paragraphs) => $(id).replaceChildren(...paragraphs.map((p) => el("p", {}, rich(p))));
+/** "d'octobre 2025", "de septembre 2026": the month after "de", elided before a vowel. */
+const deMonth = (m) => (/^[aeiouéo]/.test(monthYear(m)) ? `d'${monthYear(m)}` : `de ${monthYear(m)}`);
+/** A link to a source of sources.js, by key, with its short name or the given text. */
+const src = (k, text) => ({ a: text ?? JSOURCES[k].short, href: JSOURCES[k].url });
+/** The box that explains the kilos and the euros, linked from every cost. */
+export const TO_COSTS = { a: "D'où viennent ces kilos et ces euros", href: "#couts" };
+/** A chapter's prose after its figure, and an optional "À savoir" aside for the method. */
+function after(id, paragraphs, aside) {
+  const box = $(id);
+  if (!box) return;
+  box.replaceChildren(
+    ...paragraphs.map((p) => el("p", {}, rich(p))),
+    ...(aside ? [el("aside", { class: "story-aside" }, [el("b", { text: "À savoir" }), rich(aside)])] : []),
+  );
+}
 const WEST_COAST = ["KLAX", "KSFO", "KSEA", "CYVR"];
 const r10 = (v) => Math.round(v / 10) * 10;
 /** 12 -> "12 heures", 108 -> "4 jours et demi", 48 -> "2 jours" */
@@ -195,23 +220,6 @@ export function writeStory(data, F, C) {
       "Ce que le jet donne vers l'est, il le reprend vers l'ouest, et cela se paie en kérosène. Cette enquête mesure combien, et ce que les compagnies peuvent y gagner en suivant le vent et en le prévoyant.",
     ],
   ]);
-  keyFigures($("#kf-nuit"), [
-    {
-      value: kmh(hero.max.kmh),
-      label: "vent maximal sur la carte (ERA5)",
-      color: "var(--speed-core)",
-    },
-    {
-      value: hm(r.t_fast),
-      label: "New York–Paris par la route la plus rapide (modèle)",
-      color: "var(--east)",
-    },
-    {
-      value: hm(r.nowind),
-      label: "le même trajet sans vent",
-      color: "var(--muted)",
-    },
-  ]);
 
   const coastTxt = F.coast
     .sort((a, b) => a.west.med - a.east.med - (b.west.med - b.east.med))
@@ -222,26 +230,28 @@ export function writeStory(data, F, C) {
     [
       "Entre 2019 et 2022, les récepteurs du réseau OpenSky ont suivi ",
       { b: thousands(F.n) },
-      " vols entre la France et l'Amérique du Nord. Sur Paris-CDG–New York-JFK, la ligne la plus suivie (",
-      { b: fmtNum(F.pairN) },
-      " vols), le vol vers New York dure en médiane ",
+      " vols entre la France et l'Amérique du Nord. Sur Paris-CDG–New York-JFK, la ligne la plus suivie, le vol vers New York dure en médiane ",
       { b: hm(F.medW) },
       ", le retour ",
       { b: hm(F.medE) },
-      " : ",
+      ". Soit ",
       { b: hm(F.gap) },
       " d'écart pour la même distance.",
     ],
+  ]);
+  $("#hist-note").textContent =
+    `Nombre de vols par durée, tranches de 5 minutes, 2019-2022 (${fmtNum(F.pairN)} vols).`;
+  after("#ecart-after", [
     [
-      "Pour traduire ces minutes en argent, une règle suffit : en croisière, une minute de vol sur Paris–New York brûle environ ",
+      "Cet écart se paie en kérosène. En croisière, une minute de vol sur Paris–New York en brûle environ ",
       { b: kg(C.KG) },
-      " de kérosène, soit ",
+      ", soit ",
       { b: euros(C.EUR) },
-      ` au prix moyen des douze derniers mois (${perTonne(C.price)}, de ${monthYear(C.cost.recent.from)} à ${monthYear(C.cost.recent.to)}). L'heure d'écart pèse ainsi environ `,
+      ". L'heure d'écart pèse ainsi environ ",
       { b: tonnes(C.kgOf(F.gap) / 1000) },
       " de kérosène et ",
       { b: euros(C.eurOf(F.gap)) },
-      " par vol vers New York. Le détail du calcul figure dans la méthode.",
+      " par vol vers New York. Ces chiffres viennent de données publiques, la DGAC pour la consommation et l'agence américaine de l'énergie pour le prix ; l'encadré ci-dessous refait le calcul pas à pas.",
     ],
     [
       "On retrouve l'écart sur les autres lignes, de ",
@@ -251,6 +261,7 @@ export function writeStory(data, F, C) {
       ` ${toward(F.maxGap)}. Les lignes de la côte Ouest y échappent en partie (${coastTxt.join(", ")}) : leur route la plus courte remonte vers le Grand Nord, loin du cœur habituel du jet.`,
     ],
   ]);
+  writeCouts(C.cost);
   $("#h-hist").textContent = `Paris-CDG–New York-JFK : ${hm(F.gap)} d'écart en médiane`;
   $("#routes-note").textContent =
     "Durée médiane vers l'Amérique (rose) et vers la France (bleu), lignes d'au moins 300 vols dans chaque sens, 2019-2022.";
@@ -262,7 +273,7 @@ export function writeStory(data, F, C) {
       { b: hm(F.gapDJF) },
       " de décembre à février, contre ",
       { b: hm(F.gapJJA) },
-      ` de juin à août : environ ${tonnes(C.kgOf(F.gapDJF - F.gapJJA) / 1000)} de kérosène d'écart en plus l'hiver.`,
+      ` de juin à août. En kérosène, il se creuse d'environ ${tonnes(C.kgOf(F.gapDJF - F.gapJJA) / 1000)} l'hiver.`,
     ],
   ]);
   $("#h-monthly").textContent = "L'écart suit le vent, mois après mois";
@@ -274,20 +285,20 @@ export function writeStory(data, F, C) {
     [
       "D'un jour à l'autre, la durée du vol se joue presque entièrement dans le vent. Vers New York, chaque tranche de 10 km/h de vent de face ajoute ",
       { b: minutes(-F.fit.w.slope, 1) },
-      ", soit environ ",
+      " et environ ",
       { b: kg(C.kgOf(-F.fit.w.slope)) },
-      " de kérosène et ",
-      { b: euros(C.eurOf(-F.fit.w.slope)) },
-      " ; vers Paris, chaque tranche de 10 km/h de vent arrière retire ",
+      " de kérosène. Vers Paris, chaque tranche de 10 km/h de vent arrière retire ",
       { b: minutes(-F.fit.e.slope, 1) },
-      ". Le vent explique à lui seul ",
+      ".",
+    ],
+  ]);
+  after("#vent-after", [
+    [
+      "Le vent explique à lui seul ",
       { b: r2(F.fit.w.r) },
       " des écarts de durée vers New York, et ",
       { b: r2(F.fit.e.r) },
-      " vers Paris.",
-    ],
-    [
-      "C'est moins que ne le voudrait un calcul sur la ligne droite, ",
+      " vers Paris. C'est moins que ne le voudrait un calcul sur la ligne droite, ",
       { b: minutes(F.naive, 1) },
       " par tranche de 10 km/h. Premier indice : les avions ne subissent pas le vent passivement. Ils vont chercher le vent arrière, ou contournent le vent de face.",
     ],
@@ -326,9 +337,9 @@ export function writeStory(data, F, C) {
   const m = routing.model;
   prose("#model-prose", [
     [
-      "Ce modèle simple ignore la montée, la descente, les changements d'altitude, les couloirs imposés et l'évolution du vent pendant le vol. Il colle pourtant aux vols réels : d'un vol à l'autre, la durée de sa meilleure route suit la durée observée avec une corrélation de ",
+      "Ce modèle simple ignore la montée, la descente, les changements d'altitude, les couloirs imposés et l'évolution du vent pendant le vol. Il colle pourtant aux vols réels. Vers New York, la durée de sa meilleure route suit celle des vols avec une corrélation de ",
       { b: fmtNum(m.w.r_opt, 2) },
-      " vers New York, contre ",
+      ", contre ",
       { b: fmtNum(m.w.r_gc, 2) },
       " pour la ligne droite ; vers Paris, ",
       { b: fmtNum(m.e.r_opt, 2) },
@@ -348,13 +359,120 @@ export function writeStory(data, F, C) {
       { b: minutes(s.rt_gc) },
       " de plus que sans vent (",
       { b: hm(2 * routing.nowind) },
-      "), environ ",
+      "). Ce surcoût vaut environ ",
       { b: euros(C.eurOf(s.rt_gc)) },
-      " de kérosène. En choisissant chaque jour la route la plus rapide, le surcoût tombe à ",
+      " de kérosène. En choisissant chaque jour la route la plus rapide, il tombe à ",
       { b: minutes(s.rt_opt) },
       `, environ ${euros(C.eurOf(s.rt_opt))}.`,
     ],
   ]);
+}
+/* ------------------------------------------------------------------ where the kilos and euros come from */
+/**
+ * The box "D'où viennent ces kilos et ces euros": the one conversion of the story, in five steps a reader
+ * can redo with a calculator, each with its public source (cost.js costSteps; check_site.py redoes it).
+ */
+export function writeCouts(cost) {
+  const S = costSteps(cost);
+  const n0 = (v) => fmtNum(v, 0);
+  $("#couts-dek").replaceChildren(
+    rich([
+      "Aucune compagnie ne publie ce que brûle chacun de ses vols. Les kilos et les euros de cette enquête sont calculés à partir de données publiques, en cinq étapes que chacun peut refaire.",
+    ]),
+  );
+  const steps = [
+    {
+      value: `${n0(S.kgPerPeq)} kg de CO2`,
+      what: "par passager-équivalent, pour un Paris–New York sans vent",
+      text: [
+        "La DGAC publie les émissions moyennes des vols long-courriers au départ de la France : ",
+        { b: `${fmtNum(S.gPeqKm, 1)} g` },
+        ` de CO2 par passager-équivalent (un passager, ou 100 kg de fret) et par kilomètre en ${S.factorYear}. Sur les `,
+        { b: `${n0(S.km)} km` },
+        ` qui séparent Paris-CDG de New York-JFK, cela fait ${n0(S.kgPerPeq)} kg.`,
+      ],
+      sources: [src("dgac", "DGAC, émissions de CO2 du trafic aérien")],
+    },
+    {
+      value: n0(S.peq),
+      what: "passagers-équivalents par vol",
+      text: [
+        `En ${S.year}, `,
+        { b: n0(S.flights) },
+        " vols ont relié Paris-CDG et New York-JFK, dans les deux sens, avec ",
+        { b: n0(S.pax) },
+        ` passagers et du fret : ${n0(S.peqYear)} passagers-équivalents, soit ${n0(S.peq)} par vol, dont ${n0(S.paxPerFlight)} passagers.`,
+      ],
+      sources: [src("dgacpap", "DGAC, trafic par paire d'aéroports")],
+    },
+    {
+      value: tonnes(S.fuelFlight),
+      what: "de kérosène par vol, sans vent",
+      text: [
+        `${n0(S.kgPerPeq)} kg × ${n0(S.peq)} = `,
+        { b: tonnes(S.co2Flight, 0) },
+        " de CO2 par vol. Brûler une tonne de kérosène en émet ",
+        { b: `${fmtNum(S.co2PerFuel, 2)} t` },
+        ` : il en faut donc ${tonnes(S.fuelFlight)}.`,
+      ],
+      sources: [src("icao", "OACI, calculateur d'émissions")],
+    },
+    {
+      value: kg(S.kgPerMinute),
+      what: "de kérosène par minute de croisière",
+      text: [
+        "Un Boeing 777-300ER croise à Mach ",
+        { b: fmtNum(S.mach, 2) },
+        `. À 10 400 m d'altitude (FL340), où l'atmosphère type compte ${fmtNum(S.kelvin - 273.15, 0)} °C, cela fait ${n0(S.tas)} km/h : `,
+        { b: hm(S.minutes) },
+        ` de croisière sans vent. ${tonnes(S.fuelFlight)} sur ${n0(S.minutes)} minutes : ${kg(S.kgPerMinute)} par minute. Dans ce calcul, un vol qui dure 10 % de plus brûle 10 % de kérosène de plus.`,
+      ],
+      sources: [src("openap", "OpenAP (vitesse de croisière)"), src("isa", "AMS (atmosphère type)")],
+    },
+    {
+      value: euros(S.eurPerMinute),
+      what: "de kérosène par minute de croisière",
+      text: [
+        "L'agence américaine de l'énergie (EIA) publie chaque mois le prix du kérosène sur la côte du golfe du Mexique, en dollars par gallon. Converti en euros au taux de la BCE, à ",
+        `${fmtNum(S.kgPerLitre, 1)} kg par litre (un litre de kérosène pèse de 775 à 840 g), il revient à `,
+        { b: perTonne(S.price) },
+        ` en moyenne ${deMonth(S.from)} à ${monthYear(S.to)}. ${kg(S.kgPerMinute)} à ${perTonne(S.price)} : ${euros(S.eurPerMinute)}.`,
+      ],
+      sources: [src("eia", "EIA, prix du kérosène"), src("ecb", "BCE, taux de change"), src("density")],
+    },
+  ];
+  $("#couts-steps").replaceChildren(
+    ...steps.map((st) =>
+      el("li", { class: "cb-step" }, [
+        el("p", { class: "cb-result" }, [el("b", { text: st.value }), el("span", { text: st.what })]),
+        el("div", { class: "cb-body" }, [
+          el("p", {}, rich(st.text)),
+          el("p", { class: "cb-src" }, [
+            "Source : ",
+            ...st.sources.flatMap((x, i) => [
+              i ? (i === st.sources.length - 1 ? " et " : ", ") : "",
+              ...rich([x]).childNodes,
+            ]),
+          ]),
+        ]),
+      ]),
+    ),
+  );
+  $("#couts-limits").replaceChildren(
+    el("h4", { text: "Ce que ce calcul ne dit pas" }),
+    el("ul", {}, [
+      el("li", {}, [
+        "C'est un avion moyen : le facteur de la DGAC mêle tous les long-courriers partis de France. Dans le simulateur, les quatre avions proposés brûlent donc la même quantité de kérosène sans vent ; seuls changent leur vitesse et l'écart de consommation entre les altitudes.",
+      ]),
+      el("li", {}, [
+        "C'est un prix de marché américain. Ce que paie une compagnie dépend de ses contrats, de ses couvertures et de l'aéroport où elle fait le plein.",
+      ]),
+      el("li", {}, [
+        "Seul le kérosène est compté. Le temps de vol a aussi un coût, l'équipage, l'entretien, les correspondances, qui n'entre pas dans ces euros.",
+      ]),
+    ]),
+    el("p", { text: "Ce sont des ordres de grandeur, pas la facture d'une compagnie." }),
+  );
 }
 /* ------------------------------------------------------------------ the jet, at the altitude of airliners */
 export function writeJet({ trappes }) {
@@ -368,31 +486,24 @@ export function writeJet({ trappes }) {
       { b: kmh(peak.p50) },
       " vers ",
       { b: `${fmtNum(peak.km, 1)} km` },
-      ` d'altitude, au niveau de ${peak.hpa} hPa ; l'été, à ${kmh(peakS.p50)} vers ${fmtNum(peakS.km, 1)} km. C'est précisément l'altitude de croisière des long-courriers, de 9 à 12 km (niveaux de vol 300 à 390) : un avion de ligne ne peut pas ignorer le jet. Il le traverse, le suit ou le contourne.`,
+      ` d'altitude (niveau de ${peak.hpa} hPa). L'été, il plafonne à ${kmh(peakS.p50)} vers ${fmtNum(peakS.km, 1)} km. C'est l'altitude de croisière des long-courriers, de 9 à 12 km : un avion de ligne ne peut pas ignorer le jet. Il le traverse, le suit ou le contourne.`,
     ],
+  ]);
+  after("#jet-after", [
     [
       `Le ${longDate(trappes.ciara.date)} à midi, au passage de Ciara, le ballon a mesuré `,
       { b: kmh(trappes.ciara.kmh) },
       " à 250 hPa : il fallait remonter au ",
       { b: longDate(trappes.ciara.stronger_before) },
-      " pour trouver plus fort. Ces ballons servent aussi de juge de paix : à Trappes, la réanalyse ERA5 utilisée dans cette enquête les suit avec une corrélation de ",
-      { b: fmtNum(trappes.check.r, 3) },
-      " et un écart moyen de ",
-      { b: kmh(trappes.check.mae) },
-      ` (2019-2022, ${fmtNum(trappes.check.n)} sondages).`,
+      " pour trouver plus fort.",
     ],
-  ]);
-  keyFigures($("#kf-jet"), [
-    {
-      value: `${fmtNum(peak.km, 1)} km`,
-      label: "altitude du vent le plus fort au-dessus de Paris en hiver",
-      color: "var(--east)",
-    },
-    {
-      value: kmh(peak.p50),
-      label: "vent médian à cette altitude, de décembre à février",
-      color: "var(--east)",
-    },
+    [
+      "Ces ballons servent aussi de juge de paix. À Trappes, la réanalyse ERA5 utilisée dans cette enquête les suit de près : corrélation de ",
+      { b: fmtNum(trappes.check.r, 3) },
+      ", écart moyen de ",
+      { b: kmh(trappes.check.mae) },
+      `. La comparaison porte sur ${fmtNum(trappes.check.n)} sondages, de 2019 à 2022.`,
+    ],
   ]);
   $("#profile-note").textContent =
     "Vent au-dessus de Trappes à chaque niveau standard, ballons-sondes de 00 h et 12 h UTC, 1991-2020.";
@@ -423,17 +534,10 @@ export function writePlacer({ sim }) {
       { b: hm(fast.v) },
       ` par la meilleure route en partant à ${hh(fast.h)} UTC à ${fl(fast.lv)}, et `,
       { b: hm(slow.v) },
-      ` en partant à ${hh(slow.h)} UTC à ${fl(slow.lv)} : `,
+      ` en partant à ${hh(slow.h)} UTC à ${fl(slow.lv)}. Soit `,
       { b: minutes(slow.v - fast.v) },
       " d'écart pour le même avion, le même jour.",
     ],
-  ]);
-  keyFigures($("#kf-placer"), [
-    {
-      value: minutes(slow.v - fast.v),
-      label: "d'écart vers New York le 8 février 2020, selon l'heure et l'altitude",
-      color: "var(--west)",
-    },
   ]);
 }
 
@@ -447,50 +551,48 @@ export function writeBilan({ stats, sim, cost }, C) {
   const last = cost.last;
   prose("#bilan-prose", [
     [
-      `Sur quatre ans, le bénéfice se concentre vers l'ouest. Rejoué pour chacun des ${fmtNum(stats.days.length)} jours de 2019 à 2022, avec un ${stats.aircraft} parti de Paris à midi UTC et de New York à minuit UTC, le calcul donne le gain de la meilleure route à ${fl(1)} plutôt que la ligne droite : `,
+      "Sur quatre ans, le bénéfice se concentre vers l'ouest : la meilleure route fait gagner ",
       { b: minutes(R.west, 1) },
       " par vol vers New York, soit environ ",
-      { b: kg(R.kgWest) },
-      " de kérosène et ",
       { b: euros(C.eurOf(R.west)) },
-      " ; ",
-      { b: minutes(R.east, 1) },
-      ` vers Paris (${kg(R.kgEast)}, ${euros(C.eurOf(R.east))}), où le jet souffle déjà le long de la ligne droite.`,
-    ],
-    [
-      `Sur les ${fmtNum(C.pair.mvt)} vols entre Paris-CDG et New York-JFK en ${C.pair.y}, moitié dans chaque sens, cela fait environ `,
-      { b: tonnes(r10(R.tonnesYear), 0) },
-      " de kérosène par an, ",
-      { b: tonnes(r10(R.tonnesYear * cost.factors.co2_per_fuel), 0) },
-      " de CO2, et ",
+      " de kérosène. Sur une année de vols entre Paris-CDG et New York-JFK, cela représente de l'ordre de ",
       { b: euros(R.tonnesYear * C.price) },
-      ` au prix des douze derniers mois. Le prix du kérosène fait varier la note : ${euros(R.tonnesYear * y.eur_t)} au prix moyen de ${y.y}, ${euros(R.tonnesYear * last.eur_t)} à celui de ${monthYear(last.m)}. Pour une seule ligne, à une seule heure de départ.`,
-    ],
-    [
-      `L'altitude, elle, oppose le temps au carburant. Vers New York, voler à ${fl(2)} plutôt qu'à ${fl(0)} rallonge le vol de `,
-      { b: minutes(T.minutesMore, 1) },
-      " en moyenne, mais économise ",
-      { b: tonnes(T.tonnesLess) },
-      " de kérosène : l'air plus froid du niveau bas fait aller l'avion plus vite, l'air plus mince du niveau haut le fait moins consommer. Rester bas ne se justifie que si une minute de vol coûte à la compagnie plus de ",
-      { b: euros(T.breakEven(C.price)) },
-      ` (équipage, entretien, correspondances), un chiffre que ce calcul ne connaît pas. Au prix de ${monthYear(last.m)}, le seuil passe à ${euros(T.breakEven(last.eur_t))} : plus le kérosène est cher, plus il vaut la peine de voler haut.`,
-    ],
-    [
-      "Ces chiffres mesurent ce que vaut la donnée face à un vol qui l'ignorerait, pas une économie qui resterait à faire : les routes de l'Atlantique Nord sont déjà tracées chaque jour selon les vents. Le modèle ignore aussi le poids de l'avion, qui l'empêche, lourd au départ, de monter tout de suite au niveau le plus économe. Ce sont des ordres de grandeur.",
+      ".",
     ],
   ]);
-  keyFigures($("#kf-bilan"), [
-    {
-      value: `${fmtNum((R.tonnesYear * C.price) / 1e6, 1)} M€`,
-      label: "par an sur le seul Paris-CDG–New York-JFK, grâce à la meilleure route",
-      color: "var(--east)",
-    },
-    {
-      value: euros(C.eurOf(R.west)),
-      label: "par vol vers New York, en moyenne sur 2019-2022",
-      color: "var(--west)",
-    },
-  ]);
+  after(
+    "#bilan-after",
+    [
+      [
+        `Le calcul rejoue chacun des ${fmtNum(stats.days.length)} jours de 2019 à 2022, avec un ${stats.aircraft} parti de Paris à midi UTC et de New York à minuit UTC, et compare la meilleure route à ${fl(1)} à la ligne droite. Vers New York, le gain moyen de `,
+        { b: minutes(R.west, 1) },
+        " vaut environ ",
+        { b: kg(R.kgWest) },
+        ` de kérosène. Vers Paris, où le jet souffle déjà le long de la ligne droite, il tombe à ${minutes(R.east, 1)} (${kg(R.kgEast)}, ${euros(C.eurOf(R.east))}).`,
+      ],
+      [
+        `Sur les ${fmtNum(C.pair.mvt)} vols entre Paris-CDG et New York-JFK en ${C.pair.y}, moitié dans chaque sens, cela fait environ `,
+        { b: tonnes(r10(R.tonnesYear), 0) },
+        " de kérosène par an et ",
+        { b: tonnes(r10(R.tonnesYear * cost.factors.co2_per_fuel), 0) },
+        ` de CO2. Le prix du kérosène fait varier la note : ${euros(R.tonnesYear * y.eur_t)} au prix moyen de ${y.y}, ${euros(R.tonnesYear * last.eur_t)} à celui de ${monthYear(last.m)}. Et ce n'est qu'une ligne, à une seule heure de départ.`,
+      ],
+      [
+        `L'altitude, elle, oppose le temps au carburant. Vers New York, voler à ${fl(2)} plutôt qu'à ${fl(0)} rallonge le vol de `,
+        { b: minutes(T.minutesMore, 1) },
+        " en moyenne, mais économise ",
+        { b: tonnes(T.tonnesLess) },
+        " de kérosène. L'air plus froid du niveau bas fait aller l'avion plus vite ; l'air plus mince du niveau haut le fait moins consommer. Rester bas ne se justifie que si une minute de vol coûte à la compagnie plus de ",
+        { b: euros(T.breakEven(C.price)) },
+        ` (équipage, entretien, correspondances), un coût que ce calcul ne connaît pas. Au prix de ${monthYear(last.m)}, le seuil passe à ${euros(T.breakEven(last.eur_t))} : plus le kérosène est cher, plus il vaut la peine de voler haut.`,
+      ],
+    ],
+    [
+      "Ces chiffres mesurent ce que vaut la donnée face à un vol qui l'ignorerait, pas une économie qui resterait à faire : les routes de l'Atlantique Nord sont déjà tracées chaque jour selon les vents. Le modèle ignore le poids de l'avion, qui l'empêche, lourd au départ, de monter tout de suite au niveau le plus économe. Ce sont des ordres de grandeur ; les kilos et les euros suivent le calcul de l'encadré « ",
+      TO_COSTS,
+      " ».",
+    ],
+  );
   $("#value-note").textContent =
     `Valeur du kérosène économisé en un an sur Paris-CDG–New York-JFK par la meilleure route (${tonnes(r10(R.tonnesYear), 0)}, trafic de ${C.pair.y}, vents de 2019-2022), au prix de chaque mois.`;
   lecture(
@@ -508,66 +610,59 @@ export function writePrevoir(fc, C) {
   const lead = leadText;
   prose("#prevoir-prose", [
     [
-      "Une route se décide avant le départ, sur une prévision du vent, pas sur le vent qui soufflera vraiment. Si la prévision se trompe, l'avion part chercher un vent qui n'est pas au rendez-vous. Pour le mesurer, chaque Paris–New York de ",
-      { b: String(fc.year) },
-      " a été rejoué : la route est tracée sur ce que l'on savait au départ, puis volée dans le vent réel (ERA5).",
-    ],
-    [
-      "Vers New York, connaître parfaitement le vent fait gagner ",
-      { b: minutes(w.best, 1) },
-      ` sur la ligne droite en ${fc.year}. La prévision émise ${lead(short)} avant le départ en capte `,
-      { b: pct(w.share(`hres${short}`)) },
-      `. À ${lead(long)}, il en reste `,
-      { b: pct(w.share(`hres${long}`)) },
-      ` avec le modèle du Centre européen (ECMWF) et `,
-      { b: pct(w.share(`pangu${long}`)) },
-      " avec Pangu-Weather, un modèle d'intelligence artificielle. Le seul vent moyen du mois n'en rapporte que ",
-      { b: pct(w.share("clim")) },
-      `. Vers Paris, où le gain possible est plus petit (${minutes(e.best, 1)}), la prévision émise ${lead(short)} avant en capte ${pct(e.share(`hres${short}`))}.`,
-    ],
-    [
-      "La raison tient dans l'erreur sur le vent. Le long de la route, la prévision à ",
+      "Une route se décide avant le départ, sur une prévision du vent, pas sur le vent qui soufflera vraiment. Pour mesurer ce que cela coûte, chaque Paris–New York de ",
+      String(fc.year),
+      " a été rejoué : la route est tracée sur ce que l'on savait au départ, puis volée dans le vent réel (ERA5). Vers New York, la prévision émise ",
       lead(short),
-      " se trompe en moyenne de ",
-      { b: kmh(w.err[`hres${short}`], 1) },
-      ", celle à ",
-      lead(long),
-      " de ",
-      { b: kmh(w.err[`hres${long}`], 0) },
-      ", le vent moyen du mois de ",
-      { b: kmh(w.err.clim, 0) },
-      ".",
+      " avant le départ capte ",
+      { b: pct(w.share(`hres${short}`)) },
+      " du gain possible.",
     ],
   ]);
   const gainEur = (p) => C.eurOf(w.gain(p));
-  prose("#prevoir-after", [
+  after(
+    "#prevoir-after",
     [
-      `En euros, sur un vol vers New York en ${fc.year} : la prévision émise ${lead(short)} avant rapporte environ `,
-      { b: euros(gainEur(`hres${short}`)) },
-      " par vol sur la ligne droite, celle à ",
-      lead(long),
-      " ",
-      { b: euros(gainEur(`hres${long}`)) },
-      ", le vent moyen du mois ",
-      { b: euros(gainEur("clim")) },
-      ". Pour une route, une bonne prévision vaut donc plus que la moyenne des saisons, et la plus récente vaut le plus.",
+      [
+        "Connaître parfaitement le vent ferait gagner ",
+        { b: minutes(w.best, 1) },
+        ` sur la ligne droite en ${fc.year}. À ${lead(long)}, il en reste `,
+        { b: pct(w.share(`hres${long}`)) },
+        " avec le modèle du Centre européen (ECMWF) et ",
+        { b: pct(w.share(`pangu${long}`)) },
+        " avec Pangu-Weather, un modèle d'intelligence artificielle. Le seul vent moyen du mois n'en rapporte que ",
+        { b: pct(w.share("clim")) },
+        `. Vers Paris, où le gain possible est plus petit (${minutes(e.best, 1)}), la prévision émise ${lead(short)} avant en capte ${pct(e.share(`hres${short}`))}.`,
+      ],
+      [
+        "La raison tient dans l'erreur sur le vent. Le long de la route, la prévision à ",
+        lead(short),
+        " se trompe en moyenne de ",
+        { b: kmh(w.err[`hres${short}`], 1) },
+        ", celle à ",
+        lead(long),
+        " de ",
+        { b: kmh(w.err[`hres${long}`], 0) },
+        ". Le vent moyen du mois, lui, s'écarte de ",
+        { b: kmh(w.err.clim, 0) },
+        ".",
+      ],
+      [
+        `En euros, sur un vol vers New York en ${fc.year}, la prévision émise ${lead(short)} avant rapporte environ `,
+        { b: euros(gainEur(`hres${short}`)) },
+        " par vol sur la ligne droite, celle à ",
+        lead(long),
+        " ",
+        { b: euros(gainEur(`hres${long}`)) },
+        ". Le vent moyen du mois n'en rapporte que ",
+        { b: euros(gainEur("clim")) },
+        ". Pour une route, une bonne prévision vaut donc plus que la moyenne des saisons, et la plus récente vaut le plus.",
+      ],
     ],
     [
-      `Les deux systèmes font jeu égal à ${lead(short)}. À ${lead(long)}, l'intelligence artificielle prend un léger avantage dans cette comparaison, qui la favorise : Pangu-Weather a été entraîné sur ERA5, la référence utilisée ici pour juger. Le calcul ne tient compte que du vent à 250 hPa et d'un départ par jour dans chaque sens.`,
+      `Les deux systèmes font jeu égal à ${lead(short)}. À ${lead(long)}, l'intelligence artificielle prend un léger avantage dans une comparaison qui la favorise : Pangu-Weather a été entraîné sur ERA5, la référence utilisée ici pour juger. Le calcul ne tient compte que du vent à 250 hPa et d'un départ par jour dans chaque sens.`,
     ],
-  ]);
-  keyFigures($("#kf-prevoir"), [
-    {
-      value: pct(w.share(`hres${short}`)),
-      label: `du gain possible vers New York, avec la prévision émise ${lead(short)} avant le départ`,
-      color: "var(--east)",
-    },
-    {
-      value: pct(w.share("clim")),
-      label: "avec le seul vent moyen du mois",
-      color: "var(--muted)",
-    },
-  ]);
+  );
   $("#forecast-note").textContent =
     `Minutes gagnées par vol sur la ligne droite en ${fc.year}, selon l'information utilisée pour tracer la route ; à droite, l'erreur de cette information sur le vent le long de la route.`;
   lecture(
@@ -621,10 +716,12 @@ export function writeQuels(C) {
       { b: euros(C.eurOf(mw[lo])) },
       ` en ${monthName(lo + 1)}.`,
     ],
+  ]);
+  after("#quels-after", [
     [
       "Il dépend surtout du jour. Les 10 % de journées où la meilleure route rapporte le plus font ",
       { b: pct(top) },
-      " du gain de l'année vers New York : ces jours-là, ",
+      " du gain de l'année vers New York. Ces jours-là, elle fait gagner ",
       { b: minutes(dw[9], 0) },
       " et ",
       { b: euros(C.eurOf(dw[9])) },
@@ -633,13 +730,6 @@ export function writeQuels(C) {
     [
       "Pour une compagnie, l'enjeu se concentre donc sur certains vols : ceux qui partent vers l'ouest, l'hiver, les jours de jet fort. C'est là qu'une bonne prévision et une route souple paient le plus.",
     ],
-  ]);
-  keyFigures($("#kf-quels"), [
-    {
-      value: pct(top),
-      label: "du gain annuel vers New York fait par un jour sur dix",
-      color: "var(--west)",
-    },
   ]);
   $("#months-note").textContent =
     `Euros de kérosène économisés en moyenne par vol par la meilleure route à FL340 plutôt que la ligne droite, par mois, 2019-2022, au prix des douze derniers mois (${perTonne(C.price)}).`;
@@ -661,35 +751,28 @@ export function writeHistoire({ climate, history }) {
   const top = history.top[0];
   prose("#histoire-prose", [
     [
-      "D'un hiver à l'autre, le vent arrière moyen sur New York–Paris de décembre à février va de ",
+      "D'un hiver à l'autre, le vent arrière moyen sur New York–Paris, de décembre à février, va de ",
       { b: kmh(loV) },
       ` en ${winter(loY)} à `,
       { b: kmh(hiV) },
-      ` en ${winter(hiY)}, pour une moyenne de `,
-      { b: kmh(climate.mean) },
-      " sur 1991-2020. Ces écarts suivent l'oscillation nord-atlantique (NAO), la balance de pression entre l'anticyclone des Açores et la dépression d'Islande : corrélation de ",
+      ` en ${winter(hiY)}. La moyenne de 1991 à 2020 est de ${kmh(climate.mean)}. Ces écarts suivent l'oscillation nord-atlantique (NAO), la balance de pression entre l'anticyclone des Açores et la dépression d'Islande : corrélation de `,
       { b: fmtNum(climate.nao.r, 2) },
       ` sur ${climate.nao.n} hivers. Un hiver de NAO forte coûte donc plus cher aux vols vers l'ouest, et rapporte plus à ceux qui savent contourner le vent.`,
     ],
+  ]);
+  after("#histoire-after", [
     [
       `Depuis ${t.from} et les premières observations par satellite, la réanalyse de la NOAA ne montre pas de tendance nette : `,
       { b: `${t.slope >= 0 ? "+" : "−"}${kmh(Math.abs(t.slope), 1)}` },
       " par décennie pour le vent moyen de l'hiver, avec une marge de plus ou moins ",
       { b: kmh(t.ci, 1) },
-      ". Des chercheurs projettent pourtant un jet d'hiver plus fort avec le réchauffement (Williams, 2016, pour un doublement du CO2), qui allongerait les vols vers l'ouest, et relèvent une hausse de la turbulence en air clair au-dessus de l'Atlantique Nord depuis 1979 (Prosser et al., 2023). Ces séries, trop variables, ne permettent ni de confirmer ni d'infirmer la première projection.",
+      ". Des chercheurs projettent pourtant un jet d'hiver plus fort avec le réchauffement (Williams, 2016, pour un doublement du CO2), qui allongerait les vols vers l'ouest. D'autres relèvent une hausse de la turbulence en air clair au-dessus de l'Atlantique Nord depuis 1979 (Prosser et al., 2023). Ces séries, trop variables, ne permettent ni de confirmer ni d'infirmer la première projection.",
     ],
     [
       `Le record de la série, depuis ${history.start.slice(0, 4)}, date du ${longDate(top[0])} : `,
       { b: kmh(top[1]) },
       " de vent arrière en moyenne sur New York–Paris.",
     ],
-  ]);
-  keyFigures($("#kf-histoire"), [
-    {
-      value: fmtNum(climate.nao.r, 2),
-      label: "de corrélation entre le vent de l'hiver et l'oscillation nord-atlantique",
-      color: "var(--east)",
-    },
   ]);
   $("#winters-note").textContent =
     "Vent arrière moyen le long du grand cercle New York–Paris à 250 hPa, de décembre à février ; en dessous, l'indice NAO du même hiver.";
@@ -965,14 +1048,8 @@ export function writeAvion(flights) {
       ".",
     );
   else paras[1].push(".");
-  prose("#avion-prose", paras);
-  keyFigures($("#kf-avion"), [
-    {
-      value: minutes(A.spread),
-      label: "entre l'avion le plus rapide et le plus lent, à vent égal",
-      color: "var(--ink)",
-    },
-  ]);
+  prose("#avion-prose", paras.slice(0, 1));
+  after("#avion-after", paras.slice(1));
   $("#h-types").textContent =
     `Les ${listNames(A.fast.slice(0, 2))} devant, les ${listNames(A.slow.slice(-2))} derrière`;
   $("#types-note").textContent =

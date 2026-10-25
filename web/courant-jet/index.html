@@ -121,12 +121,9 @@
       </div>
 
       <section class="chapter wrap jet-chapter" id="nuit-text" aria-labelledby="h-nuit">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-nuit">La nuit du 8 au 9 février 2020</h2>
-            <div class="prose" id="nuit-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-nuit" aria-label="Chiffres clés"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-nuit">La nuit du 8 au 9 février 2020</h2>
+          <div class="prose" id="nuit-prose"></div>
         </div>
       </section>
 
@@ -134,12 +131,11 @@
         <div class="chapter-lede">
           <h2 class="section-title" id="h-ecart">Une heure de plus vers l'ouest</h2>
           <div class="prose" id="ecart-prose"></div>
-          <div class="prose" id="saisons-prose"></div>
         </div>
         <div class="grid-2 jet-grid">
           <figure class="panel" data-jsource="opensky">
             <h3 id="h-hist"></h3>
-            <p class="note">Nombre de vols par durée, tranches de 5 minutes, 2019-2022.</p>
+            <p class="note" id="hist-note">Nombre de vols par durée, tranches de 5 minutes, 2019-2022.</p>
             <div class="chart" id="chart-hist" tabindex="0" aria-labelledby="h-hist"></div>
           </figure>
           <figure class="panel" data-jsource="opensky">
@@ -148,6 +144,16 @@
             <div class="chart" id="chart-routes" tabindex="0" aria-labelledby="h-routes"></div>
           </figure>
         </div>
+        <div class="prose after-figure" id="ecart-after"></div>
+        <aside class="cost-box" id="couts" aria-labelledby="h-couts">
+          <div class="cb-head">
+            <h3 id="h-couts">D'où viennent ces kilos et ces euros</h3>
+            <p class="cb-dek" id="couts-dek"></p>
+          </div>
+          <ol class="cb-steps" id="couts-steps"></ol>
+          <div class="cb-limits" id="couts-limits"></div>
+        </aside>
+        <div class="prose after-figure" id="saisons-prose"></div>
         <figure class="panel" data-jsource="opensky era5" style="margin-top: 22px">
           <h3 id="h-monthly"></h3>
           <p class="note">
@@ -168,6 +174,7 @@
           <p class="note" id="scatter-note"></p>
           <div class="chart" id="chart-scatter" tabindex="0" aria-labelledby="h-scatter"></div>
         </figure>
+        <div class="prose after-figure" id="vent-after"></div>
       </section>
 
       <div class="part wrap" id="partie-2">
@@ -175,12 +182,9 @@
         <p class="part-dek">Où souffle ce vent, à quelle altitude et en quelle saison.</p>
       </div>
       <section class="chapter wrap jet-chapter" id="jet" aria-labelledby="h-jet">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-jet">Un fleuve à l'altitude des avions</h2>
-            <div class="prose" id="jet-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-jet" aria-label="Chiffres clés"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-jet">Un fleuve à l'altitude des avions</h2>
+          <div class="prose" id="jet-prose"></div>
         </div>
         <div class="grid-wide">
           <figure class="panel" data-jsource="igra">
@@ -195,6 +199,7 @@
             <p class="note" id="clim-note"></p>
           </figure>
         </div>
+        <div class="prose after-figure" id="jet-after"></div>
       </section>
 
       <div class="part wrap" id="partie-3">
@@ -204,12 +209,9 @@
         </p>
       </div>
       <section class="chapter wrap jet-chapter" id="placer" aria-labelledby="h-placer">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-placer">La route, l'altitude et l'heure</h2>
-            <div class="prose" id="placer-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-placer" aria-label="Chiffres clés"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-placer">La route, l'altitude et l'heure</h2>
+          <div class="prose" id="placer-prose"></div>
         </div>
       </section>
       <section class="sim-band" id="simulateur" aria-labelledby="h-sim" data-jsource="era5 openap dgac">
@@ -262,7 +264,7 @@
           </div>
         </div>
         <div class="wrap sim-kpis" id="sim-kpis" aria-live="polite"></div>
-        <p class="wrap sim-kpi-note" id="sim-kpi-note"></p>
+        <div class="wrap sim-kpi-note" id="sim-kpi-note"></div>
         <div
           class="explorer-stage sim-stage"
           id="sim-stage"
@@ -294,10 +296,7 @@
           </figure>
           <figure class="sim-panel">
             <h4>Quand et à quelle altitude partir ?</h4>
-            <p class="note">
-              Durée de la route optimale pour chaque heure de départ et chaque altitude. Cliquez pour
-              l'afficher.
-            </p>
+            <p class="note" id="sim-matrix-head"></p>
             <div id="sim-matrix"></div>
             <p class="note" id="sim-matrix-note"></p>
           </figure>
@@ -305,21 +304,16 @@
         <div class="wrap explorer-foot sim-foot"></div>
       </section>
       <section class="chapter wrap jet-chapter after-explorer" id="bilan" aria-labelledby="h-bilan">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-bilan">Ce que rapporte la meilleure route</h2>
-            <div class="prose" id="bilan-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-bilan" aria-label="Chiffres clés"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-bilan">Ce que rapporte la meilleure route</h2>
+          <div class="prose" id="bilan-prose"></div>
         </div>
-        <div class="grid-2 jet-grid cost-grid">
-          <div class="prose" id="cout-prose"></div>
-          <figure class="panel" data-jsource="eia ecb dgac dgacpap">
-            <h3 id="h-value">Plus le kérosène est cher, plus la bonne route rapporte</h3>
-            <p class="note" id="value-note"></p>
-            <div class="chart" id="chart-value" tabindex="0" aria-labelledby="h-value"></div>
-          </figure>
-        </div>
+        <figure class="panel" data-jsource="eia ecb dgac dgacpap">
+          <h3 id="h-value">Plus le kérosène est cher, plus la bonne route rapporte</h3>
+          <p class="note" id="value-note"></p>
+          <div class="chart" id="chart-value" tabindex="0" aria-labelledby="h-value"></div>
+        </figure>
+        <div class="prose after-figure" id="bilan-after"></div>
       </section>
 
       <section class="chapter wrap jet-chapter" id="route" aria-labelledby="h-route">
@@ -396,12 +390,9 @@
         </p>
       </div>
       <section class="chapter wrap jet-chapter" id="prevoir" aria-labelledby="h-prevoir">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-prevoir">La prévision de la veille suffit</h2>
-            <div class="prose" id="prevoir-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-prevoir" aria-label="Chiffres clés"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-prevoir">La prévision de la veille suffit</h2>
+          <div class="prose" id="prevoir-prose"></div>
         </div>
         <figure class="panel" data-jsource="hres pangu era5">
           <div class="ladder-head">
@@ -421,12 +412,9 @@
         </p>
       </div>
       <section class="chapter wrap jet-chapter" id="quels-vols" aria-labelledby="h-quels">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-quels">Vers l'ouest, l'hiver, les jours de jet fort</h2>
-            <div class="prose" id="quels-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-quels" aria-label="Chiffres clés"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-quels">Vers l'ouest, l'hiver, les jours de jet fort</h2>
+          <div class="prose" id="quels-prose"></div>
         </div>
         <div class="grid-2 jet-grid">
           <figure class="panel" data-jsource="era5 openap dgac dgacpap eia">
@@ -440,6 +428,7 @@
             <div class="chart" id="chart-deciles" tabindex="0" aria-labelledby="h-deciles"></div>
           </figure>
         </div>
+        <div class="prose after-figure" id="quels-after"></div>
       </section>
       <section class="chapter wrap jet-chapter" id="aller-retour" aria-labelledby="h-ar">
         <div class="chapter-lede">
@@ -472,18 +461,16 @@
         </div>
       </section>
       <section class="chapter wrap jet-chapter" id="avion" aria-labelledby="h-avion">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-avion">À vent égal, l'avion compte</h2>
-            <div class="prose" id="avion-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-avion" aria-label="Chiffre clé"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-avion">À vent égal, l'avion compte</h2>
+          <div class="prose" id="avion-prose"></div>
         </div>
         <figure class="panel" data-jsource="opensky era5">
           <h3 id="h-types">À vent égal, des avions plus rapides que d'autres</h3>
           <p class="note" id="types-note"></p>
           <div class="chart" id="chart-types" tabindex="0" aria-labelledby="h-types"></div>
         </figure>
+        <div class="prose after-figure" id="avion-after"></div>
       </section>
 
       <div class="part wrap" id="partie-6">
@@ -493,12 +480,9 @@
         </p>
       </div>
       <section class="chapter wrap jet-chapter" id="histoire" aria-labelledby="h-histoire">
-        <div class="chapter-head">
-          <div class="chapter-lede">
-            <h2 class="section-title" id="h-histoire">Un jet plus fort demain ?</h2>
-            <div class="prose" id="histoire-prose"></div>
-          </div>
-          <aside class="keyfig" id="kf-histoire" aria-label="Chiffres clés"></aside>
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-histoire">Un jet plus fort demain ?</h2>
+          <div class="prose" id="histoire-prose"></div>
         </div>
         <div class="grid-wide">
           <figure class="panel" data-jsource="r1 nao">
@@ -512,6 +496,7 @@
             <ol class="records" id="records-list"></ol>
           </figure>
         </div>
+        <div class="prose after-figure" id="histoire-after"></div>
       </section>
 
       <section class="chapter wrap jet-chapter" id="votre-vol" aria-labelledby="h-vol">

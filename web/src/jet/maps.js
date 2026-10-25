@@ -269,10 +269,12 @@ export async function openMap(hero, C) {
   onResize(stage, layout);
   speedLegend($("#open-legend"));
   $("#open-legend").append(
-    el("span", {
-      class: "ol-credit",
-      text: "Image : NASA Worldview, VIIRS, 8 février 2020. Vent : ERA5 (Copernicus), 250 hPa, 9 février 2020 à 00 h UTC, figé ; avion à 900 km/h par rapport à l'air, chacun sur sa route la plus rapide.",
-    }),
+    el("span", { class: "ol-credit" }, [
+      "Image : NASA Worldview, VIIRS, 8 février 2020. Vent : ERA5 (Copernicus), 250 hPa, 9 février 2020 à 00 h UTC, figé ; avion à 900 km/h par rapport à l'air, chacun sur sa route la plus rapide. ",
+      `Kérosène : ${fmtNum(C.KG, 0)} kg et ${euros(C.EUR)} par minute de vol (DGAC, EIA, BCE), `,
+      el("a", { href: "#couts", text: "calcul détaillé" }),
+      ".",
+    ]),
   );
   let started = false;
   new IntersectionObserver(

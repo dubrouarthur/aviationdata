@@ -9,6 +9,7 @@ Exit 1 on any failure.
 
 import json
 import math
+import re
 import statistics as st
 import sys
 import xml.etree.ElementTree as ET
@@ -16,9 +17,13 @@ from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
+import numpy as np
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT.parent / "etl" / "jet"))
+import sim as S  # noqa: E402  (etl/jet/sim.py: the simulator the browser mirrors)
+
 base = sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "http://127.0.0.1:4173"
 J = {k: json.loads((ROOT / "public" / "data" / "jet" / f"{k}.json").read_text()) for k in
      ("flights", "routing", "hero", "climate", "trappes", "winds", "sim")}  # fmt: skip
@@ -81,6 +86,10 @@ def month_year(m):
     return f"{MONTHS[int(m[5:7]) - 1]} {m[:4]}"
 
 
+def de_month(m):
+    return f"d'{month_year(m)}" if month_year(m)[0] in "aeiouéo" else f"de {month_year(m)}"
+
+
 def haversine(a, b):
     p1, p2 = math.radians(a[0]), math.radians(b[0])
     dl = math.radians(b[1] - a[1])
@@ -91,6 +100,38 @@ def haversine(a, b):
 def long_date(iso):
     y, m, d = map(int, iso.split("-"))
     return f"{'1er' if d == 1 else d} {MONTHS[m - 1]} {y}"
+
+
+def waypoint_path(points, n=64):
+    """The reader's route, as web/src/jet/simulator.js waypointPath: great-circle legs through its points,
+    n - 1 segments shared by length (at least one each, largest remainders first)."""
+    legs = [haversine(points[i], points[i + 1]) for i in range(len(points) - 1)]
+    total = sum(legs) or 1
+    exact = [(n - 1) * x / total for x in legs]
+    segs = [max(1, math.floor(x)) for x in exact]
+    left = n - 1 - sum(segs)
+    order = sorted(range(len(exact)), key=lambda i: (-(exact[i] - math.floor(exact[i])), i))
+    k = 0
+    while left > 0:
+        segs[order[k % len(order)]] += 1
+        k, left = k + 1, left - 1
+    k = 0
+    while left < 0:
+        if segs[k % len(segs)] > 1:
+            segs[k % len(segs)] -= 1
+            left += 1
+        k += 1
+    out = [list(points[0])]
+    for i, m_ in enumerate(segs):
+        out.extend(S.great_circle_points(points[i], points[i + 1], m_ + 1)[1:].tolist())
+    return out
+
+
+def sim_field(day):
+    g = J["sim"]["grid"]
+    raw = np.frombuffer((ROOT / "public" / "data" / "jet" / "sim" / f"{day}.bin").read_bytes(), dtype=np.int8)
+    a = raw.astype(float).reshape(g["steps"], g["levels"], 3, g["ny"], g["nx"])
+    return S.Field(a[:, :, 0], a[:, :, 1], a[:, :, 2] + g["tOffset"], g["lat0"], g["lon0"], g["d"])
 
 
 def norm(s):
@@ -219,7 +260,7 @@ with sync_playwright() as pw:
     co = J["cost"]
     pr = co["pair"][-1]
     peq = pr["peq"] / pr["mvt"]
-    km_cj = haversine((49.0097, 2.5479), (40.6413, -73.7781))
+    km_cj = haversine(tuple(J["winds"]["airports"]["LFPG"]), tuple(J["winds"]["airports"]["KJFK"]))
     sound = lambda t: math.sqrt(1.4 * 287.05 * t) * 3.6  # noqa: E731
     tref = km_cj / (0.84 * sound(220.8)) * 60
     KG = co["factors"]["g_peqkm"] * km_cj / 1000 * peq / co["factors"]["co2_per_fuel"] / 1000 * 1000 / tref
@@ -242,6 +283,38 @@ with sync_playwright() as pw:
         f"environ {euros(EUR * dt)}",
     )
     has(
+        "the race's kilos and euros are sourced",
+        text("#open-legend"),
+        f"Kérosène : {fr(KG)} kg et {euros(EUR)} par minute de vol (DGAC, EIA, BCE), calcul détaillé",
+    )
+    check("the race links to the cost box", pg.locator("#open-legend a[href='#couts']").count() == 1)
+    # the box "D'où viennent ces kilos et ces euros": each step redone from cost.json
+    fct = co["factors"]
+    kg_peq = fct["g_peqkm"] * km_cj / 1000
+    co2_flight = kg_peq * peq / 1000
+    fuel_flight = co2_flight / fct["co2_per_fuel"]
+    has(
+        "the cost box, step by step",
+        text("#couts"),
+        f"{fr(kg_peq)} kg de CO2",
+        f"{fr(fct['g_peqkm'], 1)} g de CO2 par passager-équivalent",
+        f"et par kilomètre en {fct['g_peqkm_year']}. Sur les {fr(km_cj)} km",
+        f"En {pr['y']}, {fr(pr['mvt'])} vols ont relié Paris-CDG et New York-JFK",
+        f"avec {fr(pr['pax'])} passagers et du fret : {fr(pr['peq'])} passagers-équivalents, soit {fr(peq)} par vol, "
+        f"dont {fr(pr['pax'] / pr['mvt'])} passagers",
+        f"{fr(kg_peq)} kg × {fr(peq)} = {tonnes(co2_flight, 0)} de CO2 par vol",
+        f"en émet {fr(fct['co2_per_fuel'], 2)} t : il en faut donc {tonnes(fuel_flight)}",
+        f"croise à Mach {fr(0.84, 2)}",
+        f"compte {fr(220.8 - 273.15)} °C, cela fait {fr(0.84 * sound(220.8))} km/h : {hm(tref)} de croisière",
+        f"{tonnes(fuel_flight)} sur {fr(tref)} minutes : {kgf(KG)} par minute",
+        f"il revient à {per_tonne(price)} en moyenne {de_month(co['recent']['from'])} à "
+        f"{month_year(co['recent']['to'])}",
+        f"{kgf(KG)} à {per_tonne(price)} : {euros(EUR)}",
+        "Ce que ce calcul ne dit pas",
+    )
+    n_src = pg.locator("#couts .cb-src a[href^='http']").count()
+    check("every step of the cost box cites its source", n_src >= 8, f"{n_src} source links")
+    has(
         "standfirst",
         text("#open-dek"),
         f"met en médiane {hm(gapm)} de plus que vers Paris",
@@ -257,21 +330,13 @@ with sync_playwright() as pw:
         f"contre {hm(hero['route']['nowind'])} sans vent",
     )
     has(
-        "key figures",
-        text("#kf-nuit"),
-        kmh(hero["max"]["kmh"]),
-        hm(hero["route"]["t_fast"]),
-        hm(hero["route"]["nowind"]),
-    )
-    has(
         "one hour and tonnes more",
         text("#ecart"),
         f"Une heure et {fr(KG * gapm / 1000, 1)} tonnes de kérosène de plus vers l'ouest",
         f"suivi {fr(round(fl['n_valid'] / 1000) * 1000)} vols",
         f"({fr(pair['east']['n'] + pair['west']['n'])} vols)",
-        f"dure en médiane {hm(pair['west']['med'])}, le retour {hm(pair['east']['med'])} : {hm(gapm)} d'écart",
-        f"brûle environ {kgf(KG)} de kérosène, soit {euros(EUR)}",
-        f"({per_tonne(price)}, de {month_year(co['recent']['from'])} à {month_year(co['recent']['to'])})",
+        f"dure en médiane {hm(pair['west']['med'])}, le retour {hm(pair['east']['med'])}. Soit {hm(gapm)} d'écart",
+        f"en brûle environ {kgf(KG)}, soit {euros(EUR)}",
         f"pèse ainsi environ {tonnes(KG * gapm / 1000)} de kérosène et {euros(EUR * gapm)}",
         f"de {hm(gap(lo_r))} {toward(lo_r)} à {hm(gap(hi_r))} {toward(hi_r)}",
         ", ".join(f"{hm(gap(r))} vers {r['to']}" for r in coast),
@@ -287,15 +352,14 @@ with sync_playwright() as pw:
         "seasons",
         text("#saisons-prose"),
         f"atteint {hm(djf)} de décembre à février, contre {hm(jja)} de juin à août",
-        f"environ {tonnes(KG * (djf - jja) / 1000)} de kérosène d'écart en plus l'hiver",
+        f"il se creuse d'environ {tonnes(KG * (djf - jja) / 1000)} l'hiver",
     )
     fe, fw = p["fit"]["e"], p["fit"]["w"]
     has(
         "ten km/h",
         text("#vent"),
         f"10 km/h de vent de face : {mins(-fw['slope'], 1)} et {kgf(-fw['slope'] * KG)} de plus",
-        f"ajoute {mins(-fw['slope'], 1)}, soit environ {kgf(-fw['slope'] * KG)} de kérosène",
-        f"et {euros(-fw['slope'] * EUR)}",
+        f"ajoute {mins(-fw['slope'], 1)} et environ {kgf(-fw['slope'] * KG)} de kérosène",
         f"retire {mins(-fe['slope'], 1)}",
         f"à lui seul {pct(100 * fw['r'] ** 2)} des écarts",
         f"et {pct(100 * fe['r'] ** 2)} vers Paris",
@@ -313,7 +377,7 @@ with sync_playwright() as pw:
     has(
         "model against flights",
         text("#model-prose"),
-        f"corrélation de {fr(m['w']['r_opt'], 2)} vers New York, contre {fr(m['w']['r_gc'], 2)}",
+        f"corrélation de {fr(m['w']['r_opt'], 2)}, contre {fr(m['w']['r_gc'], 2)}",
         f"vers Paris, {fr(m['e']['r_opt'], 2)} contre {fr(m['e']['r_gc'], 2)}",
         f"{fr(min(m['w']['offset'], m['e']['offset']))} à {mins(max(m['w']['offset'], m['e']['offset']))}",
     )
@@ -327,7 +391,7 @@ with sync_playwright() as pw:
     R = p["records"]
     has(
         "record days",
-        text("#vent-prose"),
+        text("#vent"),
         f"Le {long_date(R['fast_e']['day'])}, les vols New York–Paris ont mis {hm(R['fast_e']['dur'])}",
         f"poussés par {kmh(R['fast_e']['w'])}",
         f"Le {long_date(R['slow_w']['day'])}, il a fallu {hm(R['slow_w']['dur'])}",
@@ -352,9 +416,9 @@ with sync_playwright() as pw:
     peak_s = max(prof["jja"], key=lambda d: d["p50"])
     has(
         "the jet above Paris",
-        text("#jet-prose"),
-        f"culmine à {kmh(peak['p50'])} vers {fr(peak['km'], 1)} km d'altitude, au niveau de {peak['hpa']} hPa",
-        f"l'été, à {kmh(peak_s['p50'])} vers {fr(peak_s['km'], 1)} km",
+        text("#jet"),
+        f"culmine à {kmh(peak['p50'])} vers {fr(peak['km'], 1)} km d'altitude (niveau de {peak['hpa']} hPa)",
+        f"L'été, il plafonne à {kmh(peak_s['p50'])} vers {fr(peak_s['km'], 1)} km",
         f"a mesuré {kmh(tr['ciara']['kmh'])}",
         f"remonter au {long_date(tr['ciara']['stronger_before'])}",
         f"corrélation de {fr(tr['check']['r'], 3)}",
@@ -392,14 +456,14 @@ with sync_playwright() as pw:
         )
         has(
             "what the best route is worth",
-            text("#bilan-prose"),
+            text("#bilan"),
+            f"fait gagner {mins(west, 1)} par vol vers New York, soit environ {euros(west * EUR)} de kérosène",
+            f"cela représente de l'ordre de {euros(ty * price)}",
             f"chacun des {fr(len(ss['days']))} jours",
-            f"plutôt que la ligne droite : {mins(west, 1)} par vol vers New York",
-            f"soit environ {kgf(west * KG)} de kérosène et {euros(west * EUR)}",
-            f"{mins(east, 1)} vers Paris ({kgf(east * KG)}, {euros(east * EUR)})",
+            f"le gain moyen de {mins(west, 1)} vaut environ {kgf(west * KG)} de kérosène",
+            f"il tombe à {mins(east, 1)} ({kgf(east * KG)}, {euros(east * EUR)})",
             f"Sur les {fr(pr['mvt'])} vols entre Paris-CDG et New York-JFK en {pr['y']}",
-            f"environ {tonnes(r10(ty), 0)} de kérosène par an",
-            f"{tonnes(r10(ty * 3.16), 0)} de CO2, et {euros(ty * price)}",
+            f"environ {tonnes(r10(ty), 0)} de kérosène par an et {tonnes(r10(ty * 3.16), 0)} de CO2",
             f"{euros(ty * y['eur_t'])} au prix moyen de {y['y']}",
             f"{euros(ty * last['eur_t'])} à celui de {month_year(last['m'])}",
             f"voler à {lev(2)} plutôt qu'à {lev(0)} rallonge le vol de {mins(more, 1)} en moyenne",
@@ -421,11 +485,11 @@ with sync_playwright() as pw:
         has("months chart title", text("#h-months"), f"le gain culmine en {MONTHS[hi_m]}")
         has(
             "which flights gain",
-            text("#quels-prose"),
+            text("#quels-vols"),
             f"rapporte en moyenne {euros(mw[hi_m] * EUR)} par vol en {MONTHS[hi_m]}",
             f"{euros(mw[lo_m] * EUR)} en {MONTHS[lo_m]}",
             f"font {pct(share_top)} du gain de l'année vers New York",
-            f"ces jours-là, {mins(top10)} et {euros(top10 * EUR)} par vol",
+            f"elle fait gagner {mins(top10)} et {euros(top10 * EUR)} par vol",
             f"le gain reste sous {mins(med, 1)}",
         )
         has(
@@ -452,16 +516,16 @@ with sync_playwright() as pw:
         err = FC["west"]["wind_error"]
         has(
             "forecasts",
-            text("#prevoir-prose"),
-            f"fait gagner {mins(gain_w('perfect'), 1)} sur la ligne droite en {FC['year']}",
-            f"avant le départ en capte {pct(share(fw_, 'hres12'))}",
+            text("#prevoir"),
+            f"ferait gagner {mins(gain_w('perfect'), 1)} sur la ligne droite en {FC['year']}",
+            f"avant le départ capte {pct(share(fw_, 'hres12'))}",
             f"il en reste {pct(share(fw_, 'hres108'))} avec le modèle du Centre européen (ECMWF)",
             f"et {pct(share(fw_, 'pangu108'))} avec Pangu-Weather",
             f"n'en rapporte que {pct(share(fw_, 'clim'))}",
             f"plus petit ({mins(fe_['gc'] - fe_['perfect'], 1)})",
             f"avant en capte {pct(share(fe_, 'hres12'))}",
             f"se trompe en moyenne de {kmh(err['hres12'], 1)}, celle à 4 jours et demi de {kmh(err['hres108'])}",
-            f"le vent moyen du mois de {kmh(err['clim'])}",
+            f"Le vent moyen du mois, lui, s'écarte de {kmh(err['clim'])}",
         )
         has(
             "forecasts in the essentials",
@@ -474,7 +538,7 @@ with sync_playwright() as pw:
             text("#prevoir-after"),
             f"rapporte environ {euros(gain_w('hres12') * EUR)} par vol",
             f"celle à 4 jours et demi {euros(gain_w('hres108') * EUR)}",
-            f"le vent moyen du mois {euros(gain_w('clim') * EUR)}",
+            f"Le vent moyen du mois n'en rapporte que {euros(gain_w('clim') * EUR)}",
         )
         has(
             "forecast chart",
@@ -495,9 +559,9 @@ with sync_playwright() as pw:
         top = H["top"][0]
         has(
             "tomorrow",
-            text("#histoire-prose"),
+            text("#histoire"),
             f"va de {kmh(loV)} en {loY - 1}-{loY} à {kmh(hiV)} en {hiY - 1}-{hiY}",
-            f"moyenne de {kmh(cl['mean'])} sur 1991-2020",
+            f"La moyenne de 1991 à 2020 est de {kmh(cl['mean'])}",
             f"corrélation de {fr(cl['nao']['r'], 2)} sur {cl['nao']['n']} hivers",
             f"{'+' if t79['slope'] >= 0 else '−'}{kmh(abs(t79['slope']), 1)} par décennie",
             f"plus ou moins {kmh(t79['ci'], 1)}",
@@ -521,14 +585,45 @@ with sync_playwright() as pw:
     check("simulator grid matches the Python routes (Ciara, Paris → New York)", got == want, f"{got} vs {want}")
     noon = next(r for r in sim["ciara"]["west"] if r["hour"] == 12)
     has("simulator key figures", text("#sim-kpis"), hm(noon["gc"]), hm(noon["best"][1]))
-    has("simulator fuel and cost", text("#sim-kpis"), "de kérosène", "€")
-    has(
-        "simulator cost note", text("#sim-kpi-note"), per_tonne(co["recent"]["eur_t"]), month_year(co["recent"]["from"])
+    has("simulator fuel and cost", text("#sim-kpis"), "de kérosène, soit", "€", "kg de CO2 par passager-équivalent")
+    kpi = lambda i: norm(pg.inner_text(f"#sim-kpis .sim-kpi:nth-child({i})"))  # noqa: E731
+    gc_card, you_card = kpi(1), kpi(3)
+    check(
+        "at first, your route is the straight line",
+        hm(noon["gc"]) in you_card
+        and "comme la ligne droite" in you_card
+        and gc_card.split("\n")[-2:] == you_card.split("\n")[-2:],
+        you_card.replace("\n", " | "),
     )
+    # fuel per flight: DGAC fuel without wind, times flown fuel-minutes over minutes without wind (FL340)
+    ac = next(a for a in sim["aircraft"] if a["code"] == "B77W")
+    gc_t = fuel_flight * noon["gc"] / tref
+    has("the straight line's fuel", gc_card, f"{tonnes(gc_t)} de kérosène, soit {euros(gc_t * price)}")
+    has(
+        "simulator cost note",
+        text("#sim-kpi-note"),
+        f"Le kérosène {tonnes(fuel_flight)} pour ce Paris–New York sans vent à FL340, soit {fr(KG)} kg par minute",
+        "Elle est la même pour les quatre avions",
+        f"Le prix {per_tonne(price)}, moyenne {de_month(co['recent']['from'])} à {month_year(co['recent']['to'])}",
+        "Le CO2 Compté par passager-équivalent",
+    )
+    n_links = pg.locator("#sim-kpi-note a[href^='http']").count()
+    check("the simulator cites its cost sources", n_links >= 5, f"{n_links} links")
+    check("the simulator links to the cost box", pg.locator("#sim-kpi-note a[href='#couts']").count() == 1)
     pg.click("#sim-level button:has-text('Libre')")
     pg.wait_for_timeout(1500)
     has("simulator free altitude", text("#sim-kpis"), hm(noon["best"][3]))
+    has("free altitude is explained", text("#sim-kpi-note"), "la ligne droite et votre route restent à FL340")
     pg.click("#sim-level button:has-text('FL340')")
+    pg.click("#sim-goal button:has-text('Le moins de carburant')")
+    pg.wait_for_function(
+        "document.querySelector('#sim-matrix-note')?.textContent.startsWith('Le moins')", timeout=60000
+    )
+    cells = [norm(t) for t in pg.eval_on_selector_all(".sim-cell", "cs => cs.map(c => c.textContent)")]
+    check("fuel goal: the grid gives tonnes", all(c.endswith(" t") for c in cells), str(cells[:4]))
+    has("fuel goal: the grid says so", text("#sim-matrix-head"), "Kérosène de la route la plus économe")
+    pg.click("#sim-goal button:has-text('Le plus rapide')")
+    pg.wait_for_function("document.querySelector('#sim-matrix-note')?.textContent.startsWith('Le plus')", timeout=60000)
     h = pg.locator(".sim-handle").nth(1).bounding_box()
     before = text("#sim-kpis")
     pg.mouse.move(h["x"] + h["width"] / 2, h["y"] + h["height"] / 2)
@@ -537,6 +632,14 @@ with sync_playwright() as pw:
     pg.mouse.up()
     pg.wait_for_timeout(800)
     check("your route follows the dragged point", text("#sim-kpis") != before)
+    # the reader's route flown again in Python, through the points the page shows
+    hs = pg.eval_on_selector_all(".sim-handle", "hs => hs.map(h => [+h.dataset.lat, +h.dataset.lon])")
+    a_, b_ = J["winds"]["airports"]["LFPG"], J["winds"]["airports"]["KJFK"]
+    you_py = S.path_time(sim_field("2020-02-08"), waypoint_path([a_, *hs, b_]), 12, 1, ac["mach"], ac["fuel"])[0]
+    hh_mm = re.search(r"(\d+) h (\d+)", kpi(3))
+    shown = hh_mm.group(0) if hh_mm else kpi(3)
+    got_min = int(hh_mm.group(1)) * 60 + int(hh_mm.group(2)) if hh_mm else -99
+    check("your route: the page flies it as Python does", abs(got_min - you_py) <= 1, f"{shown} vs {you_py:.1f} min")
     pg.click("#sim-play")
     pg.wait_for_timeout(1500)
     planes = pg.locator(".sim-plane").count()

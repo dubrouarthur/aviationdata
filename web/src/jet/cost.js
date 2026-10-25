@@ -5,8 +5,10 @@
 import { haversine } from "./route.js";
 import { soundKmh } from "./sim.js";
 
-export const CDG = [49.0097, 2.5479]; // as in etl/jet/build_sim.py
-export const JFK = [40.6413, -73.7781];
+// the airports of the explorer and the simulator (winds.json, OurAirports), so the box and the page
+// show the same distance; the conversion per minute does not depend on it (distance cancels out)
+export const CDG = [49.009, 2.5541];
+export const JFK = [40.6394, -73.7793];
 export const ISA_FL340 = 220.8; // K
 export const MACH_B77W = 0.84;
 
@@ -53,4 +55,44 @@ export function routeSavings(stats, cost) {
   const east = stats.east.gain_gc_l1;
   const half = lastPair(cost).mvt / 2;
   return { west, east, kgWest: west * kg, kgEast: east * kg, tonnesYear: (half * (west + east) * kg) / 1000 };
+}
+
+/**
+ * The conversion, step by step, for the box "D'où viennent ces kilos et ces euros" (text.js): every
+ * number the reader can redo with a calculator, from the public sources to the euros of a minute.
+ */
+export function costSteps(cost) {
+  const km = haversine(...CDG, ...JFK);
+  const p = lastPair(cost);
+  const f = cost.factors;
+  const kgPerPeq = (f.g_peqkm * km) / 1000; // kg of CO2 per passenger-equivalent, without wind
+  const peq = peqPerFlight(cost);
+  const co2Flight = (kgPerPeq * peq) / 1000; // tonnes of CO2 per flight
+  const fuelFlight = co2Flight / f.co2_per_fuel; // tonnes of fuel per flight
+  const min = minutesWithoutWind(km);
+  return {
+    km,
+    gPeqKm: f.g_peqkm,
+    factorYear: f.g_peqkm_year,
+    kgPerPeq,
+    year: p.y,
+    flights: p.mvt,
+    pax: p.pax,
+    peqYear: p.peq,
+    peq,
+    paxPerFlight: p.pax / p.mvt,
+    co2Flight,
+    co2PerFuel: f.co2_per_fuel,
+    fuelFlight,
+    mach: MACH_B77W,
+    kelvin: ISA_FL340,
+    tas: MACH_B77W * soundKmh(ISA_FL340),
+    minutes: min,
+    kgPerMinute: (fuelFlight * 1000) / min,
+    kgPerLitre: f.kg_per_litre,
+    price: cost.recent.eur_t,
+    from: cost.recent.from,
+    to: cost.recent.to,
+    eurPerMinute: ((fuelFlight * 1000) / min / 1000) * cost.recent.eur_t,
+  };
 }

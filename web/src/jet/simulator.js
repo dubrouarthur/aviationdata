@@ -3,7 +3,7 @@
 // circle, the fastest (or least-fuel) route solved in the browser (sim.js), and the reader's own,
 // drawn by dragging three points. "Lancer le vol" flies the three at once on a UTC clock.
 import * as d3 from "d3";
-import { $, el, onResize } from "../lib/ui.js";
+import { $, el, onResize, rich } from "../lib/ui.js";
 import { asset } from "../lib/site.js";
 import { fmtNum } from "../lib/format.js";
 import { drawSpeed, particles, plateCarree } from "./wind.js";
@@ -11,7 +11,11 @@ import { bearing, greatCircle, haversine } from "./route.js";
 import { bestRoute, decodeSimDay, pathTime, soundKmh } from "./sim.js";
 import { drawLand, line, loadLand, css, speedLegend } from "./maps.js";
 import { euros, hm, kmh, minutes, monthYear, perTonne, shortDate, tonnes } from "./fmt.js";
-import { fuelTonnes, lastPair, peqPerFlight } from "./cost.js";
+
+const link = (k) => ({ a: JSOURCES[k].short, href: JSOURCES[k].url });
+const deMonth = (m) => (/^[aeiouéo]/.test(monthYear(m)) ? `d'${monthYear(m)}` : `de ${monthYear(m)}`);
+import { fuelTonnes } from "./cost.js";
+import { JSOURCES } from "./sources.js";
 
 const HOURS = [0, 6, 12, 18];
 const GROUPS = {
@@ -28,26 +32,22 @@ const ROUTES = [
   { key: "you", name: "Votre route", cls: "sim-you" },
 ];
 
-/** A smooth path through [a, ...handles, b] (Catmull-Rom in latitude-longitude), n points. */
-export function splinePath(points, n = 64) {
-  const out = [];
-  const segs = points.length - 1;
-  for (let s = 0; s <= n - 1; s++) {
-    const t = (s / (n - 1)) * segs;
-    const i = Math.min(segs - 1, Math.floor(t));
-    const u = t - i;
-    const p0 = points[Math.max(0, i - 1)];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[Math.min(points.length - 1, i + 2)];
-    const c = (k) =>
-      0.5 *
-      (2 * p1[k] +
-        (-p0[k] + p2[k]) * u +
-        (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * u * u +
-        (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * u * u * u);
-    out.push([c(0), c(1)]);
-  }
+/**
+ * The reader's route: great-circle legs through its points, as a flight plan joins its waypoints.
+ * n - 1 segments shared between the legs by length (at least one each, largest remainders first), so a
+ * route whose points sit on the straight line is the straight line. Mirrored in web/scripts/check_site.py.
+ */
+export function waypointPath(points, n = 64) {
+  const legs = points.slice(1).map((q, i) => haversine(points[i][0], points[i][1], q[0], q[1]));
+  const total = legs.reduce((s, x) => s + x, 0) || 1;
+  const exact = legs.map((l) => ((n - 1) * l) / total);
+  const segs = exact.map((x) => Math.max(1, Math.floor(x)));
+  let left = n - 1 - segs.reduce((s, x) => s + x, 0);
+  const order = exact.map((x, i) => [x - Math.floor(x), i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  for (let k = 0; left > 0; k = (k + 1) % order.length, left--) segs[order[k][1]] += 1;
+  for (let k = 0; left < 0; k = (k + 1) % segs.length) if (segs[k] > 1) ((segs[k] -= 1), left++);
+  const out = [points[0]];
+  segs.forEach((m, i) => out.push(...greatCircle(points[i], points[i + 1], m + 1).slice(1)));
   return out;
 }
 
@@ -84,6 +84,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
     goal: "time",
     field: null,
     handles: null,
+    onLine: true, // the reader's points still sit on the straight line
     res: null,
     view: null,
     land: null,
@@ -98,7 +99,11 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
     const [a, b] = ends();
     const gc = greatCircle(a, b, 5);
     state.handles = gc.slice(1, 4).map(([la, lo]) => [la, lo]);
+    state.onLine = true;
   };
+  // on the straight line, the reader's route is the straight line itself, point for point
+  const youPath = (gcPts) =>
+    state.onLine ? gcPts : waypointPath([ends()[0], ...state.handles, ends()[1]], 64);
   resetHandles();
 
   /* ---------------------------------------------------------------- controls */
@@ -208,11 +213,15 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
   /* ---------------------------------------------------------------- model */
   const plane = () => sim.aircraft[state.plane];
   const flLevel = () => (state.level === "free" ? 1 : state.level); // level of the great circle and your route
-  function co2(route, burn) {
+  // minutes without wind at FL340 for the chosen aircraft, and kg of CO2 per passenger-equivalent then
+  function noWind() {
     const [a, b] = ends();
     const km = haversine(a[0], a[1], b[0], b[1]);
-    const ref = (sim.co2.g_pkm * km) / 1000; // kg per passenger, DGAC long-haul average
-    const tref = (km / (plane().mach * soundKmh(220.8))) * 60; // minutes without wind at FL340
+    return { km, tref: (km / (plane().mach * soundKmh(220.8))) * 60, ref: (sim.co2.g_pkm * km) / 1000 };
+  }
+  // kg of CO2 per passenger-equivalent of a flight that burns `burn` fuel-minutes (DGAC long-haul average)
+  function co2(route, burn) {
+    const { tref, ref } = noWind();
     return (ref * burn) / tref;
   }
   function solve() {
@@ -239,7 +248,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
       best.burn = best.path
         .slice(1)
         .reduce((s, q, i) => s + (best.times[i + 1] - best.times[i]) * 60 * fuel[q[2]], 0);
-    const youPts = splinePath([a, ...state.handles, b], 64);
+    const youPts = youPath(gcPts);
     const you = pathTime(state.field, youPts, t0, lvl, p.mach, fuel);
     state.res = {
       gc: { ...gc, pts: gcPts, levels: gcPts.map(() => lvl) },
@@ -250,6 +259,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
     state.res.best.winds = best.winds;
     draw();
     kpis();
+    costNote();
     profileChart();
     matrix();
   }
@@ -369,6 +379,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
         const lon = Math.max(G.lon0, Math.min(G.lon0 + G.d * (G.nx - 1), v.lon(ev.x)));
         const lat = Math.max(G.lat0, Math.min(G.lat0 + G.d * (G.ny - 1), v.lat(ev.y)));
         state.handles[i] = [lat, lon];
+        state.onLine = false;
         quickYou();
       })
       .on("end", function () {
@@ -386,6 +397,8 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
       .attr("tabindex", 0)
       .attr("role", "slider")
       .attr("aria-label", (h, i) => `Point ${i + 1} de votre route`)
+      .attr("data-lat", (h) => h[0].toFixed(4))
+      .attr("data-lon", (h) => h[1].toFixed(4))
       .call(drag)
       .on("keydown", function (ev) {
         const i = svg.selectAll(".sim-handle").nodes().indexOf(this);
@@ -393,7 +406,11 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
         const step = { ArrowUp: [1, 0], ArrowDown: [-1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[ev.key];
         if (!step) return;
         ev.preventDefault();
-        state.handles[i] = [h[0] + step[0], h[1] + step[1]];
+        state.handles[i] = [
+          Math.max(G.lat0, Math.min(G.lat0 + G.d * (G.ny - 1), h[0] + step[0])),
+          Math.max(G.lon0, Math.min(G.lon0 + G.d * (G.nx - 1), h[1] + step[1])),
+        ];
+        state.onLine = false;
         solve();
         svg.selectAll(".sim-handle").nodes()[i]?.focus();
       });
@@ -404,7 +421,7 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
   function quickYou() {
     const [a, b] = ends();
     const p = plane();
-    const pts = splinePath([a, ...state.handles, b], 64);
+    const pts = waypointPath([a, ...state.handles, b], 64);
     const you = pathTime(state.field, pts, state.hour, flLevel(), p.mach, p.fuel);
     state.res.you = { ...you, pts, levels: pts.map(() => flLevel()) };
     svg.select(".sim-you").attr("d", line(state.view)(pts));
@@ -416,7 +433,9 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
       .selectAll(".sim-handle")
       .data(state.handles)
       .attr("cx", (h) => state.view.x(h[1]))
-      .attr("cy", (h) => state.view.y(h[0]));
+      .attr("cy", (h) => state.view.y(h[0]))
+      .attr("data-lat", (h) => h[0].toFixed(4))
+      .attr("data-lon", (h) => h[1].toFixed(4));
     kpis();
   }
 
@@ -448,20 +467,64 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
           el("p", { class: "sk-name" }, [el("i", { "aria-hidden": "true" }), name]),
           el("b", { text: hm(x.minutes) }),
           el("p", { class: "sk-diff", text: diff }),
-          cost ? el("p", { class: "sk-fuel", text: `${tonnes(t)} de kérosène, ${euros(t * price)}` }) : null,
+          cost
+            ? el("p", { class: "sk-fuel", text: `${tonnes(t)} de kérosène, soit ${euros(t * price)}` })
+            : null,
           el("p", {
             class: "sk-co2",
-            text: `≈ ${fmtNum(Math.round(co2(key, x.burn)))} kg de CO2 par passager`,
+            text: `${fmtNum(Math.round(co2(key, x.burn)))} kg de CO2 par passager-équivalent`,
           }),
         ]);
       }),
     );
   }
-  if (cost) {
-    const p = lastPair(cost);
-    $("#sim-kpi-note").textContent =
-      `Kérosène et coût par vol : chargement moyen d'un Paris–New York en ${p.y} (${fmtNum(peqPerFlight(cost))} passagers-équivalents par vol, DGAC), ` +
-      `kérosène au prix moyen des douze derniers mois (${perTonne(cost.recent.eur_t)}, de ${monthYear(cost.recent.from)} à ${monthYear(cost.recent.to)}, EIA et BCE), quel que soit l'avion choisi.`;
+  // how to read the tonnes and the euros, with their sources; it follows the aircraft, level and route
+  function costNote() {
+    const box = $("#sim-kpi-note");
+    if (!cost) return box.replaceChildren();
+    const { tref } = noWind();
+    const t = fuel("gc", tref); // the flight's fuel without wind at FL340
+    const p = plane();
+    const [from, to] = state.west ? ["Paris", short(state.dest)] : [short(state.dest), "Paris"];
+    const read = (label, parts) => el("p", {}, [el("b", { text: label }), " ", rich(parts)]);
+    const parts = [
+      read("Le kérosène", [
+        `${tonnes(t)} pour ce ${from}–${to} sans vent à FL340, soit ${fmtNum((t * 1000) / tref, 0)} kg par minute de vol : la consommation d'un long-courrier moyen chargé comme un Paris–New York (DGAC : `,
+        { ...link("dgac"), a: "émissions" },
+        ", ",
+        { ...link("dgacpap"), a: "trafic" },
+        `). Elle est la même pour les quatre avions ; le ${p.name} vole à Mach ${fmtNum(p.mach, 2)} et brûle un peu plus à FL300, un peu moins à FL390 (`,
+        link("openap"),
+        ").",
+      ]),
+      read("Le prix", [
+        `${perTonne(cost.recent.eur_t)}, moyenne ${deMonth(cost.recent.from)} à ${monthYear(cost.recent.to)} du prix américain du kérosène (`,
+        link("eia"),
+        "), converti en euros au taux de la ",
+        link("ecb"),
+        ".",
+      ]),
+      read("Le CO2", [
+        "Compté par passager-équivalent : un passager, ou 100 kg de fret. ",
+        { a: "Le calcul, étape par étape", href: "#couts" },
+        ".",
+      ]),
+    ];
+    const extra = [];
+    if (state.level === "free")
+      extra.push(
+        "Altitude libre : la ligne droite et votre route restent à FL340 ; seule la route optimale change de niveau, sans coût de montée.",
+      );
+    if (state.goal === "fuel")
+      extra.push(
+        "Objectif carburant : la route optimale cherche le moins de kérosène, quitte à voler plus longtemps.",
+      );
+    if (state.dest !== "KJFK")
+      extra.push(
+        `Vers ou depuis ${short(state.dest)}, le chargement d'un Paris–New York est appliqué à la distance de la ligne.`,
+      );
+    if (extra.length) parts.push(el("p", { class: "sk-extra", text: extra.join(" ") }));
+    box.replaceChildren(...parts);
   }
 
   /* ---------------------------------------------------------------- wind met along each route */
@@ -565,7 +628,14 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
     const token = ++matrixToken;
     const [a, b] = ends();
     const p = plane();
-    const fuel = state.goal === "fuel" ? p.fuel : null;
+    const byFuel = state.goal === "fuel" && cost;
+    const fac = state.goal === "fuel" ? p.fuel : null;
+    // the fastest route's minutes, or the least-fuel route's tonnes, as the goal says
+    const value = (r) => (byFuel ? fuel("best", r.burn) : r.minutes);
+    const show = (v) => (byFuel ? tonnes(v) : hm(v));
+    $("#sim-matrix-head").textContent = byFuel
+      ? "Kérosène de la route la plus économe, pour chaque heure de départ et chaque altitude. Cliquez pour l'afficher."
+      : "Durée de la route la plus rapide, pour chaque heure de départ et chaque altitude. Cliquez pour l'afficher.";
     const cols = [...sim.levels.map((l, i) => [i, `FL${l.fl}`]), ["free", "Libre"]];
     const cells = [];
     const table = el("table", { class: "sim-table" }, [
@@ -611,9 +681,9 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
       if (token !== matrixToken) return;
       if (i >= cells.length) return paint();
       const c = cells[i];
-      const r = bestRoute(state.field, a, b, c.h, p.mach, c.lv === "free" ? null : c.lv, fuel);
-      results[i] = r.minutes;
-      c.btn.textContent = hm(r.minutes);
+      const r = bestRoute(state.field, a, b, c.h, p.mach, c.lv === "free" ? null : c.lv, fac);
+      results[i] = value(r);
+      c.btn.textContent = show(results[i]);
       setTimeout(() => next(i + 1), 0);
     };
     const paint = () => {
@@ -624,11 +694,13 @@ export function simulator({ sim, grid: winds, cost, onReady }) {
         c.btn.style.setProperty("--k", k.toFixed(3));
         const current = c.h === state.hour && String(c.lv) === String(state.level);
         c.btn.setAttribute("aria-pressed", String(current));
-        c.btn.title = `${hm(results[i])}`;
+        c.btn.title = show(results[i]);
       });
       const i = d3.minIndex(results);
-      $("#sim-matrix-note").textContent =
-        `Le plus rapide ce jour-là : départ à ${String(cells[i].h).padStart(2, "0")} h UTC, ${cells[i].lv === "free" ? "altitude libre" : `FL${sim.levels[cells[i].lv].fl}`}, ${hm(results[i])} ; le plus lent : ${hm(d3.max(results))}.`;
+      const where = `départ à ${String(cells[i].h).padStart(2, "0")} h UTC, ${cells[i].lv === "free" ? "altitude libre" : `FL${sim.levels[cells[i].lv].fl}`}`;
+      $("#sim-matrix-note").textContent = byFuel
+        ? `Le moins de kérosène ce jour-là : ${where}, ${show(results[i])} ; le plus : ${show(d3.max(results))}.`
+        : `Le plus rapide ce jour-là : ${where}, ${show(results[i])} ; le plus lent : ${show(d3.max(results))}.`;
     };
     next(0);
   }

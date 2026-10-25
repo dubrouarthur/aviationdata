@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  costSteps,
   eurosPerMinute,
   fuelTonnes,
   kgPerMinute,
@@ -49,5 +50,15 @@ describe("the money side of the routes", () => {
     expect(euros(1234)).toBe("1 230 €");
     expect(euros(2_712_345)).toBe("2,7 millions d'euros");
     expect(euros(1_349_000)).toBe("1,3 million d'euros");
+  });
+  it("the step-by-step box lands on the same kilos and euros per minute", () => {
+    const S = costSteps(cost);
+    expect(S.kgPerPeq).toBeCloseTo((S.gPeqKm * S.km) / 1000, 9);
+    expect(S.fuelFlight).toBeCloseTo(fuelTonnes(cost, S.kgPerPeq), 9);
+    expect(S.minutes).toBeCloseTo(minutesWithoutWind(), 9);
+    expect(S.kgPerMinute).toBeCloseTo(kgPerMinute(cost), 9);
+    expect(S.eurPerMinute).toBeCloseTo(eurosPerMinute(cost), 9);
+    expect(S.tas).toBeGreaterThan(880);
+    expect(S.tas).toBeLessThan(920);
   });
 });

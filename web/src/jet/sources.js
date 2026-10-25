@@ -72,6 +72,17 @@ export const JSOURCES = {
     label: "OACI, méthodologie du calculateur d'émissions de carbone, version 8, mai 2015",
     url: "https://www.icao.int/sites/default/files/sp-files/environmental-protection/CarbonOffset/Documents/Methodology%20ICAO%20Carbon%20Calculator_v8-2015.pdf",
   },
+  isa: {
+    short: "AMS (atmosphère type)",
+    label:
+      "Atmosphère type : 15 °C au niveau de la mer, 6,5 °C de moins par kilomètre jusqu'à 11 km, American Meteorological Society, Glossary of Meteorology",
+    url: "https://glossary.ametsoc.org/wiki/Standard_atmosphere",
+  },
+  density: {
+    short: "ExxonMobil (densité du Jet A-1)",
+    label: "Fiche produit Jet A-1 d'ExxonMobil : densité à 15 °C de 775 à 840 kg par mètre cube",
+    url: "https://www.mobil.com/en-gn/commercial-fuel/pds/gl-xx-jetfuel-series",
+  },
   nasa: {
     short: "NASA Worldview",
     label: "Image VIIRS (satellite Suomi NPP), NASA Worldview / GIBS",
@@ -220,7 +231,7 @@ export function initJetSources({ flights, trappes, climate, meta, cost }) {
         "Meilleure route : programmation dynamique sur 64 points le long du grand cercle et 61 écarts latéraux possibles en chacun (jusqu'à 1 800 km de part et d'autre). Dans l'explorateur, un avion à 900 km/h par rapport à l'air, dans le vent de midi à 250 hPa, figé.",
       ]),
       li([
-        "Simulateur : vents et températures ERA5 toutes les 6 heures à 300, 250 et 200 hPa (niveaux de vol 300, 340 et 390), interpolés dans l'espace et dans le temps pendant le vol. L'avion vole à son nombre de Mach de croisière (OpenAP) : sa vitesse par rapport à l'air dépend de la température. Quand l'altitude est libre, la route peut changer d'un niveau à chaque point, sans coût de montée. Le carburant suit le temps de vol et la consommation relative de chaque niveau (OpenAP, à 80 % de la masse maximale au décollage) ; le CO2 par passager part du facteur moyen des vols long-courriers au départ de la France publié par la DGAC, appliqué à la distance de la ligne. Le modèle ignore la montée, la descente, les couloirs imposés et les contraintes du contrôle : ses temps sont des ordres de grandeur.",
+        "Simulateur : vents et températures ERA5 toutes les 6 heures à 300, 250 et 200 hPa (niveaux de vol 300, 340 et 390), interpolés dans l'espace et dans le temps pendant le vol. L'avion vole à son nombre de Mach de croisière (OpenAP) : sa vitesse par rapport à l'air dépend de la température. Quand l'altitude est libre, la route peut changer d'un niveau à chaque point, sans coût de montée. Le kérosène suit le temps de vol, minute pour minute (voir l'encadré sur les coûts), corrigé de la consommation relative de chaque niveau propre à chaque avion (OpenAP, à 80 % de la masse maximale au décollage) : sans vent à FL340, les quatre avions brûlent la même quantité, celle d'un long-courrier moyen selon la DGAC. Le CO2 est compté par passager-équivalent (un passager, ou 100 kg de fret). Le modèle ignore la montée, la descente, les couloirs imposés et les contraintes du contrôle : ses temps sont des ordres de grandeur.",
       ]),
       li([
         "Gains de la meilleure route : pour chaque jour de 2019 à 2022, un Boeing 777-300ER à Mach 0,84 parti de Paris à 12 h UTC et de New York à 00 h UTC, au niveau de vol 340, dans les vents ERA5 qui évoluent pendant le vol ; la meilleure route est comparée à la ligne droite au même niveau.",
@@ -229,9 +240,23 @@ export function initJetSources({ flights, trappes, climate, meta, cost }) {
         "Prévisions : pour chaque jour de 2020 et chaque sens, la meilleure route au niveau de vol 340 est calculée sur une information (vent moyen du mois sur 2019-2022, prévision HRES ou Pangu-Weather émise 12 h ou 108 h avant le départ, ou vent ERA5 lui-même), à température standard, puis volée dans le vent et la température ERA5. Les prévisions viennent de WeatherBench 2, sur la même grille de 1,5° que ERA5. Pangu-Weather a été entraîné sur ERA5, ce qui l'avantage quand ERA5 sert de référence. L'erreur sur le vent est l'écart moyen, en valeur absolue, de la composante du vent le long de la ligne droite, six heures après le départ.",
       ]),
       li([
-        "Une minute de croisière en kilos et en euros : le kérosène d'un vol Paris–New York sans vent part de ses émissions, le facteur long-courrier de la DGAC multiplié par la distance de la ligne et par les passagers-équivalents d'un vol Paris–New York (passagers, plus un passager par 100 kg de fret), divisé par 3,16 tonnes de CO2 par tonne de kérosène (",
+        "Une minute de croisière en kilos et en euros : voir l'encadré « ",
+        el("a", { href: "#couts", text: "D'où viennent ces kilos et ces euros" }),
+        " », qui détaille le calcul étape par étape, avec ses sources (",
+        link(JSOURCES.dgac),
+        " ; ",
+        link(JSOURCES.dgacpap),
+        " ; ",
         link(JSOURCES.icao),
-        "), réparti sur la durée de ce vol sans vent à Mach 0,84. Le prix de l'EIA, en dollars par gallon, est converti en euros au taux mensuel de la BCE, à 0,8 kg par litre (le Jet A-1 pèse de 0,775 à 0,840 kg par litre) ; le prix de référence est la moyenne des douze derniers mois publiés. C'est un prix de marché américain : celui que paie une compagnie dépend de ses contrats, de ses couvertures et du lieu d'achat. Les euros sont des ordres de grandeur, et le temps de vol, qui a aussi un coût (équipage, entretien, correspondances), n'y est pas compté.",
+        " ; ",
+        link(JSOURCES.isa),
+        " ; ",
+        link(JSOURCES.eia),
+        " ; ",
+        link(JSOURCES.ecb),
+        " ; ",
+        link(JSOURCES.density),
+        "). C'est un prix de marché américain : celui que paie une compagnie dépend de ses contrats, de ses couvertures et du lieu d'achat. Les euros sont des ordres de grandeur, et le temps de vol, qui a aussi un coût (équipage, entretien, correspondances), n'y est pas compté.",
       ]),
       li([
         "Tendances : droite des moindres carrés, avec une marge à 95 % (± 1,96 erreur type). Corrélations de Pearson.",
