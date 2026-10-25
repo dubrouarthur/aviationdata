@@ -98,3 +98,29 @@ def test_people_and_events_agree_with_the_cells():
     assert people["by"]["all|all"]["person"] == person
     assert sum(r[1] for r in events["by"]["all|all"]) == sum(c[4] for c in acc["cells"])
     assert sum(r[2] for r in events["by"]["all|all"]) == person
+
+
+def test_case_findings_sit_in_the_columns_of_the_models():
+    sys.path.insert(0, str(ROOT / "etl" / "hf"))
+    import cases as X
+
+    assert X.column(4, 3, 20, 0) == "org"
+    assert X.column(2, 4, 10, 10) == "acts"  # incorrect action selection: a decision error
+    assert X.column(2, 1, 20, 10) == "pre"  # fatigue: a precondition
+    assert X.column(1, 5, 20, 6) == "aircraft"
+    assert X.column(3, 3, 10, 99) == "env"
+    assert X.column(5, 0, 0, 0) is None
+    assert X.actor(4, "Organizational issues-Management-Policy/procedure-(general)-FAA/Regulator") == "FAA (autorité)"
+    assert X.clean("Instrument panel   -Not installed") == "Instrument panel-Not installed"
+
+
+@real
+def test_cases_are_the_six_accidents_with_every_finding_labelled():
+    cs = json.loads((OUT / "cases.json").read_text())
+    meta = json.loads((OUT / "meta.json").read_text())
+    assert [c["key"] for c in cs["cases"]] == ["colgan", "hudson", "asiana", "southwest", "atlas", "calabasas"]
+    assert all(c["findings"] and all(f[6] for f in c["findings"]) for c in cs["cases"])
+    # every accident of the period falls in one type of investigation
+    assert sum(k[2] for k in cs["kinds"]) == meta["accidents"]
+    major = next(k for k in cs["kinds"] if k[0] == "M")
+    assert major[4] / major[2] > 0.3  # the organization is cited in a large share of major investigations

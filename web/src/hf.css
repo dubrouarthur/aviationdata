@@ -604,3 +604,466 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ------------------------------------------------------------------ part 5: six accidents under the loupe
+   The table picks an accident and shows which layers each one pierced; the diagram lays out its findings
+   along the models (organization, preconditions, acts, then the aircraft and the environment) and ties
+   each one to the accident, the way an investigation board would pin them. */
+.lp {
+  margin-top: 28px;
+}
+
+.lp-top {
+  margin-top: 14px;
+  overflow-x: auto;
+}
+
+.lp-pick {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--f-ui);
+}
+
+.lp-pick th,
+.lp-pick td {
+  padding: 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lp-pick thead th {
+  padding: 0 6px 8px;
+  font-size: 0.8rem;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+  vertical-align: bottom;
+  color: var(--ink-2);
+}
+
+.lp-pick thead th:first-child {
+  text-align: left;
+}
+
+.lp-pick td {
+  width: 12%;
+  text-align: center;
+}
+
+.lp-pick tbody tr {
+  cursor: pointer;
+}
+
+.lp-pick tbody tr:hover {
+  background: var(--paper-2);
+}
+
+.lp-pick tbody tr.on {
+  background: color-mix(in srgb, var(--human) 9%, var(--card));
+}
+
+.lp-case {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 10px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lp-pick tr.on .lp-case {
+  box-shadow: inset 4px 0 0 var(--human);
+}
+
+.lp-case b {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.lp-case small {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.lp-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.lp-dot.cited {
+  background: var(--c);
+}
+
+.lp-dot.other {
+  border: 2px solid var(--c);
+}
+
+.lp-dot.none {
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--axis);
+}
+
+.lp-head {
+  margin-top: 24px;
+}
+
+.lp-head h4 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 800;
+  font-size: 1.55rem;
+  line-height: 1.05;
+}
+
+.lp-meta {
+  margin: 5px 0 0;
+  font-family: var(--f-ui);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.lp-what {
+  max-width: 46em;
+  margin: 8px 0 0;
+  font-family: var(--f-text);
+  font-size: 1.04rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* the diagram: five columns of findings, then the accident; links are drawn behind, on wide screens only */
+.lp-diagram {
+  --lp-links: on;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0 26px;
+  margin-top: 18px;
+  padding-left: 14px;
+}
+
+.lp-links {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.lp-cols {
+  display: contents;
+}
+
+.lp-col {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lp-col-head {
+  min-height: 2.6em;
+  margin: 0;
+  padding-top: 6px;
+  border-top: 3px solid var(--c);
+  font-family: var(--f-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.lp-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lp-chip {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: 7px 9px;
+  border: 1.5px dashed var(--axis);
+  border-radius: 8px;
+  background: var(--card);
+  font: inherit;
+  font-family: var(--f-ui);
+  font-size: 0.84rem;
+  line-height: 1.25;
+  text-align: left;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.lp-chip.cited {
+  border: 2px solid var(--c);
+  background: color-mix(in srgb, var(--c) 11%, var(--card));
+  color: var(--ink);
+}
+
+.lp-chip.cause {
+  box-shadow: inset 5px 0 0 var(--c);
+  padding-left: 12px;
+}
+
+.lp-chip small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.lp-chip.on,
+.lp-chip[aria-pressed="true"] {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.lp-chip:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.lp-empty {
+  margin: 0;
+  font-family: var(--f-ui);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.lp-accident {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  grid-column: 1 / -1;
+  margin: 28px 0 0 -14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--ink);
+  font-family: var(--f-ui);
+  color: var(--paper);
+}
+
+.lp-acc-kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--paper) 72%, var(--ink));
+}
+
+.lp-accident b {
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1.05;
+}
+
+.lp-accident span {
+  font-size: 0.9rem;
+}
+
+.lp-accident small {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--paper) 78%, var(--ink));
+}
+
+.lp-link,
+.lp-rail {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 1.8;
+}
+
+.lp-link.cause {
+  stroke-width: 3.5;
+}
+
+.lp-link.other,
+.lp-rail.other {
+  stroke: var(--axis);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 4;
+}
+
+.lp-rail.cited {
+  stroke-width: 2.6;
+}
+
+.lp-tip {
+  fill: var(--c);
+}
+
+.lp-tip.other {
+  fill: var(--axis);
+}
+
+.lp-diagram.focus .lp-link,
+.lp-diagram.focus .lp-rail {
+  opacity: 0.3;
+}
+
+.lp-diagram.focus .lp-link.on,
+.lp-diagram.focus .lp-rail.on {
+  opacity: 1;
+}
+
+.lp-under {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+  margin-top: 18px;
+}
+
+.lp-count {
+  margin: 0;
+  font-family: var(--f-ui);
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+
+.lp-read {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 28px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--f-ui);
+}
+
+.lp-d-kicker {
+  margin: 0;
+  padding-left: 8px;
+  border-left: 4px solid var(--c);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.lp-detail h4 {
+  margin: 8px 0 6px;
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1.1;
+}
+
+.lp-detail p,
+.lp-ntsb p,
+.lp-ntsb li {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.lp-detail b {
+  color: var(--ink);
+}
+
+.lp-d-code,
+.lp-src {
+  font-size: 0.8rem !important;
+  color: var(--muted) !important;
+}
+
+.lp-src a,
+.lp-d-code a {
+  color: inherit;
+}
+
+.lp-ntsb h5 {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  font-weight: 750;
+  color: var(--ink);
+}
+
+.lp-ntsb h5:not(:first-child) {
+  margin-top: 18px;
+}
+
+.lp-ntsb ul {
+  margin: 0 0 8px;
+  padding-left: 1.1em;
+}
+
+.lp-sub {
+  font-weight: 650;
+}
+
+.lp-saved {
+  padding-left: 10px;
+  border-left: 3px solid var(--env);
+}
+
+@media (max-width: 860px) {
+  .lp-diagram {
+    --lp-links: off;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding-left: 46px;
+  }
+
+  .lp-accident {
+    margin-left: -46px;
+  }
+
+  .lp-col-head {
+    min-height: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .lp-chips {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .lp-chip {
+    width: auto;
+  }
+
+  .lp-read {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .lp-pick thead th:not(:first-child) span {
+    display: inline-block;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    max-height: 8.5em;
+    text-align: left;
+  }
+
+  .lp-pick td {
+    width: 9%;
+  }
+
+  .lp-case {
+    padding: 8px 6px;
+  }
+}

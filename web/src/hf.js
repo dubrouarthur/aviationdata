@@ -20,9 +20,10 @@ import {
   historyChart,
 } from "./hf/charts.js";
 import { mosaic } from "./hf/mosaic.js";
+import { loupe } from "./hf/loupe.js";
 import { addSourceLines, initSources } from "./hf/sources.js";
 
-const FILES = ["accidents", "people", "events", "history", "meta"];
+const FILES = ["accidents", "people", "events", "history", "cases", "meta"];
 
 async function load() {
   const parts = await Promise.all(
@@ -128,7 +129,7 @@ async function main() {
     );
     return;
   }
-  const F = storyFacts(data);
+  const F = { ...storyFacts(data), kinds: T.kindFacts(data.cases) };
   const { accidents: acc, people } = data;
   safely("opening", () => {
     T.writeOpening(F);
@@ -198,6 +199,21 @@ async function main() {
       $("#chart-segments"),
       F.segs.filter((s) => s.key !== "other"),
     );
+  });
+  safely("loupe", () => {
+    T.writeLoupe(F, data.cases);
+    const K = T.kindFacts(data.cases);
+    bars(
+      $("#chart-kinds"),
+      [...data.cases.kinds.map(([k]) => k)].map((k) => ({
+        label: `${K[k].label} (${fmtNum(K[k].n)} accidents)`,
+        value: K[k].org,
+        color: "var(--org)",
+        text: T.pct(K[k].org, K[k].org < 10 ? 1 : 0),
+      })),
+      { max: 100 },
+    );
+    loupe($("#lp"), data);
   });
   safely("tool", () => {
     T.writeExplorer();

@@ -14,6 +14,8 @@ Writes web/public/data/hf/:
   and severity, with the accidents citing a person;
 - history.json: share of accidents citing a person or a hardware failure, per year, 1982-2007 (old coding)
   and 2008 onwards (new coding);
+- cases.json: six well-known accidents with every finding the NTSB coded (cases.py), and the layers cited
+  per type of investigation (major, regional, limited);
 - meta.json: sources, period, completeness of the recent years.
 """
 
@@ -25,6 +27,7 @@ from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 
+import cases as X
 import codes as K
 import pandas as pd
 
@@ -209,6 +212,54 @@ def events_json(ev: pd.DataFrame) -> dict:
     return {"events": [[e, K.EVENTS[e]] for e in order.index], "by": by}
 
 
+def cases_json(ev: pd.DataFrame) -> dict:
+    """Six well-known accidents, finding by finding, and what each type of investigation cites."""
+    no = read("avall", "events", ["ev_id", "ntsb_no"]).set_index("ev_id").ntsb_no.str.upper()
+    kind = ev.index.map(no).str[5]
+    kinds = []
+    for k, label in [*X.KINDS, ("other", "Autres types d'enquête")]:
+        sel = ev[kind == k] if k != "other" else ev[~kind.isin([c for c, _ in X.KINDS])]
+        m = sel["mask"]
+        kinds.append(
+            [k, label, len(sel), int(((m & K.PERSON) > 0).sum()), int(((m & K.ORG) > 0).sum()),
+             int((sel.sev == SEV["FATL"]).sum())]
+        )  # fmt: skip
+    fi = read(
+        "avall",
+        "Findings",
+        ["ev_id", "finding_no", "finding_description", "category_no", "subcategory_no", "section_no",
+         "subsection_no", "modifier_no", "Cause_Factor", "cm_inPc"],
+    )  # fmt: skip
+    by_no = {v: k for k, v in no.items()}
+    out = []
+    for key, ntsb_no in X.CASES:
+        e = by_no[ntsb_no]
+        r = ev.loc[e]
+        rows = fi[fi.ev_id == e].sort_values("finding_no")
+        findings = []
+        for f in rows.itertuples():
+            c, s, se, ss, m = (int(x) for x in (f.category_no, f.subcategory_no, f.section_no, f.subsection_no,
+                                                 f.modifier_no))  # fmt: skip
+            desc = X.clean(f.finding_description)
+            if desc not in X.FR:
+                raise SystemExit(f"cases.py: no French label for {ntsb_no} finding {desc!r}")
+            findings.append(
+                [f.cm_inPc == "T", str(f.Cause_Factor).strip() if f.Cause_Factor in ("C", "F") else "",
+                 X.column(c, s, se, ss), K.layer(c, s, m), K.hfacs(c, s, se, ss), X.actor(c, desc), X.FR[desc], desc]
+            )  # fmt: skip
+        out.append(
+            {"key": key, "ntsb_no": ntsb_no, "year": int(r.ev_year), "seg": int(r.seg), "sev": int(r.sev),
+             "deaths": int(r.inj_tot_f), "event": r.event, "event_fr": K.EVENTS.get(r.event, r.event),
+             "mask": int(r["mask"]), "findings": findings}
+        )  # fmt: skip
+    return {
+        "columns": X.COLUMNS,
+        "kinds": kinds,
+        "kinds_note": "NTSB, dictionnaire des données, champ ntsb_no : M majeure, F régionale, L limitée",
+        "cases": out,
+    }
+
+
 def history(ev_new: pd.DataFrame, last: int) -> dict:
     ev = us_accidents("Pre2008")
     ev = ev[ev.ev_year.between(1982, FIRST - 1)]
@@ -249,6 +300,7 @@ def build() -> None:
         "people": {**common, **people_json(ev, people)},
         "events": {**common, **events_json(ev)},
         "history": history(ev, last),
+        "cases": cases_json(ev),
         "meta": {
             "built": date.today().isoformat(),
             "period": [FIRST, last],

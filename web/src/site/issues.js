@@ -24,7 +24,7 @@ export const ISSUES = [
     published: "2026-10-24",
     updated: "2026-10-24",
     minutes: 20,
-    chapters: 11,
+    chapters: 12,
     image: "og-hf.jpg",
     accent: "#b3460a",
     sources: "NTSB",

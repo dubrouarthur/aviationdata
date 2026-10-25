@@ -20,7 +20,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 base = sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else "http://127.0.0.1:4173"
 D = {k: json.loads((ROOT / "public" / "data" / "hf" / f"{k}.json").read_text()) for k in
-     ("accidents", "people", "events", "history", "meta")}  # fmt: skip
+     ("accidents", "people", "events", "history", "cases", "meta")}  # fmt: skip
 A, P, E, H = D["accidents"], D["people"], D["events"], D["history"]
 B = A["bits"]
 PERSON, MACHINE, ENV, ORG, STATE, HANDLING = (B[k] for k in ("person", "machine", "env", "org", "state", "handling"))
@@ -78,6 +78,7 @@ g = P["by"]["all|all"]
 gf = P["by"]["all|FATL"]
 R = g["roles"]
 first, last = A["period"]
+KD = {k[0]: {"n": k[2], "person": 100 * k[3] / k[2], "org": 100 * k[4] / k[2]} for k in D["cases"]["kinds"]}
 
 # ---------------------------------------------------------------- browser
 with sync_playwright() as p:
@@ -111,7 +112,7 @@ with sync_playwright() as p:
         f"Une personne est citée dans {pct(S['person'])} des accidents, l'environnement dans {pct(S['env'])}, une panne de l'appareil dans {pct(S['machine'])}",
         f"citée dans {pct(100 * NF and 100 * n_of(fat, lambda m: m & PERSON) / NF)} des accidents mortels, qui comptent {pct(100 * deaths_p / deaths)} des morts",
         f"n'est citée que dans {pct(seg['airline']['person'])} des accidents, l'environnement dans {pct(seg['airline']['env'])}",
-        f"une organisation n'est citée que dans {pct(S['org'])} des accidents, un acte dangereux dans {pct(100 * g['levels']['1'] / N)}",
+        f"une organisation n'est citée que dans {pct(S['org'])} des accidents, mais dans {pct(KD['M']['org'])} des enquêtes majeures",
     )
     check("three accidents in four", 70 <= S["person"] < 80, pct(S["person"], 1))
     has(
@@ -227,9 +228,58 @@ with sync_playwright() as p:
         text("#reponse-prose"),
         f"une personne est citée dans {pct(S['person'])} des accidents, {TIMES[math.floor(S['person'] / S['machine'])]} fois plus souvent qu'une panne",
         f"La hiérarchie tient depuis {old[0][0]}",
-        f"l'organisation n'est citée que dans {pct(S['org'], 1)} des accidents",
+        f"l'organisation n'est citée que dans {pct(S['org'], 1)} des accidents, mais dans {pct(KD['M']['org'])} des enquêtes majeures",
     )
     check("no key-figure box is left", pg.locator(".keyfig").count() == 0)
+
+    # six accidents under the loupe: investigation types, then each case, finding by finding
+    has(
+        "loupe: the deeper the investigation",
+        text("#loupe"),
+        f"Le NTSB ne mène qu'une poignée d'enquêtes majeures : {fr(KD['M']['n'])} accidents de {first} à {last}",
+        f"Il y cite une organisation dans {pct(KD['M']['org'])} des cas, contre {pct(KD['L']['org'], 1)} quand l'enquête est limitée",
+        f"elle reste citée dans {pct(KD['M']['person'])} des enquêtes majeures",
+        f"Les {pct(S['org'], 1)} d'accidents qui citent une organisation",
+    )
+    kv = [norm(t) for t in pg.eval_on_selector_all("#chart-kinds .hb-val", "es => es.map(e => e.textContent)")]
+    check("loupe: investigation types chart", kv[0] == pct(KD["M"]["org"]) and kv[2] == pct(KD["L"]["org"], 1), str(kv))
+    cols = [k for k, _ in D["cases"]["columns"]]
+    pg.locator("#lp").scroll_into_view_if_needed()
+    for c in D["cases"]["cases"]:
+        pg.click(f"#lp-pick tr[data-key='{c['key']}']")
+        pg.wait_for_timeout(150)
+        fs = c["findings"]
+        want_cols = []
+        for k in cols:
+            inc = [f for f in fs if f[2] == k]
+            want_cols.append("cited" if any(f[0] for f in inc) else "other" if inc else "none")
+        got_cols = pg.eval_on_selector_all(
+            f"#lp-pick tr[data-key='{c['key']}'] .lp-dot", "ds => ds.map(d => d.classList[1])"
+        )
+        n_pc = sum(1 for f in fs if f[0])
+        pierced = want_cols.count("cited")
+        couche = "couches" if pierced > 1 else "couche"
+        check(f"loupe {c['key']}: layers in the table", got_cols == want_cols, f"{got_cols} vs {want_cols}")
+        has(
+            f"loupe {c['key']}: count",
+            text("#lp-count"),
+            f"Le NTSB a codé {fr(len(fs))} constats, dont {fr(n_pc)} retenus dans la cause probable. Ils touchent {fr(pierced)} {couche} sur cinq",
+        )
+        drawn = pg.locator("#lp-diagram .lp-chip").count()
+        shown = sum(1 for f in fs if f[2])
+        check(f"loupe {c['key']}: every finding drawn", drawn == shown, f"{drawn} vs {shown}")
+        n_links = pg.locator("#lp-ntsb a[href^='https://']").count()
+        check(f"loupe {c['key']}: report and what followed are sourced", n_links >= 2, f"{n_links} links")
+    # a finding opens its reading; the toggle keeps only the probable cause
+    pg.click("#lp-pick tr[data-key='colgan']")
+    first_pc = next(f for f in D["cases"]["cases"][0]["findings"] if f[0] and f[2] == "org")
+    pg.click("#lp-diagram .lp-col-org .lp-chip.cited")
+    has("loupe: a finding opens its reading", text("#lp-detail"), first_pc[6], "Retenu dans la cause probable")
+    pg.click("#lp-others")
+    n_pc0 = sum(1 for f in D["cases"]["cases"][0]["findings"] if f[0] and f[2])
+    check("loupe: the toggle keeps the probable cause", pg.locator("#lp-diagram .lp-chip").count() == n_pc0)
+    pg.click("#lp-others")
+    check("loupe: links tie findings to the accident", pg.locator("#lp-diagram .lp-link").count() > 5)
 
     # the tool: airlines, then fatal accidents of general aviation
     pg.locator("#explorer").scroll_into_view_if_needed()

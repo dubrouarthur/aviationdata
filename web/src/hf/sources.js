@@ -2,6 +2,7 @@
 // the story reads it with. Used for the line under each figure (data-hsource) and the method section.
 import { $, el } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
+import { CASES } from "./cases.js";
 
 export const HSOURCES = {
   ntsb: {
@@ -157,7 +158,27 @@ export function initSources({ accidents: acc, meta, history }) {
       li([
         "Ce que ces chiffres ne disent pas : la cause probable dit ce que les enquêteurs retiennent, pas tout ce qui a joué. Les accidents ne sont pas rapportés au nombre de vols, qui n'est pas connu pour l'aviation générale : ces parts comparent des causes, pas des risques.",
       ]),
+      li([
+        "Le type d'enquête : la cinquième lettre du numéro de dossier du NTSB, selon le dictionnaire des données de la base (M pour une enquête majeure, F régionale, L limitée ; les autres lettres sont regroupées).",
+      ]),
+      li([
+        "Les six accidents : tous les constats que le NTSB a codés pour chacun, avec leur statut (cause, facteur contributif, ou relevé hors de la cause probable) et la personne qu'ils désignent. Leur traduction et leur place dans le schéma sont celles de l'auteur : organisation et autorités (constats sur l'organisation), conditions préalables et actes (constats sur les personnes, selon la famille HFACS), appareil, environnement. Un constat indéterminé n'est pas dessiné.",
+      ]),
     ]),
+    el("h3", { text: "Les six accidents" }),
+    el(
+      "ul",
+      {},
+      Object.values(CASES).map((c) =>
+        li([
+          `${c.name}, ${c.when} : `,
+          link({ label: c.report.label, url: c.report.url }),
+          ...c.followed.flatMap((x) => [" ; ", link({ label: x.source, url: x.url })]),
+          ...(c.extra ? [" ; ", link({ label: c.extra.text, url: c.extra.url })] : []),
+          ".",
+        ]),
+      ),
+    ),
     el("h3", { text: "Les modèles et les faits extérieurs aux données" }),
     el(
       "ul",

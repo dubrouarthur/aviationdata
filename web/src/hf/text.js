@@ -71,13 +71,15 @@ export function writeEssentiel(F) {
       ],
     ],
     [
-      "hfacs",
-      pct(F.share.org),
+      "loupe",
+      pct(F.kinds.M.org),
       "Que cache « l'erreur humaine » ?",
       [
-        "Des enquêtes qui s'arrêtent au geste : une organisation n'est citée que dans ",
+        "Des enquêtes qui s'arrêtent souvent au geste : une organisation n'est citée que dans ",
         { b: pct(F.share.org) },
-        ` des accidents, un acte dangereux dans ${pct(ratio(F.levels[1], F.n))}.`,
+        " des accidents, mais dans ",
+        { b: pct(F.kinds.M.org) },
+        " des enquêtes majeures.",
       ],
     ],
   ];
@@ -471,6 +473,67 @@ export function writeCompagnies(F) {
     `Part des accidents citant une personne, l'environnement ou une panne de l'appareil, par type de vol, États-Unis, ${F.period[0]}-${F.period[1]}.`;
 }
 
+/* ------------------------------------------------------------------ part 5: six accidents under the loupe */
+/** The layers cited per type of investigation (cases.json kinds): [key, label, n, person, org, fatal]. */
+export function kindFacts(cases) {
+  const k = Object.fromEntries(
+    cases.kinds.map(([key, label, n, person, org, fatal]) => [
+      key,
+      { label, n, person: ratio(person, n), org: ratio(org, n), fatal },
+    ]),
+  );
+  return k;
+}
+
+export function writeLoupe(F, cases) {
+  const K = kindFacts(cases);
+  chapter("loupe", {
+    lede: [
+      `Le NTSB ne mène qu'une poignée d'enquêtes majeures : `,
+      { b: num(K.M.n) },
+      ` accidents de ${F.period[0]} à ${F.period[1]}, presque tous mortels. Il y cite une organisation dans `,
+      { b: pct(K.M.org) },
+      " des cas, contre ",
+      { b: pct(K.L.org, 1) },
+      " quand l'enquête est limitée.",
+    ],
+    after: [
+      [
+        "La personne n'en disparaît pas : elle reste citée dans ",
+        { b: pct(K.M.person) },
+        " des enquêtes majeures. L'enquête approfondie n'efface pas l'erreur, elle ajoute des couches derrière elle : la compagnie, sa formation, ses procédures, l'autorité qui la surveille.",
+      ],
+      [
+        "Les ",
+        { b: pct(F.share.org, 1) },
+        " d'accidents qui citent une organisation, sur toute la base, sont donc un plancher : ils disent aussi jusqu'où chaque enquête est allée. Six enquêtes majeures, parmi les plus connues, le montrent constat par constat.",
+      ],
+    ],
+  });
+  $("#kinds-note").textContent =
+    `Part des accidents dont la cause probable cite une organisation, selon le type d'enquête du NTSB, États-Unis, ${F.period[0]}-${F.period[1]}.`;
+  lecture(
+    "#chart-kinds",
+    "le type d'enquête est la cinquième lettre du numéro de dossier du NTSB : M pour une enquête majeure, F régionale, L limitée.",
+  );
+  $("#lp-note").textContent =
+    "Les constats que le NTSB a codés pour six accidents, rangés selon les modèles de cette enquête : la chaîne humaine de Reason et de HFACS, puis les menaces du modèle TEM, l'appareil et l'environnement.";
+  lecture(
+    "#lp-note",
+    "choisissez un accident dans le tableau : un point plein signale une couche retenue dans la cause probable, un cercle une couche relevée seulement hors de la cause probable. Dans le schéma, chaque constat est relié à l'accident, d'un trait épais pour une cause, plein pour un facteur, pointillé hors de la cause probable ; touchez-en un pour le lire.",
+  );
+  const box = $("#loupe-end");
+  box.replaceChildren(
+    el("aside", { class: "story-aside" }, [
+      el("b", { text: "À savoir" }),
+      " ",
+      ...rich([
+        "Les constats, leur statut et les personnes qu'ils désignent sont ceux que le NTSB a codés dans sa base ; leur traduction et leur place dans le schéma sont celles de l'auteur. Les résumés, causes probables et suites viennent des rapports du NTSB et des textes cités sous chaque accident.",
+      ]).childNodes,
+    ]),
+  );
+}
+
 export function writeExplorer() {
   prose("#explorer-prose", [
     [
@@ -505,7 +568,9 @@ export function writeReponse(F) {
     [
       "Deux nuances. Dans les compagnies aériennes, la turbulence fait jeu égal avec l'humain. Et « l'erreur humaine » des verdicts est presque toujours celle du dernier geste : l'organisation n'est citée que dans ",
       { b: pct(F.share.org, 1) },
-      " des accidents.",
+      " des accidents, mais dans ",
+      { b: pct(F.kinds.M.org) },
+      " des enquêtes majeures, celles qui remontent le plus loin.",
     ],
     [
       "Le facteur humain est la première cause citée. C'est aussi, comme le rappellent Reason et Dekker, l'endroit où l'enquête s'arrête le plus souvent.",
