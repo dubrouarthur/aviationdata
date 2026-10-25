@@ -315,20 +315,20 @@ export function writeStory(data, F, C) {
   const [cd, , , cgw, cow] = F.ciara;
   prose("#route-prose", [
     [
-      "Ce que montre une journée se vérifie sur quatre ans : jour après jour, de 2019 à 2022, la même asymétrie revient, même dans un modèle plus simple (le vent de midi, figé, à 250 hPa, et un avion à 900 km/h). Vers Paris, la meilleure route ne fait gagner que ",
+      "Sur quatre ans, de 2019 à 2022, la même asymétrie revient jour après jour, même dans un modèle plus simple (le vent de midi, figé, à 250 hPa, et un avion à 900 km/h). Vers Paris, la meilleure route ne fait gagner que ",
       { b: minutes(s.gain_e, 1) },
-      " en moyenne : le jet souffle déjà le long de la ligne droite. Vers New York, ",
+      " en moyenne : le jet souffle déjà le long de la ligne droite. Vers New York, elle fait gagner ",
       { b: minutes(s.gain_w, 1) },
-      ", et plus de 10 minutes ",
+      ", et plus de dix minutes ",
       { b: pct(s.share_w_10) },
       " des jours.",
     ],
     [
       `Le ${longDate(cd)}, veille de l'arrivée de Ciara en Europe, la ligne droite aurait demandé `,
       { b: hm(cgw) },
-      " contre le vent, la route la plus rapide, qui passe très au nord, ",
+      " contre le vent, et la route la plus rapide, qui passe très au nord, ",
       { b: hm(cow) },
-      `, soit environ ${euros(C.eurOf(cgw - cow))} de kérosène en moins.`,
+      `. Soit environ ${euros(C.eurOf(cgw - cow))} de kérosène en moins.`,
     ],
   ]);
   $("#strip-note").textContent =
@@ -341,7 +341,7 @@ export function writeStory(data, F, C) {
       { b: fmtNum(m.w.r_opt, 2) },
       ", contre ",
       { b: fmtNum(m.w.r_gc, 2) },
-      " pour la ligne droite ; vers Paris, ",
+      " pour la ligne droite. Vers Paris, ",
       { b: fmtNum(m.e.r_opt, 2) },
       " contre ",
       { b: fmtNum(m.e.r_gc, 2) },
@@ -532,9 +532,9 @@ export function writePlacer({ sim }) {
     [
       `Le 8 février 2020, veille de Ciara, un ${plane.name} parti de Paris pour New York aurait mis `,
       { b: hm(fast.v) },
-      ` par la meilleure route en partant à ${hh(fast.h)} UTC à ${fl(fast.lv)}, et `,
+      ` par la meilleure route en partant à ${hh(fast.h)} UTC à ${fl(fast.lv)}. Parti à ${hh(slow.h)} UTC à ${fl(slow.lv)}, il aurait mis `,
       { b: hm(slow.v) },
-      ` en partant à ${hh(slow.h)} UTC à ${fl(slow.lv)}. Soit `,
+      `. Soit `,
       { b: minutes(slow.v - fast.v) },
       " d'écart pour le même avion, le même jour.",
     ],
@@ -568,12 +568,12 @@ export function writeBilan({ stats, sim, cost }, C) {
         { b: minutes(R.west, 1) },
         " vaut environ ",
         { b: kg(R.kgWest) },
-        ` de kérosène. Vers Paris, où le jet souffle déjà le long de la ligne droite, il tombe à ${minutes(R.east, 1)} (${kg(R.kgEast)}, ${euros(C.eurOf(R.east))}).`,
+        ` de kérosène. Vers Paris, où le jet souffle déjà le long de la ligne droite, il tombe à ${minutes(R.east, 1)}, soit ${euros(C.eurOf(R.east))}.`,
       ],
       [
         `Sur les ${fmtNum(C.pair.mvt)} vols entre Paris-CDG et New York-JFK en ${C.pair.y}, moitié dans chaque sens, cela fait environ `,
         { b: tonnes(r10(R.tonnesYear), 0) },
-        " de kérosène par an et ",
+        " de kérosène par an. Soit ",
         { b: tonnes(r10(R.tonnesYear * cost.factors.co2_per_fuel), 0) },
         ` de CO2. Le prix du kérosène fait varier la note : ${euros(R.tonnesYear * y.eur_t)} au prix moyen de ${y.y}, ${euros(R.tonnesYear * last.eur_t)} à celui de ${monthYear(last.m)}. Et ce n'est qu'une ligne, à une seule heure de départ.`,
       ],
@@ -582,7 +582,10 @@ export function writeBilan({ stats, sim, cost }, C) {
         { b: minutes(T.minutesMore, 1) },
         " en moyenne, mais économise ",
         { b: tonnes(T.tonnesLess) },
-        " de kérosène. L'air plus froid du niveau bas fait aller l'avion plus vite ; l'air plus mince du niveau haut le fait moins consommer. Rester bas ne se justifie que si une minute de vol coûte à la compagnie plus de ",
+        " de kérosène. L'air plus froid du niveau bas fait aller l'avion plus vite ; l'air plus mince du niveau haut le fait moins consommer.",
+      ],
+      [
+        "Rester bas ne se justifie donc que si une minute de vol coûte à la compagnie plus de ",
         { b: euros(T.breakEven(C.price)) },
         ` (équipage, entretien, correspondances), un coût que ce calcul ne connaît pas. Au prix de ${monthYear(last.m)}, le seuil passe à ${euros(T.breakEven(last.eur_t))} : plus le kérosène est cher, plus il vaut la peine de voler haut.`,
       ],
@@ -766,7 +769,10 @@ export function writeHistoire({ climate, history }) {
       { b: `${t.slope >= 0 ? "+" : "−"}${kmh(Math.abs(t.slope), 1)}` },
       " par décennie pour le vent moyen de l'hiver, avec une marge de plus ou moins ",
       { b: kmh(t.ci, 1) },
-      ". Des chercheurs projettent pourtant un jet d'hiver plus fort avec le réchauffement (Williams, 2016, pour un doublement du CO2), qui allongerait les vols vers l'ouest. D'autres relèvent une hausse de la turbulence en air clair au-dessus de l'Atlantique Nord depuis 1979 (Prosser et al., 2023). Ces séries, trop variables, ne permettent ni de confirmer ni d'infirmer la première projection.",
+      ".",
+    ],
+    [
+      "Des chercheurs projettent pourtant un jet d'hiver plus fort avec le réchauffement (Williams, 2016, pour un doublement du CO2), qui allongerait les vols vers l'ouest. D'autres relèvent une hausse de la turbulence en air clair au-dessus de l'Atlantique Nord depuis 1979 (Prosser et al., 2023). Ces séries, trop variables, ne permettent ni de confirmer ni d'infirmer la première projection.",
     ],
     [
       `Le record de la série, depuis ${history.start.slice(0, 4)}, date du ${longDate(top[0])} : `,
@@ -795,7 +801,7 @@ export function writeEssentiel(F, C, P) {
       [
         "Vers New York, le vent ajoute en médiane ",
         { b: hm(F.gap) },
-        ` de vol, soit environ ${tonnes(C.kgOf(F.gap) / 1000)} de kérosène et ${euros(C.eurOf(F.gap))} par vol. Une minute de croisière brûle environ `,
+        ` de vol et environ ${tonnes(C.kgOf(F.gap) / 1000)} de kérosène. Une minute de croisière brûle environ `,
         { b: kg(C.KG) },
         ", ",
         { b: euros(C.EUR) },
@@ -818,9 +824,6 @@ export function writeEssentiel(F, C, P) {
     ]);
   if (P) {
     const short = Math.min(...P.leads);
-    const long = Math.max(...P.leads);
-    const a = P.west.share(`hres${long}`);
-    const b = P.west.share(`pangu${long}`);
     items.push([
       "prevoir",
       pct(P.west.share(`hres${short}`)),
@@ -828,7 +831,7 @@ export function writeEssentiel(F, C, P) {
       [
         `Non : calculée sur la prévision émise ${leadText(short)} avant le départ, la route capte `,
         { b: pct(P.west.share(`hres${short}`)) },
-        ` du gain possible ; à ${leadText(long)}, ${pct(Math.min(a, b))} à ${pct(Math.max(a, b))} selon le modèle ; avec le seul vent moyen du mois, `,
+        " du gain possible. Avec le seul vent moyen du mois, ",
         { b: pct(P.west.share("clim")) },
         ".",
       ],
@@ -1020,10 +1023,10 @@ export function writeAvion(flights) {
       listNames(A.fast),
       " bouclent leur traversée ",
       { b: `${f0 === f1 ? f1 : `${f0} à ${f1}`} minutes plus vite` },
-      " que la moyenne ; les ",
+      " que la moyenne. Les ",
       listNames(A.slow),
-      ", ",
-      { b: `${s0 === s1 ? s1 : `${s0} à ${s1}`} minutes plus lentement` },
+      " mettent ",
+      { b: `${s0 === s1 ? s1 : `${s0} à ${s1}`} minutes de plus` },
       ". Entre le plus rapide et le plus lent, le même jour sur la même ligne, il y a ",
       { b: minutes(A.spread) },
       ".",
@@ -1031,7 +1034,7 @@ export function writeAvion(flights) {
     [
       `Sur Paris–New York, ${worst.name}, qui y fait surtout voler des ${fleet(worst)}, perd `,
       { b: minutes(A.mean(worst)) },
-      ` par vol sur la moyenne de la ligne à vent égal ; ${best.name}, avec ses ${fleet(best)}, en gagne `,
+      ` par vol sur la moyenne de la ligne à vent égal. ${best.name}, avec ses ${fleet(best)}, en gagne `,
       { b: fmtNum(-A.mean(best), 0) },
       ". L'écart entre compagnies tient d'abord à leur flotte",
     ],

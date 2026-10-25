@@ -53,9 +53,9 @@ export function initPavillon(data) {
       rich([
         `En ${years[0]}, près d'un passager sur deux (${fmtPctAbs(share(0), 1)}) voyageait sur une compagnie française. En ${years[L]}, ils ne sont plus que `,
         { b: fmtPctAbs(share(L), 1) },
-        `. Les compagnies françaises ont pourtant gagné des passagers (${fmtPct(gF, 0)}, ${M(F[L])}), mais les étrangères ont progressé `,
+        `. Les compagnies françaises ont pourtant gagné des passagers (${fmtPct(gF, 0)}), mais les étrangères ont progressé `,
         timesWord ? { b: `${timesWord} fois plus vite` } : "bien plus vite",
-        ` (${fmtPct(gE, 0)}, ${M(E[L])}).`,
+        ` (${fmtPct(gE, 0)}). En ${years[L]}, elles transportent ${M(E[L])} de passagers, contre ${M(F[L])} pour les françaises.`,
       ]),
     ),
   );
@@ -66,7 +66,7 @@ export function initPavillon(data) {
       rich([
         `En juillet 2017, à l'approche du Brexit, easyJet a créé easyJet Europe, une compagnie installée à Vienne. Les compagnies autrichiennes sont passées de ${M(at("Autriche", i17))} de passagers en 2017 à `,
         { b: M(at("Autriche", L)) },
-        ` en ${years[L]}, et les britanniques de ${M(at("Royaume-Uni", i17))} à `,
+        ` en ${years[L]}. Les britanniques, elles, sont passées de ${M(at("Royaume-Uni", i17))} à `,
         { b: M(at("Royaume-Uni", L)) },
         `. ${first.nom === "Autriche" ? "L'Autriche est devenue le premier pays des compagnies étrangères en France" : `${first.nom} est le premier pays des compagnies étrangères en France`}, devant l'Irlande (${M(at("Irlande", L))}), pays de Ryanair, et l'Espagne (${M(at("Espagne", L))}), celui de Vueling et de Volotea.`,
       ]),

@@ -369,16 +369,16 @@ with sync_playwright() as pw:
         "the fastest route",
         text("#route-prose"),
         f"que {mins(s['gain_e'], 1)} en moyenne",
-        f"Vers New York, {mins(s['gain_w'], 1)}",
-        f"plus de 10 minutes {pct(s['share_w_10'])} des jours",
+        f"Vers New York, elle fait gagner {mins(s['gain_w'], 1)}",
+        f"plus de dix minutes {pct(s['share_w_10'])} des jours",
         f"demandé {hm(ciara[3])} contre le vent",
-        f"très au nord, {hm(ciara[4])}, soit environ {euros(EUR * (ciara[3] - ciara[4]))}",
+        f"très au nord, {hm(ciara[4])}. Soit environ {euros(EUR * (ciara[3] - ciara[4]))}",
     )
     has(
         "model against flights",
         text("#model-prose"),
         f"corrélation de {fr(m['w']['r_opt'], 2)}, contre {fr(m['w']['r_gc'], 2)}",
-        f"vers Paris, {fr(m['e']['r_opt'], 2)} contre {fr(m['e']['r_gc'], 2)}",
+        f"Vers Paris, {fr(m['e']['r_opt'], 2)} contre {fr(m['e']['r_gc'], 2)}",
         f"{fr(min(m['w']['offset'], m['e']['offset']))} à {mins(max(m['w']['offset'], m['e']['offset']))}",
     )
     has(
@@ -434,7 +434,7 @@ with sync_playwright() as pw:
         "placing the aircraft",
         text("#placer-prose"),
         f"aurait mis {hm(fast[2])} par la meilleure route en partant à {fast[0]:02d} h UTC à {fl_(fast[1])}",
-        f"et {hm(slow[2])} en partant à {slow[0]:02d} h UTC à {fl_(slow[1])}",
+        f"Parti à {slow[0]:02d} h UTC à {fl_(slow[1])}, il aurait mis {hm(slow[2])}",
         f"{mins(slow[2] - fast[2])} d'écart",
     )
     ss = J["sim_stats"]
@@ -461,9 +461,9 @@ with sync_playwright() as pw:
             f"cela représente de l'ordre de {euros(ty * price)}",
             f"chacun des {fr(len(ss['days']))} jours",
             f"le gain moyen de {mins(west, 1)} vaut environ {kgf(west * KG)} de kérosène",
-            f"il tombe à {mins(east, 1)} ({kgf(east * KG)}, {euros(east * EUR)})",
+            f"il tombe à {mins(east, 1)}, soit {euros(east * EUR)}",
             f"Sur les {fr(pr['mvt'])} vols entre Paris-CDG et New York-JFK en {pr['y']}",
-            f"environ {tonnes(r10(ty), 0)} de kérosène par an et {tonnes(r10(ty * 3.16), 0)} de CO2",
+            f"environ {tonnes(r10(ty), 0)} de kérosène par an. Soit {tonnes(r10(ty * 3.16), 0)} de CO2",
             f"{euros(ty * y['eur_t'])} au prix moyen de {y['y']}",
             f"{euros(ty * last['eur_t'])} à celui de {month_year(last['m'])}",
             f"voler à {lev(2)} plutôt qu'à {lev(0)} rallonge le vol de {mins(more, 1)} en moyenne",
@@ -496,7 +496,7 @@ with sync_playwright() as pw:
             "the essentials",
             text("#essentiel"),
             f"Une minute de croisière brûle environ {kgf(KG)}, {euros(EUR)}",
-            f"soit environ {tonnes(KG * gapm / 1000)} de kérosène et {euros(EUR * gapm)} par vol",
+            f"de vol et environ {tonnes(KG * gapm / 1000)} de kérosène",
             f"fait gagner {euros(west * EUR)} par vol vers New York",
             f"environ {fr(ty * price / 1e6, 1)} millions d'euros",
             f"un jour sur dix fait {pct(share_top)}",
@@ -531,7 +531,7 @@ with sync_playwright() as pw:
             "forecasts in the essentials",
             text("#essentiel"),
             f"la route capte {pct(share(fw_, 'hres12'))} du gain possible",
-            f"avec le seul vent moyen du mois, {pct(share(fw_, 'clim'))}",
+            f"Avec le seul vent moyen du mois, {pct(share(fw_, 'clim'))}",
         )
         has(
             "forecasts in euros",

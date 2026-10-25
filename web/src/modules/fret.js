@@ -71,7 +71,7 @@ export function initFret(data) {
       "p",
       {},
       rich([
-        `L'Asie (${kt(get("Asie")[L])}) et l'Europe (${kt(get("Europe")[L])}) en représentent chacune près d'un tiers (`,
+        `L'Asie et l'Europe en représentent chacune près d'un tiers (`,
         { b: `${fmtPctAbs(share("Asie"), 0)} et ${fmtPctAbs(share("Europe"), 0)}` },
         `), devant l'Amérique (${fmtPctAbs(share("Amérique"), 0)}). Le fret intérieur, lui, a reculé de `,
         { b: fmtPctAbs(pctChange(get("Intérieur")[peakDom], get("Intérieur")[L]), 0) },
