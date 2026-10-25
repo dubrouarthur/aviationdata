@@ -285,7 +285,8 @@ with sync_playwright() as pw:
     has(
         "the race's kilos and euros are sourced",
         text("#open-legend"),
-        f"Kérosène : {fr(KG)} kg et {euros(EUR)} par minute de vol (DGAC, EIA, BCE), calcul détaillé",
+        f"Kérosène d'un long-courrier moyen : {fr(KG)} kg et {euros(EUR)} par minute de vol",
+        "au prix des douze derniers mois (DGAC, EIA, BCE), calcul détaillé",
     )
     check("the race links to the cost box", pg.locator("#open-legend a[href='#couts']").count() == 1)
     # the box "D'où viennent ces kilos et ces euros": each step redone from cost.json
@@ -467,8 +468,10 @@ with sync_playwright() as pw:
             "what the best route is worth",
             text("#bilan"),
             f"Suivre le vent plutôt que la ligne droite : {pct1(share)} de kérosène en moins",
-            f"fait gagner {mins(west, 1)} par vol vers New York, soit environ {euros(west * EUR)} de kérosène",
-            f"cela fait {euros(ty * price)}, environ {pct1(share)} de sa facture de kérosène",
+            f"fait gagner à un {ss['aircraft']} {mins(west, 1)} par vol vers New York",
+            f"soit environ {euros(west * EUR)} de kérosène",
+            f"pour les {fr(pr['mvt'])} vols de la ligne, cela fait {euros(ty * price)}",
+            f"C'est environ {pct1(share)} de leur facture de kérosène",
             f"chacun des {fr(len(ss['days']))} jours de 2019 à 2022. Un {ss['aircraft']}, à Mach {fr(ss['mach'], 2)}",
             f"part de Paris à {w['hour']:02d} h UTC et de New York à {e['hour']:02d} h UTC, à {lev(1)}",
             f"{fr(kg_w)} kg",
@@ -590,6 +593,15 @@ with sync_playwright() as pw:
         text("#reponse-prose"),
         f"sur Paris–New York, {hm(gapm)} et environ {tonnes(KG * gapm / 1000)} de kérosène de plus que le retour",
     )
+    if ss:
+        has(
+            "the answer's euros carry the aircraft and the flights",
+            text("#reponse-prose"),
+            f"Pour un {ss['aircraft']}, suivre chaque jour la route la plus rapide",
+            f"vaut en moyenne {euros(west * EUR)} de kérosène par vol vers New York",
+            f"Pour les {fr(pr['mvt'])} vols annuels de la ligne, cela fait environ {fr(ty * price / 1e6, 1)} millions",
+            f"C'est {pct1(100 * ty / bill)} de leur facture de kérosène",
+        )
     H = J["history"]
     if H:
         top = H["top"][0]

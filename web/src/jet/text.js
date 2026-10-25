@@ -576,13 +576,13 @@ export function writeBilan({ stats, sim, cost }, C) {
     `Suivre le vent plutôt que la ligne droite : ${pct(L.share, 1)} de kérosène en moins`;
   prose("#bilan-prose", [
     [
-      "Sur Paris–New York, choisir chaque jour la route la plus rapide plutôt que la ligne droite fait gagner ",
+      `Sur Paris–New York, choisir chaque jour la route la plus rapide plutôt que la ligne droite fait gagner à un ${L.aircraft} `,
       { b: minutes(L.west, 1) },
       " par vol vers New York, soit environ ",
       { b: euros(C.eurOf(L.west)) },
-      " de kérosène. Sur un an, pour toute la ligne, cela fait ",
+      ` de kérosène. Sur un an, pour les ${fmtNum(L.flights)} vols de la ligne, cela fait `,
       { b: euros(L.tonnesYear * price) },
-      `, environ ${pct(L.share, 1)} de sa facture de kérosène.`,
+      `. C'est environ ${pct(L.share, 1)} de leur facture de kérosène.`,
     ],
   ]);
   $("#bilan-calc-dek").replaceChildren(
@@ -957,13 +957,13 @@ export function writeBref(data, F, C, P) {
   ];
   if (C.route)
     paras[0].push(
-      " Suivre chaque jour la route la plus rapide plutôt que la ligne droite vaut en moyenne ",
+      ` Pour un ${C.ledger.aircraft}, suivre chaque jour la route la plus rapide plutôt que la ligne droite vaut en moyenne `,
       { b: euros(C.eurOf(C.route.west)) },
-      " de kérosène par vol vers New York, et environ ",
+      ` de kérosène par vol vers New York. Pour les ${fmtNum(C.ledger.flights)} vols annuels de la ligne, cela fait environ `,
       {
         b: `${fmtNum((C.route.tonnesYear * C.price) / 1e6, 1)} millions d'euros`,
       },
-      ` par an sur cette seule ligne : ${pct(C.ledger.share, 1)} de sa facture de kérosène.`,
+      `. C'est ${pct(C.ledger.share, 1)} de leur facture de kérosène.`,
     );
   if (P)
     paras.push([
@@ -977,7 +977,13 @@ export function writeBref(data, F, C, P) {
   const A = avionFacts(data.flights.aircraft);
   const cards = [
     ["ecart", "L'écart", hm(F.gap), "de plus vers New York que vers Paris, en médiane", "var(--west)"],
-    ["ecart", "Une minute", kg(C.KG), `de kérosène par minute de croisière, ${euros(C.EUR)}`, "var(--ink)"],
+    [
+      "ecart",
+      "Une minute",
+      kg(C.KG),
+      `de kérosène par minute de croisière d'un long-courrier moyen, ${euros(C.EUR)} au prix des douze derniers mois`,
+      "var(--ink)",
+    ],
     [
       "vent",
       "Le vent",
@@ -992,14 +998,14 @@ export function writeBref(data, F, C, P) {
         "bilan",
         "La route",
         euros(C.eurOf(C.route.west)),
-        "de kérosène par vol vers New York, en suivant le vent plutôt que la ligne droite",
+        `de kérosène par vol vers New York pour un ${C.ledger.aircraft}, en suivant le vent plutôt que la ligne droite`,
         "var(--east)",
       ],
       [
         "bilan",
         "Une année",
         `${fmtNum((C.route.tonnesYear * C.price) / 1e6, 1)} M€`,
-        `par an sur Paris-CDG–New York-JFK, ${pct(C.ledger.share, 1)} de sa facture de kérosène`,
+        `par an pour les ${fmtNum(C.ledger.flights)} vols de Paris-CDG–New York-JFK, ${pct(C.ledger.share, 1)} de leur facture de kérosène`,
         "var(--east)",
       ],
     );
