@@ -83,6 +83,12 @@ export const JSOURCES = {
     label: "Fiche produit Jet A-1 d'ExxonMobil : densité à 15 °C de 775 à 840 kg par mètre cube",
     url: "https://www.mobil.com/en-gn/commercial-fuel/pds/gl-xx-jetfuel-series",
   },
+  eurocontrol: {
+    short: "EUROCONTROL",
+    label:
+      "EUROCONTROL, Standard Inputs for Economic Analyses, coût du retard (version 10.0.2, prix 2022, d'après l'université de Westminster)",
+    url: "https://ansperformance.eu/economics/cba/standard-inputs/chapters/cost_of_delay.html",
+  },
   nasa: {
     short: "NASA Worldview",
     label: "Image VIIRS (satellite Suomi NPP), NASA Worldview / GIBS",

@@ -96,3 +96,35 @@ export function costSteps(cost) {
     eurPerMinute: ((fuelFlight * 1000) / min / 1000) * cost.recent.eur_t,
   };
 }
+
+/**
+ * The yearly value of the best route, step by step, for the box of the bilan chapter (text.js): the gain per
+ * flight (sim_stats: a Boeing 777-300ER at Mach 0.84, best route at FL340 against the straight line, every day
+ * of 2019-2022), its fuel, the flights of the last complete year, the tonnes and euros, and the share of the
+ * line's fuel bill if every flight flew the straight line.
+ */
+export function routeLedger(stats, cost) {
+  const kg = kgPerMinute(cost);
+  const p = lastPair(cost);
+  const perDir = p.mvt / 2;
+  const mean = (dir, i) => stats[dir].daily.reduce((s, r) => s + r[i], 0) / stats[dir].daily.length;
+  const S = routeSavings(stats, cost);
+  const billTonnes = (perDir * (mean("west", 0) + mean("east", 0)) * kg) / 1000;
+  return {
+    ...S,
+    kg,
+    aircraft: stats.aircraft,
+    mach: stats.mach,
+    days: stats.days.length,
+    hourWest: stats.west.hour,
+    hourEast: stats.east.hour,
+    flights: p.mvt,
+    year: p.y,
+    perDir,
+    gcWest: mean("west", 0),
+    gcEast: mean("east", 0),
+    billTonnes,
+    share: (100 * S.tonnesYear) / billTonnes,
+    hoursYear: (perDir * (S.west + S.east)) / 60,
+  };
+}

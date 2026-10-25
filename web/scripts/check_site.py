@@ -365,6 +365,7 @@ with sync_playwright() as pw:
         f"et {pct(100 * fe['r'] ** 2)} vers Paris",
         f"ligne droite, {mins(naive, 1)} par tranche",
     )
+    sim_noon = next(r for r in J["sim"]["ciara"]["west"] if r["hour"] == 12)
     has(
         "the fastest route",
         text("#route-prose"),
@@ -372,8 +373,11 @@ with sync_playwright() as pw:
         f"Vers New York, elle fait gagner {mins(s['gain_w'], 1)}",
         f"plus de dix minutes {pct(s['share_w_10'])} des jours",
         f"demandé {hm(ciara[3])} contre le vent",
-        f"très au nord, {hm(ciara[4])}. Soit environ {euros(EUR * (ciara[3] - ciara[4]))}",
+        f"très au nord, {hm(ciara[4])}. Le simulateur, plus haut",
+        f"donne pour ce jour-là {hm(sim_noon['gc'])} et {hm(sim_noon['best'][1])}",
+        "Les montants en euros de cette enquête viennent tous du simulateur",
     )
+    check("no euros from the simple model", "€" not in text("#route-prose") + text("#ar-prose"))
     has(
         "model against flights",
         text("#model-prose"),
@@ -385,8 +389,7 @@ with sync_playwright() as pw:
         "round trip",
         text("#ar-prose"),
         f"en moyenne {mins(s['rt_gc'])} de plus que sans vent ({hm(2 * rt['nowind'])})",
-        f"environ {euros(EUR * s['rt_gc'])}",
-        f"tombe à {mins(s['rt_opt'])}, environ {euros(EUR * s['rt_opt'])}",
+        f"ce surcoût tombe à {mins(s['rt_opt'])}.",
     )
     R = p["records"]
     has(
@@ -454,23 +457,52 @@ with sync_playwright() as pw:
         less = fuel_t(avg([r[1] * ac["fuel"][0] for r in w["daily"]]) * per_min) - fuel_t(
             avg([r[3] * ac["fuel"][2] for r in w["daily"]]) * per_min
         )
+        # the yearly ledger of the bilan: every step, with the aircraft, the flights, the price
+        half = pr["mvt"] / 2
+        kg_w, kg_e = west * KG, east * KG
+        bill = half * (avg([r[0] for r in w["daily"]]) + avg([r[0] for r in e["daily"]])) * KG / 1000
+        share = 100 * ty / bill
+        pct1 = lambda v: f"{fr(v, 1)} %"  # noqa: E731
         has(
             "what the best route is worth",
             text("#bilan"),
+            f"Suivre le vent plutôt que la ligne droite : {pct1(share)} de kérosène en moins",
             f"fait gagner {mins(west, 1)} par vol vers New York, soit environ {euros(west * EUR)} de kérosène",
-            f"cela représente de l'ordre de {euros(ty * price)}",
-            f"chacun des {fr(len(ss['days']))} jours",
-            f"le gain moyen de {mins(west, 1)} vaut environ {kgf(west * KG)} de kérosène",
-            f"il tombe à {mins(east, 1)}, soit {euros(east * EUR)}",
-            f"Sur les {fr(pr['mvt'])} vols entre Paris-CDG et New York-JFK en {pr['y']}",
-            f"environ {tonnes(r10(ty), 0)} de kérosène par an. Soit {tonnes(r10(ty * 3.16), 0)} de CO2",
-            f"{euros(ty * y['eur_t'])} au prix moyen de {y['y']}",
-            f"{euros(ty * last['eur_t'])} à celui de {month_year(last['m'])}",
+            f"cela fait {euros(ty * price)}, environ {pct1(share)} de sa facture de kérosène",
+            f"chacun des {fr(len(ss['days']))} jours de 2019 à 2022. Un {ss['aircraft']}, à Mach {fr(ss['mach'], 2)}",
+            f"part de Paris à {w['hour']:02d} h UTC et de New York à {e['hour']:02d} h UTC, à {lev(1)}",
+            f"{fr(kg_w)} kg",
+            f"chargé comme un Paris–New York de {pr['y']} ({fr(round(peq))} passagers-équivalents par vol)",
+            f"de kérosène par vol vers New York, {fr(kg_e)} kg vers Paris",
+            f"{fr(pr['mvt'])} vols",
+            "par an entre Paris-CDG et New York-JFK",
+            f"Le trafic de {pr['y']}, dernière année complète",
+            f"environ {fr(half)} vols dans chaque sens",
+            f"{fr(half)} vols × {fr(kg_w)} kg, plus {fr(half)} vols × {fr(kg_e)} kg",
+            f"environ {fr(r10(half * (west + east) / 60))} heures de vol",
+            f"et {tonnes(r10(ty * 3.16), 0)} de CO2 en moins",
+            f"{fr(ty * price / 1e6, 1)} M€",
+            "par an, au prix des douze derniers mois",
+            f"{tonnes(r10(ty), 0)} × {per_tonne(price)}",
+            f"Au prix moyen de {y['y']} ({per_tonne(y['eur_t'])}) : {euros(ty * y['eur_t'])}",
+            f"({per_tonne(last['eur_t'])}) : {euros(ty * last['eur_t'])}",
+            f"environ {fr(round(bill / 1000) * 1000)} t de kérosène par an, {euros(bill * price)} au même prix",
+            f"La meilleure route en épargne {pct1(share)}",
             f"voler à {lev(2)} plutôt qu'à {lev(0)} rallonge le vol de {mins(more, 1)} en moyenne",
-            f"mais économise {tonnes(less)}",
-            f"plus de {euros(less * price / more)}",
-            f"le seuil passe à {euros(less * last['eur_t'] / more)}",
+            f"mais épargne {tonnes(less)}",
+            "Plus bas, l'air est plus chaud : à Mach égal, l'avion y va plus vite",
+            f"plus de {euros(less * price / more)}, carburant mis à part",
+            "Eurocontrol estime le coût moyen d'une minute de retard pour une compagnie européenne à 100 €",
+            f"le seuil monte à {euros(less * last['eur_t'] / more)}",
         )
+        check("no false physics", "air plus froid du niveau bas" not in text("main"))
+        has(
+            "months note: aircraft and departure hours",
+            text("#months-note"),
+            f"{ss['aircraft']} parti à {w['hour']:02d} h UTC de Paris et à {e['hour']:02d} h UTC de New York",
+            f"{kgf(KG)} de kérosène par minute de croisière",
+        )
+        check("the bilan cites Eurocontrol", pg.locator("#bilan a[href*='standard-inputs']").count() == 1)
         check("fuel price chart", pg.locator("#chart-value path").count() >= 2)
         # which flights gain: months, deciles, the top tenth of days (2019-2022)
         gains_w = [r[0] - r[2] for r in w["daily"]]
@@ -486,19 +518,23 @@ with sync_playwright() as pw:
         has(
             "which flights gain",
             text("#quels-vols"),
-            f"rapporte en moyenne {euros(mw[hi_m] * EUR)} par vol en {MONTHS[hi_m]}",
+            f"épargne en moyenne {euros(mw[hi_m] * EUR)} de kérosène par vol en {MONTHS[hi_m]}",
             f"{euros(mw[lo_m] * EUR)} en {MONTHS[lo_m]}",
             f"font {pct(share_top)} du gain de l'année vers New York",
-            f"elle fait gagner {mins(top10)} et {euros(top10 * EUR)} par vol",
+            f"elle fait gagner {mins(top10)} et {euros(top10 * EUR)} de kérosène par vol",
             f"le gain reste sous {mins(med, 1)}",
         )
         has(
             "the essentials",
             text("#essentiel"),
-            f"Une minute de croisière brûle environ {kgf(KG)}, {euros(EUR)}",
-            f"de vol et environ {tonnes(KG * gapm / 1000)} de kérosène",
-            f"fait gagner {euros(west * EUR)} par vol vers New York",
-            f"environ {fr(ty * price / 1e6, 1)} millions d'euros",
+            f"Une minute de croisière d'un long-courrier moyen : {kgf(KG)}, {euros(EUR)}",
+            "au prix des douze derniers mois",
+            f"de plus que le retour, et brûle environ {tonnes(KG * gapm / 1000)} de kérosène de plus",
+            f"Pour un {ss['aircraft']}, suivre chaque jour la route la plus rapide",
+            f"vaut {euros(west * EUR)} de kérosène par vol vers New York",
+            f"Pour les {fr(pr['mvt'])} vols de {pr['y']} entre Paris-CDG et New York-JFK : ",
+            f"{fr(ty * price / 1e6, 1)} millions d'euros",
+            f"C'est {pct1(share)} de leur facture de kérosène",
             f"un jour sur dix fait {pct(share_top)}",
         )
         big = pg.eval_on_selector_all("#essentiel .es-n", "els => els.map(e => e.textContent)")
@@ -536,9 +572,9 @@ with sync_playwright() as pw:
         has(
             "forecasts in euros",
             text("#prevoir-after"),
-            f"rapporte environ {euros(gain_w('hres12') * EUR)} par vol",
+            f"vaut environ {euros(gain_w('hres12') * EUR)} par vol vers New York en {FC['year']}",
             f"celle à 4 jours et demi {euros(gain_w('hres108') * EUR)}",
-            f"Le vent moyen du mois n'en rapporte que {euros(gain_w('clim') * EUR)}",
+            f"Le vent moyen du mois n'en vaut que {euros(gain_w('clim') * EUR)}",
         )
         has(
             "forecast chart",

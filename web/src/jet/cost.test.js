@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   costSteps,
+  routeLedger,
   eurosPerMinute,
   fuelTonnes,
   kgPerMinute,
@@ -60,5 +61,13 @@ describe("the money side of the routes", () => {
     expect(S.eurPerMinute).toBeCloseTo(eurosPerMinute(cost), 9);
     expect(S.tas).toBeGreaterThan(880);
     expect(S.tas).toBeLessThan(920);
+  });
+  it("the yearly ledger of the best route adds up", () => {
+    const L = routeLedger(stats, cost);
+    expect(L.flights).toBe(cost.pair.at(-1).mvt);
+    expect(L.tonnesYear).toBeCloseTo((L.perDir * (L.west + L.east) * L.kg) / 1000, 6);
+    expect(L.share).toBeGreaterThan(0.2); // a few tenths of a percent to a few percent of the line's fuel bill
+    expect(L.share).toBeLessThan(5);
+    expect(L.gcWest).toBeGreaterThan(L.gcEast); // against the wind, longer
   });
 });
