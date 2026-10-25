@@ -21,11 +21,18 @@ export function el(tag, attrs = {}, children = []) {
  * phrase may still wrap, so it never leaves a one-word line before it on a phone. */
 export function rich(parts) {
   const frag = document.createDocumentFragment();
-  for (const p of parts)
-    frag.append(
-      typeof p === "string" ? p : el("strong", { class: "num", text: p.b.replace(/(\d) /g, "$1 ") }),
-    );
+  for (const p of parts) frag.append(richPart(p));
   return frag;
+}
+
+// a string, a DOM node, a number in bold {b}, or a link {a, href} (outside links open in a new tab)
+function richPart(p) {
+  if (typeof p === "string" || p instanceof Node) return p;
+  if (p.href) {
+    const out = /^https?:/.test(p.href);
+    return el("a", { href: p.href, text: p.a, target: out ? "_blank" : null, rel: out ? "noopener" : null });
+  }
+  return el("strong", { class: "num", text: p.b.replace(/(\d) /g, "$1\u00a0") });
 }
 
 /** French typography: a narrow no-break space before ? ! : ; » and after «, so the mark
