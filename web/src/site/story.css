@@ -60,7 +60,7 @@
 /* ------------------------------------------------------------------ parts of the story */
 /* A story in six parts: a heavy rule, the part's name in display type, one line of what it answers. */
 .part {
-  padding-block: 64px 0;
+  padding-block: 88px 0;
 }
 
 .part-label {
@@ -72,10 +72,10 @@
   padding-top: 14px;
   border-top: 3px solid var(--ink);
   font-family: var(--f-display);
-  font-stretch: 64%;
-  font-weight: 820;
-  font-size: clamp(2.1rem, 4.4vw, 3.4rem);
-  line-height: 0.95;
+  font-stretch: 66%;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  line-height: 1;
 }
 
 .part-no {
@@ -167,8 +167,33 @@
   padding-block: 32px 8px;
 }
 
+/* the follow-up of a chapter, after its figure, and the caveats of method */
 .after-figure {
-  margin-top: 24px;
+  margin-top: 28px;
+}
+
+.after-figure:empty {
+  display: none;
+}
+
+.story-aside {
+  max-width: 36em;
+  margin: 22px 0 0;
+  padding: 14px 18px 15px;
+  border-left: 3px solid var(--axis);
+  border-radius: 0 8px 8px 0;
+  background: var(--paper-2);
+  font-family: var(--f-ui);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.story-aside b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.82rem;
+  color: var(--ink);
 }
 
 .reponse-prose {

@@ -103,7 +103,7 @@ with sync_playwright() as p:
     has(
         "standfirst",
         text("#open-dek"),
-        f"De {first} à {last}, sur {fr(N)} accidents, une personne y est citée {fr(NP)} fois",
+        f"De {first} à {last}, une personne y est citée dans {fr(NP)} accidents sur {fr(N)}",
     )
     has(
         "essentials",
@@ -116,11 +116,10 @@ with sync_playwright() as p:
     check("three accidents in four", 70 <= S["person"] < 80, pct(S["person"], 1))
     has(
         "the verdict",
-        text("#verdict-prose"),
-        f"Sur les {fr(N)} accidents de {first} à {last}, une personne est citée dans {fr(NP)}, soit {pct(S['person'], 1)}",
-        f"nuit : {pct(S['env'])}",
-        f"(vent, relief, oiseaux, nuit : {pct(S['env'])}) et une panne ou un défaut de l'appareil ({pct(S['machine'])})",
-        f"cités dans {pct(S['handling'])} des accidents : en les comptant, le facteur humain monte à {pct(broad)}",
+        text("#verdict"),
+        f"Une personne est citée dans la cause probable de {pct(S['person'], 1)} des accidents. L'environnement l'est dans {pct(S['env'])}, une panne de l'appareil dans {pct(S['machine'])}",
+        f"En les comptant, le facteur humain monte à {pct(broad)}",
+        "Un accident peut avoir plusieurs causes : les parts ne s'additionnent pas",
     )
     bars = [norm(t) for t in pg.eval_on_selector_all("#chart-layers .hb-val", "es => es.map(e => e.textContent)")]
     check("layers chart", bars[:4] == [pct(S[k]) for k in ("person", "env", "handling", "machine")], str(bars))
@@ -129,11 +128,10 @@ with sync_playwright() as p:
     others = [s[2] for s in sev[1:]]
     has(
         "severity",
-        text("#gravite-prose"),
-        f"pour 10 accidents mortels, {round(10 * sev[1][1] / fn)} avec des blessés graves, {round(10 * sev[2][1] / fn)} avec des blessés légers et {round(10 * sev[3][1] / fn)} sans blessé",
-        f"citée dans {fr(min(others))} à {pct(max(others))} des accidents sans mort, et dans {pct(sev[0][2])} des accidents mortels",
-        f"Ces {fr(NF)} accidents mortels ont fait {fr(deaths)} morts",
-        f"en comptent {fr(deaths_p)}, soit {pct(100 * deaths_p / deaths)}",
+        text("#gravite"),
+        f"Une personne est citée dans {pct(sev[0][2])} des accidents mortels, contre {fr(min(others))} à {pct(max(others))} pour les autres",
+        f"Les accidents mortels qui citent une personne comptent {pct(100 * deaths_p / deaths)} des morts",
+        f"pour 10 accidents mortels, {round(10 * sev[3][1] / fn)} sans blessé",
     )
 
     old = [(y, 100 * pp / n, 100 * mm / n) for y, n, pp, mm in H["old"]]
@@ -142,51 +140,47 @@ with sync_playwright() as p:
     min_times = min(r[2] / r[3] for r in H["old"] + H["new"])
     has(
         "forty years",
-        text("#histoire-prose"),
-        f"De {old[0][0]} à {old[-1][0]}, une personne est citée dans {rng([r[1] for r in old])}",
-        f"une panne de l'appareil dans {rng([r[2] for r in old])}",
-        f"{pct(old[0][2])} en {old[0][0]}, {pct(old[-1][2])} en {old[-1][0]}",
-        f"une personne est citée dans {rng([r[1] for r in new[1:]])} des accidents ({pct(new[0][1])} en {new[0][0]}",
-        f"une panne dans {rng([r[2] for r in new])}",
-        f"au moins {TIMES[min(10, math.floor(min_times))]} fois",
+        text("#quarante-ans"),
+        f"Depuis {old[0][0]}, une personne est citée au moins {TIMES[min(10, math.floor(min_times))]} fois plus souvent qu'une panne",
+        f"de {old[0][0]} à {old[-1][0]}, une personne est citée dans {rng([r[1] for r in old])} des accidents",
+        f"La panne de l'appareil recule, de {pct(old[0][2])} à {pct(old[-1][2])}",
+        f"une personne est citée dans {rng([r[1] for r in new[1:]])} des accidents, une panne dans {rng([r[2] for r in new])}",
+        f"Seule {new[0][0]}, année de transition, descend à {pct(new[0][1])}",
     )
 
     has(
         "who",
-        text("#qui-prose"),
-        f"Le pilote est nommé dans {fr(R['pilot'])} accidents, un instructeur ou un élève pilote dans {fr(R['training'])}",
-        f"figure dans {pct(100 * g['controls'] / g['person'])} des accidents où une personne est citée",
-        f"amateur dans {fr(R['maintenance'])} accidents ({pct(100 * R['maintenance'] / N, 1)})",
-        f"information de vol dans {fr(R['atc'])}",
-        f"{pct(100 * seg['ga']['n'] / N)} des accidents y surviennent",
+        text("#qui"),
+        f"le pilote, l'instructeur ou l'élève, dans {pct(100 * g['controls'] / g['person'])} des cas",
+        f"Un mécanicien ou un constructeur amateur est nommé dans {fr(R['maintenance'])} accidents, un contrôleur aérien dans {fr(R['atc'])}",
+        f"elle fait {pct(100 * seg['ga']['n'] / N)} des accidents",
     )
     errs = sorted(((k, v) for k, v in g["errors"].items()), key=lambda t: -t[1])
     has(
         "errors",
-        text("#erreurs-prose"),
-        f"Il figure dans {fr(errs[0][1])} accidents, {pct(100 * errs[0][1] / N)} du total",
-        f"la désorientation spatiale est citée dans {fr(g['errors']['2-20-25'])} accidents, dont {fr(gf['errors']['2-20-25'])} mortels",
+        text("#erreurs"),
+        f"par la personne aux commandes : {fr(errs[0][1])} accidents, {pct(100 * errs[0][1] / N)} du total",
+        f"La désorientation spatiale est citée dans {fr(g['errors']['2-20-25'])} accidents, dont {fr(gf['errors']['2-20-25'])} mortels",
     )
     L = g["levels"]
     hb = n_of(allc, lambda m: m & (PERSON | ORG))
     fhb = n_of(fat, lambda m: m & (PERSON | ORG))
     has(
         "HFACS",
-        text("#hfacs-prose"),
-        f"Sur les {fr(hb)} accidents qui citent une personne ou une organisation, un acte dangereux figure dans {pct(100 * L['1'] / hb)}",
-        f"une condition préalable dans {pct(100 * L['2'] / hb)}, la supervision dans {pct(100 * L['3'] / hb, 1)}, l'organisation dans {pct(100 * L['4'] / hb, 1)}",
-        f"une condition préalable y figure dans {pct(100 * gf['levels']['2'] / fhb)} des cas",
+        text("#hfacs"),
+        f"ils retiennent un acte dangereux dans {pct(100 * L['1'] / hb)} des cas, et l'organisation dans {pct(100 * L['4'] / hb, 1)}",
+        f"une condition préalable y figure dans {pct(100 * gf['levels']['2'] / fhb)} des cas, contre {pct(100 * L['2'] / hb)} en moyenne",
+        "Le rapprochement des constats du NTSB avec les familles de HFACS est celui de l'auteur",
     )
 
     threat = ENV | MACHINE
     st = n_of(allc, lambda m: m & STATE)
     has(
         "TEM",
-        text("#tem-prose"),
-        f"Il en cite un dans {fr(st)} accidents, {pct(100 * st / N)} du total",
-        f"Dans {pct(100 * n_of(allc, lambda m: m & STATE and m & PERSON) / st)} de ces cas",
-        f"une menace, dans {pct(100 * n_of(allc, lambda m: m & STATE and m & threat) / st)}",
-        f"sans aucune personne dans {fr(n_of(allc, lambda m: m & threat and not m & PERSON))} accidents",
+        text("#tem"),
+        f"une erreur d'une personne est presque toujours citée : dans {pct(100 * n_of(allc, lambda m: m & STATE and m & PERSON) / st)} des cas",
+        f"Il en cite un dans {pct(100 * st / N)} des accidents",
+        f"une menace est citée sans aucune personne dans {pct(100 * n_of(allc, lambda m: m & threat and not m & PERSON) / N)} des accidents seulement",
     )
 
     four = PERSON | MACHINE | ENV | ORG
@@ -194,22 +188,25 @@ with sync_playwright() as p:
     three = n_of(allc, lambda m: bin(m & four).count("1") >= 3)
     has(
         "Swiss cheese",
-        text("#fromage-prose"),
-        f"{pct(combo(PERSON))} des accidents ne citent qu'une personne",
-        f"Une personne et l'environnement ensemble : {pct(combo(PERSON | ENV))}",
-        f"Une panne seule : {pct(combo(MACHINE))}",
+        text("#fromage"),
+        f"La moitié des accidents ({pct(combo(PERSON))}) ne citent qu'une couche, la personne",
+        f"Une personne et l'environnement ensemble : {pct(combo(PERSON | ENV))} des accidents",
         f"Trois couches ou plus : {pct(100 * three / N, 1)}",
     )
+    check("half the accidents cite a person alone", 45 <= combo(PERSON) < 58, pct(combo(PERSON)))
 
     ev = {k: (n, pp, f) for k, n, pp, f in E["by"]["all|all"]}
     es = lambda k: pct(100 * ev[k][1] / ev[k][0])  # noqa: E731
+    least = min(
+        100 * ev[k][1] / ev[k][0]
+        for k in ("Aerodynamic stall/spin", "Controlled flight into terr/obj (CFIT)", "VFR encounter with IMC")
+    )
     has(
         "defining events",
-        text("#evenements-prose"),
-        f"citée dans {es('Loss of control in flight')} des pertes de contrôle en vol, {es('Aerodynamic stall/spin')} des décrochages",
-        f"{es('Controlled flight into terr/obj (CFIT)')} des impacts sans perte de contrôle et {es('VFR encounter with IMC')} des vols à vue",
-        f"que dans {es('Loss of engine power (total)')} des pertes totales de puissance et {es('Sys/Comp malf/fail (non-power)')} des pannes",
-        f"comptent à elles seules {fr(ev['Loss of control in flight'][2])} accidents mortels, {pct(100 * ev['Loss of control in flight'][2] / NF)} du total",
+        text("#evenements"),
+        f"une personne est citée dans {es('Loss of control in flight')} des pertes de contrôle en vol, mais dans {es('Loss of engine power (total)')} des pertes totales de puissance",
+        "citent une personne plus de neuf fois sur dix" if least >= 90 else f"dans au moins {pct(least)} des cas",
+        f"font à elles seules {pct(100 * ev['Loss of control in flight'][2] / NF)} des accidents mortels",
     )
 
     air = seg["airline"]
@@ -218,20 +215,21 @@ with sync_playwright() as p:
     tn, tp = sum(v[0] for v in turb), sum(v[1] for v in turb)
     has(
         "airlines",
-        text("#compagnies-prose"),
-        f"ne comptent que {fr(air['n'])} accidents en {last - first + 1} ans, {pct(100 * air['n'] / N, 1)} du total, dont {fr(n_of(cells('airline', 'FATL')))} mortels",
-        f"une personne n'est citée que dans {pct(air['person'])} des accidents, l'environnement dans {pct(air['env'])}",
-        f"{fr(tn)} accidents de compagnie, {pct(100 * tn / air['n'])}, sont des rencontres avec la turbulence",
-        f"n'est citée que dans {fr(tp)} d'entre elles",
+        text("#compagnies"),
+        f"une personne est citée dans {pct(air['person'])} des accidents, l'environnement dans {pct(air['env'])}",
+        f"ne comptent que {fr(air['n'])} accidents en {last - first + 1} ans, dont {fr(n_of(cells('airline', 'FATL')))} mortels",
+        f"Elle est l'événement déterminant de {pct(100 * tn / air['n'])} de leurs accidents",
+        f"une personne n'est citée que dans {fr(tp)} d'entre eux",
         f"{pct(air['org'], 1)} des accidents, contre {pct(seg['ga']['org'], 1)} en aviation générale",
-        f"dominés par l'humain ({pct(seg['taxi']['person'])}), mais citent l'environnement ({pct(seg['taxi']['env'])}) et une organisation ({pct(seg['taxi']['org'], 1)})",
     )
     has(
         "the answer",
         text("#reponse-prose"),
-        f"citée dans {pct(S['person'])} des accidents aériens de {first} à {last}, {TIMES[math.floor(S['person'] / S['machine'])]} fois plus souvent qu'une panne ({pct(S['machine'])}) et {TIMES[math.floor(S['person'] / S['env'])]} fois plus que l'environnement ({pct(S['env'])})",
-        f"(une organisation dans {pct(S['org'], 1)} des accidents)",
+        f"une personne est citée dans {pct(S['person'])} des accidents, {TIMES[math.floor(S['person'] / S['machine'])]} fois plus souvent qu'une panne",
+        f"La hiérarchie tient depuis {old[0][0]}",
+        f"l'organisation n'est citée que dans {pct(S['org'], 1)} des accidents",
     )
+    check("no key-figure box is left", pg.locator(".keyfig").count() == 0)
 
     # the tool: airlines, then fatal accidents of general aviation
     pg.locator("#explorer").scroll_into_view_if_needed()
