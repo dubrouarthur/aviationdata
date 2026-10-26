@@ -125,7 +125,7 @@
 
 .race-row {
   display: grid;
-  grid-template-columns: 8.6em minmax(0, 1fr) 4.4em 3.6em 5.4em;
+  grid-template-columns: 8.6em minmax(0, 1fr) 4.4em 8.4em;
   align-items: center;
   gap: 4px 12px;
   padding: 5px 0;
@@ -167,12 +167,19 @@
 }
 
 .rr-calm,
+.rr-gc,
 .race-calm s {
   position: absolute;
   top: -5px;
   bottom: -5px;
   width: 0;
   border-left: 2px dotted rgba(255, 255, 255, 0.85);
+}
+
+/* the straight line in the same wind: a solid mark, where the dotted one is the calm */
+.rr-gc,
+.race-calm s.is-gc {
+  border-left: 3px solid #fff;
 }
 
 .rr-time {
@@ -184,19 +191,26 @@
   color: #fff;
 }
 
-.rr-fuel,
-.rr-eur {
-  text-align: right;
-  color: var(--night-ink);
+.rr-line {
+  font-size: 0.8rem;
+  color: var(--night-muted);
+  white-space: nowrap;
 }
 
 .race-calm {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 4px 22px;
   margin: 4px 0 0;
   font-size: 0.8rem;
   color: var(--night-muted);
+}
+
+.race-calm span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .race-calm s {
@@ -206,7 +220,7 @@
 }
 
 .race-gap {
-  min-height: 2.8em; /* room for the closing sentence, so the panel does not jump when it appears */
+  min-height: 4.2em; /* room for the closing sentences, so the panel does not jump when they appear */
   margin: 8px 0 0;
   padding-right: 80px;
   font-family: var(--f-text);
@@ -727,7 +741,7 @@
   }
 
   .race-row {
-    grid-template-columns: minmax(0, 1fr) 3.8em 3.4em 4.8em;
+    grid-template-columns: minmax(0, 1fr) 3.8em 7.6em;
     gap: 2px 8px;
     font-size: 0.84rem;
   }
@@ -741,7 +755,7 @@
   }
 
   .race-gap {
-    min-height: 4.2em;
+    min-height: 7em;
     font-size: 0.92rem;
     padding-right: 0;
   }

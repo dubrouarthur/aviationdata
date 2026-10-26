@@ -6,7 +6,7 @@ import { $, el, onResize } from "../lib/ui.js";
 import { asset } from "../lib/site.js";
 import { decodeField, drawSpeed, particles, plateCarree, SPEED_STOPS, speedRGB } from "./wind.js";
 import { bearing, greatCircle, legMinutes, windAt } from "./route.js";
-import { euros, hm, kmh, tonnes } from "./fmt.js";
+import { hm, kmh, tonnes } from "./fmt.js";
 import { fmtNum } from "../lib/format.js";
 
 const PLANE =
@@ -70,7 +70,10 @@ export function speedLegend(node, title = "Vent à 10 km d'altitude") {
 /**
  * The opening: the night of storm Ciara, and a race. The same aircraft leaves New York for Paris and
  * Paris for New York in the same wind (ERA5 at 250 hPa, 9 February 2020 at 00 UTC, frozen, 900 km/h),
- * each on its fastest route. Clocks, kilos of fuel and euros run as they fly (C: costFacts, cost.js).
+ * each on its fastest route. The panel shows durations only, against two marks: no wind, and the straight
+ * line. Its closing sentence gives the gap between the two directions (minutes, tonnes) and what the fastest
+ * route gains on the straight line towards New York; no euros per flight, which read next to the story's
+ * mean gain as a contradiction (C: costFacts, cost.js).
  */
 export async function openMap(hero, C) {
   const stage = $("#open-map");
@@ -85,16 +88,18 @@ export async function openMap(hero, C) {
   const wind = particles($("#open-wind"), { density: 1 / 210, rate: 0.045, width: 1.15, fade: 0.97 });
 
   // each flight: its route, the minutes at each point (scaled to the build's total), its total
-  const flight = (key, path, total) => {
+  const flight = (key, path, total, gc) => {
     const t = [0];
     for (let i = 1; i < path.length; i++)
       t.push(t[i - 1] + legMinutes(field, path[i - 1][0], path[i - 1][1], path[i][0], path[i][1]));
     const k = total / t.at(-1);
-    return { key, path, total, t: t.map((x) => x * k) };
+    return { key, path, total, gc, t: t.map((x) => x * k) };
   };
-  const flights = [flight("east", hero.route.fast, hero.route.t_fast)];
-  if (hero.west) flights.push(flight("west", hero.west.fast, hero.west.t_fast));
+  const flights = [flight("east", hero.route.fast, hero.route.t_fast, hero.route.t_gc)];
+  if (hero.west) flights.push(flight("west", hero.west.fast, hero.west.t_fast, hero.west.t_gc));
   const longest = d3.max(flights, (f) => f.total);
+  // the bars' scale holds the slowest straight line, so that each row can mark its own
+  const scale = 1.03 * d3.max(flights, (f) => Math.max(f.total, f.gc));
   const at = (f, m) => {
     const mm = Math.min(m, f.total);
     const i = Math.max(1, d3.bisectLeft(f.t, mm));
@@ -172,7 +177,7 @@ export async function openMap(hero, C) {
     paint(minute);
   };
 
-  // the race panel: one row per direction, a bar against the time without wind, clocks and money
+  // the race panel: one row per direction, a bar against two marks (no wind, the straight line), a clock
   const panel = $("#open-race");
   const rows = {};
   if (panel) {
@@ -181,25 +186,23 @@ export async function openMap(hero, C) {
     for (const f of flights) {
       const fill = el("i", { class: "rr-fill" });
       const time = el("b", { class: "rr-time" });
-      const fuel = el("span", { class: "rr-fuel" });
-      const money = el("span", { class: "rr-eur" });
       wrap.append(
         el("div", { class: `race-row race-${f.key}` }, [
           el("span", { class: "rr-name", text: names[f.key] }),
           el("span", { class: "rr-bar" }, [
             fill,
-            el("s", { class: "rr-calm", style: `left:${(100 * hero.route.nowind) / (longest * 1.04)}%` }),
+            el("s", { class: "rr-calm", style: `left:${(100 * hero.route.nowind) / scale}%` }),
+            el("s", { class: "rr-gc", style: `left:${(100 * f.gc) / scale}%` }),
           ]),
           time,
-          fuel,
-          money,
+          el("span", { class: "rr-line", text: `ligne droite : ${hm(f.gc)}` }),
         ]),
       );
-      rows[f.key] = { fill, time, fuel, money };
+      rows[f.key] = { fill, time };
     }
     const calm = el("p", { class: "race-calm" }, [
-      el("s", { "aria-hidden": "true" }),
-      `sans vent : ${hm(hero.route.nowind)}`,
+      el("span", {}, [el("s", { "aria-hidden": "true" }), `sans vent : ${hm(hero.route.nowind)}`]),
+      el("span", {}, [el("s", { class: "is-gc", "aria-hidden": "true" }), "ligne droite, dans le même vent"]),
     ]);
     const gap = el("p", { class: "race-gap", "aria-live": "polite" });
     const replay = el("button", { type: "button", class: "race-replay", text: "Rejouer" });
@@ -230,18 +233,19 @@ export async function openMap(hero, C) {
       const R = rows[f.key];
       if (R) {
         const mm = Math.min(m, f.total);
-        R.fill.style.width = `${(100 * mm) / (longest * 1.04)}%`;
+        R.fill.style.width = `${(100 * mm) / scale}%`;
         R.time.textContent = hm(mm);
-        R.fuel.textContent = tonnes((mm * C.KG) / 1000);
-        R.money.textContent = euros(mm * C.EUR);
         R.fill.parentElement.parentElement.classList.toggle("arrived", m >= f.total);
       }
     }
     if (rows.gap) {
       const done = m >= longest && flights.length > 1;
-      const dt = flights[1]?.total - flights[0].total;
+      // from the minutes on screen, so that the gap is the difference of the two clocks
+      const [east, west] = flights.map((f) => Math.round(f.total));
+      const dt = west - east;
+      const saved = Math.round(flights[1]?.gc) - west;
       rows.gap.textContent = done
-        ? `Même distance, même nuit : ${hm(dt)} et ${fmtNum((dt * C.KG) / 1000, 1)} tonnes de kérosène d'écart, environ ${euros(dt * C.EUR)}.`
+        ? `Même distance, même nuit : ${hm(dt)} d'écart, environ ${tonnes((dt * C.KG) / 1000, 0)} de kérosène. Vers New York, contourner le jet par le nord fait déjà gagner ${hm(saved)} sur la ligne droite.`
         : "Les deux avions partent en même temps, à la même vitesse par rapport à l'air. Seul le vent change.";
     }
   }
@@ -271,7 +275,7 @@ export async function openMap(hero, C) {
   $("#open-legend").append(
     el("span", { class: "ol-credit" }, [
       "Image : NASA Worldview, VIIRS, 8 février 2020. Vent : ERA5 (Copernicus), 250 hPa, 9 février 2020 à 00 h UTC, figé ; avion à 900 km/h par rapport à l'air, chacun sur sa route la plus rapide. ",
-      `Kérosène d'un long-courrier moyen : ${fmtNum(C.KG, 0)} kg et ${euros(C.EUR)} par minute de vol, au prix des douze derniers mois (DGAC, EIA, BCE), `,
+      `Kérosène d'un long-courrier moyen : ${fmtNum(C.KG, 0)} kg par minute de vol (DGAC), `,
       el("a", { href: "#couts", text: "calcul détaillé" }),
       ".",
     ]),

@@ -559,8 +559,12 @@ export function writePlacer({ sim }) {
 }
 
 /* ------------------------------------------------------------------ what the best route is worth */
-export function writeBilan({ stats, sim, cost }, C) {
+export function writeBilan({ stats, sim, cost, gap }, C) {
   const L = routeLedger(stats, cost);
+  // the day the best route gained most towards New York, 2019-2022
+  const gains = stats.west.daily.map((r) => r[0] - r[2]);
+  const topI = d3.maxIndex(gains);
+  const topDay = stats.days[topI];
   const fuel = sim.aircraft.find((a) => a.name === stats.aircraft).fuel;
   const T = C.trade(fuel);
   const fl = (i) => `FL${sim.levels[i].fl}`;
@@ -587,7 +591,7 @@ export function writeBilan({ stats, sim, cost }, C) {
   ]);
   $("#bilan-calc-dek").replaceChildren(
     rich([
-      "Chaque hypothèse est écrite : l'avion, le nombre de vols, le prix du kérosène, et ce à quoi la meilleure route est comparée.",
+      "Chaque hypothèse est écrite : l'avion, le nombre de vols, le prix du kérosène, et ce à quoi la meilleure route est comparée : la ligne droite, dans le même sens, pas le vol retour.",
     ]),
   );
   renderSteps($("#bilan-calc-steps"), [
@@ -658,6 +662,19 @@ export function writeBilan({ stats, sim, cost }, C) {
   after(
     "#bilan-after",
     [
+      [
+        "Ces ",
+        euros(C.eurOf(L.west)),
+        " ne mesurent pas l'écart entre l'aller et le retour. Vers New York, le vent impose en médiane ",
+        { b: hm(gap) },
+        " de vol de plus qu'au retour, environ ",
+        { b: euros(C.eurOf(gap)) },
+        ` de kérosène, et aucune route ne l'efface : la meilleure l'atténue seulement. Le gain grandit les jours de jet fort. Le plus fort des quatre ans tombe le ${longDate(topDay)}${topDay === "2020-02-08" ? ", veille de Ciara" : ""} : `,
+        { b: hm(gains[topI]) },
+        ", environ ",
+        { b: euros(C.eurOf(gains[topI])) },
+        " de kérosène.",
+      ],
       [
         `L'altitude, elle, oppose le temps au carburant. Vers New York, voler à ${fl(2)} plutôt qu'à ${fl(0)} rallonge le vol de `,
         { b: minutes(T.minutesMore, 1) },

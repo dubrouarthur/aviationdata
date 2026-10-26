@@ -161,7 +161,7 @@ async function main() {
   });
   safely("costs", () => {
     if (!C.route) return ($("#bilan").hidden = true);
-    writeBilan({ stats: data.sim_stats, sim: data.sim, cost: data.cost }, C);
+    writeBilan({ stats: data.sim_stats, sim: data.sim, cost: data.cost, gap: F.gap }, C);
     valueChart($("#chart-value"), {
       prices: data.cost.prices,
       tonnes: C.route.tonnesYear,

@@ -268,25 +268,29 @@ with sync_playwright() as pw:
     EUR = KG / 1000 * price
     kgf = lambda v: f"{fr(round(v) if v < 200 else round(v / 10) * 10)} kg"  # noqa: E731
     gapm = p["gap"]
-    # the opening race: both flights in the frozen wind of 9 February 2020, then the gap in time, fuel, euros
+    # the opening race: both flights in the frozen wind of 9 February 2020, durations only; the closing
+    # sentence: the gap between the two clocks on screen, its fuel, and the straight line towards New York
     race_done = "() => document.querySelector('#open-race .race-gap')?.textContent.includes('Même distance')"
     pg.wait_for_function(race_done, timeout=20000)
     east_t, west_t = hero["route"]["t_fast"], hero["west"]["t_fast"]
-    dt = west_t - east_t
+    gc_e, gc_w = hero["route"]["t_gc"], hero["west"]["t_gc"]
+    dt = round(west_t) - round(east_t)
     has(
         "the opening race",
         text("#open-race"),
         hm(east_t),
         hm(west_t),
+        f"ligne droite : {hm(gc_e)}",
+        f"ligne droite : {hm(gc_w)}",
         f"sans vent : {hm(hero['route']['nowind'])}",
-        f"Même distance, même nuit : {hm(dt)} et {fr(KG * dt / 1000, 1)} tonnes de kérosène d'écart, "
-        f"environ {euros(EUR * dt)}",
+        f"Même distance, même nuit : {hm(dt)} d'écart, environ {fr(KG * dt / 1000, 0)} t de kérosène.",
+        f"contourner le jet par le nord fait déjà gagner {hm(round(gc_w) - round(west_t))} sur la ligne droite",
     )
+    check("no euros in the race", "€" not in text("#open-race"), text("#open-race"))
     has(
-        "the race's kilos and euros are sourced",
+        "the race's kilos are sourced",
         text("#open-legend"),
-        f"Kérosène d'un long-courrier moyen : {fr(KG)} kg et {euros(EUR)} par minute de vol",
-        "au prix des douze derniers mois (DGAC, EIA, BCE), calcul détaillé",
+        f"Kérosène d'un long-courrier moyen : {fr(KG)} kg par minute de vol (DGAC), calcul détaillé",
     )
     check("the race links to the cost box", pg.locator("#open-legend a[href='#couts']").count() == 1)
     # the box "D'où viennent ces kilos et ces euros": each step redone from cost.json
@@ -497,6 +501,17 @@ with sync_playwright() as pw:
             f"plus de {euros(less * price / more)}, carburant mis à part",
             "Eurocontrol estime le coût moyen d'une minute de retard pour une compagnie européenne à 100 €",
             f"le seuil monte à {euros(less * last['eur_t'] / more)}",
+        )
+        top_i = max(range(len(w["daily"])), key=lambda i: w["daily"][i][0] - w["daily"][i][2])
+        top_g = w["daily"][top_i][0] - w["daily"][top_i][2]
+        has(
+            "the bilan tells the wind's cost from the route's gain",
+            text("#bilan"),
+            "la ligne droite, dans le même sens, pas le vol retour",
+            f"Ces {euros(west * EUR)} ne mesurent pas l'écart entre l'aller et le retour",
+            f"le vent impose en médiane {hm(gapm)} de vol de plus qu'au retour, environ {euros(gapm * EUR)}",
+            f"Le plus fort des quatre ans tombe le {long_date(ss['days'][top_i])}",
+            f"{hm(top_g)}, environ {euros(top_g * EUR)} de kérosène",
         )
         check("no false physics", "air plus froid du niveau bas" not in text("main"))
         has(
