@@ -340,7 +340,7 @@ export function writeStory(data, F, C) {
       { b: hm(cgw) },
       " contre le vent, et la route la plus rapide, qui passe très au nord, ",
       { b: hm(cow) },
-      `. Le simulateur, plus haut, où le vent évolue pendant le vol et où l'avion vole à Mach ${fmtNum(simDay.mach, 2)}, donne pour ce jour-là ${hm(simDay.gc)} et ${hm(simDay.best)} : les deux modèles diffèrent de quelques minutes, pas sur le fond. Les montants en euros de cette enquête viennent tous du simulateur.`,
+      `. Le simulateur, plus haut, où le vent évolue pendant le vol et où l'avion vole à Mach ${fmtNum(simDay.mach, 2)}, donne pour ce jour-là ${hm(simDay.gc)} et ${hm(simDay.best)} : les deux modèles s'accordent à ${minutes(Math.abs(Math.round(cow) - Math.round(simDay.best)))} près sur la meilleure route, à ${minutes(Math.abs(Math.round(cgw) - Math.round(simDay.gc)))} près sur la ligne droite, la plus exposée au vent. Les montants en euros de cette enquête viennent tous du simulateur.`,
     ],
   ]);
   $("#strip-note").textContent =
@@ -410,7 +410,7 @@ export function writeCouts(cost) {
   const n0 = (v) => fmtNum(v, 0);
   $("#couts-dek").replaceChildren(
     rich([
-      "Aucune compagnie ne publie ce que brûle chacun de ses vols. Les kilos et les euros de cette enquête sont calculés à partir de données publiques, en cinq étapes que chacun peut refaire.",
+      "Les compagnies ne publient pas ce que brûle chacun de leurs vols. Les kilos et les euros de cette enquête sont calculés à partir de données publiques, en cinq étapes que chacun peut refaire.",
     ]),
   );
   const steps = [
@@ -669,7 +669,7 @@ export function writeBilan({ stats, sim, cost, gap }, C) {
         { b: hm(gap) },
         " de vol de plus qu'au retour, environ ",
         { b: euros(C.eurOf(gap)) },
-        ` de kérosène, et aucune route ne l'efface : la meilleure l'atténue seulement. Le gain grandit les jours de jet fort. Le plus fort des quatre ans tombe le ${longDate(topDay)}${topDay === "2020-02-08" ? ", veille de Ciara" : ""} : `,
+        ` de kérosène, et aucune route ne l'efface : la meilleure l'atténue seulement. Le gain grandit les jours de jet fort. Dans le simulateur, le plus fort des quatre ans tombe le ${longDate(topDay)}${topDay === "2020-02-08" ? ", veille de Ciara" : ""} : `,
         { b: hm(gains[topI]) },
         ", environ ",
         { b: euros(C.eurOf(gains[topI])) },

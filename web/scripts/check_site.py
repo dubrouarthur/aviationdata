@@ -404,6 +404,8 @@ with sync_playwright() as pw:
         f"demandé {hm(ciara[3])} contre le vent",
         f"très au nord, {hm(ciara[4])}. Le simulateur, plus haut",
         f"donne pour ce jour-là {hm(sim_noon['gc'])} et {hm(sim_noon['best'][1])}",
+        f"s'accordent à {mins(abs(round(ciara[4]) - round(sim_noon['best'][1])))} près sur la meilleure route",
+        f"à {mins(abs(round(ciara[3]) - round(sim_noon['gc'])))} près sur la ligne droite",
         "Les montants en euros de cette enquête viennent tous du simulateur",
     )
     check("no euros from the simple model", "€" not in text("#route-prose") + text("#ar-prose"))
@@ -534,7 +536,7 @@ with sync_playwright() as pw:
             "la ligne droite, dans le même sens, pas le vol retour",
             f"Ces {euros(west * EUR)} ne mesurent pas l'écart entre l'aller et le retour",
             f"le vent impose en médiane {hm(gapm)} de vol de plus qu'au retour, environ {euros(gapm * EUR)}",
-            f"Le plus fort des quatre ans tombe le {long_date(ss['days'][top_i])}",
+            f"le plus fort des quatre ans tombe le {long_date(ss['days'][top_i])}",
             f"{hm(top_g)}, environ {euros(top_g * EUR)} de kérosène",
         )
         check("no false physics", "air plus froid du niveau bas" not in text("main"))

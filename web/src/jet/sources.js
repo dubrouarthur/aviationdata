@@ -135,9 +135,9 @@ export const FACTS = {
     url: "https://en.wikipedia.org/wiki/North_Atlantic_Tracks",
   },
   williams: {
-    text: "Williams, P. D. (2016), « Transatlantic flight times and climate change », Environmental Research Letters, publié le 10 février 2016 : avec un doublement du CO2, le vent d'hiver sur Londres–New York passerait de 77 à 89 km/h, les allers vers l'Amérique s'allongeraient et les retours raccourciraient, pour environ 2 000 heures de vol de plus par an.",
-    source: "IOP Publishing",
-    url: "https://ioppublishing.org/news/climate-change-will-delay-transatlantic-flights/",
+    text: "Williams, P. D. (2016), « Transatlantic flight times and climate change », Environmental Research Letters, 11, 024008, publié le 10 février 2016 : avec un doublement du CO2, un courant-jet plus fort allongerait les vols Londres–New York vers l'ouest et raccourcirait ceux vers l'est, sans que les deux s'annulent ; étendu à tout le trafic transatlantique, environ 2 000 heures de vol de plus par an.",
+    source: "Environmental Research Letters (résumé de l'article)",
+    url: "https://doi.org/10.1088/1748-9326/11/2/024008",
   },
   lothar: {
     text: "Tempêtes Lothar (26 décembre 1999, nord de la France) et Martin (nuit du 27 au 28 décembre 1999, sud de la France).",
@@ -248,7 +248,7 @@ export function initJetSources({ flights, trappes, climate, meta, cost }) {
         "Gains de la meilleure route : pour chaque jour de 2019 à 2022, un Boeing 777-300ER à Mach 0,84 parti de Paris à 12 h UTC et de New York à 00 h UTC, au niveau de vol 340, dans les vents ERA5 qui évoluent pendant le vol ; la meilleure route est comparée à la ligne droite au même niveau.",
       ]),
       li([
-        "Prévisions : pour chaque jour de 2020 et chaque sens, la meilleure route au niveau de vol 340 est calculée sur une information (vent moyen du mois sur 2019-2022, prévision HRES ou Pangu-Weather émise 12 h ou 108 h avant le départ, ou vent ERA5 lui-même), à température standard, puis volée dans le vent et la température ERA5. Les prévisions viennent de WeatherBench 2, sur la même grille de 1,5° que ERA5. Pangu-Weather a été entraîné sur ERA5, ce qui l'avantage quand ERA5 sert de référence. L'erreur sur le vent est l'écart moyen, en valeur absolue, de la composante du vent le long de la ligne droite, six heures après le départ.",
+        "Prévisions : pour chaque jour de 2020 et chaque sens, la meilleure route au niveau de vol 340 est calculée sur une information (vent moyen du mois sur 2019-2022, prévision HRES ou Pangu-Weather émise 12 h ou 108 h avant le départ, ou vent ERA5 lui-même), à température standard, puis volée dans le vent et la température ERA5. Les prévisions viennent de WeatherBench 2, sur la même grille de 1,5° qu'ERA5. Pangu-Weather a été entraîné sur ERA5, ce qui l'avantage quand ERA5 sert de référence. L'erreur sur le vent est l'écart moyen, en valeur absolue, de la composante du vent le long de la ligne droite, six heures après le départ.",
       ]),
       li([
         "Une minute de croisière en kilos et en euros : voir l'encadré « ",

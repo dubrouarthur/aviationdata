@@ -10,6 +10,8 @@ export const big = (v) =>
   v >= 1e9 ? `${fmtNum(v / 1e9, 2)} milliard${v >= 2e9 ? "s" : ""}` : `${fmtNum(v / 1e6, 1)} millions`;
 const up = (v, d = 0) => `${fmtNum(Math.abs(v), d)} %`;
 const kmTxt = (v) => `${fmtNum(Math.round(v))} km`;
+/** "de mars 2026", "d'août 2025" */
+const de = (w) => (/^[aeiouyéèêàâîôûh]/i.test(w) ? `d'${w}` : `de ${w}`);
 /** 550 000 -> "550 000 passagers" ; 12 000 000 -> "12,0 M de passagers" */
 const paxWords = (v) => (v >= 1e6 ? `${mio(v)} de passagers` : `${mio(v)} passagers`);
 
@@ -155,9 +157,9 @@ export function writeBoard(data, zone, key, Z) {
   parts.push(`. Record mensuel : ${monthLabel(Z.recordMonth)} (${mio(Z.recordValue)}).`);
   $("#board-readout").replaceChildren(el("p", {}, rich(parts)));
 
-  $("#h-board-month").textContent = `${name} : le record date de ${monthLabel(Z.recordMonth)}`;
+  $("#h-board-month").textContent = `${name} : le record date ${de(monthLabel(Z.recordMonth))}`;
   $("#board-month-note").textContent =
-    `Passagers transportés chaque mois, ${kw}, de ${monthLabel(zone.monthStart)} à ${monthLabel(zone.monthLast)}. Un passager compte une fois par vol.`;
+    `Passagers transportés chaque mois, ${kw}, ${de(monthLabel(zone.monthStart))} à ${monthLabel(zone.monthLast)}. Un passager compte une fois par vol.`;
   lecture(
     "#chart-board-month",
     "survolez la courbe pour lire chaque mois ; les deux points marquent le record et le mois le plus creux.",

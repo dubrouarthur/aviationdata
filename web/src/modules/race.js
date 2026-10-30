@@ -25,7 +25,7 @@ export function initRace(data) {
         { b: `${fmtNum(share[0] * 100, 0)} %` },
         ` des passagers. En ${years[L]}, `,
         { b: `${fmtNum(share[L] * 100, 0)} %` },
-        `. ${leader.nom} reste en tête avec ${fmtPax(leader.pax[L])} de passagers, suivie de ${top3.map((c) => c.nom).join(", ")}.`,
+        `. ${leader.nom} reste en tête avec ${fmtPax(leader.pax[L])} de passagers, suivie ${/^[aeiouyéèêàâîôûh]/i.test(top3[0].nom) ? "d'" : "de "}${top3.map((c) => c.nom).join(", ")}.`,
         ...(ryanair
           ? [
               ` Ryanair, qui réduit son offre en France depuis la hausse des taxes, ${
