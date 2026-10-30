@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Cap au sud : vingt ans de passagers aériens en Europe</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Le transport aérien européen a-t-il effacé le Covid ? Vingt ans de données Eurostat, pays par pays et aéroport par aéroport : un record en 2025, mais un ciel qui a glissé vers le sud et l'est."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Cap au sud",
+        "description": "Vingt ans de passagers aériens en Europe, pays par pays et aéroport par aéroport, d'après Eurostat.",
+        "inLanguage": "fr",
+        "datePublished": "2026-10-30",
+        "dateModified": "2026-10-30",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": ["https://ec.europa.eu/eurostat/databrowser/view/avia_paoc/default/table"]
+      }
+    </script>
+    <meta name="theme-color" content="#0d2236" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Cap au sud" />
+    <meta
+      property="og:description"
+      content="Un record de passagers aériens en Europe en 2025, mais pas partout : vingt ans de données Eurostat, pays par pays."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-eu.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%ciel-europeen" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="eu">
+    <a class="skip-link" href="#ouverture">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#ouverture">Cap <span>au sud</span></a>
+        <nav class="topnav" aria-label="Parties">
+          <a href="#tableau">Le tableau de bord</a>
+          <a href="#partie-2">Où va le ciel</a>
+          <a href="#en-bref">La réponse</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main>
+      <!-- opening: every airport of Europe, and the centre of gravity of its passengers since 2008 -->
+      <section class="eu-open" id="ouverture" aria-labelledby="title">
+        <div class="wrap eu-open-grid">
+          <div class="eu-open-text">
+            <!--site:kicker-->
+            <h1 class="display" id="title">Cap <em>au sud</em></h1>
+            <p class="open-q">
+              Le transport aérien européen a-t-il effacé le Covid ? Oui, et il bat des records. Mais pas
+              partout : en six ans, le ciel européen a glissé vers le sud.
+            </p>
+            <div class="eu-years" id="open-years"></div>
+          </div>
+          <figure class="eu-open-map panel dark-panel" data-esource="paoa ourairports naturalearth">
+            <h3 class="visually-hidden" id="h-open-map">
+              Les aéroports d'Europe et le centre de gravité de leurs passagers
+            </h3>
+            <div class="eu-map" id="open-map" role="img" aria-labelledby="h-open-map"></div>
+            <p class="note" id="open-note"></p>
+          </figure>
+        </div>
+      </section>
+      <div class="wrap standfirst">
+        <p class="open-dek" id="open-dek"></p>
+        <!--site:byline-->
+      </div>
+
+      <section class="wrap essentiel" id="essentiel" aria-labelledby="h-essentiel">
+        <h2 class="essentiel-title" id="h-essentiel">L'essentiel</h2>
+        <ol class="essentiel-list" id="essentiel-list"></ol>
+      </section>
+
+      <div class="part wrap" id="partie-1">
+        <p class="part-label"><span class="part-no">Partie 1</span> Le tableau de bord</p>
+        <p class="part-dek">Chaque pays, chaque mois depuis 2004, et ses aéroports : à vous de choisir.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter eu-board" id="tableau" aria-labelledby="h-tableau">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-tableau">Le ciel européen, pays par pays</h2>
+          <div class="prose" id="tableau-prose"></div>
+        </div>
+        <div class="eu-controls" role="group" aria-label="Ce que montre le tableau de bord">
+          <label class="eu-field">
+            <span>Pays</span>
+            <select id="board-zone"></select>
+          </label>
+          <div class="eu-field">
+            <span id="l-board-key">Vols</span>
+            <div class="seg" id="board-key" role="group" aria-labelledby="l-board-key"></div>
+          </div>
+        </div>
+        <div class="eu-readout" id="board-readout" aria-live="polite"></div>
+        <figure class="panel" data-esource="paoc">
+          <h3 id="h-board-month"></h3>
+          <p class="note" id="board-month-note"></p>
+          <div class="chart" id="chart-board-month" tabindex="0" aria-labelledby="h-board-month"></div>
+        </figure>
+        <div class="grid-2">
+          <figure class="panel" data-esource="paoc">
+            <h3 id="h-board-heat"></h3>
+            <p class="note" id="board-heat-note"></p>
+            <div class="chart" id="chart-board-heat" tabindex="0" aria-labelledby="h-board-heat"></div>
+          </figure>
+          <figure class="panel" data-esource="paoc">
+            <h3 id="h-board-parts"></h3>
+            <p class="note" id="board-parts-note"></p>
+            <div class="chart" id="chart-board-parts" tabindex="0" aria-labelledby="h-board-parts"></div>
+          </figure>
+        </div>
+        <figure class="panel" data-esource="paoa">
+          <h3 id="h-board-apt"></h3>
+          <p class="note" id="board-apt-note"></p>
+          <div class="eu-apt" id="board-apt"></div>
+        </figure>
+      </section>
+
+      <div class="part wrap" id="partie-2">
+        <p class="part-label"><span class="part-no">Partie 2</span> Où va le ciel européen</p>
+        <p class="part-dek">
+          Ce que vingt ans de données disent de la reprise d'après-Covid, et de ceux qu'elle oublie.
+        </p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="record" aria-labelledby="h-record">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-record"></h2>
+          <div class="prose" id="record-prose"></div>
+        </div>
+        <figure class="panel" data-esource="paoc">
+          <h3 id="h-union"></h3>
+          <p class="note" id="union-note"></p>
+          <div class="chart" id="chart-union" tabindex="0" aria-labelledby="h-union"></div>
+        </figure>
+        <div class="prose after-figure" id="record-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="sud" aria-labelledby="h-sud">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-sud"></h2>
+          <div class="prose" id="sud-prose"></div>
+        </div>
+        <div class="grid-wide">
+          <figure class="panel" data-esource="paoc naturalearth">
+            <h3 id="h-choro"></h3>
+            <p class="note" id="choro-note"></p>
+            <div class="eu-map eu-map-light" id="chart-choro" role="img" aria-labelledby="h-choro"></div>
+          </figure>
+          <figure class="panel" data-esource="paoc">
+            <h3 id="h-rank"></h3>
+            <p class="note" id="rank-note"></p>
+            <div class="chart" id="chart-rank" tabindex="0" aria-labelledby="h-rank"></div>
+          </figure>
+        </div>
+        <div class="prose after-figure" id="sud-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="interieur" aria-labelledby="h-interieur">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-interieur"></h2>
+          <div class="prose" id="interieur-prose"></div>
+        </div>
+        <figure class="panel" data-esource="paoc">
+          <h3 id="h-nat"></h3>
+          <p class="note" id="nat-note"></p>
+          <div class="chart" id="chart-nat" tabindex="0" aria-labelledby="h-nat"></div>
+        </figure>
+        <div class="prose after-figure" id="interieur-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="aeroports" aria-labelledby="h-aeroports">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-aeroports"></h2>
+          <div class="prose" id="aeroports-prose"></div>
+        </div>
+        <figure class="panel" data-esource="paoa">
+          <h3 id="h-bump"></h3>
+          <p class="note" id="bump-note"></p>
+          <div class="chart" id="chart-bump" tabindex="0" aria-labelledby="h-bump"></div>
+        </figure>
+        <div class="prose after-figure" id="aeroports-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="gravite" aria-labelledby="h-gravite">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-gravite"></h2>
+          <div class="prose" id="gravite-prose"></div>
+        </div>
+        <figure class="panel" data-esource="paoa ourairports naturalearth">
+          <h3 id="h-bary"></h3>
+          <p class="note" id="bary-note"></p>
+          <div class="eu-map eu-map-light" id="chart-bary" role="img" aria-labelledby="h-bary"></div>
+        </figure>
+        <div class="prose after-figure" id="gravite-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
+        <div class="share" id="share"></div>
+      </section>
+
+      <!--site:next-->
+    </main>
+
+    <footer class="footer" id="sources">
+      <div class="wrap">
+        <h2>Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </footer>
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/eu.js"></script>
+  </body>
+</html>

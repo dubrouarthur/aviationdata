@@ -32,7 +32,7 @@ for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
 # every investigation, newest first (web/src/site/issues.js), and every page of the magazine
-SLUGS = ["facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
+SLUGS = ["ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
 PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes"]
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 failures = []
@@ -192,12 +192,9 @@ with sync_playwright() as pw:
     links = pg.eval_on_selector_all(".shelf-link", "as => as.map(a => a.getAttribute('href'))")
     check("home lists every investigation", links == SLUGS, str(links))
     pg.wait_for_timeout(800)
-    painted = pg.evaluate(
-        "() => { const c = document.getElementById('lead-mosaic');"
-        " const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;"
-        " let n = 0; for (let i = 3; i < d.length; i += 64) n += d[i] > 0; return n; }"
-    )
-    check("home lead figure is drawn", painted > 200, f"{painted} painted samples")
+    pg.wait_for_selector("#lead-map circle", timeout=15000)
+    painted = pg.locator("#lead-map .apt-dots circle").count()
+    check("home lead figure is drawn", painted > 150, f"{painted} airports")
     pg.click(".shelf-link[href='courant-jet']")
     pg.wait_for_load_state("networkidle")
     check("home shelf opens the story", pg.title().startswith("Le vent dans le dos"), pg.url)
@@ -225,7 +222,12 @@ with sync_playwright() as pw:
         check(f"{path}: the menu leads home", home in (["./"], ["../"]), str(home))
         if path.strip("/") in SLUGS:
             n = pg.locator("#menu-chapters a").count()
-            check(f"{path}: the menu lists the chapters", n >= pg.locator(".topnav a").count() and n > 8, f"{n}")
+            chapters = pg.locator("main section.chapter h2.section-title").count()
+            check(
+                f"{path}: the menu lists the chapters",
+                n >= pg.locator(".topnav a").count() and n >= chapters - 1 and n > 5,
+                f"{n} for {chapters} chapters",
+            )
         pg.keyboard.press("Escape")
         check(f"{path}: Escape closes the menu", not pg.evaluate("document.getElementById('site-menu').open"))
     pg.goto(base + "/courant-jet", wait_until="networkidle")

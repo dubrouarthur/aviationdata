@@ -92,6 +92,17 @@
   border-color: #fff;
 }
 
+.lead .btn:not(.primary) {
+  background: none;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.lead .btn:not(.primary):hover,
+.lead .btn:not(.primary):focus-visible {
+  border-color: #fff;
+}
+
 .lead-caption {
   font-size: 0.8rem;
   color: var(--night-muted);
@@ -126,7 +137,7 @@
 }
 
 .lead-split .lead-tag {
-  color: #ff9a52;
+  color: #ffb04a;
 }
 
 .lead-split .lead-title {
@@ -420,4 +431,13 @@
 
 .home {
   --jet: var(--night);
+}
+
+.lead-map {
+  margin: 0;
+  min-width: 0;
+}
+
+.lead-map .lead-caption {
+  margin-top: 8px;
 }

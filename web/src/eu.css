@@ -1,0 +1,529 @@
+/* The fourth investigation: Europe's air passengers. One accent, the teal of an aeronautical chart's
+   water, for the story; two inks for the reprise: amber above 2019 (the south it leans to), blue below. */
+:root {
+  --issue-accent: #0f766e; /* 5.4:1 on paper */
+  --eu-accent: #0f766e;
+  --south: #c47a12;
+  --south-text: #8a5200;
+  --north: #2a78d6;
+  --north-text: #1e62b5;
+  --south-hi: #ffb04a;
+  --north-hi: #6cb4ff;
+  --map-neutral: #9fb4c8;
+  --eu-nat: #c9b28a;
+  --eu-ieu: #0f766e;
+  --eu-xeu: #1f3b5c;
+  --night: #0d2236;
+  --night-ink: #e9f0f6;
+  --night-muted: #a9bccd;
+}
+
+.eu .brand span {
+  color: var(--issue-accent);
+}
+
+.eu .topnav a[aria-current="true"] {
+  border-bottom-color: var(--issue-accent);
+}
+
+/* ------------------------------------------------------------------ the opening */
+.eu-open {
+  background: var(--night);
+  color: var(--night-ink);
+  padding-block: clamp(32px, 6vh, 64px) 28px;
+  overflow: hidden;
+}
+
+.eu-open-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 28px 48px;
+  align-items: center;
+}
+
+.eu-open .display {
+  color: #fff;
+  margin-bottom: 0;
+}
+
+.eu-open .display em {
+  color: var(--south-hi);
+}
+
+.eu-open .issue-kicker,
+.eu-open .issue-kicker a,
+.eu-open .issue-kicker span {
+  color: var(--night-muted);
+}
+
+.eu-open .issue-kicker span {
+  border-left-color: rgba(169, 188, 205, 0.4);
+}
+
+.eu-open .open-q {
+  max-width: 24em;
+  margin: 18px 0 0;
+  font-family: var(--f-text);
+  font-size: clamp(1.1rem, 1.9vw, 1.35rem);
+  line-height: 1.45;
+  color: #fff;
+  text-wrap: pretty;
+}
+
+.eu-open-map {
+  margin: 0;
+  min-width: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+}
+
+.eu-open-map .note {
+  margin: 10px 0 0;
+  color: var(--night-muted);
+}
+
+.eu-open-map .source-line {
+  color: var(--night-muted);
+  border-top-color: rgba(255, 255, 255, 0.16);
+}
+
+.eu-open-map .source-line a {
+  color: var(--night-ink);
+}
+
+.eu-open-map .fig-no {
+  display: none;
+}
+
+/* year slider under the title */
+.eu-years {
+  margin-top: 28px;
+  max-width: 26rem;
+}
+
+.ey-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ey-row input {
+  flex: 1;
+  accent-color: var(--south-hi);
+}
+
+.ey-play {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.ey-play:hover,
+.ey-play:focus-visible {
+  border-color: #fff;
+}
+
+.ey-year {
+  min-width: 3.2ch;
+  font: 800 1.6rem/1 var(--f-display);
+  font-stretch: 70%;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.ey-read {
+  margin: 10px 0 0;
+  font-family: var(--f-text);
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: var(--night-ink);
+}
+
+.ey-read b {
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------ maps */
+.eu-map svg {
+  display: block;
+}
+
+.eu-map .land {
+  fill: #12283f;
+  stroke: #1f3d5c;
+  stroke-width: 0.6;
+}
+
+.eu-map .land.in {
+  fill: #183654;
+}
+
+.apt-dots circle {
+  fill-opacity: 0.8;
+  stroke: rgba(13, 34, 54, 0.7);
+  stroke-width: 0.6;
+}
+
+.bary-line {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.bary-ring {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+.bary-dot {
+  fill: #fff;
+}
+
+.bary-lab {
+  fill: #fff;
+  font: 650 12px var(--f-ui);
+  paint-order: stroke;
+  stroke: var(--night);
+  stroke-width: 3px;
+}
+
+.eu-map-light .cty {
+  fill: #e4eae7;
+  stroke: #fff;
+  stroke-width: 0.6;
+}
+
+.eu-map-light .cty.in {
+  stroke: #fff;
+  stroke-width: 0.8;
+}
+
+.eu-map-light .cty.in:hover {
+  stroke: var(--ink);
+  stroke-width: 1.2;
+}
+
+.cty-zoom {
+  fill: #e6ece9;
+  stroke: #9fb0a8;
+  stroke-width: 0.8;
+}
+
+.bary-path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.bary-path.before {
+  stroke: #7d8a96;
+}
+
+.bary-path.after {
+  stroke: var(--south);
+  stroke-width: 2.6;
+}
+
+.bary-pt {
+  fill: #5f6b79;
+}
+
+.bary-pt.after {
+  fill: var(--south);
+}
+
+.bary-y {
+  font: 700 12px var(--f-ui);
+  fill: var(--ink-2);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.bary-y.after {
+  fill: var(--south-text);
+}
+
+.mark-apt {
+  fill: var(--ink-2);
+}
+
+.mark-lab {
+  font: 12px var(--f-ui);
+  fill: var(--ink-2);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.scalebar line {
+  stroke: var(--ink-2);
+  stroke-width: 1.4;
+}
+
+.scalebar text {
+  font: 11.5px var(--f-ui);
+  fill: var(--ink-2);
+}
+
+/* ------------------------------------------------------------------ the dashboard */
+.eu-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 14px 28px;
+  margin: 28px 0 0;
+  padding-top: 14px;
+  border-top: 3px solid var(--ink);
+}
+
+.eu-field {
+  display: grid;
+  gap: 6px;
+  font: 700 0.8rem var(--f-ui);
+  color: var(--ink-2);
+}
+
+.eu-field select {
+  min-height: 40px;
+  min-width: 16rem;
+  padding: 6px 34px 6px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  background: var(--paper)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%230f1c2b' stroke-width='1.6'/%3E%3C/svg%3E")
+    no-repeat right 12px center;
+  font: 650 1rem var(--f-ui);
+  color: var(--ink);
+  appearance: none;
+}
+
+.eu-readout {
+  margin: 18px 0 24px;
+  font-family: var(--f-text);
+  font-size: clamp(1.1rem, 1.7vw, 1.3rem);
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.eu-readout p {
+  margin: 0;
+}
+
+.eu-board .grid-2 {
+  margin-top: 40px;
+}
+
+.eu-board > figure.panel + .grid-2 + figure.panel,
+.eu-board > .grid-2 + figure.panel {
+  margin-top: 40px;
+}
+
+/* ------------------------------------------------------------------ charts */
+.eu-area {
+  fill-opacity: 0.12;
+}
+
+.eu-line {
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.eu-mark {
+  fill: var(--ink);
+}
+
+.eu-label,
+.eu-legend text,
+.axis-t,
+.axis text {
+  font: 11.5px var(--f-ui);
+  fill: var(--muted);
+}
+
+.eu-label {
+  font-weight: 650;
+  fill: var(--ink-2);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.eu-legend text {
+  fill: var(--ink-2);
+}
+
+.eu-focus line {
+  stroke: var(--axis);
+}
+
+.eu-focus circle {
+  fill: var(--ink);
+}
+
+.chart .grid,
+.chart line.grid {
+  stroke: var(--grid);
+}
+
+.chart line.zero {
+  stroke: var(--ink-2);
+}
+
+.chart .lab {
+  font: 12.5px var(--f-ui);
+  fill: var(--ink);
+}
+
+.chart .val {
+  font: 650 12px var(--f-ui);
+  fill: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart .r:hover .lab {
+  fill: var(--issue-accent);
+}
+
+.d2019 {
+  fill: var(--paper);
+  stroke: var(--ink-2);
+  stroke-width: 1.5;
+}
+
+.bump {
+  fill: none;
+  stroke: #cbd3cf;
+  stroke-width: 1.5;
+}
+
+.bump.on {
+  stroke-width: 3.2;
+}
+
+.bump-dot {
+  fill: #cbd3cf;
+}
+
+.bump-lab {
+  font: 12px var(--f-ui);
+  fill: var(--muted);
+}
+
+.bump-lab.on {
+  font-weight: 700;
+}
+
+.bump-lab.first {
+  fill: var(--muted);
+}
+
+/* the airports of a zone */
+.eu-apt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 0.92rem/1.3 var(--f-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.eu-apt-table th,
+.eu-apt-table td {
+  padding: 7px 10px 7px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.eu-apt-table thead th {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  border-bottom-color: var(--ink);
+}
+
+.eu-apt-table tbody th {
+  font-weight: 650;
+  color: var(--ink);
+  white-space: normal;
+}
+
+.eu-apt-table .n {
+  text-align: right;
+}
+
+.eu-apt-table .rk {
+  width: 2.2em;
+  color: var(--muted);
+}
+
+.eu-apt-table .up {
+  color: var(--south-text);
+  font-weight: 700;
+}
+
+.eu-apt-table .down {
+  color: var(--north-text);
+  font-weight: 700;
+}
+
+.eu-apt-table .sp {
+  padding-left: 14px;
+}
+
+.sp-line {
+  fill: none;
+  stroke: var(--eu-accent);
+  stroke-width: 1.6;
+}
+
+.sp-2019 {
+  stroke: var(--axis);
+  stroke-dasharray: 2 2;
+}
+
+@media (max-width: 900px) {
+  .eu-open-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .eu-years {
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .eu-field select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .eu-field {
+    flex: 1 1 100%;
+  }
+
+  .eu-apt-table .sp,
+  .eu-apt-table th:nth-child(3),
+  .eu-apt-table td:nth-child(3) {
+    display: none;
+  }
+}
+
+.eu-apt .table-scroll {
+  max-height: none;
+}
+
+.cty-lab {
+  font: italic 600 13px var(--f-text);
+  fill: #8a978f;
+  letter-spacing: 0.02em;
+}

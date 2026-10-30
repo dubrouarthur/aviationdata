@@ -90,9 +90,10 @@ export function atlasFrame() {
     chapterSources(main);
     observer.observe(main, { childList: true, subtree: true });
   };
+  // at most every quarter of a second, and never starved: a counter that animates for seconds keeps the
+  // page changing, and a timer reset on each change would never fire
   const observer = new MutationObserver(() => {
-    clearTimeout(timer);
-    timer = setTimeout(run, 250);
+    timer ||= setTimeout(run, 250);
   });
   run();
 }

@@ -15,6 +15,21 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "eu",
+    slug: "ciel-europeen",
+    no: 4,
+    topic: "Europe",
+    title: "Cap au sud",
+    dek: "Le transport aérien européen a effacé le Covid et bat des records, mais pas partout. Vingt ans de données Eurostat, pays par pays et aéroport par aéroport, dans un tableau de bord.",
+    published: "2026-10-30",
+    updated: "2026-10-30",
+    minutes: 15,
+    chapters: 6,
+    image: "og-eu.jpg",
+    accent: "#0f766e",
+    sources: "Eurostat",
+  },
+  {
     key: "hf",
     slug: "facteur-humain",
     no: 3,
@@ -63,6 +78,12 @@ export const ISSUES = [
 
 // interactive tools inside the investigations, offered on their own from the home page and the menu
 export const TOOLS = [
+  {
+    issue: "eu",
+    hash: "tableau",
+    title: "Le tableau de bord européen",
+    dek: "Chaque pays de l'Union et de l'AELE, mois par mois depuis 2004 : ses passagers, ses saisons, ses vols intérieurs et ses aéroports.",
+  },
   {
     issue: "hf",
     hash: "explorer",

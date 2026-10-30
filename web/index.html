@@ -16,7 +16,7 @@
     </script>
     <meta
       name="description"
-      content="Des enquêtes sur le transport aérien construites uniquement sur des données publiques : DGAC, Copernicus, NOAA, Météo-France, NASA, OpenSky. Chaque chiffre est recalculé depuis la source."
+      content="Des enquêtes sur le transport aérien construites uniquement sur des données publiques : Eurostat, DGAC, NTSB, Copernicus, NOAA, Météo-France, NASA, OpenSky. Chaque chiffre est recalculé depuis la source."
     />
     <meta name="author" content="Arthur Dubrou" />
     <meta name="theme-color" content="#f6f8f6" />
@@ -27,9 +27,9 @@
     <meta property="og:title" content="aviationdata" />
     <meta
       property="og:description"
-      content="Enquêtes en données ouvertes sur le transport aérien : le facteur humain dans les accidents, le courant-jet et les vols transatlantiques, le trafic français depuis 1990."
+      content="Enquêtes en données ouvertes sur le transport aérien : les passagers européens depuis vingt ans, le facteur humain dans les accidents, le courant-jet et les vols transatlantiques, le trafic français depuis 1990."
     />
-    <meta property="og:image" content="%VITE_SITE_URL%og-jet.jpg" />
+    <meta property="og:image" content="%VITE_SITE_URL%og-eu.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="%VITE_SITE_URL%" />
@@ -56,26 +56,28 @@
           <div class="lead-body">
             <p class="lead-tag">Nouvelle enquête</p>
             <h1 class="lead-title" id="lead-title">
-              <a href="facteur-humain">L'erreur est humaine</a>
+              <a href="ciel-europeen">Cap au sud</a>
             </h1>
             <p class="lead-dek">
-              Une personne est citée dans trois accidents aériens sur quatre. Le facteur humain est-il
-              vraiment la première cause des accidents ? Seize ans de verdicts des enquêteurs américains, 21
-              400 accidents, lus avec les grands modèles du risque aérien.
+              Le transport aérien européen a effacé le Covid et bat des records, mais pas partout : en six
+              ans, le ciel européen a glissé vers le sud. Vingt ans de données Eurostat, pays par pays, dans
+              un tableau de bord.
             </p>
             <p class="lead-actions">
-              <a class="btn primary" href="facteur-humain">Lire l'enquête</a>
+              <a class="btn primary" href="ciel-europeen">Lire l'enquête</a>
+              <a class="btn" href="ciel-europeen#tableau">Ouvrir le tableau de bord</a>
             </p>
           </div>
-          <figure class="lead-mosaic">
-            <canvas
-              id="lead-mosaic"
+          <figure class="lead-map">
+            <div
+              class="eu-map"
+              id="lead-map"
               role="img"
-              aria-label="Les accidents aériens enquêtés par le NTSB de 2008 à 2023, année par année, ceux qui citent une personne en orange."
-            ></canvas>
+              aria-label="Les aéroports de l'Union européenne et de l'AELE en 2025, en orangé ceux qui dépassent 2019, en bleu ceux qui restent en dessous."
+            ></div>
             <figcaption class="lead-caption" id="lead-caption">
-              Accidents aériens aux États-Unis, 2008-2023, un carré par accident ; en orange, ceux dont la
-              cause probable cite une personne.
+              Aéroports de l'Union et de l'AELE en 2025, à la taille de leurs passagers : en orangé au-dessus
+              de 2019, en bleu en dessous. Source : Eurostat.
             </figcaption>
           </figure>
         </div>
@@ -110,9 +112,10 @@
           <div>
             <h3>Des données publiques, et seulement elles</h3>
             <p>
-              Chaque chiffre vient d'un jeu de données ouvert, cité à côté : la DGAC pour le trafic français,
-              Copernicus et la NOAA pour les vents, Météo-France pour les ballons-sondes, la NASA pour les
-              images satellites, OpenSky pour les vols, le NTSB pour les accidents.
+              Chaque chiffre vient d'un jeu de données ouvert, cité à côté : Eurostat pour le trafic européen,
+              la DGAC pour le trafic français, Copernicus et la NOAA pour les vents, Météo-France pour les
+              ballons-sondes, la NASA pour les images satellites, OpenSky pour les vols, le NTSB pour les
+              accidents.
             </p>
           </div>
           <div>
