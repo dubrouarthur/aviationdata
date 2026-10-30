@@ -592,6 +592,7 @@ with sync_playwright() as pw:
         gain_w = lambda k: fw_["gc"] - fw_[k]  # noqa: E731
         share = lambda mm, k: 100 * (mm["gc"] - mm[k]) / (mm["gc"] - mm["perfect"])  # noqa: E731
         err = FC["west"]["wind_error"]
+        check("the short forecast lead is 12 h (written « douze heures »)", min(FC["leads"]) == 12, str(FC["leads"]))
         has(
             "forecasts",
             text("#prevoir"),
@@ -636,7 +637,8 @@ with sync_playwright() as pw:
         has(
             "the answer's euros carry the aircraft and the flights",
             text("#reponse-prose"),
-            f"Pour un {ss['aircraft']}, suivre chaque jour la route la plus rapide",
+            "Les données de vent permettent de choisir sa route chaque jour",
+            f"pour un {ss['aircraft']}, suivre la route la plus rapide",
             f"vaut en moyenne {euros(west * EUR)} de kérosène par vol vers New York",
             f"Pour les {fr(pr['mvt'])} vols annuels de la ligne, cela fait environ {fr(ty * price / 1e6, 1)} millions",
             f"C'est {pct1(100 * ty / bill)} de leur facture de kérosène",

@@ -202,7 +202,7 @@ export function writeStory(data, F, C) {
       { b: hm(F.gap) },
       " de plus que vers Paris, et brûle environ ",
       { b: tonnes(C.kgOf(F.gap) / 1000) },
-      " de kérosène de plus. En cause, le courant-jet, un fleuve d'air qui souffle d'ouest en est à l'altitude des avions de ligne. Les compagnies peuvent-elles réduire ce coût en jouant avec le vent, et en le prévoyant ? Enquête sur ",
+      " de kérosène de plus. En cause, le courant-jet, un fleuve d'air qui souffle d'ouest en est à l'altitude des avions de ligne. Les données météo peuvent-elles aider les compagnies à réduire cette facture, en choisissant leur route et en prévoyant le vent ? Enquête sur ",
       { b: thousands(F.n) },
       " vols, quatre ans de vents, deux systèmes de prévision et le prix du kérosène.",
     ]),
@@ -792,8 +792,8 @@ export function forecastRows(fc, dir) {
     row("clim", "Vent moyen du mois", "Sans prévision"),
     row(`hres${long}`, `ECMWF, émise ${days(long)} avant`, "Prévision à long délai"),
     row(`pangu${long}`, `Pangu-Weather (IA), ${days(long)} avant`, "Prévision à long délai"),
-    row(`hres${short}`, `ECMWF, émise ${days(short)} avant`, "Prévision de la veille"),
-    row(`pangu${short}`, `Pangu-Weather (IA), ${days(short)} avant`, "Prévision de la veille"),
+    row(`hres${short}`, `ECMWF, émise ${days(short)} avant`, "Prévision à court délai"),
+    row(`pangu${short}`, `Pangu-Weather (IA), ${days(short)} avant`, "Prévision à court délai"),
     { ...row("perfect", "Le vent réel, connu d'avance", "Le maximum"), err: 0 },
   ];
 }
@@ -965,7 +965,7 @@ export function writeEssentiel(F, C, P) {
 export function writeBref(data, F, C, P) {
   const paras = [
     [
-      "Oui, pour certains vols. Le courant-jet coûte cher aux vols vers l'ouest : sur Paris–New York, ",
+      "Oui, surtout pour certains vols. Le courant-jet coûte cher aux vols vers l'ouest : sur Paris–New York, ",
       { b: hm(F.gap) },
       " et environ ",
       { b: tonnes(C.kgOf(F.gap) / 1000) },
@@ -974,7 +974,7 @@ export function writeBref(data, F, C, P) {
   ];
   if (C.route)
     paras[0].push(
-      ` Pour un ${C.ledger.aircraft}, suivre chaque jour la route la plus rapide plutôt que la ligne droite vaut en moyenne `,
+      ` Les données de vent permettent de choisir sa route chaque jour : pour un ${C.ledger.aircraft}, suivre la route la plus rapide plutôt que la ligne droite vaut en moyenne `,
       { b: euros(C.eurOf(C.route.west)) },
       ` de kérosène par vol vers New York. Pour les ${fmtNum(C.ledger.flights)} vols annuels de la ligne, cela fait environ `,
       {
@@ -984,7 +984,7 @@ export function writeBref(data, F, C, P) {
     );
   if (P)
     paras.push([
-      "Nul besoin d'une prévision parfaite : celle émise la veille capte presque tout le gain, que le modèle soit physique ou d'intelligence artificielle. Le gain se concentre sur les vols vers l'ouest, l'hiver et les jours de jet fort, et grandit avec le prix du kérosène.",
+      "Pas besoin de données parfaites : la prévision émise douze heures avant le départ capte presque tout le gain, que le modèle soit physique ou d'intelligence artificielle. Le gain se concentre sur les vols vers l'ouest, l'hiver et les jours de jet fort, et grandit avec le prix du kérosène.",
     ]);
   paras.push([
     "Ce gain est déjà en grande partie empoché : les routes de l'Atlantique Nord sont tracées chaque jour selon les vents, et les vols réels se comportent comme des avions qui cherchent la meilleure route. Ce que cette enquête mesure, c'est ce que coûterait de s'en passer.",
@@ -1031,7 +1031,7 @@ export function writeBref(data, F, C, P) {
       "prevoir",
       "La prévision",
       pct(P.west.share(`hres${Math.min(...P.leads)}`)),
-      "du gain capté avec la prévision de la veille",
+      "du gain capté avec la prévision émise 12 heures avant le départ",
       "var(--east)",
     ]);
   if (C.route)
