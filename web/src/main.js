@@ -1,11 +1,13 @@
 import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
+import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
 import { loadAll } from "./lib/data.js";
 import { el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { addSourceLines } from "./lib/datasets.js";
 import { asset } from "./lib/site.js";
+import { atlasFrame } from "./site/atlas.js";
 
 const CHAPTERS = [
   ["globe", () => import("./modules/globe.js").then((m) => m.initGlobe)],
@@ -89,6 +91,7 @@ initSiteMenu();
 trackChapters();
 numberChapters();
 readingProgress();
+atlasFrame();
 
 /** On phones, a chapter intro of several paragraphs shows the first one and a "Lire la suite" toggle. */
 function collapseLongIntros() {

@@ -189,7 +189,7 @@ with sync_playwright() as pw:
     # ------------------------------------------------------------ home
     pg = page_(viewport={"width": 1440, "height": 900})
     pg.goto(base + "/", wait_until="networkidle")
-    links = pg.eval_on_selector_all(".strip-link", "as => as.map(a => a.getAttribute('href'))")
+    links = pg.eval_on_selector_all(".shelf-link", "as => as.map(a => a.getAttribute('href'))")
     check("home lists every investigation", links == SLUGS, str(links))
     pg.wait_for_timeout(800)
     painted = pg.evaluate(
@@ -198,9 +198,9 @@ with sync_playwright() as pw:
         " let n = 0; for (let i = 3; i < d.length; i += 64) n += d[i] > 0; return n; }"
     )
     check("home lead figure is drawn", painted > 200, f"{painted} painted samples")
-    pg.click(".strip-link[href='courant-jet']")
+    pg.click(".shelf-link[href='courant-jet']")
     pg.wait_for_load_state("networkidle")
-    check("home strip opens the story", pg.title().startswith("Le vent dans le dos"), pg.url)
+    check("home shelf opens the story", pg.title().startswith("Le vent dans le dos"), pg.url)
     for old, want in (
         ("#co2", "/le-ciel-a-deux-vitesses#co2"),
         ("#aeroport-LFLL", "/le-ciel-a-deux-vitesses#aeroport-LFLL"),
@@ -246,6 +246,28 @@ with sync_playwright() as pw:
         nxt = pg.eval_on_selector_all("#lire-aussi .also", "as => as.map(a => a.getAttribute('href'))")
         neighbours = (no > 1) + (no < len(SLUGS))
         check(f"/{slug}: the story leads to the previous and next ones", len(nxt) == neighbours, str(nxt))
+        # every figure names its source (a link), and every chapter with figures lists its data at the top
+        pg.wait_for_timeout(2500)
+        unsourced = pg.evaluate(
+            """() => [...document.querySelectorAll('main .panel')]
+              .filter(p => !p.parentElement.closest('.panel') && !p.closest('[hidden]'))
+              .filter(p => !p.querySelector('.source-line a[href^="http"]'))
+              .map(p => (p.querySelector('h3')?.textContent || p.className).trim().slice(0, 60))"""
+        )
+        check(f"/{slug}: every figure names its source", not unsourced, str(unsourced))
+        unlisted = pg.evaluate(
+            """() => [...document.querySelectorAll('main section.chapter')]
+              .filter(s => !s.closest('[hidden]') && s.querySelector(':scope > .chapter-lede, :scope > .chapter-head'))
+              .filter(s => s.querySelector('.source-line a') && !s.querySelector(':scope > .chapter-sources li'))
+              .map(s => s.id)"""
+        )
+        check(f"/{slug}: every chapter lists its data", not unlisted, str(unlisted))
+        numbered = pg.eval_on_selector_all("main .fig-no", "ns => ns.map(n => n.textContent)")
+        check(
+            f"/{slug}: figures are numbered in order",
+            numbered == [f"Figure {i + 1}" for i in range(len(numbered))] and len(numbered) > 3,
+            str(numbered[:5]),
+        )
     feed = pg.request.get(base + "/feed.xml")
     entries = ET.fromstring(feed.text()).findall("{http://www.w3.org/2005/Atom}entry") if feed.ok else []
     check("Atom feed lists every investigation", len(entries) == len(SLUGS), f"{feed.status} {len(entries)}")

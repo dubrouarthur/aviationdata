@@ -3,6 +3,7 @@ import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import "./site/story.css";
 import "./hf.css";
+import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
 import { numberChapters, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { $, el, rich, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
@@ -22,6 +23,7 @@ import {
 import { mosaic } from "./hf/mosaic.js";
 import { loupe } from "./hf/loupe.js";
 import { addSourceLines, initSources } from "./hf/sources.js";
+import { atlasFrame } from "./site/atlas.js";
 
 const FILES = ["accidents", "people", "events", "history", "cases", "meta"];
 
@@ -231,4 +233,5 @@ watchFrenchSpacing(document.body);
 initSiteMenu();
 trackChapters();
 readingProgress();
+atlasFrame();
 main();

@@ -3,6 +3,7 @@ import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import "./site/story.css";
 import "./jet.css";
+import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
 import { numberChapters, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
@@ -48,6 +49,7 @@ import {
 import { openMap, climMap, coreAt } from "./jet/maps.js";
 import { explorer } from "./jet/explorer.js";
 import { simulator } from "./jet/simulator.js";
+import { atlasFrame } from "./site/atlas.js";
 
 const FILES = [
   "flights",
@@ -268,4 +270,5 @@ watchFrenchSpacing(document.body);
 initSiteMenu();
 trackChapters();
 readingProgress();
+atlasFrame();
 main();

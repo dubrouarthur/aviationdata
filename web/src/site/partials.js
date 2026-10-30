@@ -193,21 +193,16 @@ function topics() {
 }
 
 function issuesList({ root }) {
-  // the six latest on the home page; the archive holds them all
+  // the six latest on the home page, each with its cover; the archive holds them all
   return ISSUES.slice(0, 6)
     .map(
-      (i) => `<li class="strip" style="--c: ${i.accent}">
-  <a class="strip-link" href="${href(root, i.slug)}">
-    <span class="strip-no">${String(i.no).padStart(2, "0")}</span>
-    <span class="strip-main">
-      <span class="strip-title">${esc(i.title)}</span>
-      <span class="strip-dek">${esc(i.dek)}</span>
-    </span>
-    <span class="strip-meta">
-      <span><b>${frDate(i.published)}</b> ${esc(i.topic)}, ${i.chapters} chapitres</span>
-      <span>${esc(i.sources)}</span>
-    </span>
-    <span class="strip-go">Lire</span>
+      (i) => `<li class="shelf-item" style="--c: ${i.accent}">
+  <a class="shelf-link" href="${href(root, i.slug)}">
+    <img class="shelf-img" src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
+    <span class="shelf-kicker">N° ${i.no}<span>${esc(i.topic)}</span></span>
+    <span class="shelf-title">${esc(i.title)}</span>
+    <span class="shelf-dek">${esc(i.dek)}</span>
+    <span class="shelf-meta">Données : ${esc(i.sources)}. ${frDate(i.published)}, ${i.minutes} minutes de lecture.</span>
   </a>
 </li>`,
     )

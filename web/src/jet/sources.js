@@ -9,6 +9,11 @@ export const JSOURCES = {
     label: "The OpenSky Network, données de vols 2019-2022 (Zenodo, Strohmeier et al., 2021)",
     url: "https://doi.org/10.5281/zenodo.7923702",
   },
+  ourairports: {
+    short: "OurAirports",
+    label: "OurAirports, coordonnées des aéroports (domaine public)",
+    url: "https://ourairports.com/data/",
+  },
   era5: {
     short: "ERA5, Copernicus/ECMWF",
     label: "ERA5, Copernicus Climate Change Service / ECMWF (Hersbach et al., 2020)",

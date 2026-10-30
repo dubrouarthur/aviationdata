@@ -41,7 +41,7 @@ export const ISSUES = [
     minutes: 30,
     chapters: 13,
     image: "og-jet.jpg",
-    accent: "var(--night)",
+    accent: "#b5267e",
     sources: "ERA5 Copernicus, NOAA, Météo-France, NASA, OpenSky",
   },
   {

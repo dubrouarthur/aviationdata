@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { $, el, rich, moments, showTip, hideTip, cssVar, reducedMotion } from "../lib/ui.js";
+import { $, el, rich, moments, showTip, hideTip, reducedMotion } from "../lib/ui.js";
 import { whileVisible, player } from "../lib/scrolly.js";
 import { pctChange, isNum } from "../lib/series.js";
 import { fmtPax, fmtPct, fmtNum, fmtMonth, fmtMonthShort } from "../lib/format.js";
@@ -63,7 +63,9 @@ export function initGlobe(data, { dots }) {
   let R = 0;
   let dpr = 1;
   const colors = {};
+  // colours from the globe's own box: the opening sets its night palette there (site/atlas.css)
   function readColors() {
+    const cs = getComputedStyle(host);
     for (const k of [
       "paper",
       "sea",
@@ -76,7 +78,7 @@ export function initGlobe(data, { dots }) {
       "muted",
       "rule",
     ])
-      colors[k] = cssVar(`--${k}`);
+      colors[k] = cs.getPropertyValue(`--${k}`).trim();
   }
   function resize() {
     W = Math.min(host.clientWidth || 600, 760);
