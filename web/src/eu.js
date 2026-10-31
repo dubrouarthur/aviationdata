@@ -9,12 +9,11 @@ import { numberChapters, readingProgress, shareBlock, trackChapters } from "./si
 import { atlasFrame } from "./site/atlas.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
-import { storyFacts, zoneFacts, shiftFacts, seasonFacts } from "./eu/facts.js";
+import { storyFacts, zoneFacts, shiftFacts } from "./eu/facts.js";
 import * as T from "./eu/text.js";
 import { monthChart, heatmap, partsChart, rankBars, dumbbell, bumpChart, airportTable } from "./eu/charts.js";
 import { openMap, yearControls, choropleth, baryMap, spikeMap } from "./eu/map.js";
 import { bandsChart, offsetBars } from "./eu/shift.js";
-import { ridgeline, seasonControls, gapLines } from "./eu/seasons.js";
 import { addSourceLines, initSources } from "./eu/sources.js";
 
 async function load() {
@@ -94,10 +93,9 @@ async function main() {
   }
   const F = storyFacts(data);
   const H = shiftFacts(data);
-  const Q = seasonFacts(data);
   safely("text", () => {
     T.writeOpening(F);
-    T.writeEssentiel(F, H, Q);
+    T.writeEssentiel(F, H);
     T.writeTableau(F);
     T.openNote(data);
   });
@@ -167,25 +165,7 @@ async function main() {
       marks: ["LSGG", "LSZB", "LSZH", "LFSB", "LFSN", "LFLL", "LIMC", "LSZA"],
     });
   });
-  safely("seasons", () => {
-    T.writeSaisons(Q);
-    // the ridges call the readout whenever the year or the picked country changes
-    const ridges = ridgeline($("#chart-ridge"), Q, { onPick: T.seasonReadout(Q, open) });
-    seasonControls($("#season-controls"), Q, ridges);
-  });
-  safely("gap", () => {
-    T.writeEcart(Q);
-    gapLines($("#chart-gaps"), Q, {
-      highlight: {
-        EU27_2020: "var(--eu-accent)",
-        HR: "var(--south)",
-        EL: "var(--south-text)",
-        BG: "var(--north)",
-        IS: "var(--north-text)",
-      },
-    });
-  });
-  safely("answer", () => T.writeReponse(F, H, Q));
+  safely("answer", () => T.writeReponse(F, H));
   safely("sources", () => initSources(data));
   numberChapters(".story-chapter");
   addSourceLines();

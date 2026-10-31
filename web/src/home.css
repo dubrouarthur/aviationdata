@@ -149,9 +149,40 @@
   color: #ff9a52;
 }
 
-.lead-mosaic {
+.lead-mosaic,
+.lead-cal {
   margin: 0;
   min-width: 0;
+}
+
+/* the calendar on the night of the lead */
+.lead .cal-name {
+  font-size: 11.5px;
+  fill: #e9f0f6;
+}
+
+.lead .cal-row.eu .cal-name {
+  fill: #7fd8c9;
+}
+
+.lead .cal-gap,
+.lead .cal-month {
+  font-size: 11.5px;
+  fill: #a9bccd;
+}
+
+.lead .cal-peak {
+  stroke: #fff;
+}
+
+.lead .cal-row.on .cal-hit {
+  fill: rgba(255, 255, 255, 0.08);
+}
+
+.lead-cal .lead-caption {
+  display: block;
+  margin-top: 10px;
+  line-height: 1.45;
 }
 
 .lead-mosaic .lead-caption {
@@ -440,4 +471,9 @@
 
 .lead-map .lead-caption {
   margin-top: 8px;
+}
+
+/* the lead's calendar is a picture of the story: its numbers live in the story */
+.lead-cal details.data {
+  display: none;
 }

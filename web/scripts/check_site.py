@@ -32,7 +32,7 @@ for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
 # every investigation, newest first (web/src/site/issues.js), and every page of the magazine
-SLUGS = ["ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
+SLUGS = ["calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
 PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes", "/donnees"]
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 failures = []
@@ -192,9 +192,10 @@ with sync_playwright() as pw:
     links = pg.eval_on_selector_all(".shelf-link", "as => as.map(a => a.getAttribute('href'))")
     check("home lists every investigation", links == SLUGS, str(links))
     pg.wait_for_timeout(800)
-    pg.wait_for_selector("#lead-map circle", timeout=15000)
-    painted = pg.locator("#lead-map .apt-dots circle").count()
-    check("home lead figure is drawn", painted > 150, f"{painted} airports")
+    # the lead story's own figure: the calendar of the seasons, every country and the Union
+    pg.wait_for_selector("#lead-cal g.cal-row", timeout=15000)
+    n_cal = pg.locator("#lead-cal g.cal-row").count()
+    check("home lead draws the calendar", n_cal == 31, f"{n_cal} rows")
     pg.click(".shelf-link[href='courant-jet']")
     pg.wait_for_load_state("networkidle")
     check("home shelf opens the story", pg.title().startswith("Le vent dans le dos"), pg.url)

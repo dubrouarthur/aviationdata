@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Le calendrier du ciel : les saisons des passagers aériens en Europe</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Quand l'Europe prend-elle l'avion ? Partout en été, mais pas au même rythme : quinze ans de données mensuelles d'Eurostat, pays par pays, dans un calendrier interactif."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Le calendrier du ciel",
+        "description": "Les saisons des passagers aériens dans les trente pays de l'Union et de l'AELE, d'après Eurostat.",
+        "inLanguage": "fr",
+        "datePublished": "2026-10-31",
+        "dateModified": "2026-10-31",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": ["https://ec.europa.eu/eurostat/databrowser/view/avia_paoc/default/table"]
+      }
+    </script>
+    <meta name="theme-color" content="#f6f8f6" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Le calendrier du ciel" />
+    <meta
+      property="og:description"
+      content="En Croatie, un jour d'août compte sept fois plus de passagers aériens qu'un jour de janvier. En Finlande, à peine plus. Le calendrier de trente pays européens."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-saisons.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%calendrier-du-ciel" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="sea">
+    <a class="skip-link" href="#calendrier">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#calendrier">Le calendrier <span>du ciel</span></a>
+        <nav class="topnav" aria-label="Chapitres">
+          <a href="#calendrier">Le calendrier</a>
+          <a href="#profils">Les pays</a>
+          <a href="#carte">La carte</a>
+          <a href="#interieurs">Vols intérieurs</a>
+          <a href="#evolution">Depuis 2010</a>
+          <a href="#en-bref">La réponse</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main>
+      <!-- opening: the calendar of thirty countries, the reader's tool -->
+      <section class="sea-open" id="calendrier" aria-labelledby="title">
+        <div class="wrap sea-open-grid">
+          <div class="sea-open-text">
+            <!--site:kicker-->
+            <h1 class="display" id="title">Le calendrier <em>du ciel</em></h1>
+            <p class="open-q">
+              Quand l'Europe prend-elle l'avion ? Partout en été, mais pas au même rythme : chaque pays a son
+              calendrier, et il change.
+            </p>
+            <div class="sea-controls" id="cal-controls" role="group" aria-label="Année et ordre des pays"></div>
+            <div class="sea-readout" id="cal-readout" aria-live="polite"></div>
+          </div>
+          <figure class="panel sea-cal" data-ssource="paoc paoa ourairports">
+            <h3 class="visually-hidden" id="h-cal">Le calendrier des passagers aériens de trente pays</h3>
+            <p class="note" id="cal-note"></p>
+            <div class="cal-key" id="cal-key" aria-hidden="true"></div>
+            <div class="chart cal-chart" id="cal-chart" tabindex="0" aria-labelledby="h-cal"></div>
+          </figure>
+        </div>
+      </section>
+      <div class="wrap standfirst">
+        <p class="open-dek" id="open-dek"></p>
+        <!--site:byline-->
+      </div>
+
+      <section class="wrap essentiel" id="essentiel" aria-labelledby="h-essentiel">
+        <h2 class="essentiel-title" id="h-essentiel">L'essentiel</h2>
+        <ol class="essentiel-list" id="essentiel-list"></ol>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="profils" aria-labelledby="h-profils">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-profils"></h2>
+          <div class="prose" id="profils-prose"></div>
+        </div>
+        <figure class="panel" data-ssource="paoc">
+          <h3 id="h-pf"></h3>
+          <p class="note" id="pf-note"></p>
+          <div class="chart" id="chart-pf" tabindex="0" aria-labelledby="h-pf"></div>
+        </figure>
+        <div class="prose after-figure" id="profils-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="carte" aria-labelledby="h-carte">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-carte"></h2>
+          <div class="prose" id="carte-prose"></div>
+        </div>
+        <figure class="panel" data-ssource="paoc naturalearth">
+          <h3 id="h-gm"></h3>
+          <p class="note" id="gm-note"></p>
+          <div class="sea-map" id="chart-gm" role="img" aria-labelledby="h-gm"></div>
+        </figure>
+        <div class="prose after-figure" id="carte-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="interieurs" aria-labelledby="h-interieurs">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-interieurs"></h2>
+          <div class="prose" id="interieurs-prose"></div>
+        </div>
+        <figure class="panel" data-ssource="paoc">
+          <h3 id="h-kd"></h3>
+          <p class="note" id="kd-note"></p>
+          <div class="chart" id="chart-kd" tabindex="0" aria-labelledby="h-kd"></div>
+        </figure>
+        <div class="prose after-figure" id="interieurs-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="evolution" aria-labelledby="h-evolution">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-evolution"></h2>
+          <div class="prose" id="evolution-prose"></div>
+        </div>
+        <figure class="panel" data-ssource="paoc">
+          <h3 id="h-gaps"></h3>
+          <p class="note" id="gaps-note"></p>
+          <div class="chart" id="chart-gaps" tabindex="0" aria-labelledby="h-gaps"></div>
+        </figure>
+        <div class="prose after-figure" id="evolution-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
+        <div class="share" id="share"></div>
+      </section>
+
+      <!--site:next-->
+    </main>
+
+    <footer class="footer" id="sources">
+      <div class="wrap">
+        <h2>Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </footer>
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/saisons.js"></script>
+  </body>
+</html>

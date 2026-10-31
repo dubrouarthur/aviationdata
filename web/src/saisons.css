@@ -1,0 +1,347 @@
+/* The fifth investigation: the seasons. An almanac: the year in twelve columns, a cool slate for the
+   quiet months and a warm amber for the busy ones, the mean in the paper's own colour. */
+:root {
+  --issue-accent: #9a4a00; /* 6.0:1 on paper */
+  --sea-cool: #2c5878;
+  --sea-warm: #b9590b;
+}
+
+.sea .brand span {
+  color: var(--issue-accent);
+}
+
+.sea .topnav a[aria-current="true"] {
+  border-bottom-color: var(--issue-accent);
+}
+
+/* ------------------------------------------------------------------ the opening: the calendar */
+.sea-open {
+  padding-block: clamp(28px, 5vh, 56px) 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sea-open-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: 28px 56px;
+  align-items: start;
+}
+
+.sea-open-text {
+  position: sticky;
+  top: 84px;
+  padding-top: 12px;
+}
+
+.sea-open .display {
+  margin: 10px 0 0;
+  font-size: clamp(3rem, 5.6vw, 5.4rem);
+  line-height: 0.92;
+}
+
+.sea .issue-kicker {
+  color: var(--issue-accent);
+}
+
+.sea-open .display em {
+  font-style: normal;
+  color: var(--issue-accent);
+}
+
+.sea-open .open-q {
+  max-width: 24em;
+  margin: 18px 0 0;
+  font-family: var(--f-text);
+  font-size: clamp(1.1rem, 1.8vw, 1.32rem);
+  line-height: 1.45;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.sea-controls {
+  display: grid;
+  gap: 14px;
+  margin-top: 26px;
+  padding-top: 14px;
+  border-top: 3px solid var(--ink);
+}
+
+.cal-field > span {
+  display: block;
+  margin-bottom: 6px;
+  font: 650 0.82rem/1.2 var(--f-ui);
+  color: var(--muted);
+}
+
+.cal-field .seg {
+  flex-wrap: wrap;
+  border-radius: 18px;
+}
+
+.cal-field .seg button {
+  min-height: 32px;
+}
+
+.cal-row-ctl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cal-row-ctl input {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--issue-accent);
+}
+
+.cal-play {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink-2);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.cal-play:hover,
+.cal-play:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.cal-year {
+  min-width: 3.2ch;
+  font: 800 1.6rem/1 var(--f-display);
+  font-stretch: 70%;
+  font-variant-numeric: tabular-nums;
+}
+
+.sea-readout {
+  margin-top: 18px;
+  min-height: 4.6em;
+  font-family: var(--f-text);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--ink-read, var(--ink));
+}
+
+.sea-readout p {
+  margin: 0;
+}
+
+.sea-cal {
+  margin: 0;
+}
+
+.cal-key {
+  margin: 4px 0 6px;
+}
+
+.cal-key-t,
+.cal-month {
+  font: 12px var(--f-ui);
+  fill: var(--muted);
+}
+
+.cal-month {
+  font-weight: 650;
+  fill: var(--ink-2);
+}
+
+.cal-chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.cal-cell {
+  stroke: none;
+}
+
+.cal-hit {
+  fill: transparent;
+}
+
+.cal-peak {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+
+.cal-name {
+  font: 12.5px var(--f-ui);
+  fill: var(--ink);
+}
+
+.cal-row.eu .cal-name {
+  font-weight: 750;
+  fill: var(--eu-accent);
+}
+
+.cal-gap {
+  font: 650 12px var(--f-ui);
+  fill: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-row {
+  cursor: pointer;
+}
+
+.cal-row.dim .cal-cell {
+  opacity: 0.35;
+}
+
+.cal-row.dim .cal-name,
+.cal-row.dim .cal-gap {
+  fill: var(--muted);
+}
+
+.cal-row.on .cal-name,
+.cal-row.on .cal-gap {
+  font-weight: 800;
+}
+
+.cal-row.on .cal-hit {
+  fill: rgba(15, 28, 43, 0.06);
+}
+
+/* ------------------------------------------------------------------ profiles, map, national flights */
+.pf-line {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+
+.pf-line.extra {
+  stroke-width: 2.2;
+  stroke-dasharray: 5 4;
+}
+
+.pf-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+}
+
+.pf-dot {
+  stroke: var(--paper);
+  stroke-width: 1.5;
+}
+
+.pf-lab {
+  font: 700 12.5px var(--f-ui);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3.5px;
+}
+
+.chart line.pf-mean {
+  stroke: var(--ink-2);
+  stroke-dasharray: 3 3;
+}
+
+.sea-map svg {
+  display: block;
+}
+
+.gm-cty {
+  fill: #e6ebe8;
+  stroke: #fff;
+  stroke-width: 0.6;
+}
+
+.gm-cty.in {
+  stroke-width: 0.8;
+}
+
+.gm-cty.in:hover {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+
+.kd-nat {
+  fill: var(--sea-cool);
+}
+
+.kd-intl {
+  fill: var(--sea-warm);
+}
+
+.kd-link {
+  stroke: #9aa7b3;
+  stroke-width: 3;
+}
+
+.kd-link.up {
+  stroke: var(--ink);
+}
+
+.kd.eu .lab {
+  font-weight: 750;
+}
+
+@media (max-width: 1000px) {
+  .sea-open-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sea-open-text {
+    position: static;
+  }
+
+  .sea-readout {
+    min-height: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ the gap year after year */
+.gl-out {
+  fill: var(--grid);
+  opacity: 0.5;
+}
+
+.gl-line {
+  fill: none;
+  stroke: #c9d0cc;
+  stroke-width: 1.2;
+}
+
+.gl.hl .gl-line {
+  stroke: var(--c);
+  stroke-width: 2.6;
+}
+
+.gl.on .gl-line {
+  stroke: var(--ink);
+  stroke-width: 2.4;
+}
+
+.gl.hl.on .gl-line {
+  stroke: var(--c);
+  stroke-width: 3.4;
+}
+
+.gl-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 10;
+  cursor: pointer;
+}
+
+.gl-lab {
+  font: 650 12.5px var(--f-ui);
+  fill: var(--c, var(--ink));
+  display: none;
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.gl.hl .gl-lab,
+.gl.on .gl-lab {
+  display: block;
+}

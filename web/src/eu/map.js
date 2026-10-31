@@ -6,7 +6,7 @@ import { el, showTip, hideTip, onResize, reducedMotion } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { mio, pct } from "./charts.js";
 
-const projectionFor = (w, h, frame) =>
+export const projectionFor = (w, h, frame) =>
   d3
     .geoAzimuthalEqualArea()
     .rotate([-10, -52])
@@ -19,7 +19,7 @@ const projectionFor = (w, h, frame) =>
     );
 
 // the area a map must show, as points along its edges (a polygon's winding would decide which side is "in")
-const box = (w, s, e, n) => ({
+export const box = (w, s, e, n) => ({
   type: "MultiPoint",
   coordinates: d3.range(0, 1.0001, 0.125).flatMap((t) => [
     [w + (e - w) * t, s],

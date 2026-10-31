@@ -4,7 +4,6 @@ import { $, el, rich, lecture } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { monthLabel, mio, pct } from "./charts.js";
 import { km } from "./facts.js";
-import { MONTHS, times } from "./seasons.js";
 
 /** 1 093 600 000 -> "1,09 milliard" ; 172 000 000 -> "172,0 millions" */
 export const big = (v) =>
@@ -45,10 +44,8 @@ export function writeOpening(F) {
   ]);
 }
 
-export function writeEssentiel(F, H, Q) {
+export function writeEssentiel(F, H) {
   const U = F.union;
-  const hr = Q.at("HR", F.last);
-  const ue = Q.at("EU27_2020", F.last);
   const fi = F.vs.find((c) => c.code === "FI");
   const ger = F.vs.find((c) => c.code === "DE");
   const natDE = F.nat.find((n) => n.code === "DE");
@@ -96,16 +93,6 @@ export function writeEssentiel(F, H, Q) {
         " depuis 2019, ceux du nord en ont perdu. Le centre de gravité a glissé de ",
         { b: kmTxt(F.bary.south2019) },
         ".",
-      ],
-    ],
-    [
-      "saisons",
-      times(hr.gap),
-      "Quand vole-t-on ?",
-      [
-        `En été, surtout. En Croatie, un jour ${de(MONTHS[hr.peak - 1])} compte `,
-        { b: `${fmtNum(hr.gap, 1)} fois` },
-        ` plus de passagers qu'un jour ${de(MONTHS[hr.low - 1])} ; dans l'Union, ${fmtNum(ue.gap, 1)} fois.`,
       ],
     ],
   ];
@@ -542,125 +529,7 @@ export function writeGravite(F) {
   );
 }
 
-/* ------------------------------------------------------------------ the seasons */
-/** "un jour d'août compte 7,4 fois plus de passagers qu'un jour de janvier" */
-const dayWords = (r, d = 1) =>
-  `un jour ${de(MONTHS[r.peak - 1])} compte ${fmtNum(r.gap, d)} fois plus de passagers qu'un jour ${de(MONTHS[r.low - 1])}`;
-
-/** The line over the ridges: the Union, or the country the reader picks. */
-export function seasonReadout(Q, onOpen) {
-  return (row, year) => {
-    const ue = Q.at("EU27_2020", year);
-    const box = $("#season-readout");
-    if (!box) return;
-    const parts = row
-      ? [{ b: row.name }, `, ${year} : ${dayWords(row)}, contre ${fmtNum(ue.gap, 1)} dans l'Union.`]
-      : [{ b: "Union européenne" }, `, ${year} : ${dayWords(ue)}.`];
-    const p = el("p", {}, rich(parts));
-    if (row) {
-      const go = el("button", {
-        type: "button",
-        class: "linklike",
-        text: `Ouvrir ${row.name} dans le tableau de bord`,
-      });
-      go.addEventListener("click", () => onOpen?.(row.code));
-      p.append(" ", go);
-    }
-    box.replaceChildren(p);
-  };
-}
-
-export function writeSaisons(Q) {
-  const L = Q.last;
-  const [hr, ue, fi] = [Q.at("HR", L), Q.at("EU27_2020", L), Q.at("FI", L)];
-  const rows = Q.rows(L);
-  const count = (f) => rows.filter(f).length;
-  const nJan = count((r) => r.low === 1);
-  $("#h-saisons").textContent = `En Croatie, ${dayWords(hr, 0)}`;
-  prose("#saisons-prose", [
-    [
-      `Dans l'Union, un jour ${de(MONTHS[ue.peak - 1])} compte `,
-      { b: `${fmtNum(ue.gap, 1)} fois` },
-      ` plus de passagers qu'un jour ${de(MONTHS[ue.low - 1])}. Mais chaque pays a son calendrier : en Finlande, le mois le plus chargé ne compte que `,
-      { b: `${fmtNum(fi.gap, 1)} fois` },
-      " plus de passagers par jour que le plus creux.",
-    ],
-  ]);
-  $("#h-ridge").textContent = "La Croatie et la Grèce, les plus saisonnières";
-  $("#ridge-note").textContent =
-    "Passagers transportés par jour, chaque mois, rapportés à la moyenne de l'année : une ligne par pays, l'Union en haut. À droite, l'écart saisonnier : les passagers par jour du mois le plus chargé divisés par ceux du mois le plus creux.";
-  lecture(
-    "#chart-ridge",
-    "plus le relief est haut, plus le mois compte de passagers. Choisissez l'année et l'ordre au-dessus ; survolez ou touchez un pays pour le comparer à l'Union, en pointillé.",
-  );
-  after(
-    "#saisons-after",
-    [
-      [
-        `En ${L}, janvier est, par jour, le mois le plus creux ${nJan === rows.length ? `dans les ${nJan} pays` : `dans ${nJan} pays sur ${rows.length}`}. Le pic tombe en août dans ${count((r) => r.peak === 8)} pays, en juillet dans ${count((r) => r.peak === 7)}.`,
-      ],
-      [
-        `La saison ne suit pas la latitude : en ${L}, l'Espagne varie moins que l'Allemagne, la Slovaquie plus que Chypre ou Malte.`,
-      ],
-      [
-        `Jusqu'en ${Q.fi.juneUntil}, le mois le plus chargé de la Finlande, par jour, était juin. Depuis ${Q.fi.decSince}, c'est décembre.`,
-      ],
-    ],
-    `Un mois de 31 jours n'est pas plus chargé pour sa longueur : chaque mois compte ici ses passagers par jour. Les années 2020 à 2022 sont écartées : en janvier 2022 encore, l'Union comptait ${up(Q.jan2022)} de passagers de moins qu'en janvier 2019. Ces profils disent quand on vole, pas pourquoi.`,
-  );
-}
-
-export function writeEcart(Q) {
-  const [F0, L] = [Q.first, Q.last];
-  const get = (c) => Q.change.find((r) => r.code === c);
-  const [bg, is, hr, gr] = [get("BG"), get("IS"), get("HR"), get("EL")];
-  const d1 = (v) => fmtNum(v, 1);
-  $("#h-ecart").textContent = `La Bulgarie a presque divisé par deux son écart saisonnier depuis ${F0}`;
-  prose("#ecart-prose", [
-    [
-      "Dans l'Union, l'écart saisonnier oscille entre ",
-      { b: d1(Math.min(...Q.euGaps)) },
-      " et ",
-      { b: d1(Math.max(...Q.euGaps)) },
-      ` depuis ${F0}. Il s'est resserré dans ${Q.narrower.length} pays sur ${Q.change.length}.`,
-    ],
-  ]);
-  $("#h-gaps").textContent = "L'écart se resserre en Bulgarie, il se creuse en Croatie et en Grèce";
-  $("#gaps-note").textContent =
-    `Écart saisonnier de chaque pays, de ${F0} à ${L}, sur une échelle logarithmique : passagers par jour du mois le plus chargé divisés par ceux du mois le plus creux. Les années 2020 à 2022 sont écartées.`;
-  lecture("#chart-gaps", "chaque ligne est un pays ; survolez une ligne grise pour lire son nom.");
-  const x = (c, m) => Q.perDay(c, L, m) / Q.perDay(c, F0, m);
-  after(
-    "#ecart-after",
-    [
-      [
-        "En Bulgarie, il est passé de ",
-        { b: d1(bg.from) },
-        ` en ${F0} à `,
-        { b: d1(bg.to) },
-        ` en ${L}. En Islande, de ${d1(is.from)} à ${d1(is.to)}.`,
-      ],
-      [
-        "En Bulgarie, un jour de janvier compte ",
-        { b: `${d1(x("BG", 1))} fois` },
-        ` plus de passagers qu'en ${F0}, un jour d'août `,
-        { b: `${d1(x("BG", 8))} fois` },
-        " : l'hiver s'est rempli plus vite que l'été.",
-      ],
-      [
-        "À l'inverse, l'écart s'est creusé en Croatie, de ",
-        { b: d1(hr.from) },
-        " à ",
-        { b: d1(hr.to) },
-        `. En Grèce, de ${d1(gr.from)} à ${d1(gr.to)}.`,
-      ],
-      ["Jusqu'en 2019, l'Espagne était plus saisonnière que l'Allemagne. Depuis 2023, c'est l'inverse."],
-    ],
-    "Un écart qui se resserre peut venir d'un hiver qui se remplit ou d'un été qui se vide : il faut regarder les mois eux-mêmes, comme pour la Bulgarie. Les chiffres disent quand on vole, pas pourquoi.",
-  );
-}
-
-export function writeReponse(F, H, Q) {
+export function writeReponse(F, H) {
   const U = F.union;
   prose("#reponse-prose", [
     [
@@ -679,7 +548,7 @@ export function writeReponse(F, H, Q) {
       " vers le sud.",
     ],
     [
-      `L'été reste la grande saison : dans l'Union, ${dayWords(Q.at("EU27_2020", F.last))}. Les données disent où et quand les passagers volent, pas pourquoi : ce sera l'objet d'autres enquêtes.`,
+      "Les données disent où les passagers volent, pas pourquoi : ce sera l'objet d'autres enquêtes.",
     ],
   ]);
 }

@@ -16,7 +16,13 @@ const out = (url, text) => `<a href="${esc(url)}" target="_blank" rel="noopener"
 const href = (root, path) => `${root === "./" ? "" : root}${path}`;
 
 /** The attribute each story names its figures' sources with. */
-const ATTR = { eu: "data-esource", jet: "data-jsource", hf: "data-hsource", ciel: "data-source" };
+const ATTR = {
+  eu: "data-esource",
+  jet: "data-jsource",
+  hf: "data-hsource",
+  ciel: "data-source",
+  sea: "data-ssource",
+};
 
 /** Files the build leaves to describe itself, not data. */
 export const META_FILES = ["data/meta.json", "data/jet/meta.json", "data/hf/meta.json"];

@@ -3,22 +3,23 @@ import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import "./home.css";
 import "./eu.css";
+import "./saisons.css";
 import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
 import { watchFrenchSpacing } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
-import { openMap } from "./eu/map.js";
+import { seasonFacts } from "./saisons/facts.js";
+import { calendar } from "./saisons/charts.js";
 
 watchFrenchSpacing(document.body);
 initSiteMenu();
 
-/** The lead story's opening figure: the airports of Europe in the last year, against 2019. */
-async function leadMap() {
-  const node = document.getElementById("lead-map");
+/** The lead story's opening figure: the calendar of thirty countries in the last year. */
+async function leadCalendar() {
+  const node = document.getElementById("lead-cal");
   if (!node) return;
-  const get = (u) => fetch(asset(u)).then((r) => r.json());
-  const [data, geo] = await Promise.all([get("data/eu/eu.json"), get("geo/europe-50m.json")]);
-  openMap(node, data, geo);
+  const data = await fetch(asset("data/eu/eu.json")).then((r) => r.json());
+  calendar(node, seasonFacts(data), { onPick: () => {}, compact: true });
 }
 
-leadMap().catch((err) => console.error("lead map:", err));
+leadCalendar().catch((err) => console.error("lead calendar:", err));

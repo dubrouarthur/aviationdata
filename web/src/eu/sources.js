@@ -2,7 +2,6 @@
 // (data-esource) and the method section at the end of the page.
 import { $, el } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
-import { seasonFacts } from "./facts.js";
 
 export const ESOURCES = {
   paoc: {
@@ -133,15 +132,6 @@ export function initSources(data) {
       ]),
       li([
         `Les totaux au sud et au nord du ${data.shift.split}e parallèle et par tranche de deux degrés portent sur tous les aéroports ; la carte à pics montre ceux qui ont dépassé ${fmtNum(m.mapMin)} passagers au moins une année, et seulement quand leur écart dépasse 50 000 passagers. Ces sommes d'aéroports comptent deux fois un passager entre deux aéroports de la zone : elles ne se comparent pas aux passagers des pays.`,
-      ]),
-    ]),
-    el("h3", { text: "Les saisons" }),
-    el("ul", {}, [
-      li([
-        "Chaque mois compte ses passagers par jour, pour qu'un mois de 31 jours ne paraisse pas plus chargé qu'un mois de 30. Le profil d'une année rapporte les passagers par jour de chaque mois à la moyenne de l'année ; l'écart saisonnier divise les passagers par jour du mois le plus chargé par ceux du mois le plus creux.",
-      ]),
-      li([
-        `Les années 2020 à 2022, années de Covid, sont écartées : en janvier 2022 encore, l'Union comptait ${fmtNum(seasonFacts(data).jan2022)} % de passagers de moins qu'en janvier 2019. Les années montrées sont celles où les trente pays et l'Union ont leurs douze mois.`,
       ]),
     ]),
     el("h3", { text: "Ce que cette enquête ne dit pas" }),

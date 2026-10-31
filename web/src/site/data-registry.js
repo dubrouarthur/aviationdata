@@ -9,9 +9,10 @@ import { HSOURCES, FACTS as HF_FACTS } from "../hf/sources.js";
 import { CASES } from "../hf/cases.js";
 import { DATASETS as DGAC } from "../lib/datasets.js";
 import { FACTS as CIEL_FACTS } from "../modules/sources.js";
+import { SSOURCES } from "../saisons/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
-export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC };
+export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES };
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
 const PUBLIC = { text: "domaine public" };
@@ -27,7 +28,10 @@ export const DATASETS = [
     id: "eurostat-pays",
     producer: "Eurostat",
     title: "Passagers aériens par pays (avia_paoc)",
-    refs: [["eu", "paoc"]],
+    refs: [
+      ["eu", "paoc"],
+      ["sea", "paoc"],
+    ],
     what: "Passagers transportés par chaque pays déclarant, par mois et par an : vols intérieurs, vols vers un autre pays de l'Union, vols hors de l'Union.",
     period: "Depuis 2004 pour les pays (Bulgarie 2007, Croatie et Union 2008).",
     terms: NOTICE_EUROSTAT,
@@ -39,7 +43,10 @@ export const DATASETS = [
     id: "eurostat-aeroports",
     producer: "Eurostat",
     title: "Passagers aériens par aéroport (avia_paoa)",
-    refs: [["eu", "paoa"]],
+    refs: [
+      ["eu", "paoa"],
+      ["sea", "paoa"],
+    ],
     what: "Passagers des principaux aéroports de chaque pays déclarant, départs et arrivées, correspondances comprises.",
     period: "Par an, depuis 2008.",
     terms: NOTICE_EUROSTAT,
@@ -271,6 +278,7 @@ export const DATASETS = [
     refs: [
       ["eu", "ourairports"],
       ["jet", "ourairports"],
+      ["sea", "ourairports"],
     ],
     what: "La position de chaque aéroport, complétée à la main pour les aéroports fermés, comme Berlin-Tegel, et pour les noms français.",
     period: "Fichier courant.",
@@ -289,7 +297,10 @@ export const DATASETS = [
     id: "naturalearth",
     producer: "Natural Earth, via world-atlas",
     title: "Frontières des pays",
-    refs: [["eu", "naturalearth"]],
+    refs: [
+      ["eu", "naturalearth"],
+      ["sea", "naturalearth"],
+    ],
     extra: [
       {
         label: "world-atlas, Natural Earth 4.1.0 en TopoJSON (licence ISC)",
@@ -338,11 +349,20 @@ export const REFERENCES = [
     use: "Le coût moyen d'une minute de retard, 100 € (prix 2022), comme point de comparaison.",
   },
   {
-    refs: [["eu", "esms"]],
+    refs: [
+      ["eu", "esms"],
+      ["sea", "esms"],
+    ],
     use: "Les définitions d'Eurostat : un passager par vol, les doubles comptes des aéroports.",
   },
   { refs: [["eu", "reg"]], use: "Le règlement qui rend les séries comparables depuis 2003 à 2005." },
-  { refs: [["eu", "copyright"]], use: "Les conditions de réutilisation des données d'Eurostat." },
+  {
+    refs: [
+      ["eu", "copyright"],
+      ["sea", "copyright"],
+    ],
+    use: "Les conditions de réutilisation des données d'Eurostat.",
+  },
 ];
 
 /** Models of risk the third investigation reads the NTSB with. */
