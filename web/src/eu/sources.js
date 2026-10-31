@@ -2,6 +2,7 @@
 // (data-esource) and the method section at the end of the page.
 import { $, el } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
+import { seasonFacts } from "./facts.js";
 
 export const ESOURCES = {
   paoc: {
@@ -125,6 +126,24 @@ export function initSources(data) {
         "Le centre de gravité résume une géographie ; il ne dit pas pourquoi elle change, et un déplacement de quelques dizaines de kilomètres à l'échelle de l'Europe traduit déjà des millions de passagers.",
       ]),
     ]),
+    el("h3", { text: "Gains et pertes depuis 2019" }),
+    el("ul", {}, [
+      li([
+        `Écart entre les passagers de chaque aéroport en ${data.shift.from} et en ${data.shift.to}, avec les mêmes limites que le centre de gravité ; un aéroport sans données une année compte zéro cette année-là. Berlin-Tegel, fermé en 2020, est compté avec Berlin-Brandebourg, qui a repris le code de Berlin-Schönefeld.`,
+      ]),
+      li([
+        `Les totaux au sud et au nord du ${data.shift.split}e parallèle et par tranche de deux degrés portent sur tous les aéroports ; la carte à pics montre ceux qui ont dépassé ${fmtNum(m.mapMin)} passagers au moins une année, et seulement quand leur écart dépasse 50 000 passagers. Ces sommes d'aéroports comptent deux fois un passager entre deux aéroports de la zone : elles ne se comparent pas aux passagers des pays.`,
+      ]),
+    ]),
+    el("h3", { text: "Les saisons" }),
+    el("ul", {}, [
+      li([
+        "Chaque mois compte ses passagers par jour, pour qu'un mois de 31 jours ne paraisse pas plus chargé qu'un mois de 30. Le profil d'une année rapporte les passagers par jour de chaque mois à la moyenne de l'année ; l'écart saisonnier divise les passagers par jour du mois le plus chargé par ceux du mois le plus creux.",
+      ]),
+      li([
+        `Les années 2020 à 2022, années de Covid, sont écartées : en janvier 2022 encore, l'Union comptait ${fmtNum(seasonFacts(data).jan2022)} % de passagers de moins qu'en janvier 2019. Les années montrées sont celles où les trente pays et l'Union ont leurs douze mois.`,
+      ]),
+    ]),
     el("h3", { text: "Ce que cette enquête ne dit pas" }),
     el("ul", {}, [
       li([
@@ -134,6 +153,11 @@ export function initSources(data) {
       li([
         "Les révisions : Eurostat révise ses séries ; les communiqués plus anciens peuvent donner des chiffres légèrement différents.",
       ]),
+    ]),
+    el("p", {}, [
+      "Toutes les sources du magazine, leurs conditions et les fichiers publiés : ",
+      el("a", { href: "../donnees?enquete=eu", text: "la page des données" }),
+      ".",
     ]),
   );
 }

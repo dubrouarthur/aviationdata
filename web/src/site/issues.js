@@ -85,6 +85,12 @@ export const TOOLS = [
     dek: "Chaque pays de l'Union et de l'AELE, mois par mois depuis 2004 : ses passagers, ses saisons, ses vols intérieurs et ses aéroports.",
   },
   {
+    issue: "eu",
+    hash: "saisons",
+    title: "Le calendrier des saisons",
+    dek: "Les trente pays de l'Union et de l'AELE, année par année depuis 2010 : leur mois le plus chargé, le plus creux, et l'écart entre les deux, comparé à l'Union.",
+  },
+  {
     issue: "hf",
     hash: "explorer",
     title: "Les causes d'accidents, segment par segment",

@@ -132,5 +132,10 @@ export function initSources(data) {
       }),
       `. Page générée le ${fmtDate(meta.generated_at)}.`,
     ]),
+    el("p", {}, [
+      "Toutes les sources du magazine, leurs conditions et les fichiers publiés : ",
+      el("a", { href: "../donnees?enquete=ciel", text: "la page des données" }),
+      ".",
+    ]),
   );
 }

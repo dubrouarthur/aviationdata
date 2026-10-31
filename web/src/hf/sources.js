@@ -185,6 +185,11 @@ export function initSources({ accidents: acc, meta, history }) {
       {},
       Object.values(FACTS).map((f) => li([f.text, " Source : ", link(f), "."])),
     ),
+    el("p", {}, [
+      "Toutes les sources du magazine, leurs conditions et les fichiers publiés : ",
+      el("a", { href: "../donnees?enquete=hf", text: "la page des données" }),
+      ".",
+    ]),
     el("p", { class: "note", text: `Données traitées le ${meta.built}.` }),
   );
 }
