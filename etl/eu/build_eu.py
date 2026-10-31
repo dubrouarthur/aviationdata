@@ -186,8 +186,9 @@ def references():
                     coords[c] = {
                         "lat": float(r["latitude_deg"]),
                         "lon": float(r["longitude_deg"]),
-                        # "Verona Villafranca Airport" -> "Verona Villafranca": the town alone is ambiguous
-                        "city": re.sub(r"\s+(International\s+)?Air(port|field)$", "", r["name"]).strip(),
+                        # "Verona Villafranca Airport" -> "Verona Villafranca" (the town alone is ambiguous),
+                        # "Molde Airport, Årø" -> "Molde"
+                        "city": re.sub(r"\s+(International\s+)?Air(port|field)\b.*$", "", r["name"]).strip(),
                     }
     names = {}
     with open(REF, encoding="utf-8") as fh:
@@ -243,6 +244,9 @@ def airports_json(coords, names):
     return years, kept, left
 
 
+SPLIT = 45.0  # the parallel the story splits Europe at (it passes near Bordeaux and Turin)
+
+
 def barycentre(years, airports):
     """Weighted mean of the airports' positions on the sphere, each year (airports inside BOX)."""
     out = []
@@ -258,7 +262,7 @@ def barycentre(years, airports):
             yy += v * math.cos(la) * math.sin(lo)
             z += v * math.sin(la)
             w += v
-            south += v if ap["lat"] < 45 else 0
+            south += v if ap["lat"] < SPLIT else 0
             n += 1
         out.append(
             {
@@ -273,12 +277,71 @@ def barycentre(years, airports):
     return out
 
 
+# Berlin: Tegel closed in November 2020 and Schönefeld became Berlin-Brandenburg (same code, EDDB); the
+# change of a city's traffic since 2019 is read on both together
+MERGE = {"EDDT": "EDDB"}
+
+
+def shift(years, airports, since=2019):
+    """Change in passengers of every airport inside BOX between `since` and the last year: south and north
+    of the 45th parallel, and by band of two degrees of latitude with the three busiest airports of each band
+    in the last year as examples. Berlin's airports count as one; a missing year counts as no passenger."""
+    i0, i1 = years.index(since), years.index(LAST)
+    per = {}
+    for ap in airports:
+        if not ap["box"]:
+            continue
+        code = MERGE.get(ap["code"], ap["code"])
+        before, after = ap["pax"][i0] or 0, ap["pax"][i1] or 0
+        if code not in per:
+            host = next(a for a in airports if a["code"] == code)
+            per[code] = {
+                "code": code,
+                "name": host["name"],
+                "lat": host["lat"],
+                "lon": host["lon"],
+                "before": 0,
+                "after": 0,
+            }
+        per[code]["before"] += before
+        per[code]["after"] += after
+    rows = list(per.values())
+    side = lambda south: {  # noqa: E731
+        "before": sum(r["before"] for r in rows if (r["lat"] < SPLIT) == south),
+        "after": sum(r["after"] for r in rows if (r["lat"] < SPLIT) == south),
+    }
+    bands = defaultdict(lambda: {"change": 0, "rows": []})
+    for r in rows:
+        b = int(math.floor((r["lat"] - 1) / 2) * 2 + 1)  # 43-45, 45-47...: the 45th parallel is a boundary
+        bands[b]["change"] += r["after"] - r["before"]
+        bands[b]["rows"].append(r)
+    return {
+        "from": since,
+        "to": LAST,
+        "split": SPLIT,
+        "south": side(True),
+        "north": side(False),
+        "bands": [
+            {
+                "lat": b,
+                "change": bands[b]["change"],
+                "busiest": [r["code"] for r in sorted(bands[b]["rows"], key=lambda r: -r["after"])[:3]],
+                "names": [r["name"] for r in sorted(bands[b]["rows"], key=lambda r: -r["after"])[:3]],
+            }
+            for b in sorted(bands)
+        ],
+        "merged": MERGE,
+        "names": {"EDDB": "Berlin (Tegel et Brandebourg réunis)"},
+    }
+
+
 def main() -> int:
     annual, monthly = country_tables()
     years, zones = zones_json(annual, monthly)
     coords, names = references()
     ap_years, airports, left = airports_json(coords, names)
     bary = barycentre(ap_years, airports)
+    moved = shift(ap_years, airports)
     # the airports not on the map: aggregates, codes without a position, airports far from Europe
     left_out = {kind: [round(left.get((kind, y), 0)) for y in ap_years] for kind in ("system", "nocoord", "outside")}
     drawn = [ap for ap in airports if max(v or 0 for v in ap["pax"]) >= MAP_MIN]
@@ -302,6 +365,7 @@ def main() -> int:
         "airportYears": ap_years,
         "airports": sorted(drawn, key=lambda a: -(a["pax"][-1] or 0)),
         "barycentre": bary,
+        "shift": moved,
     }
     (OUT / "eu.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
     eu = zones[0]

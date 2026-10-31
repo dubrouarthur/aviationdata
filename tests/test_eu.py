@@ -16,7 +16,7 @@ raw = pytest.mark.skipif(not (RAW / "avia_paoc_A.json").exists(), reason="no Eur
 
 
 def test_contract():
-    assert set(D) == {"meta", "years", "zones", "airportYears", "airports", "barycentre"}
+    assert set(D) == {"meta", "years", "zones", "airportYears", "airports", "barycentre", "shift"}
     assert D["years"] == list(range(D["meta"]["first"], D["meta"]["last"] + 1))
     assert D["airportYears"] == list(range(D["meta"]["cross"], D["meta"]["last"] + 1))
     assert D["zones"][0]["code"] == "EU27_2020" and len(D["zones"]) == 31
@@ -41,6 +41,49 @@ def test_contract():
     for a in D["airports"]:
         assert len(a["pax"]) == len(D["airportYears"]) and -180 <= a["lon"] <= 180
     assert [b["y"] for b in D["barycentre"]] == D["airportYears"]
+    S = D["shift"]
+    assert (S["from"], S["to"], S["split"]) == (2019, D["meta"]["last"], 45)
+    net = sum(S[k]["after"] - S[k]["before"] for k in ("south", "north"))
+    assert sum(b["change"] for b in S["bands"]) == net
+    assert all(b["lat"] % 2 == 1 and len(b["names"]) == len(b["busiest"]) for b in S["bands"])
+
+
+def raw_airports():
+    """Eurostat's airport file with a position for each code (OurAirports, then our own table)."""
+    coords = {}
+    with open(RAW / "ourairports.csv", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            for c in (r["ident"], r["gps_code"], r["icao_code"]):
+                if c and len(c) == 4 and c not in coords:
+                    coords[c] = (float(r["latitude_deg"]), float(r["longitude_deg"]))
+    with open(ROOT / "data" / "ref" / "eu_airports.csv", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            if r["lat"]:
+                coords[r["code"]] = (float(r["lat"]), float(r["lon"]))
+    countries = {z["code"] for z in D["zones"][1:]}
+    s, n, w, e = D["meta"]["box"]
+    ids, out = jsonstat("avia_paoa_A.json")
+    a_i, t_i = ids.index("rep_airp"), ids.index("time")
+    for k, v in out.items():
+        cc, code = k[a_i].split("_", 1)
+        if cc not in countries or not code.isalpha() or code not in coords or not v:
+            continue
+        la, lo = coords[code]
+        if s <= la <= n and w <= lo <= e:
+            yield code, int(k[t_i]), v, la, lo
+
+
+@raw
+def test_shift_from_the_raw_files():
+    """Passengers south and north of the 45th parallel, every airport of the box, read again from Eurostat."""
+    S = D["shift"]
+    want = {(side, y): 0 for side in ("south", "north") for y in (S["from"], S["to"])}
+    for _, y, v, la, _ in raw_airports():
+        if y in (S["from"], S["to"]):
+            want[("south" if la < S["split"] else "north", y)] += v
+    for side in ("south", "north"):
+        assert S[side]["before"] == want[(side, S["from"])]
+        assert S[side]["after"] == want[(side, S["to"])]
 
 
 def test_months_make_the_year():
