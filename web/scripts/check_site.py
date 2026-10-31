@@ -33,7 +33,7 @@ for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their
     J[k] = json.loads(f.read_text()) if f.exists() else None
 # every investigation, newest first (web/src/site/issues.js), and every page of the magazine
 SLUGS = ["ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
-PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes"]
+PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes", "/donnees"]
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 failures = []
 
@@ -241,6 +241,7 @@ with sync_playwright() as pw:
     pg.wait_for_timeout(200)
     shown = pg.eval_on_selector_all(".arc-item:not([hidden]) .arc-title", "ts => ts.map(t => t.textContent)")
     check("archive filters by topic", shown == ["Le ciel à deux vitesses"] and "theme=" in pg.url, f"{shown} {pg.url}")
+    cited = set()
     for k, slug in enumerate(SLUGS):
         no = len(SLUGS) - k
         pg.goto(base + "/" + slug, wait_until="networkidle")
@@ -264,12 +265,52 @@ with sync_playwright() as pw:
               .map(s => s.id)"""
         )
         check(f"/{slug}: every chapter lists its data", not unlisted, str(unlisted))
+        # every source a figure links to, and every link of the method section, has its entry on /donnees
+        cited.update(
+            (slug, h)
+            for h in pg.eval_on_selector_all(
+                ".source-line a[href^='http'], #sources a[href^='http']", "as => as.map(a => a.href)"
+            )
+        )
         numbered = pg.eval_on_selector_all("main .fig-no", "ns => ns.map(n => n.textContent)")
         check(
             f"/{slug}: figures are numbered in order",
             numbered == [f"Figure {i + 1}" for i in range(len(numbered))] and len(numbered) > 3,
             str(numbered[:5]),
         )
+    # ------------------------------------------------------------ the data page
+    pg.goto(base + "/donnees", wait_until="networkidle")
+    listed = set(pg.eval_on_selector_all("main a[href^='http']", "as => as.map(a => a.href)"))
+    # the site's own links (code, issues, the author) are not sources
+    own = ("https://github.com/dubrouarthur/", "https://www.linkedin.com/")
+    missing = sorted({f"{slug}: {h}" for slug, h in cited if h not in listed and not h.startswith(own)})
+    check("every cited source has its entry on /donnees", not missing, "\n  ".join(["", *missing]))
+    n_ds = pg.locator(".ds").count()
+    has("data page", norm(pg.inner_text(".data-stats")), f"{n_ds} jeux de données")
+    files = pg.eval_on_selector_all(".files-table tbody a", "as => as.map(a => a.getAttribute('href'))")
+    bad = [f for f in files if not pg.request.get(base + "/donnees/" + f).ok]
+    check("data page: every published file downloads", files and not bad, f"{len(files)} files, {bad[:3]}")
+    pg.click(".data-filter button[data-issue='eu']")
+    shown = pg.eval_on_selector_all(".ds:not([hidden]) .ds-title", "ts => ts.map(t => t.textContent.trim())")
+    check(
+        "data page: the filter keeps one investigation",
+        0 < len(shown) < n_ds
+        and all("eu" in i for i in pg.eval_on_selector_all(".ds:not([hidden])", "ds => ds.map(d => d.dataset.issues)"))
+        and "enquete=eu" in pg.url,
+        f"{len(shown)} of {n_ds}",
+    )
+    pg.goto(base + "/donnees?enquete=hf", wait_until="networkidle")
+    check(
+        "data page: a link opens it filtered",
+        pg.locator(".data-filter button[data-issue='hf'][aria-pressed='true']").count() == 1
+        and pg.locator("#ds-eurostat-pays").is_hidden(),
+    )
+    pg.goto(base + "/a-propos", wait_until="networkidle")
+    check(
+        "about page: the producers' table leads to the data page",
+        pg.locator(".about-sources a[href^='../donnees#ds-']").count() == n_ds,
+        str(pg.locator(".about-sources a[href^='../donnees#ds-']").count()),
+    )
     feed = pg.request.get(base + "/feed.xml")
     entries = ET.fromstring(feed.text()).findall("{http://www.w3.org/2005/Atom}entry") if feed.ok else []
     check("Atom feed lists every investigation", len(entries) == len(SLUGS), f"{feed.status} {len(entries)}")

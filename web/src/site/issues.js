@@ -123,6 +123,7 @@ export const CORRECTIONS_SINCE = "2026-10-24";
 // pages of the magazine itself (not investigations)
 export const PAGES = [
   { key: "archive", slug: "enquetes", title: "Toutes les enquêtes" },
+  { key: "data", slug: "donnees", title: "Les données" },
   { key: "about", slug: "a-propos", title: "À propos" },
 ];
 

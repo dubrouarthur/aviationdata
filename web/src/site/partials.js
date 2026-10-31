@@ -4,6 +4,15 @@
 // Node only: imported by vite.config.js, never by the browser.
 import { dirname, relative, sep } from "node:path";
 import { CORRECTIONS, CORRECTIONS_SINCE, ISSUES, PAGES, SITE, TOOLS, frDate, issueByKey } from "./issues.js";
+import {
+  dataFacts,
+  dataFiles,
+  dataFilter,
+  dataProducers,
+  dataRefs,
+  dataSets,
+  dataStats,
+} from "./data-page.js";
 
 const esc = (s) =>
   String(s).replace(
@@ -71,6 +80,7 @@ function menu({ root, issue, page }) {
         <ul class="menu-links">
           <li><a href="${root}"${!issue && !page ? ' aria-current="page"' : ""}>Accueil</a></li>
           <li><a href="${href(root, "enquetes")}"${page?.key === "archive" ? ' aria-current="page"' : ""}>Toutes les enquêtes</a></li>
+          <li><a href="${href(root, "donnees")}"${page?.key === "data" ? ' aria-current="page"' : ""}>Les données</a></li>
           <li><a href="${href(root, "a-propos")}"${page?.key === "about" ? ' aria-current="page"' : ""}>À propos et charte</a></li>
           <li><a href="${href(root, "a-propos")}#corrections">Corrections</a></li>
           <li><a href="${href(root, "feed.xml")}">Flux RSS</a></li>
@@ -101,6 +111,7 @@ function foot({ root }) {
       <nav aria-labelledby="foot-h-mag">
         <h2 id="foot-h-mag">Le magazine</h2>
         <ul>
+          <li><a href="${href(root, "donnees")}">Les données</a></li>
           <li><a href="${href(root, "a-propos")}">À propos</a></li>
           <li><a href="${href(root, "a-propos")}#charte">La charte</a></li>
           <li><a href="${href(root, "a-propos")}#corrections">Corrections</a></li>
@@ -252,6 +263,13 @@ const PARTIALS = {
   kicker,
   archive,
   topics,
+  "data-sets": dataSets,
+  "data-refs": dataRefs,
+  "data-facts": dataFacts,
+  "data-files": dataFiles,
+  "data-stats": dataStats,
+  "data-filter": dataFilter,
+  "data-producers": dataProducers,
 };
 
 /** Replace every <!--site:name--> in a page; an unknown name fails the build. */
@@ -319,7 +337,7 @@ export function sitePartials(webRoot, base) {
     transformIndexHtml: {
       order: "pre",
       handler(html, ctx) {
-        const info = { ...pageInfo(ctx.filename, webRoot), base: abs };
+        const info = { ...pageInfo(ctx.filename, webRoot), base: abs, webRoot };
         return {
           html: renderPartials(html, info),
           tags: [

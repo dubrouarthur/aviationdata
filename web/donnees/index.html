@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Les données d'aviationdata : producteurs, conditions, fichiers</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Toutes les données des enquêtes d'aviationdata : qui les produit, ce qu'elles couvrent, leurs conditions de réutilisation, les figures qui les citent, les fichiers publiés et le code qui les lit."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <meta name="theme-color" content="#f6f8f6" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Les données d'aviationdata" />
+    <meta
+      property="og:description"
+      content="Chaque jeu de données des enquêtes, avec son producteur, ses conditions, nos fichiers et notre code."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-eu.jpg" />
+    <meta property="og:url" content="%VITE_SITE_URL%donnees" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="data">
+    <a class="skip-link" href="#jeux">Aller au contenu</a>
+    <header class="site-head">
+      <div class="wrap">
+        <a class="wordmark" href="../" aria-label="aviationdata, accueil">aviation<b>data</b></a>
+        <nav class="site-nav" aria-label="Site">
+          <a href="../enquetes">Enquêtes</a>
+          <a href="../enquetes#outils">Outils</a>
+          <a href="./" aria-current="page">Données</a>
+          <a href="../a-propos">À propos</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main class="wrap data-page">
+      <header class="data-head">
+        <h1 class="data-title">Les données</h1>
+        <p class="data-dek">
+          Toutes les sources des enquêtes : qui les produit, ce qu'elles couvrent, à quelles conditions on
+          peut les réutiliser, les figures qui les citent, les fichiers que nous en tirons et le code qui les
+          lit. Chaque fichier se télécharge ; chaque traitement se relit.
+        </p>
+        <!--site:data-stats-->
+      </header>
+
+      <nav class="data-toc" aria-label="Sur cette page">
+        <a href="#jeux">Les jeux de données</a>
+        <a href="#references">Références</a>
+        <a href="#reperes">Repères datés</a>
+        <a href="#fichiers">Nos fichiers</a>
+        <a href="#verifier">Vérifier</a>
+      </nav>
+
+      <!--site:data-filter-->
+
+      <section class="data-section" id="jeux" aria-labelledby="h-jeux">
+        <h2 id="h-jeux">Les jeux de données</h2>
+        <div class="ds-list"><!--site:data-sets--></div>
+      </section>
+
+      <section class="data-section" id="references" aria-labelledby="h-references">
+        <h2 id="h-references">Les références</h2>
+        <p class="data-intro">
+          Les valeurs qui convertissent une donnée en une autre, les textes qui la définissent, et les modèles
+          avec lesquels la troisième enquête lit les accidents.
+        </p>
+        <!--site:data-refs-->
+      </section>
+
+      <section class="data-section" id="reperes" aria-labelledby="h-reperes">
+        <h2 id="h-reperes">Les repères datés</h2>
+        <p class="data-intro">
+          Les faits extérieurs aux données que les enquêtes citent, chacun avec sa date et sa source. Ils
+          situent les courbes dans le temps ; aucune enquête ne les présente comme la cause de ce que montrent
+          les chiffres.
+        </p>
+        <!--site:data-facts-->
+      </section>
+
+      <section class="data-section" id="fichiers" aria-labelledby="h-fichiers">
+        <h2 id="h-fichiers">Nos fichiers</h2>
+        <p class="data-intro">
+          Les fichiers que lisent les pages, tels qu'ils sont publiés. Ils dérivent des données de leurs
+          producteurs, dont les conditions s'appliquent ; pour les réutiliser, citez le producteur et
+          aviationdata.
+        </p>
+        <!--site:data-files-->
+      </section>
+
+      <section class="data-section" id="verifier" aria-labelledby="h-verifier">
+        <h2 id="h-verifier">Vérifier</h2>
+        <div class="data-prose">
+          <p>
+            Les fichiers bruts sont téléchargés par des scripts, jamais à la main, puis transformés par le
+            code nommé dans chaque fiche. Avant chaque publication, d'autres scripts rechargent les pages,
+            relisent chaque chiffre écrit dans le texte, le recalculent depuis les fichiers publiés et
+            échouent s'ils ne tombent pas juste ; des tests refont une partie des calculs depuis les fichiers
+            des producteurs.
+          </p>
+          <p>
+            Le code est public, sur
+            <a href="https://github.com/dubrouarthur/aviationdata" target="_blank" rel="noopener">GitHub</a>.
+            Une erreur, une source manquante ?
+            <a href="https://github.com/dubrouarthur/aviationdata/issues/new" target="_blank" rel="noopener"
+              >Signalez-la</a
+            >
+            : les corrections sont datées dans le
+            <a href="../a-propos#corrections">journal des corrections</a>.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!--site:foot-->
+    <!--site:menu-->
+    <script type="module" src="/src/donnees.js"></script>
+  </body>
+</html>

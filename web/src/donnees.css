@@ -1,0 +1,312 @@
+/* aviationdata, "Les données": the catalogue of every source. Each dataset reads like a card of an
+   atlas's index: its name on the left, its particulars on the right, a hairline between entries. */
+.data main section[id] {
+  scroll-margin-top: 76px;
+}
+
+.data-head {
+  padding: 64px 0 30px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.data-title {
+  font-family: var(--f-display);
+  font-stretch: 64%;
+  font-weight: 820;
+  font-size: clamp(2.8rem, 7vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  margin: 0 0 20px;
+}
+
+.data-dek {
+  max-width: 36em;
+  margin: 0;
+  font-family: var(--f-text);
+  font-size: clamp(1.12rem, 1.8vw, 1.3rem);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.data-stats {
+  margin: 26px 0 0;
+  max-width: 44em;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.data-stats b {
+  font: 800 1.5em/1 var(--f-display);
+  font-stretch: 68%;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.92rem;
+}
+
+.data-toc a {
+  color: var(--ink-2);
+  text-decoration: none;
+  padding: 6px 0;
+}
+
+.data-toc a:hover,
+.data-toc a:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.data-filter {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 22px 0 0;
+  border-radius: 18px;
+}
+
+.data-filter button {
+  min-height: 34px;
+}
+
+.data-section {
+  padding: 48px 0 8px;
+}
+
+.data-section > h2 {
+  font-family: var(--f-display);
+  font-stretch: 68%;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+  line-height: 1;
+  margin: 0 0 14px;
+}
+
+.data-intro,
+.data-prose p {
+  max-width: 40em;
+  font-family: var(--f-text);
+  font-size: 1.06rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.data-section > h3,
+.facts-group > h3 {
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 780;
+  font-size: 1.3rem;
+  margin: 30px 0 8px;
+}
+
+/* ------------------------------------------------------------------ a dataset */
+.ds-list {
+  border-top: 1px solid var(--ink);
+}
+
+.ds {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 16px 48px;
+  padding: 26px 0 28px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ds[hidden],
+.data-page [data-issues][hidden] {
+  display: none;
+}
+
+.ds-producer {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.ds-title {
+  margin: 0 0 10px;
+  font-family: var(--f-display);
+  font-stretch: 72%;
+  font-weight: 790;
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.ds-title a {
+  color: var(--ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.ds-what {
+  margin: 0;
+  font-family: var(--f-text);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.ds-label {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.ds-label a {
+  color: inherit;
+}
+
+.ds-meta {
+  margin: 0;
+  display: grid;
+  gap: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.ds-meta div {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.ds-meta div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.ds-meta dt {
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.ds-meta dd {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.ds-meta small {
+  color: var(--muted);
+  font-size: 0.84em;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ references, facts, files */
+.ref-list {
+  max-width: 52em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+
+.ref-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.ref-in,
+.ref-src {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.ref-src a,
+.ref-in a {
+  color: var(--ink-2);
+}
+
+.facts-group h3 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.facts-group h3 a:hover {
+  text-decoration: underline;
+}
+
+.files-table {
+  width: 100%;
+  max-width: 60em;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.files-table th,
+.files-table td {
+  text-align: left;
+  padding: 7px 14px 7px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.files-table thead th {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--muted);
+  border-bottom-color: var(--ink);
+}
+
+.files-table tbody th {
+  font-weight: 500;
+  font-family: var(--f-ui);
+}
+
+.files-table td:nth-child(2) {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
+.data-prose {
+  padding-bottom: 72px;
+}
+
+@media (max-width: 860px) {
+  .ds {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ds-meta div:first-child {
+    border-top: 1px solid var(--rule);
+    padding-top: 7px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ds-meta div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .data-filter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  .data-toc a {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
