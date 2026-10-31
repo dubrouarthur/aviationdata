@@ -34,7 +34,7 @@ export function bandsChart(node, shift) {
     .range(d3.min(lats), d3.max(lats) + 1, 2)
     .map((lat) => shift.bands.find((b) => b.lat === lat) ?? { lat, change: 0, names: [] });
   const rows = all.reverse();
-  const label = (b) => [...new Set(b.names.map(short))].slice(0, 2).join(", ");
+  const label = (b, n = 2) => [...new Set(b.names.map(short))].slice(0, n).join(", ");
   const draw = () => {
     const rowH = 24;
     const { g, w, h } = frame(node, rows.length * rowH + 34, { top: 8, right: 54, bottom: 26, left: 62 });
@@ -102,7 +102,12 @@ export function bandsChart(node, shift) {
       .attr("y", y.bandwidth() / 2)
       .attr("dy", "0.32em")
       .attr("text-anchor", (r) => (r.change >= 0 ? "end" : "start"))
-      .text(label);
+      // the names stay inside the plot: one name on a phone, cut when the bar leaves too little room
+      .text((r) => {
+        const room = (r.change >= 0 ? x(0) : w - x(0)) - 10;
+        const text = label(r, w < 420 ? 1 : 2);
+        return text.length * 6.4 > room ? `${text.slice(0, Math.max(0, Math.floor(room / 6.4) - 1))}…` : text;
+      });
     row
       .append("text")
       .attr("class", "val")
@@ -189,7 +194,8 @@ export function offsetBars(node, bary, { last }) {
       .on("pointerleave", hideTip);
     const step = small ? 4 : 2;
     for (const r of rows) {
-      if ((r.y - rows[0].y) % step === 0 || r.y === last)
+      // every other year (every fourth on a phone) and the last one, never two labels side by side
+      if (((r.y - rows[0].y) % step === 0 && last - r.y >= step) || r.y === last)
         g.append("text")
           .attr("class", "axis-t")
           .attr("x", x(r.y) + x.bandwidth() / 2)

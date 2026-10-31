@@ -179,7 +179,7 @@ function kicker({ root, issue }) {
 /** The archive: every investigation, newest first, with its topic for the filter. */
 function archive({ root }) {
   return ISSUES.map(
-    (i) => `<li class="arc-item" data-topic="${esc(i.topic)}">
+    (i) => `<li class="arc-item" data-topic="${esc(i.topic)}" style="--c: ${i.accent}">
   <a class="arc-link" href="${href(root, i.slug)}">
     <img src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
     <span class="arc-text">

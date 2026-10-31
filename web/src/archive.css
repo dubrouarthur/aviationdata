@@ -68,7 +68,7 @@
   flex-wrap: wrap;
   gap: 4px 10px;
   font: 650 0.84rem/1.3 var(--f-ui);
-  color: var(--west, var(--magenta));
+  color: var(--c, var(--magenta));
 }
 
 .arc-kicker span {

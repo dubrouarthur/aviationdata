@@ -385,7 +385,7 @@ export function spikeMap(node, geo, shift, { labels, inScope }) {
       .attr("y", py - 7)
       .text("45e parallèle");
     const maxAbs = d3.max(shift.rows, (r) => Math.abs(r.change));
-    const maxH = Math.max(56, Math.min(104, height * 0.135));
+    const maxH = Math.max(80, Math.min(104, height * 0.135));
     const h = d3.scaleLinear().domain([0, maxAbs]).range([0, maxH]);
     const half = Math.max(2.4, Math.min(3.6, width / 210));
     const spike = (len, up) => `M${-half},0L0,${up ? -len : len}L${half},0Z`;
