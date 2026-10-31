@@ -7,7 +7,7 @@
     <meta name="claude:viewport-fit-sides" content="cover" />
     <meta
       name="description"
-      content="Le transport aérien européen a-t-il effacé le Covid ? Vingt ans de données Eurostat, pays par pays et aéroport par aéroport : un record en 2025, mais un ciel qui a glissé vers le sud et l'est."
+      content="Le transport aérien européen a-t-il effacé le Covid ? Vingt ans de données Eurostat, pays par pays et aéroport par aéroport : un record en 2025, un ciel qui a glissé vers le sud, et le calendrier des saisons de chaque pays."
     />
     <meta name="author" content="Arthur Dubrou" />
     <script type="application/ld+json">
@@ -53,6 +53,7 @@
         <nav class="topnav" aria-label="Parties">
           <a href="#tableau">Le tableau de bord</a>
           <a href="#partie-2">Où va le ciel</a>
+          <a href="#partie-3">Les saisons</a>
           <a href="#en-bref">La réponse</a>
         </nav>
         <!--site:menu-button-->
@@ -176,6 +177,46 @@
         <div class="prose after-figure" id="sud-after"></div>
       </section>
 
+      <section class="chapter wrap story-chapter" id="pics" aria-labelledby="h-pics">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-pics"></h2>
+          <div class="prose" id="pics-prose"></div>
+        </div>
+        <div class="grid-wide">
+          <figure class="panel" data-esource="paoa ourairports naturalearth">
+            <h3 id="h-spikes"></h3>
+            <p class="note" id="spikes-note"></p>
+            <div class="eu-map eu-map-light" id="chart-spikes" role="img" aria-labelledby="h-spikes"></div>
+          </figure>
+          <figure class="panel" data-esource="paoa ourairports">
+            <h3 id="h-bands"></h3>
+            <p class="note" id="bands-note"></p>
+            <div class="chart" id="chart-bands" tabindex="0" aria-labelledby="h-bands"></div>
+          </figure>
+        </div>
+        <div class="prose after-figure" id="pics-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="gravite" aria-labelledby="h-gravite">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-gravite"></h2>
+          <div class="prose" id="gravite-prose"></div>
+        </div>
+        <div class="grid-2">
+          <figure class="panel" data-esource="paoa ourairports">
+            <h3 id="h-offset"></h3>
+            <p class="note" id="offset-note"></p>
+            <div class="chart" id="chart-offset" tabindex="0" aria-labelledby="h-offset"></div>
+          </figure>
+          <figure class="panel" data-esource="paoa ourairports naturalearth">
+            <h3 id="h-bary"></h3>
+            <p class="note" id="bary-note"></p>
+            <div class="eu-map eu-map-light" id="chart-bary" role="img" aria-labelledby="h-bary"></div>
+          </figure>
+        </div>
+        <div class="prose after-figure" id="gravite-after"></div>
+      </section>
+
       <section class="chapter wrap story-chapter" id="interieur" aria-labelledby="h-interieur">
         <div class="chapter-lede">
           <h2 class="section-title" id="h-interieur"></h2>
@@ -202,17 +243,37 @@
         <div class="prose after-figure" id="aeroports-after"></div>
       </section>
 
-      <section class="chapter wrap story-chapter" id="gravite" aria-labelledby="h-gravite">
+      <div class="part wrap" id="partie-3">
+        <p class="part-label"><span class="part-no">Partie 3</span> Le calendrier du ciel</p>
+        <p class="part-dek">Quand l'Europe prend l'avion, pays par pays, et comment ce calendrier change.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="saisons" aria-labelledby="h-saisons">
         <div class="chapter-lede">
-          <h2 class="section-title" id="h-gravite"></h2>
-          <div class="prose" id="gravite-prose"></div>
+          <h2 class="section-title" id="h-saisons"></h2>
+          <div class="prose" id="saisons-prose"></div>
         </div>
-        <figure class="panel" data-esource="paoa ourairports naturalearth">
-          <h3 id="h-bary"></h3>
-          <p class="note" id="bary-note"></p>
-          <div class="eu-map eu-map-light" id="chart-bary" role="img" aria-labelledby="h-bary"></div>
+        <div class="eu-controls ss-controls" id="season-controls" role="group" aria-label="Année et ordre des pays"></div>
+        <div class="eu-readout" id="season-readout" aria-live="polite"></div>
+        <figure class="panel" data-esource="paoc">
+          <h3 id="h-ridge"></h3>
+          <p class="note" id="ridge-note"></p>
+          <div class="chart ridge" id="chart-ridge" tabindex="0" aria-labelledby="h-ridge"></div>
         </figure>
-        <div class="prose after-figure" id="gravite-after"></div>
+        <div class="prose after-figure" id="saisons-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="ecart" aria-labelledby="h-ecart">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-ecart"></h2>
+          <div class="prose" id="ecart-prose"></div>
+        </div>
+        <figure class="panel" data-esource="paoc">
+          <h3 id="h-gaps"></h3>
+          <p class="note" id="gaps-note"></p>
+          <div class="chart" id="chart-gaps" tabindex="0" aria-labelledby="h-gaps"></div>
+        </figure>
+        <div class="prose after-figure" id="ecart-after"></div>
       </section>
 
       <section class="chapter wrap story-chapter" id="en-bref" aria-labelledby="h-bref">

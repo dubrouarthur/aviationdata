@@ -19,6 +19,9 @@ export function monthList(start, last) {
   }
 }
 
+/** Kilometres in a degree of latitude (mean Earth radius): north-south offsets of the barycentre. */
+export const KM_DEG = (6371.0088 * Math.PI) / 180;
+
 /** Great-circle distance in km (mean Earth radius). */
 export function km(a, b) {
   const r = Math.PI / 180;
@@ -142,14 +145,26 @@ export function storyFacts(data) {
   const B = data.barycentre;
   const by = (y) => B.find((b) => b.y === y);
   const north = B.reduce((a, b) => (b.lat > a.lat ? b : a), B[0]);
+  const lowest = B.reduce((a, b) => (b.lat < a.lat ? b : a), B[0]);
+  // north (+) or south (-) of the 2019 position, in km along the meridian
+  const offsets = B.map((b) => ({ y: b.y, km: (b.lat - by(YEAR_2019).lat) * KM_DEG }));
+  const plateau = offsets.filter((o) => o.y > lowest.y);
   const bary = {
     from: by(2008),
     y2019: by(YEAR_2019),
     now: by(last),
     north,
-    since2019: km(by(YEAR_2019), by(last)),
-    sinceNorth: km(north, by(last)),
-    south2019: (by(YEAR_2019).lat - by(last).lat) * 111.2,
+    lowest,
+    offsets,
+    northKm: (north.lat - by(YEAR_2019).lat) * KM_DEG,
+    lowestKm: (by(YEAR_2019).lat - lowest.lat) * KM_DEG,
+    climb: (north.lat - B[0].lat) * KM_DEG,
+    plateau: {
+      from: plateau[0]?.y,
+      min: Math.min(...plateau.map((o) => -o.km)),
+      max: Math.max(...plateau.map((o) => -o.km)),
+    },
+    south2019: (by(YEAR_2019).lat - by(last).lat) * KM_DEG,
     byYear: by,
   };
 
@@ -171,5 +186,141 @@ export function storyFacts(data) {
     airportYears: AY,
     airports: data.airports,
     yearsIdx: (y) => data.years.indexOf(y),
+  };
+}
+
+/**
+ * Passengers gained and lost since 2019, south and north of the 45th parallel: the totals and the bands
+ * of latitude come from the ETL (every airport inside the box); the spikes of the map are the airports the
+ * page draws, Berlin's two airports together.
+ */
+export function shiftFacts(data) {
+  const S = data.shift;
+  const AY = data.airportYears;
+  const [i0, i1] = [AY.indexOf(S.from), AY.indexOf(S.to)];
+  const per = new Map();
+  for (const a of data.airports) {
+    if (!a.box) continue;
+    const code = S.merged[a.code] ?? a.code;
+    if (!per.has(code)) per.set(code, { code, before: 0, after: 0 });
+    const r = per.get(code);
+    r.before += a.pax[i0] ?? 0;
+    r.after += a.pax[i1] ?? 0;
+    if (a.code === code) Object.assign(r, { name: S.names[code] ?? a.name, lat: a.lat, lon: a.lon });
+  }
+  const rows = [...per.values()]
+    .filter((r) => r.before || r.after)
+    .map((r) => ({ ...r, change: r.after - r.before, south: r.lat < S.split }));
+  const byChange = [...rows].sort((a, b) => b.change - a.change);
+  const side = (south) => {
+    const these = rows.filter((r) => r.south === south);
+    return { airports: these.length, gaining: these.filter((r) => r.change > 0).length };
+  };
+  const net = (x) => x.after - x.before;
+  return {
+    from: S.from,
+    to: S.to,
+    split: S.split,
+    south: { ...S.south, change: net(S.south), ...side(true) },
+    north: { ...S.north, change: net(S.north), ...side(false) },
+    bands: S.bands,
+    rows,
+    winners: byChange.slice(0, 10),
+    losers: byChange.slice(-10).reverse(),
+    get: (code) => rows.find((r) => r.code === code),
+  };
+}
+
+/** Days in a month (m from 1 to 12). */
+const daysIn = (y, m) => new Date(Date.UTC(y, m, 0)).getUTCDate();
+/** The years whose low month is not a season's: 2020 to 2022 (the Union's January 2022 is still far below 2019). */
+export const PANDEMIC = [2020, 2021, 2022];
+
+/**
+ * The seasons of each zone: in a complete year, the passengers per day of each month (a 31-day month is
+ * not a busier month for its length), as an index of the year's daily mean, its busiest and quietest
+ * months, and the seasonal gap, the busiest month's passengers per day over the quietest's.
+ */
+export function seasonFacts(data) {
+  const last = data.meta.last;
+  const byZone = new Map(
+    data.zones.map((z) => {
+      const months = monthList(z.monthStart, z.monthLast);
+      return [z.code, new Map(months.map((m, i) => [m, z.monthly.total[i]]))];
+    }),
+  );
+  const cache = new Map();
+  const at = (code, y) => {
+    const key = `${code}${y}`;
+    if (cache.has(key)) return cache.get(key);
+    const series = byZone.get(code);
+    const vals = [];
+    for (let m = 1; m <= 12; m++) vals.push(series?.get(`${y}-${String(m).padStart(2, "0")}`) ?? null);
+    let out = null;
+    if (!vals.includes(null)) {
+      const days = vals.map((_, i) => daysIn(y, i + 1));
+      const perDay = vals.map((v, i) => v / days[i]);
+      const mean = vals.reduce((s, v) => s + v, 0) / days.reduce((s, d) => s + d, 0);
+      const peak = perDay.indexOf(Math.max(...perDay));
+      const low = perDay.indexOf(Math.min(...perDay));
+      out = {
+        y,
+        index: perDay.map((p) => p / mean),
+        peak: peak + 1,
+        low: low + 1,
+        gap: perDay[peak] / perDay[low],
+      };
+    }
+    cache.set(key, out);
+    return out;
+  };
+  const zones = data.zones;
+  const years = data.years.filter((y) => !PANDEMIC.includes(y) && zones.every((z) => at(z.code, y)));
+  // a country's latitude: the mean latitude of its airports' passengers that year
+  const latitude = (code, y) => {
+    const i = data.airportYears.indexOf(y);
+    let w = 0;
+    let s = 0;
+    for (const a of data.airports)
+      if (a.country === code && a.box && a.pax[i]) {
+        w += a.pax[i];
+        s += a.pax[i] * a.lat;
+      }
+    return w ? s / w : null;
+  };
+  const countries = zones.filter((z) => z.code !== "EU27_2020");
+  const rows = (y) =>
+    countries.map((z) => ({ code: z.code, name: z.name, lat: latitude(z.code, y), ...at(z.code, y) }));
+  const first = years[0];
+  const change = countries
+    .map((z) => ({ code: z.code, name: z.name, from: at(z.code, first).gap, to: at(z.code, last).gap }))
+    .map((r) => ({ ...r, ratio: r.to / r.from }));
+  const eu = data.zones[0];
+  const euSeries = byZone.get(eu.code);
+  const fiPeaks = years.map((y) => ({ y, peak: at("FI", y).peak }));
+  // passengers per day of one month, as published
+  const perDay = (code, y, m) => byZone.get(code).get(`${y}-${String(m).padStart(2, "0")}`) / daysIn(y, m);
+  return {
+    last,
+    first,
+    years,
+    at,
+    perDay,
+    rows,
+    latitude,
+    change,
+    narrower: change.filter((r) => r.ratio < 1),
+    wider: change.filter((r) => r.ratio > 1),
+    euGaps: years.map((y) => at(eu.code, y).gap),
+    jan2022: 100 * (1 - euSeries.get("2022-01") / euSeries.get("2019-01")),
+    fi: {
+      juneUntil: Math.max(...fiPeaks.filter((p) => p.y <= YEAR_2019 && p.peak === 6).map((p) => p.y)),
+      juneAlways: fiPeaks.filter((p) => p.y <= YEAR_2019).every((p) => p.peak === 6),
+      decSince: (() => {
+        let y = last;
+        while (years.includes(y - 1) && at("FI", y - 1).peak === 12) y -= 1;
+        return at("FI", last).peak === 12 ? y : null;
+      })(),
+    },
   };
 }

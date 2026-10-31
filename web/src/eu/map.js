@@ -350,3 +350,130 @@ export function baryMap(node, geo, data, { marks }) {
   draw();
   onResize(node, draw);
 }
+
+/**
+ * The passengers each airport gained or lost since 2019, as spikes: up in amber for a gain, down in blue
+ * for a loss, the height in passengers; the 45th parallel dashed. The spikes rise once on screen, the
+ * south first (still with reduced motion).
+ */
+export function spikeMap(node, geo, shift, { labels, inScope }) {
+  let played = reducedMotion();
+  const draw = () => {
+    const width = node.clientWidth || 700;
+    const height = Math.round(Math.min(720, Math.max(400, width * 1.02)));
+    const { svg } = svgFor(node, height);
+    const proj = projectionFor(width, height, box(-22, 27, 34, 71));
+    const path = d3.geoPath(proj);
+    svg
+      .append("g")
+      .selectAll("path")
+      .data(geo.features)
+      .join("path")
+      .attr("d", path)
+      .attr("class", (f) => (inScope.has(+f.id) ? "spk-land in" : "spk-land"));
+    // the 45th parallel, across the map
+    const parallel = {
+      type: "LineString",
+      coordinates: d3.range(-30, 46, 1).map((lon) => [lon, shift.split]),
+    };
+    svg.append("path").attr("class", "spk-parallel").attr("d", path(parallel));
+    const [px, py] = proj([-21, shift.split]);
+    svg
+      .append("text")
+      .attr("class", "spk-parallel-lab")
+      .attr("x", Math.max(8, px))
+      .attr("y", py - 7)
+      .text("45e parallèle");
+    const maxAbs = d3.max(shift.rows, (r) => Math.abs(r.change));
+    const maxH = Math.max(56, Math.min(104, height * 0.135));
+    const h = d3.scaleLinear().domain([0, maxAbs]).range([0, maxH]);
+    const half = Math.max(2.4, Math.min(3.6, width / 210));
+    const spike = (len, up) => `M${-half},0L0,${up ? -len : len}L${half},0Z`;
+    const rows = shift.rows
+      .map((r) => ({ ...r, p: proj([r.lon, r.lat]) }))
+      // below 50 000 passengers a spike is a speck: left out of the drawing, not of the totals
+      .filter((r) => r.p && Math.abs(r.change) >= 50_000)
+      // the ones further down the map are painted last, over the ones above
+      .sort((a, b) => a.p[1] - b.p[1]);
+    // where each airport is: the foot of its spike
+    svg
+      .append("g")
+      .attr("class", "spk-feet")
+      .selectAll("circle")
+      .data(rows)
+      .join("circle")
+      .attr("cx", (r) => r.p[0])
+      .attr("cy", (r) => r.p[1])
+      .attr("r", 1.4);
+    const g = svg.append("g").attr("class", "spikes");
+    const s = g
+      .selectAll("path")
+      .data(rows)
+      .join("path")
+      .attr("class", (r) => (r.change > 0 ? "spk up" : "spk down"))
+      .attr("transform", (r) => `translate(${r.p[0]},${r.p[1]})`)
+      .attr("d", (r) => spike(played ? h(Math.abs(r.change)) : 0, r.change > 0))
+      .on("pointermove", (ev, r) =>
+        showTip(ev, r.name, [
+          { label: `passagers en ${shift.from}`, value: mio(r.before) },
+          { label: `passagers en ${shift.to}`, value: mio(r.after) },
+          { label: "écart", value: `${r.change > 0 ? "+" : "−"}${mio(Math.abs(r.change))}` },
+        ]),
+      )
+      .on("pointerleave", hideTip);
+    // labels at the tip of the largest spikes
+    const lab = svg.append("g").attr("class", "spk-labs");
+    const write = () =>
+      lab
+        .selectAll("text")
+        .data(rows.filter((r) => labels[r.code]))
+        .join("text")
+        .attr("class", (r) => (r.change > 0 ? "spk-lab up" : "spk-lab down"))
+        .attr("x", (r) => r.p[0] + (labels[r.code].dx ?? 0))
+        .attr("y", (r) => r.p[1] + (r.change > 0 ? -h(r.change) - 6 : h(-r.change) + 14))
+        .attr("text-anchor", (r) => labels[r.code].anchor ?? "middle")
+        .text((r) => labels[r.code].text);
+    // the legend: what five million passengers look like
+    const five = 5e6;
+    const lg = svg
+      .append("g")
+      .attr("class", "eu-legend")
+      .attr("transform", `translate(14,${height - 16 - h(five)})`);
+    lg.append("path")
+      .attr("class", "spk up")
+      .attr("d", spike(h(five), true))
+      .attr("transform", `translate(6,${h(five)})`);
+    lg.append("path")
+      .attr("class", "spk down")
+      .attr("d", spike(h(five), false))
+      .attr("transform", `translate(20,0)`);
+    lg.append("text")
+      .attr("x", 32)
+      .attr("y", h(five) / 2 - 4)
+      .text("5 millions de passagers");
+    lg.append("text")
+      .attr("x", 32)
+      .attr("y", h(five) / 2 + 12)
+      .text("gagnés ou perdus");
+    if (played) return write();
+    // the rise, south first, once the map is on screen
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        played = true;
+        s.transition()
+          .delay((r) => 900 * Math.max(0, (r.lat - 27) / 44))
+          .duration(900)
+          .ease(d3.easeCubicOut)
+          .attr("d", (r) => spike(h(Math.abs(r.change)), r.change > 0))
+          .end()
+          .then(write, write);
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(node);
+  };
+  draw();
+  onResize(node, draw);
+}

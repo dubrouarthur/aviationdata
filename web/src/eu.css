@@ -527,3 +527,241 @@
   fill: #8a978f;
   letter-spacing: 0.02em;
 }
+
+/* ------------------------------------------------------------------ gains and losses since 2019 */
+.spk-land {
+  fill: #eef1ef;
+  stroke: #fff;
+  stroke-width: 0.6;
+}
+
+.spk-land.in {
+  fill: #dfe6e2;
+}
+
+.spk-parallel {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.spk-parallel-lab {
+  font: italic 600 12.5px var(--f-text);
+  fill: var(--ink-2);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.spk-feet circle {
+  fill: var(--ink-2);
+}
+
+.spk {
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+.spk.up {
+  fill: rgba(196, 122, 18, 0.62);
+  stroke: #8a5200;
+}
+
+.spk.down {
+  fill: rgba(42, 120, 214, 0.55);
+  stroke: #1e62b5;
+}
+
+.spikes .spk:hover {
+  fill-opacity: 1;
+  stroke-width: 1.6;
+}
+
+.spk-lab {
+  font: 700 12.5px var(--f-ui);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3.5px;
+  pointer-events: none;
+}
+
+.spk-lab.up {
+  fill: var(--south-text);
+}
+
+.spk-lab.down {
+  fill: var(--north-text);
+}
+
+.band-split {
+  stroke: var(--ink-2);
+  stroke-dasharray: 4 4;
+}
+
+.chart .band-names {
+  font: 12px var(--f-ui);
+  fill: var(--muted);
+}
+
+/* ------------------------------------------------------------------ the seasons */
+.ss-controls .seg {
+  flex-wrap: wrap;
+}
+
+.ss-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: min(22rem, 80vw);
+}
+
+.ss-row input {
+  flex: 1;
+  accent-color: var(--south);
+}
+
+.ss-play {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink-2);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.ss-play:hover,
+.ss-play:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.ss-year {
+  min-width: 3.2ch;
+  font: 800 1.5rem/1 var(--f-display);
+  font-stretch: 70%;
+  font-variant-numeric: tabular-nums;
+}
+
+.linklike {
+  border: 0;
+  padding: 4px 0;
+  min-height: 32px;
+  background: none;
+  font: inherit;
+  font-size: 0.92em;
+  color: var(--issue-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ridge .rid-area {
+  stroke: #4d3d22;
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+}
+
+.ridge .rid.eu .rid-area {
+  fill: #cfe5e1;
+  stroke: var(--eu-accent);
+  stroke-width: 1.4;
+}
+
+.ridge .rid-pick {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.6;
+  pointer-events: none;
+}
+
+.ridge .rid-eu {
+  fill: none;
+  stroke: var(--eu-accent);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  pointer-events: none;
+}
+
+.ridge .rid-name {
+  font: 12.5px var(--f-ui);
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.ridge .rid.eu .rid-name {
+  font-weight: 700;
+  fill: var(--eu-accent);
+}
+
+.ridge .rid.on .rid-name,
+.ridge .rid.on .rid-gap {
+  font-weight: 800;
+  fill: var(--ink);
+}
+
+.ridge .rid-gap {
+  font: 650 12px var(--f-ui);
+  fill: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.ridge .rid-rows .rid {
+  cursor: pointer;
+}
+
+.gl-out {
+  fill: var(--grid);
+  opacity: 0.5;
+}
+
+.gl-line {
+  fill: none;
+  stroke: #c9d0cc;
+  stroke-width: 1.2;
+}
+
+.gl.hl .gl-line {
+  stroke: var(--c);
+  stroke-width: 2.6;
+}
+
+.gl.on .gl-line {
+  stroke: var(--ink);
+  stroke-width: 2.4;
+}
+
+.gl.hl.on .gl-line {
+  stroke: var(--c);
+  stroke-width: 3.4;
+}
+
+.gl-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 10;
+  cursor: pointer;
+}
+
+.gl-lab {
+  font: 650 12.5px var(--f-ui);
+  fill: var(--c, var(--ink));
+  display: none;
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+}
+
+.gl.hl .gl-lab,
+.gl.on .gl-lab {
+  display: block;
+}

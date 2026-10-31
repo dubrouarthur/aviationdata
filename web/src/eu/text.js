@@ -4,6 +4,7 @@ import { $, el, rich, lecture } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { monthLabel, mio, pct } from "./charts.js";
 import { km } from "./facts.js";
+import { MONTHS, times } from "./seasons.js";
 
 /** 1 093 600 000 -> "1,09 milliard" ; 172 000 000 -> "172,0 millions" */
 export const big = (v) =>
@@ -44,10 +45,12 @@ export function writeOpening(F) {
   ]);
 }
 
-export function writeEssentiel(F) {
+export function writeEssentiel(F, H, Q) {
   const U = F.union;
+  const hr = Q.at("HR", F.last);
+  const ue = Q.at("EU27_2020", F.last);
   const fi = F.vs.find((c) => c.code === "FI");
-  const de = F.vs.find((c) => c.code === "DE");
+  const ger = F.vs.find((c) => c.code === "DE");
   const natDE = F.nat.find((n) => n.code === "DE");
   const natSE = F.nat.find((n) => n.code === "SE");
   const items = [
@@ -69,7 +72,7 @@ export function writeEssentiel(F) {
         `Non : ${F.below.length} pays restent sous 2019, dont la Finlande (`,
         { b: pct(fi.change) },
         ") et l'Allemagne (",
-        { b: pct(de.change) },
+        { b: pct(ger.change) },
         "). Malte et la Pologne dépassent 2019 de plus d'un tiers.",
       ],
     ],
@@ -84,13 +87,25 @@ export function writeEssentiel(F) {
       ],
     ],
     [
-      "gravite",
-      kmTxt(F.bary.since2019),
+      "pics",
+      kmTxt(F.bary.south2019),
       "Le ciel a-t-il bougé ?",
       [
-        "Le centre de gravité des passagers des aéroports européens a glissé de ",
-        { b: kmTxt(F.bary.since2019) },
-        " vers le sud depuis 2019.",
+        "Oui, vers le sud. Les aéroports au sud du 45e parallèle ont gagné ",
+        { b: `${big(H.south.change)} de passagers` },
+        " depuis 2019, ceux du nord en ont perdu. Le centre de gravité a glissé de ",
+        { b: kmTxt(F.bary.south2019) },
+        ".",
+      ],
+    ],
+    [
+      "saisons",
+      times(hr.gap),
+      "Quand vole-t-on ?",
+      [
+        `En été, surtout. En Croatie, un jour ${de(MONTHS[hr.peak - 1])} compte `,
+        { b: `${fmtNum(hr.gap, 1)} fois` },
+        ` plus de passagers qu'un jour ${de(MONTHS[hr.low - 1])} ; dans l'Union, ${fmtNum(ue.gap, 1)} fois.`,
       ],
     ],
   ];
@@ -403,33 +418,120 @@ export function writeAeroports(F) {
   );
 }
 
-export function writeGravite(F) {
-  const B = F.bary;
-  $("#h-gravite").textContent = `Le centre de gravité a glissé de ${kmTxt(B.since2019)} vers le sud`;
-  prose("#gravite-prose", [
+const shortName = (r) => r.name.split(" (")[0];
+const signedM = (v) => `${v > 0 ? "+" : "−"}${mio(Math.abs(v))}`;
+
+export function writePics(H) {
+  const [S, N] = [H.south, H.north];
+  const w = H.winners;
+  const [ber, fra] = [H.get("EDDB"), H.get("EDDF")];
+  const [waw, krk] = [H.get("EPWA"), H.get("EPKK")];
+  const share = (x) => `${fmtNum((100 * x.gaining) / x.airports)} %`;
+  $("#h-pics").textContent = `Au sud du 45e parallèle, ${big(S.change)} de passagers de plus`;
+  prose("#pics-prose", [
     [
-      "Chaque année, on peut placer le centre de gravité des passagers des aéroports européens : la moyenne de leurs positions, pondérée par leur trafic. Depuis 2019, il est descendu de ",
-      { b: kmTxt(B.since2019) },
+      `Entre ${H.from} et ${H.to}, les aéroports situés au sud du 45e parallèle, qui passe près de Bordeaux et de Turin, ont gagné `,
+      { b: `${big(S.change)} de passagers` },
+      ". Ceux du nord en ont perdu ",
+      { b: big(-N.change) },
       ".",
     ],
   ]);
-  $("#h-bary").textContent = `Au nord jusqu'en ${B.north.y}, puis cap au sud`;
+  $("#h-spikes").textContent =
+    `${shortName(w[0]).split("-")[0]}, Athènes et Rome gagnent le plus, Berlin et Francfort perdent le plus`;
+  $("#spikes-note").textContent =
+    `Écart entre les passagers de ${H.from} et ceux de ${H.to}, aéroport par aéroport (départs et arrivées) : les ${S.airports + N.airports} aéroports de l'Union et de l'AELE qui ont dépassé 250 000 passagers au moins une année depuis 2008. Berlin réunit Tegel, fermé en 2020, et Schönefeld, devenu Berlin-Brandebourg.`;
+  lecture(
+    "#chart-spikes",
+    "chaque pic est un aéroport : vers le haut en orangé, les passagers gagnés ; vers le bas en bleu, les passagers perdus. La ligne pointillée suit le 45e parallèle ; survolez un pic pour lire ses chiffres.",
+  );
+  $("#h-bands").textContent = "Au sud du 45e parallèle, chaque tranche de latitude gagne des passagers";
+  $("#bands-note").textContent =
+    `Écart entre les passagers de ${H.from} et ceux de ${H.to}, par tranche de deux degrés de latitude, tous les aéroports de la zone. À côté de chaque barre, ses premiers aéroports en ${H.to}.`;
+  lecture("#chart-bands", "le nord est en haut ; le trait pointillé marque le 45e parallèle.");
+  after(
+    "#pics-after",
+    [
+      [
+        "Au sud du parallèle, ",
+        { b: share(S) },
+        ` des aéroports ont gagné des passagers depuis ${H.from}, contre `,
+        { b: share(N) },
+        " au nord.",
+      ],
+      [
+        `${w[0].name} (`,
+        { b: signedM(w[0].change) },
+        `) et ${w[1].name} (`,
+        { b: signedM(w[1].change) },
+        `) gagnent le plus, devant ${w[2].name} et ${w[3].name}.`,
+      ],
+      [
+        "Au nord, Berlin perd le plus, ses deux aéroports réunis (",
+        { b: signedM(ber.change) },
+        "), devant Francfort (",
+        { b: signedM(fra.change) },
+        ").",
+      ],
+      [
+        "Le partage n'est pas absolu. Au nord, Varsovie-Chopin (",
+        { b: signedM(waw.change) },
+        ") et Cracovie (",
+        { b: signedM(krk.change) },
+        ") comptent parmi les dix plus fortes hausses ; au sud, Toulouse-Blagnac et Bordeaux-Mérignac reculent.",
+      ],
+    ],
+    `Un aéroport compte ses départs et ses arrivées, et deux fois un passager en correspondance : ces totaux ne s'additionnent pas pour faire un pays et ne se comparent pas aux passagers des chapitres précédents. Les parts d'aéroports portent sur les ${S.airports + N.airports} aéroports de la carte ; les totaux, sur tous les aéroports de la zone, petits compris.`,
+  );
+}
+
+export function writeGravite(F) {
+  const B = F.bary;
+  const first = F.airportYears[0];
+  $("#h-gravite").textContent = `Le centre de gravité a glissé de ${kmTxt(B.south2019)} vers le sud`;
+  prose("#gravite-prose", [
+    [
+      "Chaque année, on peut placer le centre de gravité des passagers des aéroports européens : la moyenne de leurs positions, pondérée par leur trafic. En ",
+      String(F.last),
+      ", il se trouve ",
+      { b: kmTxt(B.south2019) },
+      " au sud de sa position de 2019.",
+    ],
+  ]);
+  $("#h-offset").textContent = `Un plongeon en ${B.lowest.y}, puis un palier`;
+  $("#offset-note").textContent =
+    `Position du centre de gravité des passagers chaque année, de ${first} à ${F.last}, au nord ou au sud de celle de 2019, en km le long du méridien.`;
+  lecture(
+    "#chart-offset",
+    "chaque barre est une année : vers le haut en bleu, au nord de 2019 ; vers le bas en orangé, au sud.",
+  );
+  $("#h-bary").textContent = `Au nord-est jusqu'en ${B.north.y}, puis cap au sud`;
   $("#bary-note").textContent =
-    `Centre de gravité des passagers des aéroports de l'Union et de l'AELE, chaque année de ${F.airportYears[0]} à ${F.last}, avec les aéroports voisins comme repères.`;
+    `Centre de gravité des passagers des aéroports de l'Union et de l'AELE, chaque année de ${first} à ${F.last}, avec les aéroports voisins comme repères.`;
   lecture(
     "#chart-bary",
     "chaque point est une année ; le trait orangé part de 2019 ; survolez un point pour lire sa position.",
   );
   const share = (y) => F.bary.byYear(y).south45;
-
   after(
     "#gravite-after",
     [
       [
-        `Jusqu'en ${B.north.y}, il remontait vers le nord-est. Depuis, il redescend, et le Covid l'a envoyé au plus bas en 2021 : cette année-là, les aéroports du Sud ont perdu moins de passagers que ceux du Nord.`,
+        `De ${first} à ${B.north.y}, il était remonté de `,
+        { b: kmTxt(B.climb) },
+        ` vers le nord. Il est ensuite redescendu, puis a plongé en ${B.lowest.y}, à `,
+        { b: kmTxt(B.lowestKm) },
+        " au sud de sa position de 2019 : cette année-là, les aéroports du Sud ont perdu moins de passagers que ceux du Nord.",
       ],
       [
-        "Les aéroports situés au sud du 45e parallèle, qui passe près de Bordeaux et de Turin, accueillent ",
+        `Depuis ${B.plateau.from}, il ne bouge presque plus, entre `,
+        { b: kmTxt(B.plateau.min) },
+        " et ",
+        { b: kmTxt(B.plateau.max) },
+        " au sud de 2019 : la reprise ne l'a pas ramené.",
+      ],
+      [
+        "Les aéroports situés au sud du 45e parallèle accueillent ",
         { b: `${fmtNum(share(F.last), 1)} %` },
         ` des passagers en ${F.last}, contre `,
         { b: `${fmtNum(share(2019), 1)} %` },
@@ -440,7 +542,125 @@ export function writeGravite(F) {
   );
 }
 
-export function writeReponse(F) {
+/* ------------------------------------------------------------------ the seasons */
+/** "un jour d'août compte 7,4 fois plus de passagers qu'un jour de janvier" */
+const dayWords = (r, d = 1) =>
+  `un jour ${de(MONTHS[r.peak - 1])} compte ${fmtNum(r.gap, d)} fois plus de passagers qu'un jour ${de(MONTHS[r.low - 1])}`;
+
+/** The line over the ridges: the Union, or the country the reader picks. */
+export function seasonReadout(Q, onOpen) {
+  return (row, year) => {
+    const ue = Q.at("EU27_2020", year);
+    const box = $("#season-readout");
+    if (!box) return;
+    const parts = row
+      ? [{ b: row.name }, `, ${year} : ${dayWords(row)}, contre ${fmtNum(ue.gap, 1)} dans l'Union.`]
+      : [{ b: "Union européenne" }, `, ${year} : ${dayWords(ue)}.`];
+    const p = el("p", {}, rich(parts));
+    if (row) {
+      const go = el("button", {
+        type: "button",
+        class: "linklike",
+        text: `Ouvrir ${row.name} dans le tableau de bord`,
+      });
+      go.addEventListener("click", () => onOpen?.(row.code));
+      p.append(" ", go);
+    }
+    box.replaceChildren(p);
+  };
+}
+
+export function writeSaisons(Q) {
+  const L = Q.last;
+  const [hr, ue, fi] = [Q.at("HR", L), Q.at("EU27_2020", L), Q.at("FI", L)];
+  const rows = Q.rows(L);
+  const count = (f) => rows.filter(f).length;
+  const nJan = count((r) => r.low === 1);
+  $("#h-saisons").textContent = `En Croatie, ${dayWords(hr, 0)}`;
+  prose("#saisons-prose", [
+    [
+      `Dans l'Union, un jour ${de(MONTHS[ue.peak - 1])} compte `,
+      { b: `${fmtNum(ue.gap, 1)} fois` },
+      ` plus de passagers qu'un jour ${de(MONTHS[ue.low - 1])}. Mais chaque pays a son calendrier : en Finlande, le mois le plus chargé ne compte que `,
+      { b: `${fmtNum(fi.gap, 1)} fois` },
+      " plus de passagers par jour que le plus creux.",
+    ],
+  ]);
+  $("#h-ridge").textContent = "La Croatie et la Grèce, les plus saisonnières";
+  $("#ridge-note").textContent =
+    "Passagers transportés par jour, chaque mois, rapportés à la moyenne de l'année : une ligne par pays, l'Union en haut. À droite, l'écart saisonnier : les passagers par jour du mois le plus chargé divisés par ceux du mois le plus creux.";
+  lecture(
+    "#chart-ridge",
+    "plus le relief est haut, plus le mois compte de passagers. Choisissez l'année et l'ordre au-dessus ; survolez ou touchez un pays pour le comparer à l'Union, en pointillé.",
+  );
+  after(
+    "#saisons-after",
+    [
+      [
+        `En ${L}, janvier est le mois le plus creux ${nJan === rows.length ? `dans les ${nJan} pays` : `dans ${nJan} pays sur ${rows.length}`}. Le pic tombe en août dans ${count((r) => r.peak === 8)} pays, en juillet dans ${count((r) => r.peak === 7)}.`,
+      ],
+      [
+        `La saison ne suit pas la latitude : en ${L}, l'Espagne varie moins que l'Allemagne, la Slovaquie plus que Chypre ou Malte.`,
+      ],
+      [
+        `Jusqu'en ${Q.fi.juneUntil}, le mois le plus chargé de la Finlande était juin. Depuis ${Q.fi.decSince}, c'est décembre.`,
+      ],
+    ],
+    `Un mois de 31 jours n'est pas plus chargé pour sa longueur : chaque mois compte ici ses passagers par jour. Les années 2020 à 2022 sont écartées : en janvier 2022 encore, l'Union comptait ${up(Q.jan2022)} de passagers de moins qu'en janvier 2019. Ces profils disent quand on vole, pas pourquoi.`,
+  );
+}
+
+export function writeEcart(Q) {
+  const [F0, L] = [Q.first, Q.last];
+  const get = (c) => Q.change.find((r) => r.code === c);
+  const [bg, is, hr, gr] = [get("BG"), get("IS"), get("HR"), get("EL")];
+  const d1 = (v) => fmtNum(v, 1);
+  $("#h-ecart").textContent = `La Bulgarie a presque divisé par deux son écart saisonnier depuis ${F0}`;
+  prose("#ecart-prose", [
+    [
+      "Dans l'Union, l'écart saisonnier oscille entre ",
+      { b: d1(Math.min(...Q.euGaps)) },
+      " et ",
+      { b: d1(Math.max(...Q.euGaps)) },
+      ` depuis ${F0}. Il s'est resserré dans ${Q.narrower.length} pays sur ${Q.change.length}.`,
+    ],
+  ]);
+  $("#h-gaps").textContent = "L'écart se resserre en Bulgarie, il se creuse en Croatie et en Grèce";
+  $("#gaps-note").textContent =
+    `Écart saisonnier de chaque pays, de ${F0} à ${L}, sur une échelle logarithmique : passagers par jour du mois le plus chargé divisés par ceux du mois le plus creux. Les années 2020 à 2022 sont écartées.`;
+  lecture("#chart-gaps", "chaque ligne est un pays ; survolez une ligne grise pour lire son nom.");
+  const x = (c, m) => Q.perDay(c, L, m) / Q.perDay(c, F0, m);
+  after(
+    "#ecart-after",
+    [
+      [
+        "En Bulgarie, il est passé de ",
+        { b: d1(bg.from) },
+        ` en ${F0} à `,
+        { b: d1(bg.to) },
+        ` en ${L}. En Islande, de ${d1(is.from)} à ${d1(is.to)}.`,
+      ],
+      [
+        "En Bulgarie, un jour de janvier compte ",
+        { b: `${d1(x("BG", 1))} fois` },
+        ` plus de passagers qu'en ${F0}, un jour d'août `,
+        { b: `${d1(x("BG", 8))} fois` },
+        " : l'hiver s'est rempli plus vite que l'été.",
+      ],
+      [
+        "À l'inverse, l'écart s'est creusé en Croatie, de ",
+        { b: d1(hr.from) },
+        " à ",
+        { b: d1(hr.to) },
+        `. En Grèce, de ${d1(gr.from)} à ${d1(gr.to)}.`,
+      ],
+      ["Jusqu'en 2019, l'Espagne était plus saisonnière que l'Allemagne. Depuis 2023, c'est l'inverse."],
+    ],
+    "Un écart qui se resserre peut venir d'un hiver qui se remplit ou d'un été qui se vide : il faut regarder les mois eux-mêmes, comme pour la Bulgarie. Les chiffres disent quand on vole, pas pourquoi.",
+  );
+}
+
+export function writeReponse(F, H, Q) {
   const U = F.union;
   prose("#reponse-prose", [
     [
@@ -452,9 +672,14 @@ export function writeReponse(F) {
       `La plupart des pays du Sud et de l'Est dépassent nettement 2019 ; ${F.below.length} pays restent en dessous, dont l'Allemagne, la Finlande et la Suède. Les vols intérieurs reculent presque partout, sauf en Espagne, en Italie, en Grèce et au Portugal.`,
     ],
     [
-      "Le centre de gravité des passagers a glissé de ",
-      { b: kmTxt(F.bary.since2019) },
-      " vers le sud depuis 2019. Les données disent où les passagers volent, pas pourquoi : ce sera l'objet d'autres enquêtes.",
+      "Au sud du 45e parallèle, les aéroports ont gagné ",
+      { b: `${big(H.south.change)} de passagers` },
+      " depuis 2019, et le centre de gravité des passagers a glissé de ",
+      { b: kmTxt(F.bary.south2019) },
+      " vers le sud.",
+    ],
+    [
+      `L'été reste la grande saison : dans l'Union, ${dayWords(Q.at("EU27_2020", F.last))}. Les données disent où et quand les passagers volent, pas pourquoi : ce sera l'objet d'autres enquêtes.`,
     ],
   ]);
 }

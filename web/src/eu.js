@@ -9,10 +9,12 @@ import { numberChapters, readingProgress, shareBlock, trackChapters } from "./si
 import { atlasFrame } from "./site/atlas.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
-import { storyFacts, zoneFacts } from "./eu/facts.js";
+import { storyFacts, zoneFacts, shiftFacts, seasonFacts } from "./eu/facts.js";
 import * as T from "./eu/text.js";
 import { monthChart, heatmap, partsChart, rankBars, dumbbell, bumpChart, airportTable } from "./eu/charts.js";
-import { openMap, yearControls, choropleth, baryMap } from "./eu/map.js";
+import { openMap, yearControls, choropleth, baryMap, spikeMap } from "./eu/map.js";
+import { bandsChart, offsetBars } from "./eu/shift.js";
+import { ridgeline, seasonControls, gapLines } from "./eu/seasons.js";
 import { addSourceLines, initSources } from "./eu/sources.js";
 
 async function load() {
@@ -91,9 +93,11 @@ async function main() {
     return;
   }
   const F = storyFacts(data);
+  const H = shiftFacts(data);
+  const Q = seasonFacts(data);
   safely("text", () => {
     T.writeOpening(F);
-    T.writeEssentiel(F);
+    T.writeEssentiel(F, H, Q);
     T.writeTableau(F);
     T.openNote(data);
   });
@@ -140,13 +144,48 @@ async function main() {
       highlight: Object.keys(colors),
     });
   });
+  safely("spikes", () => {
+    T.writePics(H);
+    spikeMap($("#chart-spikes"), geo, H, {
+      inScope: new Set(data.zones.map((z) => z.iso).filter(Boolean)),
+      labels: {
+        LEMD: { text: "Madrid" },
+        LGAV: { text: "Athènes" },
+        LIRF: { text: "Rome", anchor: "end", dx: -2 },
+        LEMG: { text: "Malaga", anchor: "end", dx: -2 },
+        EDDB: { text: "Berlin" },
+        EDDF: { text: "Francfort", anchor: "end", dx: -2 },
+        EFHK: { text: "Helsinki" },
+      },
+    });
+    bandsChart($("#chart-bands"), H);
+  });
   safely("gravity", () => {
     T.writeGravite(F);
+    offsetBars($("#chart-offset"), F.bary, { last: F.last });
     baryMap($("#chart-bary"), geo, data, {
       marks: ["LSGG", "LSZB", "LSZH", "LFSB", "LFSN", "LFLL", "LIMC", "LSZA"],
     });
   });
-  safely("answer", () => T.writeReponse(F));
+  safely("seasons", () => {
+    T.writeSaisons(Q);
+    // the ridges call the readout whenever the year or the picked country changes
+    const ridges = ridgeline($("#chart-ridge"), Q, { onPick: T.seasonReadout(Q, open) });
+    seasonControls($("#season-controls"), Q, ridges);
+  });
+  safely("gap", () => {
+    T.writeEcart(Q);
+    gapLines($("#chart-gaps"), Q, {
+      highlight: {
+        EU27_2020: "var(--eu-accent)",
+        HR: "var(--south)",
+        EL: "var(--south-text)",
+        BG: "var(--north)",
+        IS: "var(--north-text)",
+      },
+    });
+  });
+  safely("answer", () => T.writeReponse(F, H, Q));
   safely("sources", () => initSources(data));
   numberChapters(".story-chapter");
   addSourceLines();
