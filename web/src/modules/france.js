@@ -528,7 +528,7 @@ export function initFrance(data, { france }) {
         `${lost} des ${compared} aéroports suivis en 2019 et en ${lastYear} ont perdu des passagers (en magenta), ${compared - lost} en ont gagné (en bleu).`,
       ],
       [
-        `Ryanair a cessé de desservir Brive et Strasbourg à l'hiver 2025, puis Clermont-Ferrand fin mars 2026, et réduit son programme à Bergerac, en invoquant la hausse de la taxe sur les billets. Ces départs n'apparaîtront pleinement que dans les chiffres 2026. En ${lastYear}, par rapport à 2019 : ${exits
+        `Ryanair a cessé de desservir Bergerac, Brive et Strasbourg à l'hiver 2025, puis Clermont-Ferrand le 27 mars 2026, en invoquant la hausse de la taxe sur les billets ; une ligne vers Londres doit rouvrir à Bergerac à l'été 2026. Ces départs n'apparaîtront pleinement que dans les chiffres 2026. En ${lastYear}, par rapport à 2019 : ${exits
           .map((a) => `${shortName(a)} ${vs19(a)}`)
           .join(", ")}.`,
       ],

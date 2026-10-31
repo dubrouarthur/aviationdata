@@ -101,7 +101,7 @@ export function initPrices(data) {
         since ? `, la plus forte hausse depuis ${fmtMonth(since)}` : "",
         `.`,
         hormuz > 0 && cur > 0
-          ? ` Cette hausse arrive ${hormuz === 1 ? "un mois" : `${NUMBERS[hormuz] || hormuz} mois`} après la quasi-fermeture du détroit d'Ormuz, fin février 2026, qui a fait flamber le prix du kérosène.`
+          ? ` Cette hausse arrive ${hormuz === 1 ? "un mois" : `${NUMBERS[hormuz] || hormuz} mois`} après la quasi-fermeture du détroit d'Ormuz, fin février 2026 ; selon l'IATA, le prix du kérosène a environ doublé depuis.`
           : "",
       ]),
     ),
