@@ -121,6 +121,14 @@
   border-top: 2px solid var(--ink);
 }
 
+/* five questions: one row of five, never one left alone under four */
+@media (min-width: 1101px) {
+  .essentiel-list:has(> li:nth-child(5):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+}
+
 .es-n {
   font-family: var(--f-display);
   font-stretch: 64%;
