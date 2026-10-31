@@ -416,3 +416,32 @@ main .chapter:not(.hero) h2.section-title {
     display: none;
   }
 }
+
+/* the first story's essentials: numbers on a rule, as in the other stories, not cards on a shadow */
+.resume-grid {
+  gap: 0 28px;
+  border-top: 2px solid var(--ink);
+}
+
+.resume-card {
+  padding: 14px 0 18px;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.resume-card:hover,
+.resume-card:focus-visible {
+  transform: none;
+}
+
+.resume-card:hover b,
+.resume-card:focus-visible b {
+  color: var(--blue-text, var(--ink));
+}
+
+.essentiel .resume-grid {
+  margin-top: 12px;
+}

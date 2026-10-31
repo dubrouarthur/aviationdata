@@ -27,7 +27,7 @@ function openingCard() {
   };
 }
 
-/** Closing summary: the key figure of each chapter, with a link back to it, and ways to share the page. */
+/** The essentials, under the opening: the key figure of each chapter with a link to it; at the end, ways to share the page. */
 export function initResume() {
   const cards = CARDS.map(([id, title]) => {
     const card = id === "monde" ? openingCard() : summary.get(id);
@@ -36,7 +36,7 @@ export function initResume() {
       el("span", { class: "rc-title" }, [el("i", { style: `--c:${card.color}` }), title]),
       el("b", { text: card.value }),
       el("span", { class: "rc-label", text: card.label }),
-      el("span", { class: "rc-go", text: "Revoir le chapitre" }),
+      el("span", { class: "rc-go", text: "Lire le chapitre" }),
     ]);
   }).filter(Boolean);
   $("#resume-grid").replaceChildren(...cards);
