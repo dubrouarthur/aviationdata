@@ -86,19 +86,11 @@ const code = (path) => `${SITE.repo}/blob/main/${path}`;
 const terms = (t, s) =>
   t.url ? out(t.url, t.text) : t.producer ? `${esc(t.text)} (${out(s.url, "voir sa page")})` : esc(t.text);
 
-function checkPaths(webRoot, entry) {
-  const repo = join(webRoot, "..");
-  for (const p of [...entry.etl, ...entry.checks])
-    if (!existsSync(join(repo, p)))
-      throw new Error(`data page: ${entry.id} names ${p}, which does not exist`);
-}
-
 /** The datasets, one article each. */
 export function dataSets({ root, webRoot }) {
   const counts = figureCounts(webRoot);
   const sizes = new Map(publishedFiles(webRoot).map((f) => [f.path, f.size]));
   return DATASETS.map((d) => {
-    checkPaths(webRoot, d);
     const s = sourceOf(d);
     const used = uses(d, counts);
     const files = d.files.flatMap((p) => expand(webRoot, p));

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { DATASETS, FACTS, REFERENCES, MODELS, TABLES, placed, sourceOf } from "./data-registry.js";
 
 describe("the data registry", () => {
@@ -19,6 +21,15 @@ describe("the data registry", () => {
       expect(s.url).toMatch(/^https:\/\//);
     }
     for (const f of FACTS.flatMap((g) => g.facts)) expect(f.url).toMatch(/^https:\/\//);
+  });
+
+  // checked here and not at build time: Vercel builds without etl/ and tests/ (.vercelignore)
+  it("names code that exists", () => {
+    const repo = resolve(import.meta.dirname, "../../..");
+    const missing = DATASETS.flatMap((d) =>
+      [...d.etl, ...d.checks].filter((p) => !existsSync(resolve(repo, p))),
+    );
+    expect(missing).toEqual([]);
   });
 
   it("names its files and its code", () => {

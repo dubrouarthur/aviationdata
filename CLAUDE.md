@@ -29,6 +29,7 @@ Magazine d'enquêtes en données ouvertes sur le transport aérien : une page d'
 
 ## Pièges connus
 
+- Vercel construit sans `etl/`, `tests/`, `scripts/`, `promo/`, `data/raw` (`.vercelignore`) : rien de ce que lit la construction (`vite.config.js`, partials, `data-page.js`) ne doit y aller ; ces vérifications vont dans les tests (`data-registry.test.js` vérifie que les scripts nommés existent).
 - Adresses propres : Vercel sert `/courant-jet` depuis `courant-jet/index.html` (cleanUrls, sans barre finale) ; le plugin `clean-urls` de `vite.config.js` fait de même en dev et en preview. Les pages vivent un dossier sous la racine : chemins des données via `asset()` (`web/src/lib/site.js`, lit `<meta name="site-root">`), jamais en dur.
 - Les anciens liens `/#chapitre` de la première enquête sont redirigés par le script en tête de `web/index.html` ; ne pas réutiliser ces ancres sur l'accueil. Le choix d'aéroport par défaut ne réécrit pas l'ancre (`selection.set(code, { url: false })`).
 - OpenSky (Zenodo 7923702) : usage non lucratif, aucune redistribution des données brutes ni identifiant d'avion (indicatif, icao24, immatriculation) : seuls des agrégats quittent `data/raw/`. Citer « The OpenSky Network, https://opensky-network.org » ; l'auteur doit signaler la publication à OpenSky.
