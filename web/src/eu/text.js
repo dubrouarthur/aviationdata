@@ -597,13 +597,13 @@ export function writeSaisons(Q) {
     "#saisons-after",
     [
       [
-        `En ${L}, janvier est le mois le plus creux ${nJan === rows.length ? `dans les ${nJan} pays` : `dans ${nJan} pays sur ${rows.length}`}. Le pic tombe en août dans ${count((r) => r.peak === 8)} pays, en juillet dans ${count((r) => r.peak === 7)}.`,
+        `En ${L}, janvier est, par jour, le mois le plus creux ${nJan === rows.length ? `dans les ${nJan} pays` : `dans ${nJan} pays sur ${rows.length}`}. Le pic tombe en août dans ${count((r) => r.peak === 8)} pays, en juillet dans ${count((r) => r.peak === 7)}.`,
       ],
       [
         `La saison ne suit pas la latitude : en ${L}, l'Espagne varie moins que l'Allemagne, la Slovaquie plus que Chypre ou Malte.`,
       ],
       [
-        `Jusqu'en ${Q.fi.juneUntil}, le mois le plus chargé de la Finlande était juin. Depuis ${Q.fi.decSince}, c'est décembre.`,
+        `Jusqu'en ${Q.fi.juneUntil}, le mois le plus chargé de la Finlande, par jour, était juin. Depuis ${Q.fi.decSince}, c'est décembre.`,
       ],
     ],
     `Un mois de 31 jours n'est pas plus chargé pour sa longueur : chaque mois compte ici ses passagers par jour. Les années 2020 à 2022 sont écartées : en janvier 2022 encore, l'Union comptait ${up(Q.jan2022)} de passagers de moins qu'en janvier 2019. Ces profils disent quand on vole, pas pourquoi.`,

@@ -435,9 +435,9 @@ with sync_playwright() as p:
         f"En Croatie, un jour {de(mname(hr['peak']))} compte {fr(hr['gap'])} fois plus de passagers qu'un jour {de(mname(hr['low']))}",
         f"Dans l'Union, un jour d'août compte {fr(ue['gap'], 1)} fois plus de passagers qu'un jour de janvier. Mais chaque pays a son calendrier : en Finlande, le mois le plus chargé ne compte que {fr(fi['gap'], 1)} fois plus de passagers par jour que le plus creux",
         "La Croatie et la Grèce, les plus saisonnières",
-        f"En {LAST}, janvier est le mois le plus creux dans les {len(C)} pays. Le pic tombe en août dans {sum(r['peak'] == 8 for r in sea_last.values())} pays, en juillet dans {sum(r['peak'] == 7 for r in sea_last.values())}",
+        f"En {LAST}, janvier est, par jour, le mois le plus creux dans les {len(C)} pays. Le pic tombe en août dans {sum(r['peak'] == 8 for r in sea_last.values())} pays, en juillet dans {sum(r['peak'] == 7 for r in sea_last.values())}",
         f"La saison ne suit pas la latitude : en {LAST}, l'Espagne varie moins que l'Allemagne, la Slovaquie plus que Chypre ou Malte",
-        f"Jusqu'en 2019, le mois le plus chargé de la Finlande était juin. Depuis {fi_dec}, c'est décembre",
+        f"Jusqu'en 2019, le mois le plus chargé de la Finlande, par jour, était juin. Depuis {fi_dec}, c'est décembre",
         f"en janvier 2022 encore, l'Union comptait {up(jan22)} de passagers de moins qu'en janvier 2019",
         f"Union européenne, {LAST} : un jour d'août compte {fr(ue['gap'], 1)} fois plus de passagers qu'un jour de janvier",
     )
