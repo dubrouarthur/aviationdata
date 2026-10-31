@@ -226,9 +226,14 @@ export function writeStory(data, F, C) {
     ],
   ]);
 
-  const coastTxt = F.coast
-    .sort((a, b) => a.west.med - a.east.med - (b.west.med - b.east.med))
-    .map((c) => `${hm(c.west.med - c.east.med)} vers ${c.to}`);
+  // the West Coast: its lines named, their largest gap said once
+  const coast = [...F.coast].sort((a, b) => a.west.med - a.east.med - (b.west.med - b.east.med));
+  const coastMax = Math.max(...coast.map((c) => c.west.med - c.east.med));
+  const coastUnder = coastMax < 60 ? "moins d'une heure" : `au plus ${hm(coastMax)}`;
+  const coastNames = coast
+    .map((c) => c.to)
+    .join(", ")
+    .replace(/, ([^,]+)$/, " et $1");
   $("#h-ecart").textContent =
     `Une heure et ${fmtNum(C.kgOf(F.gap) / 1000, 1)} tonnes de kérosène de plus vers l'ouest`;
   prose("#ecart-prose", [
@@ -263,7 +268,7 @@ export function writeStory(data, F, C) {
       { b: hm(F.minGap.west.med - F.minGap.east.med) },
       ` ${toward(F.minGap)} à `,
       { b: hm(F.maxGap.west.med - F.maxGap.east.med) },
-      ` ${toward(F.maxGap)}. Les lignes de la côte Ouest y échappent en partie (${coastTxt.join(", ")}) : leur route la plus courte remonte vers le Grand Nord, loin du cœur habituel du jet.`,
+      ` ${toward(F.maxGap)}. Les lignes de la côte Ouest y échappent en partie, avec ${coastUnder} d'écart vers ${coastNames} : leur route la plus courte remonte vers le Grand Nord, loin du cœur habituel du jet.`,
     ],
   ]);
   writeCouts(C.cost);
@@ -340,7 +345,7 @@ export function writeStory(data, F, C) {
       { b: hm(cgw) },
       " contre le vent, et la route la plus rapide, qui passe très au nord, ",
       { b: hm(cow) },
-      `. Le simulateur, plus haut, où le vent évolue pendant le vol et où l'avion vole à Mach ${fmtNum(simDay.mach, 2)}, donne pour ce jour-là ${hm(simDay.gc)} et ${hm(simDay.best)} : les deux modèles s'accordent à ${minutes(Math.abs(Math.round(cow) - Math.round(simDay.best)))} près sur la meilleure route, à ${minutes(Math.abs(Math.round(cgw) - Math.round(simDay.gc)))} près sur la ligne droite, la plus exposée au vent. Les montants en euros de cette enquête viennent tous du simulateur.`,
+      `. Le simulateur, plus haut, où le vent évolue pendant le vol et où l'avion vole à Mach ${fmtNum(simDay.mach, 2)}, donne pour ce jour-là ${hm(simDay.gc)} et ${hm(simDay.best)}. Les deux modèles s'accordent à ${minutes(Math.abs(Math.round(cow) - Math.round(simDay.best)))} près sur la meilleure route, à ${minutes(Math.abs(Math.round(cgw) - Math.round(simDay.gc)))} près sur la ligne droite, la plus exposée au vent. Les montants en euros de cette enquête viennent tous du simulateur.`,
     ],
   ]);
   $("#strip-note").textContent =

@@ -69,9 +69,7 @@ export function initSpiral(data) {
       rich([
         `Les vols intérieurs, eux, s'effacent : ils pesaient `,
         { b: `${fmtNum(share(years[0]), 0)} %` },
-        ` du trafic en ${years[0]}, `,
-        { b: `${fmtNum(share(2000), 0)} %` },
-        ` en 2000, et seulement `,
+        ` du trafic en ${years[0]}, et seulement `,
         { b: `${fmtNum(share(lastY), 0)} %` },
         ` en ${lastY}.`,
       ]),

@@ -1838,6 +1838,49 @@
   color: var(--ink-2);
 }
 
+/* the steps fold: the box says where the numbers come from, the reader opens the ledger */
+.cb-more {
+  margin-top: 16px;
+}
+
+.cb-more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--ink-2);
+  border-radius: 999px;
+  font: 650 0.9rem/1.2 var(--f-ui);
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.cb-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.cb-more > summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.15s;
+}
+
+.cb-more[open] > summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+
+.cb-more > summary:hover,
+.cb-more > summary:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .cb-steps {
   list-style: none;
   margin: 20px 0 0;

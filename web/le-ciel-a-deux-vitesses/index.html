@@ -63,11 +63,11 @@
           <a href="#fret">Fret</a>
           <a href="#france">France</a>
           <a href="#distance">Distance</a>
-          <a href="#co2">CO2</a>
           <a href="#aeroport">Votre aéroport</a>
           <a href="#compagnies">Compagnies</a>
           <a href="#pavillon">Pavillon</a>
           <a href="#prix">Prix</a>
+          <a href="#co2">CO2</a>
           <a href="#resume">En bref</a>
         </nav>
         <!--site:menu-button-->
@@ -127,6 +127,11 @@
       </section>
 
       <!-- 2. 35 years in a spiral -->
+      <div class="part wrap" id="partie-1">
+        <p class="part-label"><span class="part-no">Partie 1</span> Le trafic depuis 1990</p>
+        <p class="part-dek">Trente-cinq ans de passagers, des avions plus pleins, le Covid et le fret.</p>
+      </div>
+
       <section class="chapter wrap" id="spirale" aria-labelledby="h-spirale">
         <div class="grid-2" style="align-items: center">
           <div>
@@ -233,6 +238,11 @@
       </section>
 
       <!-- 5. domestic France: route map + clickable moments -->
+      <div class="part wrap" id="partie-2">
+        <p class="part-label"><span class="part-no">Partie 2</span> La France, ligne par ligne</p>
+        <p class="part-dek">Les vols intérieurs, les distances, chaque aéroport, les compagnies et leur pavillon.</p>
+      </div>
+
       <section class="chapter wrap" id="france" aria-labelledby="h-france">
         <div class="chapter-lede">
           <h2 class="section-title" id="h-france">La France intérieure se vide</h2>
@@ -289,47 +299,6 @@
       </section>
 
       <!-- 7. CO2 -->
-      <section class="chapter wrap" id="co2" aria-labelledby="h-co2">
-        <div class="chapter-lede">
-          <h2 class="section-title" id="h-co2">Le CO2 : plus de trafic, mais des vols plus sobres</h2>
-          <div class="prose" id="co2-text"></div>
-        </div>
-        <div data-source="co2" class="panel" style="margin-top: 22px">
-          <h3 id="co2-why-title">Ce qui fait bouger le CO2 : plus de trafic, des vols plus remplis</h3>
-          <p class="note" id="co2-why-note"></p>
-          <div class="controls">
-            <div class="seg" role="group" aria-label="Vue" id="co2-period"></div>
-            <div class="legend-row" id="co2-legend"></div>
-          </div>
-          <div
-            class="chart"
-            id="chart-co2-index"
-            tabindex="0"
-            aria-label="Trafic, passagers par vol, CO2 par passager-kilomètre et émissions, indice 100 en 2000"
-          ></div>
-          <div class="chart" id="chart-waterfall"></div>
-        </div>
-        <div class="prose after-figure" id="co2-after"></div>
-        <div class="grid-2" style="margin-top: 22px">
-          <div data-source="co2" class="panel">
-            <h3>D'où viennent les émissions</h3>
-            <p class="note">
-              Émissions nettes de CO2 par segment, en millions de tonnes. Intérieur : vols en métropole.
-              Outre-mer : vols vers et entre les territoires d'Outre-mer. Moyen- et long-courrier : vols
-              internationaux.
-            </p>
-            <div class="chart" id="chart-co2-seg"></div>
-          </div>
-          <div data-source="co2" class="panel">
-            <h3>CO2 par passager et par kilomètre</h3>
-            <p class="note">
-              Grammes de CO2 par passager-kilomètre (le fret est compté en équivalent passager).
-            </p>
-            <div class="chart" id="chart-co2-g" tabindex="0" aria-label="CO2 par passager-kilomètre"></div>
-          </div>
-        </div>
-      </section>
-
       <!-- 7. airport explorer -->
       <section class="chapter wrap" id="aeroport" aria-labelledby="h-apt">
         <div class="chapter-lede">
@@ -476,6 +445,11 @@
       </section>
 
       <!-- 9. prices x traffic -->
+      <div class="part wrap" id="partie-3">
+        <p class="part-label"><span class="part-no">Partie 3</span> Le prix et le climat</p>
+        <p class="part-dek">Ce que coûte un billet, ce qu'émet un passager.</p>
+      </div>
+
       <section class="chapter wrap" id="prix" aria-labelledby="h-prix">
         <div class="chapter-lede">
           <h2 class="section-title" id="h-prix">Le prix du billet, et ce qu'il fait au trafic</h2>
@@ -494,6 +468,47 @@
             (IPTAP, DGAC). Passagers : trafic de chaque segment (DGAC).
           </p>
           <div class="chart" id="chart-scissors"></div>
+        </div>
+      </section>
+
+      <section class="chapter wrap" id="co2" aria-labelledby="h-co2">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-co2">Le CO2 : plus de trafic, mais des vols plus sobres</h2>
+          <div class="prose" id="co2-text"></div>
+        </div>
+        <div data-source="co2" class="panel" style="margin-top: 22px">
+          <h3 id="co2-why-title">Ce qui fait bouger le CO2 : plus de trafic, des vols plus remplis</h3>
+          <p class="note" id="co2-why-note"></p>
+          <div class="controls">
+            <div class="seg" role="group" aria-label="Vue" id="co2-period"></div>
+            <div class="legend-row" id="co2-legend"></div>
+          </div>
+          <div
+            class="chart"
+            id="chart-co2-index"
+            tabindex="0"
+            aria-label="Trafic, passagers par vol, CO2 par passager-kilomètre et émissions, indice 100 en 2000"
+          ></div>
+          <div class="chart" id="chart-waterfall"></div>
+        </div>
+        <div class="prose after-figure" id="co2-after"></div>
+        <div class="grid-2" style="margin-top: 22px">
+          <div data-source="co2" class="panel">
+            <h3>D'où viennent les émissions</h3>
+            <p class="note">
+              Émissions nettes de CO2 par segment, en millions de tonnes. Intérieur : vols en métropole.
+              Outre-mer : vols vers et entre les territoires d'Outre-mer. Moyen- et long-courrier : vols
+              internationaux.
+            </p>
+            <div class="chart" id="chart-co2-seg"></div>
+          </div>
+          <div data-source="co2" class="panel">
+            <h3>CO2 par passager et par kilomètre</h3>
+            <p class="note">
+              Grammes de CO2 par passager-kilomètre (le fret est compté en équivalent passager).
+            </p>
+            <div class="chart" id="chart-co2-g" tabindex="0" aria-label="CO2 par passager-kilomètre"></div>
+          </div>
         </div>
       </section>
 

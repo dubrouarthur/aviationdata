@@ -347,3 +347,66 @@
 .shelf-link:hover .shelf-img {
   filter: brightness(1.06);
 }
+
+/* ------------------------------------------------------------------ reading comfort */
+/* Read, not scanned: a chapter title is a sentence, the prose is near-black on paper, the figure's
+   subtitle is legible and its "how to read" line steps back. */
+:root {
+  --ink-read: #1e2a37; /* 12.9:1 on the paper */
+}
+
+main .chapter:not(.hero) h2.section-title {
+  font-size: clamp(1.85rem, 3.1vw, 2.65rem);
+  line-height: 1.04;
+  letter-spacing: -0.004em;
+  max-width: 22em;
+  margin-bottom: 18px;
+  text-wrap: balance;
+}
+
+.prose {
+  color: var(--ink-read);
+  font-size: clamp(1.07rem, 0.35vw + 1rem, 1.16rem);
+  line-height: 1.66;
+}
+
+.prose p {
+  margin-bottom: 1em;
+}
+
+.prose b,
+.prose strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.chapter-lede .prose > p:first-child,
+.chapter-head .prose > p:first-child {
+  font-size: 1.1em;
+  line-height: 1.52;
+  color: var(--ink);
+}
+
+/* on paper only: the dark figures and the explorer keep their own light inks */
+.panel:not(.dark-panel, .explorer) .note {
+  max-width: 46em;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.panel:not(.dark-panel, .explorer) .note.lecture {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.panel:not(.dark-panel, .explorer) .note.lecture b {
+  color: var(--ink-2);
+}
+
+/* below the margin's width, the figures' own source lines say where the data come from */
+@media (max-width: 1199px) {
+  .chapter > .chapter-sources {
+    display: none;
+  }
+}

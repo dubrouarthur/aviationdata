@@ -103,3 +103,26 @@ export function readingProgress() {
   addEventListener("resize", update);
   update();
 }
+
+/** A folded box (details) opens when a link or the address points at it or at what it holds. */
+export function openFoldedTargets() {
+  const open = (hash) => {
+    if (!hash || hash.length < 2) return;
+    let target = null;
+    try {
+      target = document.querySelector(hash);
+    } catch {
+      return;
+    }
+    const box = target?.matches("details")
+      ? target
+      : (target?.querySelector(":scope details") ?? target?.closest("details"));
+    if (box) box.open = true;
+  };
+  addEventListener("click", (e) => {
+    const a = e.target.closest?.('a[href^="#"]');
+    if (a) open(a.getAttribute("href"));
+  });
+  addEventListener("hashchange", () => open(location.hash));
+  open(location.hash);
+}

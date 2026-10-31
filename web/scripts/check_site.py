@@ -225,7 +225,10 @@ with sync_playwright() as pw:
             chapters = pg.locator("main section.chapter h2.section-title").count()
             check(
                 f"{path}: the menu lists the chapters",
-                n >= pg.locator(".topnav a").count() and n >= chapters - 1 and n > 5,
+                # a story in parts lists its parts and chapters, not the links of its bar
+                (pg.locator("main > .part").count() > 0 or n >= pg.locator(".topnav a").count())
+                and n >= chapters - 1
+                and n > 5,
                 f"{n} for {chapters} chapters",
             )
         pg.keyboard.press("Escape")
@@ -320,6 +323,11 @@ with sync_playwright() as pw:
     pg.goto(base + "/courant-jet", wait_until="networkidle")
     pg.wait_for_timeout(1200)
     text = lambda sel: norm(pg.inner_text(sel))  # noqa: E731
+    # the calculation boxes are folded: a link to them opens them, and the checks read them open
+    check("the cost box is folded", not pg.evaluate("document.querySelector('#couts details').open"))
+    pg.click("#open-legend a[href='#couts']")
+    check("a link to the cost box opens it", pg.evaluate("document.querySelector('#couts details').open"))
+    pg.evaluate("document.querySelectorAll('.cost-box details').forEach(d => d.open = true)")
 
     # the money of the story: a minute of cruise in kilos and euros (web/src/jet/cost.js)
     co = J["cost"]
@@ -409,8 +417,11 @@ with sync_playwright() as pw:
         f"en brûle environ {kgf(KG)}, soit {euros(EUR)}",
         f"pèse ainsi environ {tonnes(KG * gapm / 1000)} de kérosène et {euros(EUR * gapm)}",
         f"de {hm(gap(lo_r))} {toward(lo_r)} à {hm(gap(hi_r))} {toward(hi_r)}",
-        ", ".join(f"{hm(gap(r))} vers {r['to']}" for r in coast),
+        "Les lignes de la côte Ouest y échappent en partie, avec moins d'une heure d'écart vers "
+        + ", ".join(r["to"] for r in coast[:-1])
+        + f" et {coast[-1]['to']}",
     )
+    check("the West Coast: under an hour", max(gap(r) for r in coast) < 60, str([gap(r) for r in coast]))
     has(
         "histogram labels",
         text("#chart-hist"),

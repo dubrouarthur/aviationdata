@@ -5,7 +5,13 @@ import "./site/story.css";
 import "./jet.css";
 import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
-import { numberChapters, readingProgress, shareBlock, trackChapters } from "./site/story.js";
+import {
+  numberChapters,
+  openFoldedTargets,
+  readingProgress,
+  shareBlock,
+  trackChapters,
+} from "./site/story.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import * as d3 from "d3";
@@ -269,6 +275,7 @@ function stripScale(node) {
 watchFrenchSpacing(document.body);
 initSiteMenu();
 trackChapters();
+openFoldedTargets();
 readingProgress();
 atlasFrame();
 main();

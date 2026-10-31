@@ -34,9 +34,9 @@ export function initDistance(data) {
       rich([
         `Un passager parcourt en moyenne `,
         { b: `${fmtNum(values.all[L])} km` },
-        ` par vol en ${years[L]}, contre ${fmtNum(values.all[0])} km en ${years[0]} (`,
+        ` par vol en ${years[L]}, soit `,
         { b: fmtPct(pctChange(values.all[0], values.all[L]), 0) },
-        `).`,
+        ` par rapport à ${fmtNum(values.all[0])} km en ${years[0]}.`,
       ]),
     ),
   );
@@ -53,7 +53,9 @@ export function initDistance(data) {
       ]),
     ),
     el("p", {}, [
-      "Plus de kilomètres par passager, c'est aussi plus de CO2 pour chaque voyage : le chapitre suivant fait le compte.",
+      "Plus de kilomètres par passager, c'est aussi plus de CO2 pour chaque voyage : ",
+      el("a", { href: "#co2", text: "le chapitre sur le CO2" }),
+      " fait le compte.",
     ]),
   );
 

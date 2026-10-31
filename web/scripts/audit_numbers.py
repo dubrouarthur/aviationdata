@@ -219,7 +219,7 @@ with sync_playwright() as p:
         month_name(FM[peak]),
         f"{fr(tot_m[peak] / 1e6, 1)} M",
         fr(tot_m[low]),
-        *[f"{fr(fsum(nat_keys, y) / fsum(list(FS), y) * 100)} %" for y in (1990, 2000, last)],
+        *[f"{fr(fsum(nat_keys, y) / fsum(list(FS), y) * 100)} %" for y in (1990, last)],
     )
     check(
         "fuller planes",
@@ -256,7 +256,7 @@ with sync_playwright() as p:
         "distance",
         text("#distance"),
         f"{fr(km[iL])} km",
-        f"{fr(km[0])} km en {Y[0]}",
+        f"par rapport à {fr(km[0])} km en {Y[0]}",
         f"+{fr(pct(km[0], km[iL]))} %",
         f"{fr(avg_km(['MET_INTL', 'OM_INTL'], iL))} km",
         f"{fr(avg_km(['MET_RAD'], iL))} km",

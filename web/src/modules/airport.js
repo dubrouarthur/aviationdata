@@ -79,7 +79,7 @@ export function initAirport(data, { world }) {
       rich([
         `Sur les ${big.length} aéroports qui accueillaient plus de 200 000 passagers en 2019, `,
         { b: `${recovered.length} ont retrouvé ou dépassé ce niveau` },
-        ` en ${lastYear}. Là aussi, le ciel avance à deux vitesses : ${named(g1)} et ${named(g2)} en tête, ${named(l1)} et ${named(l2)} en queue.`,
+        ` en ${lastYear}. Là aussi, le ciel avance à deux vitesses. En tête, ${named(g1)} et ${named(g2)}. En queue, ${named(l1)} et ${named(l2)}.`,
       ]),
     ),
     el("p", {

@@ -56,7 +56,7 @@ export function initCo2(data) {
         { b: mt(-p1.intensite) },
         `. Bilan : ${mt(Math.abs(p1.c1 - p1.c0))} ${p1.c1 >= p1.c0 ? "de plus" : "de moins"}. Depuis ${p2.from}, les émissions ont reculé de `,
         { b: fmtPctAbs(pctChange(p2.c0, p2.c1), 1) },
-        ` : les deux effets jouent dans le même sens, un peu moins de trafic (${fmtPct(p2.trafic_pct, 1)}) et un peu moins de CO2 par passager-kilomètre (${fmtPct(p2.intensite_pct, 1)}).`,
+        `. Les deux effets jouent dans le même sens : le trafic a un peu baissé (${fmtPct(p2.trafic_pct, 1)}), le CO2 par passager-kilomètre aussi (${fmtPct(p2.intensite_pct, 1)}).`,
       ]),
     ),
     el(
