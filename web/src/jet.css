@@ -295,7 +295,8 @@
   margin: 0;
 }
 
-/* the bottom of the opening: the race on the left, the legend on the right */
+/* the bottom of the opening: the race on the left, the legend on the right (under it on a tablet, where
+   the race left the legend a column one word wide) */
 .open-bottom {
   position: absolute;
   left: 0;
@@ -1165,6 +1166,10 @@
 @media (max-width: 1100px) {
   .bref-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .open-bottom {
+    grid-template-columns: minmax(0, 640px);
   }
 }
 
