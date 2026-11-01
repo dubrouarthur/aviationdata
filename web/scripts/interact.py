@@ -218,7 +218,7 @@ with sync_playwright() as p:
     check("quick pick marked", page.locator('#apt-picks [aria-pressed="true"]').inner_text() == "Nice")
     check(
         "sticky nav follows the scroll",
-        page.locator('.topnav a[aria-current="true"]').get_attribute("href") == "#aeroport",
+        page.locator('.topnav a[aria-current="true"]').get_attribute("href") == "#partie-2",
     )
     page.locator("#apt-input").fill("Paris-Charles de Gaulle")
     page.locator("#apt-input").press("Enter")

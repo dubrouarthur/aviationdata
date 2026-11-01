@@ -9,6 +9,7 @@ import { el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { addSourceLines } from "./lib/datasets.js";
 import { asset } from "./lib/site.js";
 import { atlasFrame } from "./site/atlas.js";
+import { trackChapters } from "./site/story.js";
 
 const CHAPTERS = [
   ["globe", () => import("./modules/globe.js").then((m) => m.initGlobe)],
@@ -68,25 +69,6 @@ async function main() {
   scrollHints(".topnav, .seg, .moments");
 }
 
-/** Sticky chapter nav: the link of the chapter crossing the upper third of the screen is marked current. */
-function trackChapters() {
-  const links = new Map([...document.querySelectorAll(".topnav a")].map((a) => [a.hash.slice(1), a]));
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        links.forEach((a, id) => a.setAttribute("aria-current", String(id === e.target.id)));
-        const a = links.get(e.target.id);
-        const nav = a?.parentElement;
-        if (nav && nav.scrollWidth > nav.clientWidth)
-          nav.scrollTo({ left: a.offsetLeft - nav.offsetLeft - 24, behavior: "smooth" });
-      }
-    },
-    { rootMargin: "-30% 0px -65% 0px" },
-  );
-  links.forEach((_, id) => document.getElementById(id) && io.observe(document.getElementById(id)));
-}
-
 watchFrenchSpacing(document.body); // "Source : DGAC" never breaks before its colon
 initSiteMenu();
 trackChapters();
@@ -114,18 +96,17 @@ function collapseLongIntros() {
   }
 }
 
-/** "03 / 11" above each chapter title: where the reader is in the story. */
+/** "03 / 11" above each chapter title: where the reader is in the story (its bar names only the parts). */
 function numberChapters() {
-  const ids = [...document.querySelectorAll(".topnav a")]
-    .map((a) => a.hash.slice(1))
-    .filter((id) => id !== "monde" && id !== "resume");
-  ids.forEach((id, i) => {
-    const h2 = document.querySelector(`#${id} h2.section-title`);
-    if (!h2 || h2.previousElementSibling?.classList.contains("chapter-num")) return;
+  const titles = [
+    ...document.querySelectorAll("main > section.chapter:not(.hero, #resume) h2.section-title"),
+  ];
+  titles.forEach((h2, i) => {
+    if (h2.previousElementSibling?.classList.contains("chapter-num")) return;
     h2.before(
       el("p", { class: "chapter-num" }, [
         el("b", { text: String(i + 1).padStart(2, "0") }),
-        ` / ${String(ids.length).padStart(2, "0")}`,
+        ` / ${String(titles.length).padStart(2, "0")}`,
       ]),
     );
   });

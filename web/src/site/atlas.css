@@ -357,8 +357,12 @@
 /* ------------------------------------------------------------------ reading comfort */
 /* Read, not scanned: a chapter title is a sentence, the prose is near-black on paper, the figure's
    subtitle is legible and its "how to read" line steps back. */
-:root {
-  --ink-read: #1e2a37; /* 12.9:1 on the paper */
+/* mixed from the ink and the paper of where it sits: near-black on paper (12.9:1), near-white at night
+   (a fixed near-black made the first story's standfirst vanish on its dark opening) */
+:root,
+.hero > .hero-grid,
+.dark-panel {
+  --ink-read: color-mix(in srgb, var(--ink) 94%, var(--paper));
 }
 
 main .chapter:not(.hero) h2.section-title {
