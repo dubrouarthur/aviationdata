@@ -207,13 +207,19 @@ function issuesList({ root }) {
   // the six latest on the home page, each with its cover; the archive holds them all
   return ISSUES.slice(0, 6)
     .map(
-      (i) => `<li class="shelf-item" style="--c: ${i.accent}">
+      // a cover, as on a magazine rack: the investigation's own figure, its number and its title
+      (i) => `<li class="shelf-item" style="--c: ${i.accent}; --pos: ${i.cover ?? "center"}">
   <a class="shelf-link" href="${href(root, i.slug)}">
-    <img class="shelf-img" src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
-    <span class="shelf-kicker">N° ${i.no}<span>${esc(i.topic)}</span></span>
-    <span class="shelf-title">${esc(i.title)}</span>
-    <span class="shelf-dek">${esc(i.dek)}</span>
-    <span class="shelf-meta">Données : ${esc(i.sources)}. ${frDate(i.published)}, ${i.minutes} minutes de lecture.</span>
+    <span class="shelf-cover">
+      <img class="shelf-img" src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
+      <span class="shelf-no">N° ${i.no}</span>
+      <span class="shelf-head">
+        <span class="shelf-topic">${esc(i.topic)}</span>
+        <span class="shelf-title">${esc(i.title)}</span>
+      </span>
+    </span>
+    <span class="shelf-dek">${esc(i.hook ?? i.dek)}</span>
+    <span class="shelf-meta">${i.minutes} minutes de lecture. Données : ${esc(i.sources)}.</span>
   </a>
 </li>`,
     )

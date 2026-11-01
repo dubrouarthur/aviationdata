@@ -261,82 +261,125 @@
 }
 
 /* ------------------------------------------------------------------ home: the shelf of investigations */
+/* covers on a rack: each investigation's own figure, framed tall, its number on its colour and its title
+   set over a night that rises from the bottom; under it, the question it answers */
 .shelf {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-  gap: 40px var(--fig-gap);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 16px;
 }
 
-/* the investigations in one row on a wide screen (five covers), in rows of three, then two */
-@media (min-width: 1280px) {
-  .shelf {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    column-gap: 28px;
-  }
-}
-
-@media (min-width: 900px) and (max-width: 1279px) {
+@media (min-width: 640px) {
   .shelf {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px 24px;
   }
 }
 
-@media (min-width: 640px) and (max-width: 899px) {
+@media (min-width: 1100px) {
   .shelf {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    column-gap: 22px;
   }
 }
 
 .shelf-link {
   display: grid;
   align-content: start;
-  gap: 6px;
+  gap: 10px;
   height: 100%;
-  padding-top: 12px;
-  border-top: 1px solid var(--ink);
   color: inherit;
   text-decoration: none;
 }
 
+.shelf-link:focus-visible {
+  outline: none;
+}
+
+.shelf-cover {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #0d2236;
+  box-shadow: 0 0 0 1px rgb(15 28 43 / 0.1);
+}
+
+.shelf-link:focus-visible .shelf-cover {
+  outline: 3px solid var(--c, var(--blue));
+  outline-offset: 3px;
+}
+
 .shelf-img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 1200 / 630;
+  height: 100%;
   object-fit: cover;
-  margin-bottom: 8px;
-  background: var(--paper-2);
+  object-position: var(--pos, center);
+  transform-origin: 70% 40%;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-.shelf-kicker {
-  display: flex;
-  gap: 10px;
-  font: 700 0.8rem/1.2 var(--f-ui);
-  color: var(--c, var(--blue-text));
+.shelf-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(9 24 40 / 0) 34%,
+    rgb(9 24 40 / 0.62) 58%,
+    rgb(9 24 40 / 0.95) 100%
+  );
 }
 
-.shelf-kicker span {
-  font-weight: 600;
-  color: var(--muted);
+.shelf-no {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 12px;
+  padding: 7px 8px 6px;
+  background: var(--c, var(--blue));
+  color: #fff;
+  font: 800 0.95rem/1 var(--f-display);
+  font-stretch: 75%;
+  letter-spacing: 0.01em;
+}
+
+.shelf-head {
+  position: absolute;
+  z-index: 1;
+  inset: auto 12px 12px;
+  display: grid;
+  gap: 5px;
+}
+
+.shelf-topic {
+  font: 650 0.8rem/1.2 var(--f-ui);
+  color: color-mix(in srgb, var(--c, var(--blue)) 38%, #fff);
 }
 
 .shelf-title {
   font-family: var(--f-display);
-  font-stretch: 68%;
+  font-stretch: 66%;
   font-weight: 800;
-  font-size: clamp(1.6rem, 2.4vw, 2rem);
-  line-height: 1;
-  color: var(--ink);
+  font-size: clamp(1.45rem, 1.6vw + 0.6rem, 1.95rem);
+  line-height: 0.98;
+  color: #fff;
+  text-wrap: balance;
 }
 
 .shelf-dek {
   font-family: var(--f-text);
   font-size: 1rem;
-  line-height: 1.5;
-  color: var(--ink-2);
+  line-height: 1.42;
+  color: var(--ink);
+  text-wrap: pretty;
 }
 
 .shelf-meta {
@@ -345,13 +388,27 @@
   color: var(--muted);
 }
 
-.shelf-link:hover .shelf-title,
-.shelf-link:focus-visible .shelf-title {
-  color: var(--blue-text);
+.shelf-link:hover .shelf-dek,
+.shelf-link:focus-visible .shelf-dek {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
-.shelf-link:hover .shelf-img {
-  filter: brightness(1.06);
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .shelf-link:hover .shelf-img {
+    transform: scale(1.045);
+  }
+}
+
+@media (max-width: 639px) {
+  .shelf-dek {
+    font-size: 0.95rem;
+  }
+
+  .shelf-title {
+    font-size: 1.32rem;
+  }
 }
 
 /* ------------------------------------------------------------------ reading comfort */

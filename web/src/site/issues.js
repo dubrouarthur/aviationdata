@@ -2,6 +2,8 @@
 // (vite.config.js), the shared masthead menu, footer, bylines and "read also" (partials.js), the
 // home page's list, the Atom feed and the sitemap all come from here.
 // A new investigation = its folder + an entry in ISSUES (+ its lead or strip on the home page).
+// `hook` is the investigation's own question, as its opening asks it; `cover` frames the picture of
+// its card on the home page (object-position of the og image: its figure, not its title).
 
 export const SITE = {
   name: "aviationdata",
@@ -26,6 +28,8 @@ export const ISSUES = [
     minutes: 8,
     chapters: 4,
     image: "og-saisons.jpg",
+    cover: "70% 50%",
+    hook: "Quand l'Europe prend-elle l'avion ?",
     accent: "#9a4a00",
     sources: "Eurostat",
   },
@@ -41,6 +45,8 @@ export const ISSUES = [
     minutes: 15,
     chapters: 7,
     image: "og-eu.jpg",
+    cover: "96% 50%",
+    hook: "Le transport aérien européen a-t-il effacé le Covid ?",
     accent: "#0f766e",
     sources: "Eurostat",
   },
@@ -56,6 +62,8 @@ export const ISSUES = [
     minutes: 20,
     chapters: 12,
     image: "og-hf.jpg",
+    cover: "78% 50%",
+    hook: "Dans les accidents aériens, le facteur humain est-il vraiment la première cause ?",
     accent: "#b3460a",
     sources: "NTSB",
   },
@@ -71,6 +79,8 @@ export const ISSUES = [
     minutes: 30,
     chapters: 13,
     image: "og-jet.jpg",
+    cover: "100% 50%",
+    hook: "Les données météo peuvent-elles aider à brûler moins de kérosène ?",
     accent: "#b5267e",
     sources: "ERA5 Copernicus, NOAA, Météo-France, NASA, OpenSky",
   },
@@ -86,6 +96,8 @@ export const ISSUES = [
     minutes: 25,
     chapters: 12,
     image: "og.png",
+    cover: "95% 50%",
+    hook: "Tout le transport aérien français a-t-il retrouvé son niveau d'avant-Covid ?",
     accent: "var(--magenta)",
     sources: "DGAC, data.gouv.fr",
   },
