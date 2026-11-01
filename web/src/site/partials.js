@@ -37,7 +37,7 @@ export function pageInfo(file, webRoot) {
 const href = (root, slug, hash = "") => `${root === "./" ? "" : root}${slug}${hash ? `#${hash}` : ""}`;
 
 function menuButton() {
-  return `<button class="menu-open" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">${ICON_MENU}<span>Sommaire</span></button>`;
+  return `<button class="menu-open" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">${ICON_MENU}<span>Sommaire</span><b class="menu-where" aria-hidden="true"></b></button>`;
 }
 
 function menu({ root, issue, page }) {

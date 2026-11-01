@@ -71,11 +71,21 @@ export function trackChapters() {
   const links = [...document.querySelectorAll(".topnav a")]
     .map((a) => ({ a, target: document.getElementById(a.hash.slice(1)) }))
     .filter((l) => l.target);
+  // on a phone the bar is hidden: the menu button says which chapter the reader is in ("04/13")
+  const where = document.querySelector(".masthead .menu-where");
   let current = null;
+  let shown = null;
   let raf = 0;
   const update = () => {
     raf = 0;
     const line = innerHeight * 0.33;
+    if (where) {
+      let num = null;
+      for (const n of document.querySelectorAll("main .chapter-num"))
+        if ((n.closest("section") ?? n).getBoundingClientRect().top <= line) num = n;
+      const text = num ? num.textContent.replace(/\s+/g, "") : "";
+      if (text !== shown) where.textContent = shown = text;
+    }
     let on = null;
     for (const l of links) if (l.target.getBoundingClientRect().top <= line) on = l;
     if (on === current) return;

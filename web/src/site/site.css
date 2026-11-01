@@ -135,9 +135,27 @@
   }
 }
 
+/* the chapter the reader is in, on the menu button when the bar of chapters is hidden */
+.menu-where {
+  display: none;
+  font: 750 0.8rem/1 var(--f-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .menu-where:not(:empty) {
+    display: inline;
+  }
+}
+
 @media (max-width: 480px) {
   .menu-open {
     padding: 8px;
+  }
+
+  .menu-open:has(.menu-where:not(:empty)) {
+    padding: 7px 11px 7px 9px;
   }
 
   .menu-open span {
