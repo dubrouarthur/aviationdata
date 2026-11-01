@@ -27,7 +27,7 @@ export function writeOpening(F) {
     ]),
   );
   $("#hf-mosaic-cap").textContent =
-    `Les ${num(F.n)} accidents aériens survenus aux États-Unis de ${F.period[0]} à ${F.period[1]} et clos par une cause probable du NTSB, année par année. En orange, ceux dont la cause probable cite une personne.`;
+    `Les ${num(F.n)} accidents aériens survenus aux États-Unis de ${F.period[0]} à ${F.period[1]} et clos par une cause probable du NTSB, année par année. En orange, ceux dont la cause probable cite une personne. Survolez ou touchez une année pour la détailler.`;
   $("#mosaic").setAttribute(
     "aria-label",
     `${num(F.person)} accidents sur ${num(F.n)} citent une personne dans leur cause probable, de ${F.period[0]} à ${F.period[1]}.`,

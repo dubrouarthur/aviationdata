@@ -1,5 +1,6 @@
 // The opening: every accident of the period, one small square each, one column per year. The squares of
-// accidents whose probable cause names a person light up in orange, once, when the opening is seen.
+// accidents whose probable cause names a person light up in orange, once, when the opening is seen. A year
+// pointed at (mouse, touch, arrow keys) stands out and its counts are handed to onYear.
 import { onResize, reducedMotion } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { BIT } from "./facts.js";
@@ -32,11 +33,12 @@ export function layout(years, width, height, gap) {
   return { p: 1.4, k: Math.max(1, Math.floor((width - (cols - 1) * gap) / cols / 1.4)), colW: 0 };
 }
 
-export function mosaic(canvas, acc, { onCount } = {}) {
+export function mosaic(canvas, acc, { onCount, onYear } = {}) {
   const years = yearCounts(acc);
   const total = years.reduce((s, y) => s + y.person, 0);
   let t = 0; // progress of the lighting, 0 to 1
   let geo = null;
+  let hover = null; // index of the year pointed at
 
   const size = () => {
     const box = canvas.parentElement;
@@ -66,29 +68,58 @@ export function mosaic(canvas, acc, { onCount } = {}) {
     const cell = p >= 3 ? p - 1 : p * 0.72;
     const used = years.length * colW + (years.length - 1) * gap;
     const x0 = Math.max(0, (width - used) / 2);
+    geo.x0 = x0;
     const base = height - labelH;
     let lit = 0;
     years.forEach((y, ci) => {
       const cx = x0 + ci * (colW + gap);
       const on = Math.round(t * y.person);
       lit += on;
+      ctx.globalAlpha = hover === null || hover === ci ? 1 : 0.38;
       for (let i = 0; i < y.n; i++) {
         const row = Math.floor(i / k);
         const col = i % k;
         ctx.fillStyle = i < on ? HUMAN : OTHER;
         ctx.fillRect(cx + col * p, base - (row + 1) * p, cell, cell);
       }
-      const show = narrow ? ci === 0 || ci === years.length - 1 || y.year % 5 === 0 : true;
+      const show = narrow ? ci === 0 || ci === years.length - 1 || y.year % 5 === 0 || ci === hover : true;
       if (show) {
-        ctx.fillStyle = LABEL;
+        ctx.fillStyle = ci === hover ? "#fff" : LABEL;
         ctx.font = `600 ${narrow ? 12 : 12.5}px Archivo, system-ui, sans-serif`;
         ctx.textAlign = "center";
         const label = narrow || colW >= 34 ? String(y.year) : `’${String(y.year).slice(2)}`;
         ctx.fillText(label, cx + colW / 2, height - 5);
       }
     });
+    ctx.globalAlpha = 1;
     onCount?.(lit, total);
   }
+
+  // the year under the pointer, or under the arrow keys
+  const pick = (i) => {
+    const next = i === null ? null : Math.max(0, Math.min(years.length - 1, i));
+    if (next === hover) return;
+    hover = next;
+    draw();
+    onYear?.(hover === null ? null : years[hover]);
+  };
+  const at = (e) => {
+    if (!geo) return null;
+    const r = canvas.getBoundingClientRect();
+    const i = Math.floor((e.clientX - r.left - geo.x0 + geo.gap / 2) / (geo.colW + geo.gap));
+    return i >= 0 && i < years.length ? i : null;
+  };
+  canvas.addEventListener("pointermove", (e) => pick(at(e)));
+  canvas.addEventListener("pointerdown", (e) => pick(at(e)));
+  canvas.addEventListener("pointerleave", (e) => e.pointerType === "mouse" && pick(null));
+  canvas.addEventListener("keydown", (e) => {
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+    if (step) {
+      e.preventDefault();
+      pick(hover === null ? (step > 0 ? 0 : years.length - 1) : hover + step);
+    } else if (e.key === "Escape") pick(null);
+  });
+  canvas.addEventListener("blur", () => pick(null));
 
   function play() {
     if (reducedMotion()) {

@@ -135,13 +135,31 @@ async function main() {
   const { accidents: acc, people } = data;
   safely("opening", () => {
     T.writeOpening(F);
+    // the count runs while the squares light up; a year pointed at takes its place
+    let year = null;
+    let count = [0, 1];
+    const say = () =>
+      $("#hf-count").replaceChildren(
+        ...(year
+          ? [
+              el("b", { text: fmtNum(year.person) }),
+              ` accidents sur ${fmtNum(year.n)} citent une personne en ${year.year}, soit ${T.pct((100 * year.person) / year.n)}.`,
+            ]
+          : [
+              el("b", { text: fmtNum(count[0]) }),
+              ` accidents sur ${fmtNum(F.n)} citent une personne dans leur cause probable`,
+              count[0] === count[1] ? "." : "",
+            ]),
+      );
     mosaic($("#mosaic"), acc, {
-      onCount: (lit, total) =>
-        $("#hf-count").replaceChildren(
-          el("b", { text: fmtNum(lit) }),
-          ` accidents sur ${fmtNum(F.n)} citent une personne dans leur cause probable`,
-          lit === total ? "." : "",
-        ),
+      onCount: (lit, total) => {
+        count = [lit, total];
+        if (!year) say();
+      },
+      onYear: (y) => {
+        year = y;
+        say();
+      },
     });
   });
   safely("essentials", () => T.writeEssentiel(F));

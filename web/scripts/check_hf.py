@@ -101,6 +101,20 @@ with sync_playwright() as p:
     )
     check("opening mosaic is drawn", painted > 500, f"{painted} painted samples")
     has("opening count", text("#hf-count"), f"{fr(NP)} accidents sur {fr(N)} citent une personne")
+    # a year pointed at in the mosaic: its own counts, sums of its cells
+    pg.focus("#mosaic")
+    for k, key in enumerate(("ArrowRight", "ArrowRight", "ArrowLeft")):
+        pg.keyboard.press(key)
+        y = A["period"][0] + (1, 2, 1)[k] - 1
+        cy = [c for c in allc if c[0] == y]
+        ny, npy = n_of(cy), n_of(cy, lambda m: m & PERSON)
+        has(
+            f"mosaic year {y}",
+            text("#hf-count"),
+            f"{fr(npy)} accidents sur {fr(ny)} citent une personne en {y}, soit {fr(100 * npy / ny)} %",
+        )
+    pg.keyboard.press("Escape")
+    has("mosaic back to the period", text("#hf-count"), f"{fr(NP)} accidents sur {fr(N)}")
     has(
         "standfirst",
         text("#open-dek"),

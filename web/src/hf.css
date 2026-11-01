@@ -97,6 +97,13 @@
 
 .hf-mosaic canvas {
   display: block;
+  touch-action: pan-y;
+}
+
+.hf-mosaic canvas:focus-visible {
+  outline: 2px solid #ff8a3d;
+  outline-offset: 6px;
+  border-radius: 2px;
 }
 
 .hf-mosaic-cap {
