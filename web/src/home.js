@@ -10,6 +10,7 @@ import { watchFrenchSpacing } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import { seasonFacts } from "./saisons/facts.js";
 import { calendar } from "./saisons/charts.js";
+import { quiz } from "./home/quiz.js";
 
 watchFrenchSpacing(document.body);
 initSiteMenu();
@@ -23,3 +24,6 @@ async function leadCalendar() {
 }
 
 leadCalendar().catch((err) => console.error("lead calendar:", err));
+
+const list = document.getElementById("quiz-list");
+if (list) quiz(list);

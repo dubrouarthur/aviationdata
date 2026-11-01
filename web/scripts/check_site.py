@@ -196,6 +196,38 @@ with sync_playwright() as pw:
     pg.wait_for_selector("#lead-cal g.cal-row", timeout=15000)
     n_cal = pg.locator("#lead-cal g.cal-row").count()
     check("home lead draws the calendar", n_cal == 31, f"{n_cal} rows")
+    # four questions before reading: each answered, then every number of the question, of the answer and
+    # of its sentence must be one its story shows (key figures, opening, figure titles)
+    cards = pg.locator(".quiz-card")
+    check("home asks four questions", cards.count() == 4, str(cards.count()))
+    quiz = []
+    for k in range(cards.count()):
+        card = cards.nth(k)
+        card.locator("input[type=range]").focus()
+        pg.keyboard.press("ArrowRight")
+        pg.keyboard.press("Enter")
+        pg.wait_for_timeout(900)
+        said = norm(card.locator(".quiz-answer").inner_text())
+        value = norm(card.locator(".quiz-value").inner_text())
+        check(f"quiz {k + 1}: the big number turns into the answer", f"Réponse : {value}." in said, said)
+        mine = re.sub(r"La vôtre : [^.]*?(?:près(?: : bien vu)?|tout juste)\.", "", said)
+        text = norm(card.locator(".quiz-q").inner_text()) + " " + mine
+        quiz.append((card.locator(".quiz-read").get_attribute("href"), text))
+    for href, text in quiz:
+        slug, _, hash_ = href.partition("#")
+        pg.goto(base + "/" + slug, wait_until="networkidle")
+        pg.wait_for_timeout(1500)
+        shown = norm(
+            pg.evaluate(
+                """() => ['#essentiel', '#hero-kpis', '#hero-dek', '#open-dek', '.open-q', '#h-hist']
+                  .map(s => document.querySelector(s)?.innerText ?? '').join(' ')"""
+            )
+        )
+        nums = re.findall(r"[−+]?\d+(?:,\d+)?(?: h \d{2})?(?: ?%| t\b| sur 30)?", text)
+        missing = [n for n in nums if n not in shown]
+        check(f"quiz {slug}: its numbers are the story's", not missing, f"missing {missing}")
+        check(f"quiz {slug}: leads to its chapter", pg.locator(f"#{hash_}").count() == 1, hash_)
+    pg.goto(base + "/", wait_until="networkidle")
     pg.click(".shelf-link[href='courant-jet']")
     pg.wait_for_load_state("networkidle")
     check("home shelf opens the story", pg.title().startswith("Le vent dans le dos"), pg.url)
