@@ -411,6 +411,58 @@
   }
 }
 
+/* ------------------------------------------------------------------ the end of a story */
+/* the next investigations as small covers on their colour, like the home page's rack: their figure, not
+   their sharing image's title (site.css comes after this file, hence .next-grid in front) */
+.read-next .next-grid {
+  gap: 28px 40px;
+}
+
+.next-grid .also {
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 3px solid var(--c, var(--ink));
+  border-radius: 0;
+  background: none;
+}
+
+.next-grid .also img {
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: var(--pos, center);
+  border-radius: 2px;
+  background: #0d2236;
+}
+
+.next-grid .also small {
+  color: var(--c, var(--muted));
+}
+
+.next-grid .also span {
+  color: var(--ink);
+}
+
+.next-grid .also i {
+  display: block;
+  margin-top: 6px;
+  font: 500 0.8rem/1.3 var(--f-ui);
+  color: var(--muted);
+}
+
+.next-grid .also:hover b,
+.next-grid .also:focus-visible b {
+  color: var(--c, var(--blue-text));
+}
+
+@media (max-width: 720px) {
+  .next-grid .also {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+}
+
 /* ------------------------------------------------------------------ reading comfort */
 /* Read, not scanned: a chapter title is a sentence, the prose is near-black on paper, the figure's
    subtitle is legible and its "how to read" line steps back. */

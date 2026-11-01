@@ -149,9 +149,10 @@ function byline({ issue }) {
 
 /** An issue as a card: image, number and date, title, dek. */
 function card(root, i, kicker = `Enquête n° ${i.no}, ${frDate(i.published)}`) {
-  return `<a class="also" href="${href(root, i.slug)}">
+  // a small cover (its figure, framed as on the home page), its title and the question it answers
+  return `<a class="also" href="${href(root, i.slug)}" style="--c: ${i.accent}; --pos: ${i.cover ?? "center"}">
         <img src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
-        <span><small>${esc(kicker)}</small><b>${esc(i.title)}</b>${esc(i.dek)}</span>
+        <span><small>${esc(kicker)}</small><b>${esc(i.title)}</b>${esc(i.hook ?? i.dek)} <i>${i.minutes} minutes de lecture.</i></span>
       </a>`;
 }
 
