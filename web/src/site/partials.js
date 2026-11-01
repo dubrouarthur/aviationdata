@@ -2,7 +2,8 @@
 // "read also", the home page's lists), written into the HTML from issues.js so that they exist without
 // JavaScript and stay identical everywhere. Also writes the Atom feed, the sitemap and robots.txt.
 // Node only: imported by vite.config.js, never by the browser.
-import { dirname, relative, sep } from "node:path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, dirname, join, relative, sep } from "node:path";
 import { CORRECTIONS, CORRECTIONS_SINCE, ISSUES, PAGES, SITE, TOOLS, frDate, issueByKey } from "./issues.js";
 import {
   dataFacts,
@@ -25,10 +26,13 @@ const ICON_MENU =
 const ICON_CLOSE =
   '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 
+const NOT_FOUND = "404.html";
+
 /** Where a page sits: its path back to the site root ("./" or "../") and the investigation it is, if any. */
 export function pageInfo(file, webRoot) {
   const dir = relative(webRoot, dirname(file)).split(sep).filter(Boolean);
-  const root = dir.length ? "../".repeat(dir.length) : "./";
+  // the page for a missing address is served at any depth: its links start from the site's root
+  const root = basename(file) === NOT_FOUND ? "/" : dir.length ? "../".repeat(dir.length) : "./";
   const slug = dir.join("/");
   return { root, slug, issue: ISSUES.find((i) => i.slug === slug), page: PAGES.find((p) => p.slug === slug) };
 }
@@ -404,6 +408,13 @@ export function sitePartials(webRoot, base) {
           ],
         };
       },
+    },
+    // Vite writes the page's scripts, styles and images relative ("./assets/...", "./og-eu.jpg"): from
+    // /courant-jet/xyz they would miss, so the missing-address page asks for them from the root
+    writeBundle(options) {
+      const file = join(options.dir, NOT_FOUND);
+      if (existsSync(file))
+        writeFileSync(file, readFileSync(file, "utf8").replace(/(["(])\.\//g, "$1/"));
     },
     generateBundle() {
       this.emitFile({ type: "asset", fileName: "feed.xml", source: feed(abs) });

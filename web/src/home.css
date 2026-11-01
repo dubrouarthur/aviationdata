@@ -202,6 +202,27 @@
   padding-top: 64px;
 }
 
+/* the page for a missing address: a sentence, then the covers */
+.nf-head {
+  padding-top: clamp(48px, 8vw, 96px);
+}
+
+.nf-title {
+  max-width: 14em;
+  margin: 0 0 18px;
+  font-family: var(--f-display);
+  font-stretch: 66%;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 0.96;
+  text-wrap: balance;
+}
+
+.not-found .issues {
+  padding-top: 32px;
+  padding-bottom: 72px;
+}
+
 .home-h2 {
   font-family: var(--f-display);
   font-stretch: 70%;

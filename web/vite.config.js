@@ -6,6 +6,8 @@ import { sitePartials } from "./src/site/partials.js";
 // The home page, one page per investigation and the magazine's own pages, all listed in issues.js
 const PAGES = {
   home: "index.html",
+  // served by Vercel for any missing address
+  notfound: "404.html",
   ...Object.fromEntries([...ISSUES, ...MAGAZINE].map((p) => [p.key, `${p.slug}/index.html`])),
 };
 

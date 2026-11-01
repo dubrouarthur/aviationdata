@@ -241,6 +241,16 @@ with sync_playwright() as pw:
     pg.click(".site-mark")
     pg.wait_for_load_state("networkidle")
     check("first story links back home", pg.title().startswith("aviationdata"), pg.url)
+    # the page for a missing address is served at any depth: every link, script and image from the root
+    pg.goto(base + "/404.html", wait_until="networkidle")
+    covers = pg.eval_on_selector_all(".shelf-link", "as => as.map(a => a.getAttribute('href'))")
+    check("404: lists every investigation from the root", covers == [f"/{s}" for s in SLUGS], str(covers))
+    rel = pg.evaluate(
+        """() => [...document.querySelectorAll('[href], [src]')]
+          .map(e => e.getAttribute('href') ?? e.getAttribute('src'))
+          .filter(u => !/^(\\/|#|https?:|mailto:|data:)/.test(u))"""
+    )
+    check("404: no relative address", not rel, str(rel[:5]))
 
     # ------------------------------------------------------------ the magazine: menu, footer, about, feed
     for path in PAGES:
