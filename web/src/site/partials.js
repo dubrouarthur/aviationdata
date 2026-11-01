@@ -226,11 +226,54 @@ function issuesList({ root }) {
     .join("\n");
 }
 
+// a small drawing of each tool's own figure, in the colour of its investigation (currentColor) on grey
+const cells = (rows, cols, size, gap, fill) =>
+  Array.from({ length: rows * cols }, (_, k) => {
+    const r = Math.floor(k / cols);
+    const c = k % cols;
+    return `<rect x="${c * (size + gap)}" y="${r * (size + gap)}" width="${size}" height="${size}" ${fill(r, c)}/>`;
+  }).join("");
+const GLYPHS = {
+  // monthly passengers since 2004: the seasons, the hole of 2020, the record
+  tableau: `<path class="g-mute" d="M2 40H62" /><path class="g-line" d="M2 30l4-4 4 3 4-5 4 3 4-6 4 3 4-5 4 3 4-6 3 22 3-14 4-2 4-6 4 2 4-9 4 3" />`,
+  // twelve months for three countries, from cool to warm
+  calendrier:
+    cells(4, 12, 4.4, 0.8, (r, c) => {
+      const heat = [
+        [0, 0, 1, 2, 3, 4, 5, 5, 3, 2, 1, 0],
+        [1, 1, 2, 2, 3, 4, 5, 5, 4, 2, 1, 1],
+        [1, 1, 2, 2, 3, 3, 4, 4, 3, 2, 2, 1],
+        [2, 2, 2, 3, 3, 3, 3, 4, 3, 3, 2, 2],
+      ][r][c];
+      return heat >= 3
+        ? `class="g-on" opacity="${(0.35 + (heat - 3) * 0.3).toFixed(2)}"`
+        : `class="g-cool" opacity="${(1 - heat * 0.3).toFixed(2)}"`;
+    }).replace(/^/, '<g transform="translate(0.6 10)">') + "</g>",
+  // one square per accident, coloured when a person is cited
+  explorer:
+    cells(5, 11, 4, 1.6, (r, c) => ((r * 11 + c) % 9 < 7 ? 'class="g-on"' : 'class="g-mute-fill"')).replace(
+      /^/,
+      '<g transform="translate(2 8)">',
+    ) + "</g>",
+  // a route drawn over the ocean, one waypoint moved
+  placer: `<path class="g-mute" stroke-dasharray="2 3" d="M6 34Q32 24 58 34" /><path class="g-line" d="M6 34Q22 6 38 14T58 34" /><circle class="g-on" cx="6" cy="34" r="3" /><circle class="g-on" cx="58" cy="34" r="3" /><circle class="g-knob" cx="30" cy="12" r="4.5" />`,
+  // an airport and its destinations
+  aeroport: `<g class="g-spokes"><path d="M30 26L6 10M30 26L14 40M30 26L50 6M30 26L60 22M30 26L52 40M30 26L36 4M30 26L4 28" /></g><g class="g-on"><circle cx="6" cy="10" r="2" /><circle cx="14" cy="40" r="2" /><circle cx="50" cy="6" r="2.5" /><circle cx="60" cy="22" r="2" /><circle cx="52" cy="40" r="2" /><circle cx="36" cy="4" r="2" /><circle cx="4" cy="28" r="2.5" /></g><circle class="g-hub" cx="30" cy="26" r="4" />`,
+  // streamlines of the jet, the fastest route bending with them
+  route: `<path class="g-mute" d="M2 14c10-6 20 6 30 0s20-6 30 0M2 24c10-6 20 6 30 0s20-6 30 0M2 34c10-6 20 6 30 0s20-6 30 0" /><path class="g-line" d="M4 40C18 40 24 18 60 12" /><circle class="g-on" cx="4" cy="40" r="2.6" /><circle class="g-on" cx="60" cy="12" r="2.6" />`,
+  // the westbound flight longer than the eastbound one
+  "votre-vol": `<rect class="g-on" x="2" y="12" width="58" height="8" rx="1" /><rect class="g-cool-fill" x="2" y="26" width="40" height="8" rx="1" /><path class="g-mute" d="M42 24v12" />`,
+};
+
 function toolsList({ root }) {
   return TOOLS.map((t) => {
     const i = issueByKey(t.issue);
+    const glyph = GLYPHS[t.hash]
+      ? `<svg class="tool-glyph" viewBox="0 0 64 44" width="64" height="44" aria-hidden="true">${GLYPHS[t.hash]}</svg>`
+      : "";
     return `<li class="tool" style="--c: ${i.accent}">
   <a href="${href(root, i.slug, t.hash)}">
+    ${glyph}
     <span class="tool-title">${esc(t.title)}</span>
     <span class="tool-dek">${esc(t.dek)}</span>
     <span class="tool-from">Dans « ${esc(i.title)} »</span>

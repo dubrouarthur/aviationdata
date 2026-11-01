@@ -673,11 +673,84 @@
 
 .tool a {
   display: grid;
-  gap: 6px;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-content: start;
+  gap: 6px 20px;
   height: 100%;
-  padding: 16px 0 20px;
+  padding: 18px 0 22px;
   border-top: 1px solid var(--rule);
   text-decoration: none;
+}
+
+.tool a > :not(.tool-glyph) {
+  grid-column: 2;
+}
+
+/* the tool's own figure, drawn small: its investigation's colour on grey */
+.tool-glyph {
+  grid-row: 1 / span 3;
+  margin-top: 2px;
+  color: var(--c);
+  overflow: visible;
+}
+
+.tool-glyph .g-line,
+.tool-glyph .g-mute,
+.tool-glyph .g-spokes {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tool-glyph .g-line {
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+.tool-glyph .g-mute {
+  stroke: #b8c4cf;
+  stroke-width: 1.4;
+}
+
+.tool-glyph .g-spokes {
+  stroke: color-mix(in srgb, currentColor 45%, #c9d3dc);
+  stroke-width: 1.2;
+}
+
+.tool-glyph .g-on,
+.tool-glyph .g-hub {
+  fill: currentColor;
+}
+
+.tool-glyph .g-hub {
+  stroke: var(--paper);
+  stroke-width: 2;
+}
+
+.tool-glyph .g-knob {
+  fill: var(--paper);
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+.tool-glyph .g-mute-fill {
+  fill: #cfd8e0;
+}
+
+.tool-glyph .g-cool,
+.tool-glyph .g-cool-fill {
+  fill: #5b86a5;
+}
+
+.tool a:hover .tool-glyph,
+.tool a:focus-visible .tool-glyph {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tool-glyph {
+    transition: transform 0.25s ease;
+  }
 }
 
 .tool-title {
@@ -690,15 +763,6 @@
   font-size: 1.55rem;
   line-height: 1.05;
   color: var(--ink);
-}
-
-.tool-title::before {
-  content: "";
-  flex: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--c);
 }
 
 .tool-dek {
