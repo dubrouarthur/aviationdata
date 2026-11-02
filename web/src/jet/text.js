@@ -215,9 +215,9 @@ export function writeStory(data, F, C) {
       ` au cœur du courant-jet, en plein océan par ${fmtNum(hero.max.lat, 0)}° nord.`,
     ],
     [
-      "Pour un avion qui part de New York vers Paris cette nuit-là, c'est un tapis roulant : un avion de ligne simulé boucle le trajet en ",
+      "Cette nuit-là, vers Paris, le jet fait office de tapis roulant. Par la route la plus rapide, un avion de ligne simulé boucle New York–Paris en ",
       { b: hm(r.t_fast) },
-      " par la route la plus rapide, contre ",
+      ", contre ",
       { b: hm(r.nowind) },
       " sans vent. La même nuit, le vol BA112 de British Airways relie New York à Londres en 4 h 56, record du vol commercial subsonique le plus rapide selon le Guinness World Records.",
     ],
@@ -268,7 +268,7 @@ export function writeStory(data, F, C) {
       { b: hm(F.minGap.west.med - F.minGap.east.med) },
       ` ${toward(F.minGap)} à `,
       { b: hm(F.maxGap.west.med - F.maxGap.east.med) },
-      ` ${toward(F.maxGap)}. Les lignes de la côte Ouest y échappent en partie, avec ${coastUnder} d'écart vers ${coastNames} : leur route la plus courte remonte vers le Grand Nord, loin du cœur habituel du jet.`,
+      ` ${toward(F.maxGap)}. Les lignes de la côte Ouest y échappent en partie, avec ${coastUnder} d'écart vers ${coastNames}. Leur route la plus courte remonte vers le Grand Nord, loin du cœur habituel du jet.`,
     ],
   ]);
   writeCouts(C.cost);
@@ -343,7 +343,7 @@ export function writeStory(data, F, C) {
     [
       `Dans ce modèle, le ${longDate(cd)}, veille de l'arrivée de Ciara en Europe, la ligne droite aurait demandé `,
       { b: hm(cgw) },
-      " contre le vent, et la route la plus rapide, qui passe très au nord, ",
+      " contre le vent. La route la plus rapide, très au nord, en demandait ",
       { b: hm(cow) },
       `. Le simulateur, plus haut, où le vent évolue pendant le vol et où l'avion vole à Mach ${fmtNum(simDay.mach, 2)}, donne pour ce jour-là ${hm(simDay.gc)} et ${hm(simDay.best)}. Les deux modèles s'accordent à ${minutes(Math.abs(Math.round(cow) - Math.round(simDay.best)))} près sur la meilleure route, à ${minutes(Math.abs(Math.round(cgw) - Math.round(simDay.gc)))} près sur la ligne droite, la plus exposée au vent. Les montants en euros de cette enquête viennent tous du simulateur.`,
     ],
@@ -870,9 +870,9 @@ export function writeHistoire({ climate, history }) {
   ]);
   after("#histoire-after", [
     [
-      `Depuis ${t.from} et les premières observations par satellite, la réanalyse de la NOAA ne montre pas de tendance nette : `,
+      `Depuis ${t.from} et les premières observations par satellite, la réanalyse de la NOAA ne montre pas de tendance nette. Le vent moyen de l'hiver évolue de `,
       { b: `${t.slope >= 0 ? "+" : "−"}${kmh(Math.abs(t.slope), 1)}` },
-      " par décennie pour le vent moyen de l'hiver, avec une marge de plus ou moins ",
+      " par décennie, avec une marge de plus ou moins ",
       { b: kmh(t.ci, 1) },
       ".",
     ],
@@ -1254,9 +1254,9 @@ export function initVol(flights, chart) {
     [
       "Paris–New York n'est pas une exception. Sur les ",
       { b: String(routes.length) },
-      ` lignes entre la France et l'Amérique du Nord suivies plus de 300 fois dans chaque sens de 2019 à 2022, le vol vers l'Amérique dure plus longtemps que le retour ${longer === routes.length ? "sur toutes" : `sur ${longer}`}, et sur `,
+      ` lignes entre la France et l'Amérique du Nord suivies plus de 300 fois dans chaque sens de 2019 à 2022, le vol vers l'Amérique dure plus longtemps que le retour ${longer === routes.length ? "sur toutes" : `sur ${longer}`}. Sur `,
       { b: String(winterPeak) },
-      ", son mois le plus long tombe entre décembre et mars, quand le jet est au plus fort.",
+      " d'entre elles, son mois le plus long tombe entre décembre et mars, quand le jet est au plus fort.",
     ],
   ]);
 }

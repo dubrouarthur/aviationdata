@@ -447,7 +447,7 @@ with sync_playwright() as pw:
         text("#nuit-prose"),
         kmh(hero["max"]["kmh"]),
         f"par {fr(hero['max']['lat'])}° nord",
-        f"en {hm(hero['route']['t_fast'])} par la route la plus rapide",
+        f"boucle New York–Paris en {hm(hero['route']['t_fast'])}, contre",
         f"contre {hm(hero['route']['nowind'])} sans vent",
     )
     has(
@@ -497,7 +497,7 @@ with sync_playwright() as pw:
         f"Vers New York, elle fait gagner {mins(s['gain_w'], 1)}",
         f"plus de dix minutes {pct(s['share_w_10'])} des jours",
         f"demandé {hm(ciara[3])} contre le vent",
-        f"très au nord, {hm(ciara[4])}. Le simulateur, plus haut",
+        f"très au nord, en demandait {hm(ciara[4])}. Le simulateur, plus haut",
         f"donne pour ce jour-là {hm(sim_noon['gc'])} et {hm(sim_noon['best'][1])}",
         f"s'accordent à {mins(abs(round(ciara[4]) - round(sim_noon['best'][1])))} près sur la meilleure route",
         f"à {mins(abs(round(ciara[3]) - round(sim_noon['gc'])))} près sur la ligne droite",
@@ -535,7 +535,7 @@ with sync_playwright() as pw:
         text("#vol-prose"),
         f"Sur les {len(vr)} lignes",
         "sur toutes" if n_long == len(vr) else f"sur {n_long},",
-        f"et sur {sum(longest(r) in (12, 1, 2, 3) for r in vr)}, son mois le plus long",
+        f"Sur {sum(longest(r) in (12, 1, 2, 3) for r in vr)} d'entre elles, son mois le plus long",
     )
     types = fl["aircraft"]["types"]
     mean = lambda t: (t["e"] + t["w"]) / 2  # noqa: E731

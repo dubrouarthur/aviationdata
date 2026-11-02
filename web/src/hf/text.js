@@ -345,7 +345,7 @@ export function writeTem(F) {
     ],
     after: [
       [
-        "Le modèle de gestion des menaces et des erreurs (TEM), né dans les années 1990 des audits de vols de ligne, découpe un accident en trois temps : des menaces extérieures à l'équipage, comme la météo ou une panne ; des erreurs de l'équipage ; puis un état indésirable de l'appareil, une vitesse ou une trajectoire qui échappe.",
+        "Le modèle de gestion des menaces et des erreurs (TEM) est né dans les années 1990 des audits de vols de ligne. Il découpe un accident en trois temps : des menaces extérieures à l'équipage, comme la météo ou une panne, puis des erreurs de l'équipage, enfin un état indésirable de l'appareil, une vitesse ou une trajectoire qui échappe.",
       ],
       [
         "Le NTSB code justement ces états indésirables, sous la forme d'un paramètre de vol « non maintenu ». Il en cite un dans ",
