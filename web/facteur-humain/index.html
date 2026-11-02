@@ -112,7 +112,7 @@
             <div class="seg" id="layers-seg" role="group" aria-label="Type de vol"></div>
           </div>
           <p class="note" id="layers-note"></p>
-          <div class="chart" id="chart-layers" tabindex="0" aria-labelledby="h-layers"></div>
+          <div role="group" class="chart" id="chart-layers" tabindex="0" aria-labelledby="h-layers"></div>
         </figure>
         <div class="prose after-figure" id="verdict-after"></div>
       </section>
@@ -127,7 +127,7 @@
         <figure class="panel" data-hsource="ntsb heinrich">
           <h3 id="h-pyramid">La pyramide des accidents, et la part de l'humain à chaque étage</h3>
           <p class="note" id="pyramid-note"></p>
-          <div class="chart" id="chart-pyramid" tabindex="0" aria-labelledby="h-pyramid"></div>
+          <div role="group" class="chart" id="chart-pyramid" tabindex="0" aria-labelledby="h-pyramid"></div>
         </figure>
         <div class="prose after-figure" id="gravite-after"></div>
       </section>
@@ -140,7 +140,7 @@
         <figure class="panel" data-hsource="ntsbold ntsb">
           <h3 id="h-history">La machine en retrait, l'humain toujours en tête</h3>
           <p class="note" id="history-note"></p>
-          <div class="chart" id="chart-history" tabindex="0" aria-labelledby="h-history"></div>
+          <div role="group" class="chart" id="chart-history" tabindex="0" aria-labelledby="h-history"></div>
         </figure>
         <div class="prose after-figure" id="histoire-after"></div>
       </section>
@@ -162,7 +162,7 @@
         <figure class="panel" data-hsource="ntsb">
           <h3 id="h-roles">Neuf fois sur dix, la personne citée est aux commandes</h3>
           <p class="note" id="roles-note"></p>
-          <div class="chart" id="chart-roles" tabindex="0" aria-labelledby="h-roles"></div>
+          <div role="group" class="chart" id="chart-roles" tabindex="0" aria-labelledby="h-roles"></div>
         </figure>
         <div class="prose after-figure" id="qui-after"></div>
       </section>
@@ -175,7 +175,7 @@
         <figure class="panel" data-hsource="ntsb hfacs">
           <h3 id="h-errors">Des gestes plus souvent que des décisions</h3>
           <p class="note" id="errors-note"></p>
-          <div class="chart" id="chart-errors" tabindex="0" aria-labelledby="h-errors"></div>
+          <div role="group" class="chart" id="chart-errors" tabindex="0" aria-labelledby="h-errors"></div>
         </figure>
         <div class="prose after-figure" id="erreurs-after"></div>
       </section>
@@ -190,7 +190,7 @@
         <figure class="panel" data-hsource="ntsb hfacs reason">
           <h3 id="h-levels">Les quatre étages de HFACS, presque vides au-dessus du premier</h3>
           <p class="note" id="levels-note"></p>
-          <div class="chart" id="chart-levels" tabindex="0" aria-labelledby="h-levels"></div>
+          <div role="group" class="chart" id="chart-levels" tabindex="0" aria-labelledby="h-levels"></div>
         </figure>
         <div class="prose after-figure" id="hfacs-after"></div>
       </section>
@@ -262,7 +262,7 @@
           <h3 id="h-cheese">Le plus souvent, une seule couche percée</h3>
           <p class="note" id="cheese-note"></p>
           <div class="chart cz-chart" id="chart-slices" role="img" aria-labelledby="h-cheese"></div>
-          <div class="chart" id="chart-cheese" tabindex="0" aria-labelledby="h-cheese"></div>
+          <div role="group" class="chart" id="chart-cheese" tabindex="0" aria-labelledby="h-cheese"></div>
         </figure>
         <div class="prose after-figure" id="fromage-after"></div>
       </section>
@@ -277,7 +277,7 @@
             Les pertes de contrôle presque toujours humaines, les pannes moteur une fois sur trois
           </h3>
           <p class="note" id="events-note"></p>
-          <div class="chart" id="chart-events" tabindex="0" aria-labelledby="h-events"></div>
+          <div role="group" class="chart" id="chart-events" tabindex="0" aria-labelledby="h-events"></div>
         </figure>
         <div class="prose after-figure" id="evenements-after"></div>
       </section>
@@ -299,7 +299,7 @@
         <figure class="panel" data-hsource="ntsb">
           <h3 id="h-segments">L'humain domine partout, sauf dans les compagnies aériennes</h3>
           <p class="note" id="segments-note"></p>
-          <div class="chart" id="chart-segments" tabindex="0" aria-labelledby="h-segments"></div>
+          <div role="group" class="chart" id="chart-segments" tabindex="0" aria-labelledby="h-segments"></div>
         </figure>
         <div class="prose after-figure" id="compagnies-after"></div>
       </section>
@@ -324,15 +324,15 @@
           <div class="hf-tool-grid">
             <figure>
               <h3 id="h-tool-layers">Ce que citent les enquêteurs</h3>
-              <div class="chart" id="tool-layers" aria-labelledby="h-tool-layers"></div>
+              <div role="group" class="chart" id="tool-layers" aria-labelledby="h-tool-layers"></div>
             </figure>
             <figure>
               <h3 id="h-tool-errors">Les erreurs les plus citées</h3>
-              <div class="chart" id="tool-errors" aria-labelledby="h-tool-errors"></div>
+              <div role="group" class="chart" id="tool-errors" aria-labelledby="h-tool-errors"></div>
             </figure>
             <figure class="hf-tool-wide">
               <h3 id="h-tool-events">Ce qui s'est passé</h3>
-              <div class="chart" id="tool-events" aria-labelledby="h-tool-events"></div>
+              <div role="group" class="chart" id="tool-events" aria-labelledby="h-tool-events"></div>
             </figure>
           </div>
         </div>
@@ -344,15 +344,45 @@
         <div class="share" id="share"></div>
       </section>
 
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="hf">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">La méthode en 5 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en bas de page.</p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir des verdicts officiels</h3>
+            <p>Aux États-Unis, le NTSB enquête sur chaque accident d'aviation civile et conclut par une cause probable. Sa base de données, publique, donne pour chaque accident la liste des constats retenus.</p>
+          </li>
+          <li>
+            <h3>Ranger chaque constat</h3>
+            <p>Chaque constat désigne une personne, l'environnement, l'appareil ou une organisation. Nous comptons les accidents qui citent chacune de ces familles ; un même accident peut en citer plusieurs.</p>
+          </li>
+          <li>
+            <h3>Lire avec les modèles de la sécurité</h3>
+            <p>Nous rapprochons ces constats des grilles qu'utilisent les spécialistes : HFACS, le fromage suisse de James Reason, la gestion des menaces et des erreurs. Ce rapprochement est le nôtre, pas celui du NTSB.</p>
+          </li>
+          <li>
+            <h3>Dire ce que les chiffres ne disent pas</h3>
+            <p>Ce sont des causes retenues, pas des risques : on ne sait pas combien de vols ont eu lieu sans accident. Et le NTSB a changé sa grille en 2008 : avant et après ne se comparent qu'avec prudence.</p>
+          </li>
+          <li>
+            <h3>Vérifier chaque chiffre</h3>
+            <p>Avant chaque mise en ligne, un programme indépendant refait chaque part à partir des données du NTSB et la compare à ce qui s'affiche. Le code est public.</p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
       <!--site:next-->
     </main>
 
-    <footer class="footer" id="sources">
+    <section class="footer" id="sources" aria-labelledby="h-sources">
       <div class="wrap">
-        <h2>Méthode et sources</h2>
+        <h2 id="h-sources">Méthode et sources</h2>
         <div id="sources-body"></div>
       </div>
-    </footer>
+    </section>
     <!--site:foot-->
     <!--site:menu-->
     <div class="tooltip" id="tooltip" role="status"></div>

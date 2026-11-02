@@ -276,6 +276,20 @@ with sync_playwright() as pw:
             )
         pg.keyboard.press("Escape")
         check(f"{path}: Escape closes the menu", not pg.evaluate("document.getElementById('site-menu').open"))
+        if path.strip("/") in SLUGS:
+            # readable by many: the method in plain words, its glossary, the terms explained in the text
+            steps = pg.locator("#comment .how-steps li").count()
+            words = pg.locator("#comment .gloss-list dt").count()
+            check(f"{path}: method in plain words", steps >= 4 and words >= 3, f"{steps} steps, {words} words")
+            terms = pg.locator("main .gloss")
+            check(f"{path}: terms explained in the text", terms.count() >= 3, str(terms.count()))
+            pg.wait_for_timeout(1500)
+            terms.first.scroll_into_view_if_needed()
+            terms.first.click()
+            pg.wait_for_timeout(200)
+            shown = pg.locator("#gloss-pop").is_visible() and terms.first.get_attribute("aria-expanded") == "true"
+            pg.keyboard.press("Escape")
+            check(f"{path}: a term opens its definition, Escape closes it", shown and pg.locator("#gloss-pop").is_hidden())
     pg.goto(base + "/courant-jet", wait_until="networkidle")
     has("byline", norm(pg.inner_text(".article-meta")), "Par Arthur Dubrou", "Publiée le 24 octobre 2026")
     pg.goto(base + "/a-propos", wait_until="networkidle")

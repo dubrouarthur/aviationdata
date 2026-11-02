@@ -65,7 +65,7 @@ export function chapterSources(main = document.querySelector("main")) {
     const sig = [...seen.keys()].join("|");
     if (box?.dataset.sig === sig) continue;
     const list = el("ul", {}, [...seen.values()]);
-    const fresh = el("aside", { class: "chapter-sources", "aria-label": "Les données de ce chapitre" }, [
+    const fresh = el("div", { class: "chapter-sources", role: "group", "aria-label": "Les données de ce chapitre" }, [
       el("p", {
         class: "cs-title",
         text: seen.size > 1 ? "Les données de ce chapitre" : "La donnée de ce chapitre",

@@ -1154,7 +1154,7 @@ footer[id] {
 }
 
 .rank li:hover,
-.rank li[aria-selected="true"] {
+.rank li[aria-current="true"] {
   background: var(--paper-2);
 }
 

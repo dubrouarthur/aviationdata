@@ -51,7 +51,7 @@ function after(id, paragraphs, aside) {
   if (!box) return;
   box.replaceChildren(
     ...paragraphs.map((p) => el("p", {}, rich(p))),
-    ...(aside ? [el("aside", { class: "story-aside" }, [el("b", { text: "À savoir" }), rich(aside)])] : []),
+    ...(aside ? [el("div", { class: "story-aside", role: "note" }, [el("b", { text: "À savoir" }), rich(aside)])] : []),
   );
 }
 const WEST_COAST = ["KLAX", "KSFO", "KSEA", "CYVR"];

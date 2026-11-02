@@ -101,7 +101,7 @@
           </div>
           <div class="hero-moments">
             <p class="label">Choisissez un moment, ou faites glisser les années sous le globe</p>
-            <div class="moments" id="globe-moments" aria-label="Moments clés du trafic international"></div>
+            <div role="group" class="moments" id="globe-moments" aria-label="Moments clés du trafic international"></div>
             <div class="moment-card" id="globe-caption" aria-live="polite"></div>
           </div>
         </div>
@@ -169,7 +169,7 @@
               départs) et vols de passagers.
             </p>
             <div class="legend-row" id="rempl-legend"></div>
-            <div
+            <div role="group"
               class="chart"
               id="chart-rempl"
               tabindex="0"
@@ -201,7 +201,7 @@
           <div class="controls">
             <div class="chips" id="chips-covid" role="group" aria-label="Séries affichées"></div>
           </div>
-          <div
+          <div role="group"
             class="chart"
             id="chart-covid"
             tabindex="0"
@@ -266,7 +266,7 @@
           </div>
           <div class="story-side">
             <p class="label">Quatre moments de l'aérien intérieur</p>
-            <div class="moments" id="france-moments" aria-label="Moments clés du trafic intérieur"></div>
+            <div role="group" class="moments" id="france-moments" aria-label="Moments clés du trafic intérieur"></div>
             <div class="moment-card" id="france-caption" aria-live="polite"></div>
           </div>
         </div>
@@ -291,7 +291,7 @@
             le masquer.
           </p>
           <div class="chips" id="chips-dist" role="group" aria-label="Segments affichés"></div>
-          <div class="chart" id="chart-dist" tabindex="0" aria-label="Distance moyenne par passager"></div>
+          <div role="group" class="chart" id="chart-dist" tabindex="0" aria-label="Distance moyenne par passager"></div>
         </div>
         <div class="prose after-figure" id="dist-after"></div>
       </section>
@@ -337,7 +337,7 @@
               </div>
             </div>
             <div class="legend-row" id="apt-legend"></div>
-            <div
+            <div role="group"
               class="chart"
               id="chart-apt"
               tabindex="0"
@@ -418,7 +418,7 @@
               Millions de passagers au départ et à l'arrivée de la France, selon la nationalité de la
               compagnie.
             </p>
-            <div
+            <div role="group"
               class="chart"
               id="chart-pav"
               tabindex="0"
@@ -431,7 +431,7 @@
               Passagers des compagnies de chaque pays, en millions : les trois premiers pays en 2025 et le
               Royaume-Uni.
             </p>
-            <div
+            <div role="group"
               class="chart"
               id="chart-pav-pays"
               tabindex="0"
@@ -481,7 +481,7 @@
             <div class="seg" role="group" aria-label="Vue" id="co2-period"></div>
             <div class="legend-row" id="co2-legend"></div>
           </div>
-          <div
+          <div role="group"
             class="chart"
             id="chart-co2-index"
             tabindex="0"
@@ -505,7 +505,7 @@
             <p class="note">
               Grammes de CO2 par passager-kilomètre (le fret est compté en équivalent passager).
             </p>
-            <div class="chart" id="chart-co2-g" tabindex="0" aria-label="CO2 par passager-kilomètre"></div>
+            <div role="group" class="chart" id="chart-co2-g" tabindex="0" aria-label="CO2 par passager-kilomètre"></div>
           </div>
         </div>
       </section>
@@ -517,15 +517,45 @@
         <div class="share" id="share"></div>
       </section>
 
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="dgac">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">La méthode en 5 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en bas de page.</p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir des chiffres officiels</h3>
+            <p>Chaque mois, la DGAC publie le nombre de passagers, de vols et de tonnes de fret de chaque aéroport français, de chaque liaison et de chaque compagnie. Nous partons de ces fichiers publics, sans rien y ajouter.</p>
+          </li>
+          <li>
+            <h3>Compter chaque passager une fois</h3>
+            <p>Un passager qui part d'un aéroport français et arrive dans un autre passe par deux aéroports. Pour les totaux de la France, nous partons donc des liaisons, pas de la somme des aéroports.</p>
+          </li>
+          <li>
+            <h3>Comparer à avant le Covid</h3>
+            <p>Nous mesurons chaque évolution par rapport à 2019, la dernière année normale. Les petites lignes, sous le seuil de diffusion de la DGAC, restent dans les totaux mais n'entrent pas dans les classements.</p>
+          </li>
+          <li>
+            <h3>Dater sans expliquer à tort</h3>
+            <p>Les chiffres comptent des passagers, pas leurs raisons. Quand une taxe ou une crise tombe en même temps qu'une baisse, nous donnons les deux dates sans affirmer que l'une cause l'autre.</p>
+          </li>
+          <li>
+            <h3>Vérifier chaque chiffre</h3>
+            <p>Avant chaque mise en ligne, un programme indépendant recalcule chaque nombre du texte à partir des mêmes fichiers et le compare à ce qui s'affiche. Le code est public.</p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
       <!--site:next-->
     </main>
 
-    <footer class="footer" id="sources">
+    <section class="footer" id="sources" aria-labelledby="h-sources">
       <div class="wrap">
-        <h2>Méthode et sources</h2>
+        <h2 id="h-sources">Méthode et sources</h2>
         <div id="sources-body"></div>
       </div>
-    </footer>
+    </section>
     <!--site:foot-->
     <!--site:menu-->
     <div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>

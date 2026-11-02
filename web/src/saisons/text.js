@@ -54,7 +54,7 @@ function after(sel, paragraphs, aside) {
   prose(sel, paragraphs);
   if (!aside) return;
   $(sel).append(
-    el("aside", { class: "story-aside" }, [
+    el("div", { class: "story-aside", role: "note" }, [
       el("b", { text: "À savoir" }),
       rich(Array.isArray(aside) ? aside : [aside]),
     ]),

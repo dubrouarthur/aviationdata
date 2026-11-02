@@ -410,7 +410,7 @@ export function initGlobe(data, { dots }) {
       ...rows.map(({ c, v, d }) => {
         const li = el(
           "li",
-          { tabindex: 0, "data-id": c.id, "aria-selected": String(c.id === state.selected) },
+          { tabindex: 0, "data-id": c.id, "aria-current": String(c.id === state.selected) },
           [
             el("span", { class: "n", text: c.nom }),
             el(
@@ -446,7 +446,7 @@ export function initGlobe(data, { dots }) {
     list
       .querySelectorAll("li")
       .forEach((li) =>
-        li.setAttribute("aria-selected", String(li.dataset.id === (state.selected || state.hot))),
+        li.setAttribute("aria-current", String(li.dataset.id === (state.selected || state.hot))),
       );
   }
   const contSeg = $("#globe-cont");

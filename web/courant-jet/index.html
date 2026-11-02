@@ -136,16 +136,16 @@
           <figure class="panel" data-jsource="opensky">
             <h3 id="h-hist"></h3>
             <p class="note" id="hist-note">Nombre de vols par durée, tranches de 5 minutes, 2019-2022.</p>
-            <div class="chart" id="chart-hist" tabindex="0" aria-labelledby="h-hist"></div>
+            <div role="group" class="chart" id="chart-hist" tabindex="0" aria-labelledby="h-hist"></div>
           </figure>
           <figure class="panel" data-jsource="opensky">
             <h3 id="h-routes">Le même écart sur presque toutes les lignes</h3>
             <p class="note" id="routes-note"></p>
-            <div class="chart" id="chart-routes" tabindex="0" aria-labelledby="h-routes"></div>
+            <div role="group" class="chart" id="chart-routes" tabindex="0" aria-labelledby="h-routes"></div>
           </figure>
         </div>
         <div class="prose after-figure" id="ecart-after"></div>
-        <aside class="cost-box" id="couts" aria-labelledby="h-couts">
+        <div class="cost-box" id="couts" role="note" aria-labelledby="h-couts">
           <div class="cb-head">
             <h3 id="h-couts">D'où viennent ces kilos et ces euros</h3>
             <p class="cb-dek" id="couts-dek"></p>
@@ -155,7 +155,7 @@
             <ol class="cb-steps" id="couts-steps"></ol>
             <div class="cb-limits" id="couts-limits"></div>
           </details>
-        </aside>
+        </div>
         <div class="prose after-figure" id="saisons-prose"></div>
         <figure class="panel" data-jsource="opensky era5" style="margin-top: 22px">
           <h3 id="h-monthly"></h3>
@@ -163,7 +163,7 @@
             Durée médiane des vols de chaque mois, et vent moyen le long de la route des vols vers Paris. Les
             mois de moins de 20 vols, au printemps 2020, restent vides.
           </p>
-          <div class="chart" id="chart-monthly" tabindex="0" aria-labelledby="h-monthly"></div>
+          <div role="group" class="chart" id="chart-monthly" tabindex="0" aria-labelledby="h-monthly"></div>
         </figure>
       </section>
 
@@ -175,7 +175,7 @@
         <figure class="panel" data-jsource="opensky era5">
           <h3 id="h-scatter"></h3>
           <p class="note" id="scatter-note"></p>
-          <div class="chart" id="chart-scatter" tabindex="0" aria-labelledby="h-scatter"></div>
+          <div role="group" class="chart" id="chart-scatter" tabindex="0" aria-labelledby="h-scatter"></div>
         </figure>
         <div class="prose after-figure" id="vent-after"></div>
       </section>
@@ -193,7 +193,7 @@
           <figure class="panel" data-jsource="igra">
             <h3 id="h-profile">Au-dessus de Paris, le vent culmine à l'altitude des avions</h3>
             <p class="note" id="profile-note"></p>
-            <div class="chart" id="chart-profile" tabindex="0" aria-labelledby="h-profile"></div>
+            <div role="group" class="chart" id="chart-profile" tabindex="0" aria-labelledby="h-profile"></div>
           </figure>
           <figure class="panel dark-panel" data-jsource="r1">
             <h3 id="h-clim">L'hiver, le jet descend vers le sud et forcit</h3>
@@ -312,7 +312,7 @@
           <h2 class="section-title" id="h-bilan">Suivre le vent plutôt que la ligne droite</h2>
           <div class="prose" id="bilan-prose"></div>
         </div>
-        <aside class="cost-box" id="bilan-calc" aria-labelledby="h-bilan-calc">
+        <div class="cost-box" id="bilan-calc" role="note" aria-labelledby="h-bilan-calc">
           <div class="cb-head">
             <h3 id="h-bilan-calc">Le calcul, étape par étape</h3>
             <p class="cb-dek" id="bilan-calc-dek"></p>
@@ -322,11 +322,11 @@
             <ol class="cb-steps" id="bilan-calc-steps"></ol>
             <div class="cb-limits" id="bilan-calc-limits"></div>
           </details>
-        </aside>
+        </div>
         <figure class="panel" data-jsource="eia ecb dgac dgacpap" style="margin-top: 28px">
           <h3 id="h-value">Plus le kérosène est cher, plus suivre le vent vaut cher</h3>
           <p class="note" id="value-note"></p>
-          <div class="chart" id="chart-value" tabindex="0" aria-labelledby="h-value"></div>
+          <div role="group" class="chart" id="chart-value" tabindex="0" aria-labelledby="h-value"></div>
         </figure>
         <div class="prose after-figure" id="bilan-after"></div>
       </section>
@@ -415,7 +415,7 @@
             <div class="seg" id="fc-dir" role="group" aria-label="Sens du vol"></div>
           </div>
           <p class="note" id="forecast-note"></p>
-          <div class="chart" id="chart-forecast" tabindex="0" aria-labelledby="h-forecast"></div>
+          <div role="group" class="chart" id="chart-forecast" tabindex="0" aria-labelledby="h-forecast"></div>
         </figure>
         <div class="prose after-figure" id="prevoir-after"></div>
       </section>
@@ -435,13 +435,13 @@
           <figure class="panel" data-jsource="era5 openap dgac dgacpap eia">
             <h3 id="h-months">Vers New York, le gain culmine en hiver</h3>
             <p class="note" id="months-note"></p>
-            <div class="chart" id="chart-months" tabindex="0" aria-labelledby="h-months"></div>
+            <div role="group" class="chart" id="chart-months" tabindex="0" aria-labelledby="h-months"></div>
           </figure>
           <figure class="panel" data-jsource="era5 openap dgac dgacpap eia">
             <h3 id="h-deciles">Un jour sur dix fait une grande part du gain</h3>
             <p class="note" id="deciles-note"></p>
             <div class="conc" id="chart-conc" role="img"></div>
-            <div class="chart" id="chart-deciles" tabindex="0" aria-labelledby="h-deciles"></div>
+            <div role="group" class="chart" id="chart-deciles" tabindex="0" aria-labelledby="h-deciles"></div>
           </figure>
         </div>
         <div class="prose after-figure" id="quels-after"></div>
@@ -484,7 +484,7 @@
         <figure class="panel" data-jsource="opensky era5">
           <h3 id="h-types">À vent égal, des avions plus rapides que d'autres</h3>
           <p class="note" id="types-note"></p>
-          <div class="chart" id="chart-types" tabindex="0" aria-labelledby="h-types"></div>
+          <div role="group" class="chart" id="chart-types" tabindex="0" aria-labelledby="h-types"></div>
         </figure>
         <div class="prose after-figure" id="avion-after"></div>
       </section>
@@ -504,7 +504,7 @@
           <figure class="panel" data-jsource="r1 nao">
             <h3 id="h-winters">Le vent de l'hiver suit l'oscillation nord-atlantique</h3>
             <p class="note" id="winters-note"></p>
-            <div class="chart" id="chart-winters" tabindex="0" aria-labelledby="h-winters"></div>
+            <div role="group" class="chart" id="chart-winters" tabindex="0" aria-labelledby="h-winters"></div>
           </figure>
           <figure class="panel" data-jsource="r1">
             <h3 id="h-records">Les jours records</h3>
@@ -529,7 +529,7 @@
             <div class="vol-figs" id="vol-figs" aria-live="polite"></div>
           </div>
           <h3 id="h-vol-chart">Sur votre ligne, mois par mois</h3>
-          <div class="chart" id="chart-vol" tabindex="0" aria-labelledby="h-vol-chart"></div>
+          <div role="group" class="chart" id="chart-vol" tabindex="0" aria-labelledby="h-vol-chart"></div>
           <p class="note" id="vol-note"></p>
         </figure>
       </section>
@@ -541,15 +541,49 @@
         <div class="share" id="share"></div>
       </section>
 
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="jet">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">La méthode en 6 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en bas de page.</p>
+        <ol class="how-steps">
+          <li>
+            <h3>Chronométrer les vrais vols</h3>
+            <p>Les avions émettent leur position, captée au sol par le réseau OpenSky. Nous en tirons la durée de chaque vol entre Paris et l'Amérique du Nord, dans les deux sens.</p>
+          </li>
+          <li>
+            <h3>Mesurer le vent</h3>
+            <p>Le vent en altitude vient de la réanalyse ERA5, une reconstitution heure par heure de l'atmosphère, et des ballons-sondes lâchés au-dessus de Trappes depuis des décennies.</p>
+          </li>
+          <li>
+            <h3>Faire voler un avion modèle</h3>
+            <p>Chaque jour, un avion modèle fait le trajet deux fois dans le vent réel : en ligne droite, puis par la route la plus rapide. L'écart entre les deux durées est le gain de la route.</p>
+          </li>
+          <li>
+            <h3>Convertir les minutes en kérosène</h3>
+            <p>Une minute de croisière vaut un poids moyen de kérosène, tiré des chiffres de la DGAC et de l'OACI, puis un prix, tiré des cours publiés. C'est un ordre de grandeur, et chaque hypothèse est écrite à côté du chiffre.</p>
+          </li>
+          <li>
+            <h3>Dire les limites</h3>
+            <p>Les compagnies suivent déjà les vents : ces gains montrent ce que vaut le vent, pas des économies qui resteraient à faire. Le modèle simplifie l'avion et la météo, et le texte le signale.</p>
+          </li>
+          <li>
+            <h3>Vérifier chaque chiffre</h3>
+            <p>Avant chaque mise en ligne, un programme refait les calculs de route et de coût et compare chaque nombre du texte à ce qui s'affiche. Le code est public.</p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
       <!--site:next-->
     </main>
 
-    <footer class="footer" id="sources">
+    <section class="footer" id="sources" aria-labelledby="h-sources">
       <div class="wrap">
-        <h2>Méthode et sources</h2>
+        <h2 id="h-sources">Méthode et sources</h2>
         <div id="sources-body"></div>
       </div>
-    </footer>
+    </section>
     <!--site:foot-->
     <!--site:menu-->
     <div class="tooltip" id="tooltip" role="status"></div>

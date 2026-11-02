@@ -107,7 +107,7 @@ function chapter(prefix, { lede, after = [], aside }) {
     ...after.map((p) => el("p", {}, rich(p))),
     ...(aside
       ? [
-          el("aside", { class: "story-aside" }, [
+          el("div", { class: "story-aside", role: "note" }, [
             el("b", { text: "À savoir" }),
             " ",
             ...rich(aside).childNodes,
@@ -527,7 +527,7 @@ export function writeLoupe(F, cases) {
   );
   const box = $("#loupe-end");
   box.replaceChildren(
-    el("aside", { class: "story-aside" }, [
+    el("div", { class: "story-aside", role: "note" }, [
       el("b", { text: "À savoir" }),
       " ",
       ...rich([

@@ -120,7 +120,7 @@ with sync_playwright() as p:
     )
     page.locator("#country-list li").first.click()
     page.wait_for_timeout(300)
-    check("clicking a country selects it", page.locator('#country-list li[aria-selected="true"]').count() == 1)
+    check("clicking a country selects it", page.locator('#country-list li[aria-current="true"]').count() == 1)
 
     # --- spiral: mode switch recolours, hover shows month
     scroll_to(page, "#chart-spirale", 2500)

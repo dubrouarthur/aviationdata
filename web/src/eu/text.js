@@ -26,7 +26,7 @@ function after(sel, paragraphs, aside) {
   if (!aside) return;
   const node = $(sel);
   node.append(
-    el("aside", { class: "story-aside" }, [
+    el("div", { class: "story-aside", role: "note" }, [
       el("b", { text: "À savoir" }),
       rich(Array.isArray(aside) ? aside : [aside]),
     ]),

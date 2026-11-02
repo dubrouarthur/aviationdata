@@ -531,7 +531,7 @@ export function airportTable(node, rows, { years, last }) {
   const table = el("table", { class: "eu-apt-table" }, [
     el("thead", {}, [
       el("tr", {}, [
-        el("th", { scope: "col", text: "" }),
+        el("th", { scope: "col" }, el("span", { class: "visually-hidden", text: "Rang" })),
         el("th", { scope: "col", text: "Aéroport" }),
         el("th", { scope: "col", class: "n", text: "2008" }),
         el("th", { scope: "col", class: "n", text: "2019" }),

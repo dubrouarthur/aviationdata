@@ -73,9 +73,9 @@
             <div class="eu-years" id="open-years"></div>
           </div>
           <figure class="eu-open-map panel dark-panel" data-esource="paoa ourairports naturalearth">
-            <h3 class="visually-hidden" id="h-open-map">
+            <h2 class="visually-hidden" id="h-open-map">
               Les aéroports d'Europe et le centre de gravité de leurs passagers
-            </h3>
+            </h2>
             <div class="eu-map" id="open-map" role="img" aria-labelledby="h-open-map"></div>
             <p class="note" id="open-note"></p>
           </figure>
@@ -115,18 +115,18 @@
         <figure class="panel" data-esource="paoc">
           <h3 id="h-board-month"></h3>
           <p class="note" id="board-month-note"></p>
-          <div class="chart" id="chart-board-month" tabindex="0" aria-labelledby="h-board-month"></div>
+          <div role="group" class="chart" id="chart-board-month" tabindex="0" aria-labelledby="h-board-month"></div>
         </figure>
         <div class="grid-2">
           <figure class="panel" data-esource="paoc">
             <h3 id="h-board-heat"></h3>
             <p class="note" id="board-heat-note"></p>
-            <div class="chart" id="chart-board-heat" tabindex="0" aria-labelledby="h-board-heat"></div>
+            <div role="group" class="chart" id="chart-board-heat" tabindex="0" aria-labelledby="h-board-heat"></div>
           </figure>
           <figure class="panel" data-esource="paoc">
             <h3 id="h-board-parts"></h3>
             <p class="note" id="board-parts-note"></p>
-            <div class="chart" id="chart-board-parts" tabindex="0" aria-labelledby="h-board-parts"></div>
+            <div role="group" class="chart" id="chart-board-parts" tabindex="0" aria-labelledby="h-board-parts"></div>
           </figure>
         </div>
         <figure class="panel" data-esource="paoa">
@@ -151,7 +151,7 @@
         <figure class="panel" data-esource="paoc">
           <h3 id="h-union"></h3>
           <p class="note" id="union-note"></p>
-          <div class="chart" id="chart-union" tabindex="0" aria-labelledby="h-union"></div>
+          <div role="group" class="chart" id="chart-union" tabindex="0" aria-labelledby="h-union"></div>
         </figure>
         <div class="prose after-figure" id="record-after"></div>
       </section>
@@ -170,7 +170,7 @@
           <figure class="panel" data-esource="paoc">
             <h3 id="h-rank"></h3>
             <p class="note" id="rank-note"></p>
-            <div class="chart" id="chart-rank" tabindex="0" aria-labelledby="h-rank"></div>
+            <div role="group" class="chart" id="chart-rank" tabindex="0" aria-labelledby="h-rank"></div>
           </figure>
         </div>
         <div class="prose after-figure" id="sud-after"></div>
@@ -190,7 +190,7 @@
           <figure class="panel" data-esource="paoa ourairports">
             <h3 id="h-bands"></h3>
             <p class="note" id="bands-note"></p>
-            <div class="chart" id="chart-bands" tabindex="0" aria-labelledby="h-bands"></div>
+            <div role="group" class="chart" id="chart-bands" tabindex="0" aria-labelledby="h-bands"></div>
           </figure>
         </div>
         <div class="prose after-figure" id="pics-after"></div>
@@ -205,7 +205,7 @@
           <figure class="panel" data-esource="paoa ourairports">
             <h3 id="h-offset"></h3>
             <p class="note" id="offset-note"></p>
-            <div class="chart" id="chart-offset" tabindex="0" aria-labelledby="h-offset"></div>
+            <div role="group" class="chart" id="chart-offset" tabindex="0" aria-labelledby="h-offset"></div>
           </figure>
           <figure class="panel" data-esource="paoa ourairports naturalearth">
             <h3 id="h-bary"></h3>
@@ -224,7 +224,7 @@
         <figure class="panel" data-esource="paoc">
           <h3 id="h-nat"></h3>
           <p class="note" id="nat-note"></p>
-          <div class="chart" id="chart-nat" tabindex="0" aria-labelledby="h-nat"></div>
+          <div role="group" class="chart" id="chart-nat" tabindex="0" aria-labelledby="h-nat"></div>
         </figure>
         <div class="prose after-figure" id="interieur-after"></div>
       </section>
@@ -237,7 +237,7 @@
         <figure class="panel" data-esource="paoa">
           <h3 id="h-bump"></h3>
           <p class="note" id="bump-note"></p>
-          <div class="chart" id="chart-bump" tabindex="0" aria-labelledby="h-bump"></div>
+          <div role="group" class="chart" id="chart-bump" tabindex="0" aria-labelledby="h-bump"></div>
         </figure>
         <div class="prose after-figure" id="aeroports-after"></div>
       </section>
@@ -248,15 +248,49 @@
         <div class="share" id="share"></div>
       </section>
 
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="eu">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">La méthode en 6 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en bas de page.</p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir des chiffres européens</h3>
+            <p>Chaque pays transmet à Eurostat ses passagers, mois par mois, pays par pays et aéroport par aéroport. Nous partons de ces tableaux publics.</p>
+          </li>
+          <li>
+            <h3>Ne jamais compter deux fois</h3>
+            <p>Un aéroport compte ses départs et ses arrivées. Additionner des aéroports compterait deux fois un passager : pour un pays, nous prenons donc toujours le chiffre du pays.</p>
+          </li>
+          <li>
+            <h3>Comparer à avant le Covid</h3>
+            <p>Chaque évolution se mesure par rapport à 2019, sur un même périmètre : les pays de l'Union, la Norvège, la Suisse et l'Islande.</p>
+          </li>
+          <li>
+            <h3>Situer l'Europe aérienne</h3>
+            <p>Pour voir où va le trafic, nous plaçons chaque aéroport sur la carte avec le poids de ses passagers, et suivons le point d'équilibre de l'ensemble d'une année à l'autre.</p>
+          </li>
+          <li>
+            <h3>Ne pas inventer de causes</h3>
+            <p>Eurostat compte des passagers, pas leurs raisons : nous ne disons pas pourquoi un pays monte ou descend.</p>
+          </li>
+          <li>
+            <h3>Vérifier chaque chiffre</h3>
+            <p>Avant chaque mise en ligne, un programme indépendant recalcule chaque nombre du texte et du tableau de bord à partir des mêmes données. Le code est public.</p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
       <!--site:next-->
     </main>
 
-    <footer class="footer" id="sources">
+    <section class="footer" id="sources" aria-labelledby="h-sources">
       <div class="wrap">
-        <h2>Méthode et sources</h2>
+        <h2 id="h-sources">Méthode et sources</h2>
         <div id="sources-body"></div>
       </div>
-    </footer>
+    </section>
     <!--site:foot-->
     <!--site:menu-->
     <div class="tooltip" id="tooltip" role="status"></div>

@@ -1209,7 +1209,7 @@
 .bld-ground {
   margin-inline: calc(-1 * clamp(14px, 3vw, 30px));
   padding: 9px 16px;
-  background: var(--human);
+  background: var(--issue-accent);
   color: #fff;
   font: 700 0.92rem/1.2 var(--f-ui);
   text-align: center;

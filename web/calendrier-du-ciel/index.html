@@ -77,10 +77,10 @@
             <div class="sea-readout" id="cal-readout" aria-live="polite"></div>
           </div>
           <figure class="panel sea-cal" data-ssource="paoc paoa ourairports">
-            <h3 class="visually-hidden" id="h-cal">Le calendrier des passagers aériens de trente pays</h3>
+            <h2 class="visually-hidden" id="h-cal">Le calendrier des passagers aériens de trente pays</h2>
             <p class="note" id="cal-note"></p>
             <div class="cal-key" id="cal-key" aria-hidden="true"></div>
-            <div class="chart cal-chart" id="cal-chart" tabindex="0" aria-labelledby="h-cal"></div>
+            <div role="group" class="chart cal-chart" id="cal-chart" tabindex="0" aria-labelledby="h-cal"></div>
           </figure>
         </div>
       </section>
@@ -102,7 +102,7 @@
         <figure class="panel" data-ssource="paoc">
           <h3 id="h-pf"></h3>
           <p class="note" id="pf-note"></p>
-          <div class="chart" id="chart-pf" tabindex="0" aria-labelledby="h-pf"></div>
+          <div role="group" class="chart" id="chart-pf" tabindex="0" aria-labelledby="h-pf"></div>
         </figure>
         <div class="prose after-figure" id="profils-after"></div>
       </section>
@@ -128,7 +128,7 @@
         <figure class="panel" data-ssource="paoc">
           <h3 id="h-kd"></h3>
           <p class="note" id="kd-note"></p>
-          <div class="chart" id="chart-kd" tabindex="0" aria-labelledby="h-kd"></div>
+          <div role="group" class="chart" id="chart-kd" tabindex="0" aria-labelledby="h-kd"></div>
         </figure>
         <div class="prose after-figure" id="interieurs-after"></div>
       </section>
@@ -141,7 +141,7 @@
         <figure class="panel" data-ssource="paoc">
           <h3 id="h-gaps"></h3>
           <p class="note" id="gaps-note"></p>
-          <div class="chart" id="chart-gaps" tabindex="0" aria-labelledby="h-gaps"></div>
+          <div role="group" class="chart" id="chart-gaps" tabindex="0" aria-labelledby="h-gaps"></div>
         </figure>
         <div class="prose after-figure" id="evolution-after"></div>
       </section>
@@ -152,15 +152,45 @@
         <div class="share" id="share"></div>
       </section>
 
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="sea">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">La méthode en 5 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en bas de page.</p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir des chiffres européens</h3>
+            <p>Chaque pays transmet à Eurostat le nombre de passagers de ses aéroports, mois par mois. Nous partons de ces tableaux publics.</p>
+          </li>
+          <li>
+            <h3>Rendre les mois comparables</h3>
+            <p>Un mois de 31 jours compte plus de passagers qu'un mois de 28 sans être plus chargé. Nous divisons donc chaque mois par son nombre de jours.</p>
+          </li>
+          <li>
+            <h3>Mesurer la saison</h3>
+            <p>Pour chaque pays, nous divisons les passagers par jour du mois le plus chargé par ceux du mois le plus creux : c'est l'écart saisonnier.</p>
+          </li>
+          <li>
+            <h3>Écarter les années du Covid</h3>
+            <p>De 2020 à 2022, les fermetures ont bouleversé le calendrier des voyages : ces années ne servent pas aux comparaisons.</p>
+          </li>
+          <li>
+            <h3>Vérifier chaque chiffre</h3>
+            <p>Avant chaque mise en ligne, un programme indépendant recalcule chaque nombre du texte et parcourt le calendrier. Le code est public.</p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
       <!--site:next-->
     </main>
 
-    <footer class="footer" id="sources">
+    <section class="footer" id="sources" aria-labelledby="h-sources">
       <div class="wrap">
-        <h2>Méthode et sources</h2>
+        <h2 id="h-sources">Méthode et sources</h2>
         <div id="sources-body"></div>
       </div>
-    </footer>
+    </section>
     <!--site:foot-->
     <!--site:menu-->
     <div class="tooltip" id="tooltip" role="status"></div>

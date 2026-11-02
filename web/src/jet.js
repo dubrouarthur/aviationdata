@@ -13,6 +13,7 @@ import {
   shareBlock,
   trackChapters,
 } from "./site/story.js";
+import { storyGuide } from "./site/glossary.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import * as d3 from "d3";
@@ -243,6 +244,7 @@ async function main() {
   safely("sources", () => initJetSources(data));
   numberChapters(".jet-chapter");
   partContents();
+  storyGuide();
   addJetSourceLines();
   shareBlock();
   scrollHints(".topnav, .seg");

@@ -6,6 +6,7 @@ import "./hf.css";
 import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
 import { numberChapters, partContents, readingProgress, shareBlock, trackChapters } from "./site/story.js";
+import { storyGuide } from "./site/glossary.js";
 import { $, el, rich, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import { fmtNum } from "./lib/format.js";
@@ -250,6 +251,7 @@ async function main() {
   safely("sources", () => initSources(data));
   numberChapters(".story-chapter");
   partContents();
+  storyGuide();
   addSourceLines();
   shareBlock();
   scrollHints(".topnav, .seg");

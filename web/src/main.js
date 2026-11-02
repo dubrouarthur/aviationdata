@@ -10,6 +10,7 @@ import { addSourceLines } from "./lib/datasets.js";
 import { asset } from "./lib/site.js";
 import { atlasFrame } from "./site/atlas.js";
 import { partContents, trackChapters } from "./site/story.js";
+import { storyGuide } from "./site/glossary.js";
 
 const CHAPTERS = [
   ["globe", () => import("./modules/globe.js").then((m) => m.initGlobe)],
@@ -66,6 +67,7 @@ async function main() {
     }
   }
   collapseLongIntros(); // the intros are written by the chapters
+  storyGuide();
   scrollHints(".topnav, .seg, .moments");
 }
 
