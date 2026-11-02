@@ -331,7 +331,10 @@ export function writeHfacs(F, people) {
   });
   $("#levels-note").textContent =
     `Part des accidents citant une personne ou une organisation qui atteignent chaque étage et chaque famille de HFACS, États-Unis, ${F.period[0]}-${F.period[1]}.`;
-  lecture("#chart-levels", "un accident peut atteindre plusieurs étages et plusieurs familles.");
+  lecture(
+    "#chart-levels",
+    "chaque fenêtre allumée représente 1 % de ces accidents ; un accident peut atteindre plusieurs étages et plusieurs familles.",
+  );
 }
 
 /* ------------------------------------------------------------------ part 3: the models */
@@ -393,7 +396,7 @@ export function writeFromage(F) {
     `Accidents par combinaison des quatre couches citées dans leur cause probable, États-Unis, ${F.period[0]}-${F.period[1]}.`;
   lecture(
     "#chart-cheese",
-    "chaque ligne est une combinaison ; les pastilles pleines désignent les couches citées.",
+    "en haut, les accidents selon le nombre de couches citées, trous retenus en orange ; en bas, chaque ligne est une combinaison, les pastilles pleines désignent les couches citées.",
   );
 }
 

@@ -19,6 +19,8 @@ import {
   eventsChart,
   segmentsChart,
   historyChart,
+  building,
+  cheeseSlices,
 } from "./hf/charts.js";
 import { mosaic } from "./hf/mosaic.js";
 import { loupe } from "./hf/loupe.js";
@@ -71,30 +73,50 @@ const errorBars = (people, g, n) =>
     text: fmtNum(r.n),
   }));
 
-/** HFACS: each level, then its families, as shares of the accidents citing a person or an organization. */
-function levelRows(F, people) {
+/** HFACS: each level, with its families, as shares of the accidents citing a person or an organization. */
+function levelFloors(F, people) {
   const share = (n) => (100 * n) / F.hfacsBase;
-  const rows = [];
-  for (const lv of [1, 2, 3, 4]) {
-    rows.push({
-      label: `${lv}. ${people.levels[lv]}`,
-      value: share(F.levels[lv]),
-      color: lv === 1 ? "var(--human)" : lv === 2 ? "var(--pre)" : "var(--org)",
-      head: true,
-      text: T.pct(share(F.levels[lv]), F.levels[lv] / F.hfacsBase < 0.02 ? 1 : 0),
-    });
-    if (lv > 2) continue;
-    for (const [k, label, level] of people.hfacs)
-      if (level === lv && F.families[k])
-        rows.push({
-          label,
-          value: share(F.families[k]),
-          color: lv === 1 ? "var(--human)" : "var(--pre)",
-          sub: true,
-          text: T.pct(share(F.families[k]), F.families[k] / F.hfacsBase < 0.02 ? 1 : 0),
-        });
+  const text = (n) => T.pct(share(n), n / F.hfacsBase < 0.02 ? 1 : 0);
+  return [1, 2, 3, 4].map((lv) => ({
+    no: lv,
+    name: people.levels[lv],
+    share: share(F.levels[lv]),
+    text: text(F.levels[lv]),
+    tone: lv === 1 ? "act" : lv === 2 ? "pre" : "org",
+    families: lv > 2
+      ? []
+      : people.hfacs
+          .filter(([k, , level]) => level === lv && F.families[k])
+          .map(([k, label]) => ({ label, share: share(F.families[k]), text: text(F.families[k]) })),
+  }));
+}
+
+/** In each part's band, the chapters it holds, as links. */
+function partContents() {
+  for (const part of document.querySelectorAll("main > .part")) {
+    const items = [];
+    for (let n = part.nextElementSibling; n && !n.classList.contains("part"); n = n.nextElementSibling) {
+      const h = n.matches(".story-chapter") && n.querySelector("h2.section-title");
+      const no = h && n.querySelector(".chapter-num b");
+      if (h && no)
+        items.push(
+          el("li", {}, el("a", { href: `#${n.id}` }, [el("span", { text: no.textContent }), h.textContent.trim()])),
+        );
+    }
+    if (items.length) part.append(el("ol", { class: "part-toc", "aria-label": "Dans cette partie" }, items));
   }
-  return rows;
+}
+
+/** Accidents by number of Swiss-cheese layers cited: none, one, two, three or four. */
+function sliceGroups(F) {
+  const L = F.cheese.layers;
+  const share = (n) => (100 * n) / F.n;
+  return [
+    { k: 0, label: "aucune couche citée", n: L[0] },
+    { k: 1, label: "une seule couche", n: L[1] },
+    { k: 2, label: "deux couches alignées", n: L[2] },
+    { k: 3, label: "trois ou quatre", n: L[3] + L[4] },
+  ].map((g) => ({ ...g, share: share(g.n), text: T.pct(share(g.n), share(g.n) < 2 ? 1 : 0) }));
 }
 
 function tool(data) {
@@ -199,7 +221,7 @@ async function main() {
   });
   safely("hfacs", () => {
     T.writeHfacs(F, people);
-    bars($("#chart-levels"), levelRows(F, people), { max: 100 });
+    building($("#chart-levels"), levelFloors(F, people));
   });
   safely("tem", () => {
     T.writeTem(F);
@@ -207,6 +229,7 @@ async function main() {
   });
   safely("cheese", () => {
     T.writeFromage(F);
+    cheeseSlices($("#chart-slices"), sliceGroups(F));
     cheeseChart($("#chart-cheese"), F.cheese.rows);
   });
   safely("events", () => {
@@ -242,6 +265,7 @@ async function main() {
   safely("answer", () => T.writeReponse(F));
   safely("sources", () => initSources(data));
   numberChapters(".story-chapter");
+  partContents();
   addSourceLines();
   shareBlock();
   scrollHints(".topnav, .seg");

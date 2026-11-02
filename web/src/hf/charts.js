@@ -369,3 +369,144 @@ export function historyChart(node, history) {
   draw();
   onResize(node, draw);
 }
+
+/* ------------------------------------------------------------------ the HFACS building */
+/** A fixed shuffle of 0..n-1, so the same windows light up on every visit. */
+function shuffled(n, seed) {
+  const a = d3.range(n);
+  let s = seed;
+  for (let i = n - 1; i > 0; i--) {
+    s = (s * 1103515245 + 12345) % 2147483648;
+    const j = s % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/** Light the windows when the figure comes into view, floor after floor (once; at once if motion is reduced). */
+function lightOnView(node, cls) {
+  const done = () => node.classList.add(cls);
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return done();
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        done();
+        io.disconnect();
+      }
+    },
+    { threshold: 0.35 },
+  );
+  io.observe(node);
+}
+
+/** HFACS as a building at night: four floors of 100 windows, one lit per 1 % of the accidents reaching it.
+ * floors: [{ no, name, share, text, tone, families: [{label, share, text}] }], ground floor first. */
+export function building(node, floors) {
+  const floorEl = (f, k) => {
+    const lit = f.share > 0 ? Math.max(1, Math.round(f.share)) : 0;
+    const order = shuffled(100, 7 + 31 * f.no);
+    const on = new Set(order.slice(0, lit));
+    return el("div", { class: `bld-floor bld-${f.tone}` }, [
+      el("div", { class: "bld-label" }, [
+        el("span", { class: "bld-no", text: `Étage ${f.no}` }),
+        el("span", { class: "bld-name" }, [el("b", { text: f.name }), el("span", { class: "bld-val", text: f.text })]),
+        f.families.length
+          ? el(
+              "ul",
+              { class: "bld-fam" },
+              f.families.map((m) =>
+                el("li", {}, [
+                  el("span", { text: m.label }),
+                  el("i", { style: `--w:${m.share}%` }),
+                  el("b", { text: m.text }),
+                ]),
+              ),
+            )
+          : "",
+      ]),
+      el(
+        "div",
+        {
+          class: "bld-win",
+          role: "img",
+          "aria-label": `${f.name} : ${f.text} des accidents, ${lit} fenêtre${lit > 1 ? "s" : ""} allumée${lit > 1 ? "s" : ""} sur 100.`,
+        },
+        d3.range(100).map((i) =>
+          el("i", on.has(i) ? { class: "on", style: `--d:${k * 0.35 + (order.indexOf(i) / 100) * 0.9}s` } : {}),
+        ),
+      ),
+    ]);
+  };
+  const top = [...floors].reverse();
+  const box = el("div", { class: "bld" }, [
+    el("div", { class: "bld-roof", "aria-hidden": "true" }),
+    ...top.map((f, i) => floorEl(f, floors.length - 1 - i)),
+    el("div", { class: "bld-ground" }, [el("span", { text: "L'accident" })]),
+  ]);
+  node.replaceChildren(box);
+  lightOnView(box, "bld-lit");
+}
+
+/* ------------------------------------------------------------------ Swiss cheese slices */
+/** Four slices of cheese per group; in each group, as many slices as layers cited have their hole
+ * on the line of the accident. groups: [{ k, label, share, text }] */
+export function cheeseSlices(node, groups) {
+  const W = 200;
+  const H = 128;
+  const xs = [38, 80, 122, 164];
+  const mid = 64;
+  // A slice seen at an angle: a parallelogram with rounded feel, lit on its left edge.
+  const slice = (x) =>
+    `M${x - 9},${mid - 46} L${x + 9},${mid - 52} L${x + 9},${mid + 40} L${x - 9},${mid + 46} Z`;
+  const decoys = [
+    [-3, -30, 3.2],
+    [3, 22, 2.6],
+    [-2, 34, 2],
+    [4, -14, 2.2],
+  ];
+  const svg = (k) => {
+    const s = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("class", "cz-svg").attr("aria-hidden", "true");
+    s.append("line")
+      .attr("class", "cz-axis")
+      .attr("x1", 6)
+      .attr("x2", W - 10)
+      .attr("y1", mid)
+      .attr("y2", mid);
+    s.append("path").attr("class", "cz-head").attr("d", `M${W - 12},${mid - 5} L${W - 4},${mid} L${W - 12},${mid + 5} Z`);
+    xs.forEach((x, i) => {
+      const g = s.append("g").attr("class", `cz-slice${i < k ? " cz-hit" : ""}`);
+      g.append("path").attr("d", slice(x));
+      decoys
+        .filter((_, j) => (i + j) % 2 === 0 || j === 0)
+        .forEach(([dx, dy, r], j) =>
+          g
+            .append("ellipse")
+            .attr("class", "cz-hole")
+            .attr("cx", x + dx * (j % 2 ? -1 : 1))
+            .attr("cy", mid + dy - (i % 2) * 6)
+            .attr("rx", r * 0.8)
+            .attr("ry", r * 1.4),
+        );
+      if (i < k)
+        g.append("ellipse").attr("class", "cz-pierced").attr("cx", x).attr("cy", mid).attr("rx", 4.6).attr("ry", 8);
+    });
+    // The line of the accident shows through the holes the verdict retains.
+    xs.slice(0, k).forEach((x) =>
+      s.append("line").attr("class", "cz-thru").attr("x1", x - 4).attr("x2", x + 4).attr("y1", mid).attr("y2", mid),
+    );
+    return s.node();
+  };
+  node.replaceChildren(
+    el(
+      "div",
+      { class: "cz" },
+      groups.map((g) =>
+        el("div", { class: `cz-group${g.k === 1 ? " cz-main" : ""}` }, [
+          svg(g.k),
+          el("b", { class: "cz-val", text: g.text }),
+          el("span", { class: "cz-label", text: g.label }),
+        ]),
+      ),
+    ),
+  );
+}

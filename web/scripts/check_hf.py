@@ -209,6 +209,15 @@ with sync_playwright() as p:
         f"Trois couches ou plus : {pct(100 * three / N, 1)}",
     )
     check("half the accidents cite a person alone", 45 <= combo(PERSON) < 58, pct(combo(PERSON)))
+    k_of = lambda k: n_of(allc, lambda m: bin(m & four).count("1") == k)  # noqa: E731
+    want = [100 * k_of(0) / N, 100 * k_of(1) / N, 100 * k_of(2) / N, 100 * three / N]
+    got = [norm(t) for t in pg.eval_on_selector_all("#chart-slices .cz-val", "es => es.map(e => e.textContent)")]
+    check("cheese slices", got == [pct(v, 1 if v < 2 else 0) for v in want], str(got))
+    got = [norm(t) for t in pg.eval_on_selector_all("#chart-levels .bld-val", "es => es.map(e => e.textContent)")]
+    want = [pct(100 * L[k] / hb, 1 if L[k] / hb < 0.02 else 0) for k in "4321"]
+    check("HFACS building floors", got == want, f"{got} vs {want}")
+    lit = pg.eval_on_selector_all("#chart-levels .bld-win", "ws => ws.map(w => w.querySelectorAll('i.on').length)")
+    check("HFACS building: one window per 1 %", lit == [max(1, round(100 * L[k] / hb)) for k in "4321"], str(lit))
 
     ev = {k: (n, pp, f) for k, n, pp, f in E["by"]["all|all"]}
     es = lambda k: pct(100 * ev[k][1] / ev[k][0])  # noqa: E731
