@@ -58,44 +58,101 @@
 }
 
 /* ------------------------------------------------------------------ parts of the story */
-/* A story in six parts: a heavy rule, the part's name in display type, one line of what it answers. */
+/* Each part opens on a night band, full width (border-image paints past the .wrap), with its name in
+   display type, one line of what it answers, and the chapters it holds (partContents, story.js).
+   An issue can set --band, --band-accent. */
 .part {
-  padding-block: 88px 0;
+  --band-bg: var(--band, #0d2236);
+  --band-ink: #e9f0f6;
+  --band-muted: #a9bccd;
+  --band-hi: var(--band-accent, color-mix(in srgb, var(--issue-accent, #2a78d6) 38%, white));
+  margin-top: 96px;
+  padding-block: clamp(48px, 9vh, 88px);
+  color: var(--band-ink);
+  border-image: linear-gradient(var(--band-bg) 0 0) fill 0 / / 0 100vmax;
 }
 
 .part-label {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 16px;
+  display: block;
+  max-width: 18em;
   margin: 0;
-  padding-top: 14px;
-  border-top: 3px solid var(--ink);
   font-family: var(--f-display);
   font-stretch: 66%;
   font-weight: 800;
-  font-size: clamp(1.6rem, 3vw, 2.3rem);
-  line-height: 1;
+  font-size: clamp(2.1rem, 5.4vw, 3.9rem);
+  line-height: 0.98;
+  color: #fff;
 }
 
 .part-no {
-  font: 700 0.92rem/1 var(--f-ui);
-  color: var(--issue-accent, var(--west));
+  display: block;
+  margin-bottom: 18px;
+  font: 700 0.95rem/1 var(--f-ui);
+  color: var(--band-hi);
   font-variant-numeric: tabular-nums;
 }
 
 .part-dek {
-  max-width: 40em;
-  margin: 10px 0 0;
+  max-width: 34em;
+  margin: 18px 0 0;
   font-family: var(--f-text);
-  font-size: 1.08rem;
+  font-size: clamp(1.08rem, 1.6vw, 1.25rem);
   line-height: 1.5;
-  color: var(--ink-2);
+  color: var(--band-muted);
 }
 
-.part + .chapter {
+@media (min-width: 900px) {
+  .part:has(.part-toc) {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    column-gap: 56px;
+    align-items: end;
+  }
+
+  .part-toc {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+.part-toc {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  border-top: 1px solid rgba(169, 188, 205, 0.3);
+}
+
+.part-toc a {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  min-height: 36px;
+  padding-block: 8px;
+  border-bottom: 1px solid rgba(169, 188, 205, 0.3);
+  color: var(--band-ink);
+  font: 600 0.98rem/1.3 var(--f-ui);
+  text-decoration: none;
+}
+
+.part-toc a span {
+  color: var(--band-hi);
+  font-variant-numeric: tabular-nums;
+}
+
+.part-toc a:hover {
+  color: #fff;
+  border-bottom-color: var(--band-hi);
+}
+
+.part-toc a:focus-visible {
+  outline: 2px solid var(--band-hi);
+  outline-offset: 2px;
+}
+
+.part + .chapter,
+.part + section {
   border-top: 0;
-  padding-top: 36px;
+  padding-top: 64px;
 }
 
 /* ------------------------------------------------------------------ the essentials, under the standfirst */
@@ -208,6 +265,7 @@
   }
 
   .part {
-    padding-top: 48px;
+    margin-top: 64px;
+    padding-block: 44px;
   }
 }

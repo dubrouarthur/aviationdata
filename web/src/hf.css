@@ -1075,96 +1075,10 @@
   }
 }
 
-/* ------------------------------------------------------------------ parts: night bands like the opening */
-/* Each part opens on the night of the opening, full width (border-image paints past the .wrap). */
-.hf .part {
-  margin-top: 96px;
-  padding-block: clamp(48px, 9vh, 88px);
-  color: var(--night-ink);
-  border-image: linear-gradient(var(--night) 0 0) fill 0 / / 0 100vmax;
-}
-
-.hf .part-label {
-  display: block;
-  max-width: 18em;
-  padding-top: 0;
-  border-top: 0;
-  color: #fff;
-  font-size: clamp(2.1rem, 5.4vw, 3.9rem);
-  line-height: 0.98;
-}
-
-.hf .part-no {
-  display: block;
-  margin-bottom: 18px;
-  color: var(--flare);
-  font-size: 0.95rem;
-}
-
-.hf .part-dek {
-  max-width: 34em;
-  margin-top: 18px;
-  color: var(--night-muted);
-  font-size: clamp(1.08rem, 1.6vw, 1.25rem);
-}
-
-.hf .part + .chapter {
-  padding-top: 64px;
-}
-
-@media (min-width: 900px) {
-  .hf .part {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-    column-gap: 56px;
-    align-items: end;
-  }
-
-  .hf .part-toc {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-  }
-}
-
-.part-toc {
-  list-style: none;
-  margin: 28px 0 0;
-  padding: 0;
-  border-top: 1px solid rgba(169, 188, 205, 0.3);
-}
-
-.part-toc a {
-  display: flex;
-  gap: 14px;
-  align-items: baseline;
-  min-height: 36px;
-  padding-block: 8px;
-  border-bottom: 1px solid rgba(169, 188, 205, 0.3);
-  color: var(--night-ink);
-  font: 600 0.98rem/1.3 var(--f-ui);
-  text-decoration: none;
-}
-
-.part-toc a span {
-  color: var(--flare);
-  font-variant-numeric: tabular-nums;
-}
-
-.part-toc a:hover {
-  color: #fff;
-  border-bottom-color: var(--flare);
-}
-
-.part-toc a:focus-visible {
-  outline: 2px solid var(--flare);
-  outline-offset: 2px;
-}
-
-@media (max-width: 640px) {
-  .hf .part {
-    margin-top: 64px;
-    padding-block: 44px;
-  }
+/* Part bands (story.css) in the night of the opening, numbers in its flare. */
+.hf {
+  --band: var(--night);
+  --band-accent: var(--flare);
 }
 
 /* ------------------------------------------------------------------ figure 6: the HFACS building */

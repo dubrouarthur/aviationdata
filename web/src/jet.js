@@ -8,6 +8,7 @@ import { initSiteMenu } from "./site/menu.js";
 import {
   numberChapters,
   openFoldedTargets,
+  partContents,
   readingProgress,
   shareBlock,
   trackChapters,
@@ -49,6 +50,7 @@ import {
   valueChart,
   forecastChart,
   pairedBars,
+  concentration,
   simChart,
   volChart,
 } from "./jet/charts.js";
@@ -210,6 +212,14 @@ async function main() {
       fmt,
       unit: "€",
     });
+    const days = Math.round(C.gains("west").length / 10);
+    concentration($("#chart-conc"), {
+      share: C.topShare("west"),
+      days,
+      total: C.gains("west").length,
+      name: "Le gain vers New York",
+      label: "du gain vers New York",
+    });
     pairedBars($("#chart-deciles"), {
       series: series(Q.dw, Q.de),
       ticks: d3.range(1, 11).map((k) => (k === 1 ? "1er" : `${k}e`)),
@@ -232,6 +242,7 @@ async function main() {
   safely("in short", () => writeBref(data, F, C, P));
   safely("sources", () => initJetSources(data));
   numberChapters(".jet-chapter");
+  partContents();
   addJetSourceLines();
   shareBlock();
   scrollHints(".topnav, .seg");

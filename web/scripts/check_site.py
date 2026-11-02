@@ -664,6 +664,13 @@ with sync_playwright() as pw:
             f"le gain reste sous {mins(med, 1)}",
         )
         has(
+            "concentration of the gain",
+            text("#chart-conc"),
+            f"Les {fr(round(n / 10))} meilleurs jours font {pct(share_top)} du gain vers New York",
+            f"{pct(100 * round(n / 10) / n)}",
+            f"{fr(n - round(n / 10))} autres jours",
+        )
+        has(
             "the essentials",
             text("#essentiel"),
             f"Une minute de croisière d'un long-courrier moyen : {kgf(KG)}, {euros(EUR)}",

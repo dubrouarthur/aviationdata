@@ -562,3 +562,37 @@ export function airportTable(node, rows, { years, last }) {
   ]);
   node.replaceChildren(el("div", { class: "table-scroll" }, [table]));
 }
+
+/* ------------------------------------------------------------------ recovery by type of flight */
+/** 2019 as an outline, the last year filled over it: what was gained beyond 2019 is hatched,
+ * what is still missing stays an empty dashed box. rows: [{label, color, before, now}] */
+export function recoveryChart(node, rows, { y0, y1 }) {
+  const max = d3.max(rows, (r) => Math.max(r.before, r.now));
+  const w = (v) => `${(100 * v) / max}%`;
+  node.replaceChildren(
+    el("p", { class: "rc-key" }, [
+      el("span", { class: "rc-key-before" }, [el("i"), String(y0)]),
+      el("span", { class: "rc-key-now" }, [el("i"), String(y1)]),
+      el("span", { class: "rc-key-gain" }, [el("i"), `gagné depuis ${y0}`]),
+    ]),
+    ...rows.map((r) => {
+      const ch = 100 * (r.now / r.before - 1);
+      const gain = r.now >= r.before;
+      return el("div", { class: `rc-row ${gain ? "rc-up" : "rc-down"}`, style: `--c:${r.color}` }, [
+        el("div", { class: "rc-head" }, [
+          el("b", { class: "rc-label", text: r.label }),
+          el("span", { class: "rc-ch", text: pct(ch) }),
+        ]),
+        el("div", { class: "rc-track" }, [
+          el("i", { class: "rc-before", style: `width:${w(r.before)}` }),
+          el("i", { class: "rc-now", style: `width:${w(Math.min(r.now, r.before))}` }),
+          gain ? el("i", { class: "rc-gain", style: `left:${w(r.before)};width:${w(r.now - r.before)}` }) : "",
+        ]),
+        el("p", { class: "rc-vals" }, [
+          `${y0} : ${mio(r.before)}, ${y1} : ${mio(r.now)}, `,
+          el("b", { text: `${gain ? "+" : "−"}${mio(Math.abs(r.now - r.before))}` }),
+        ]),
+      ]);
+    }),
+  );
+}

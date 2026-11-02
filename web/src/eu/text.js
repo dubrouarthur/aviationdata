@@ -220,8 +220,11 @@ export function writeRecord(F) {
   const ch = (k) => 100 * (pL[k] / p19[k] - 1);
   $("#h-union").textContent = "Les vols entre pays de l'Union portent la reprise";
   $("#union-note").textContent =
-    "Passagers transportés par an dans l'Union européenne (27 pays), selon le type de vol. Un passager entre deux pays de l'Union compte une fois.";
-  lecture("#chart-union", "chaque barre est une année ; survolez-la pour lire ses trois parts.");
+    `Passagers transportés dans l'Union européenne (27 pays) en 2019 et en ${F.last}, selon le type de vol. Un passager entre deux pays de l'Union compte une fois.`;
+  lecture(
+    "#chart-union",
+    `le cadre en pointillés marque 2019, la barre pleine ${F.last} ; la partie hachurée dépasse 2019, le vide sous le cadre manque encore.`,
+  );
   after(
     "#record-after",
     [

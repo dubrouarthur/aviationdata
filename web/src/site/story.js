@@ -20,6 +20,24 @@ export function numberChapters(chapterClass) {
   });
 }
 
+/** In each part's band, the chapters it holds, as links (after the chapters are numbered and titled). */
+export function partContents() {
+  for (const part of document.querySelectorAll("main > .part")) {
+    if (part.querySelector(".part-toc")) continue;
+    const items = [];
+    for (let n = part.nextElementSibling; n && !n.classList.contains("part"); n = n.nextElementSibling) {
+      const h = n.matches("section") && n.querySelector("h2.section-title");
+      const title = h && (h.innerText || h.textContent).replace(/\s+/g, " ").trim();
+      const no = h && n.querySelector(".chapter-num b");
+      if (title && no && n.id)
+        items.push(
+          el("li", {}, el("a", { href: `#${n.id}` }, [el("span", { text: no.textContent }), title])),
+        );
+    }
+    if (items.length) part.append(el("ol", { class: "part-toc", "aria-label": "Dans cette partie" }, items));
+  }
+}
+
 /** The author and the share buttons, at the end of the story. */
 export function shareBlock() {
   const url = shareUrl();

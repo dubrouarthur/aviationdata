@@ -1999,3 +1999,95 @@
     font-size: 1.7rem;
   }
 }
+
+/* ------------------------------------------------------------------ concentration of the gain */
+/* The best tenth of days and its share of the gain, joined by a funnel. */
+.conc {
+  display: grid;
+  gap: 0;
+  margin: 8px 0 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.conc-row {
+  display: grid;
+  grid-template-columns: 11em minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.conc-name {
+  font: 600 0.92rem/1.25 var(--f-ui);
+  color: var(--ink);
+}
+
+.conc-bar {
+  display: flex;
+  height: 44px;
+  gap: 2px;
+}
+
+.conc-bar i {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  padding-inline: 10px;
+  font: normal 700 0.95rem/1 var(--f-ui);
+  white-space: nowrap;
+}
+
+.conc-rest {
+  background: var(--paper-2);
+  color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+
+.conc-top {
+  justify-content: flex-end;
+  background: var(--west);
+  color: #fff;
+}
+
+.conc-row:last-child .conc-top {
+  font-family: var(--f-display);
+  font-stretch: 75%;
+  font-weight: 800;
+  font-size: 1.6rem;
+}
+
+.conc-funnel {
+  display: block;
+  width: 100%;
+  height: 46px;
+}
+
+.conc-funnel polygon {
+  fill: color-mix(in srgb, var(--west) 22%, transparent);
+}
+
+@media (max-width: 640px) {
+  .conc-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .conc-mid > span {
+    display: none;
+  }
+
+  .conc-row:first-child .conc-top span {
+    font-size: 0.82rem;
+  }
+}
+
+.conc-cap {
+  margin: 14px 0 0;
+  font: 0.95rem/1.4 var(--f-ui);
+  color: var(--ink-2);
+}
+
+.conc-cap b {
+  color: var(--west);
+}

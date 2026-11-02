@@ -287,6 +287,9 @@ with sync_playwright() as p:
         f"de janvier à {MONTHS[int(last_m[5:]) - 1]}, {sign(100 * (part_now / part_before - 1), 1)} par rapport aux mêmes mois",
     )
     check("intra-EU flights grow most", parts_ch["ieu"] > max(parts_ch["xeu"], parts_ch["nat"]))
+    got = [norm(t) for t in pg.eval_on_selector_all("#chart-union .rc-ch", "es => es.map(e => e.textContent)")]
+    want = [norm(sign(parts_ch[k])) for k in ("ieu", "xeu", "nat")]
+    check("recovery chart: change since 2019 by type of flight", got == want, f"{got} vs {want}")
     has(
         "the south",
         text("#sud"),

@@ -5,7 +5,7 @@ import "./site/story.css";
 import "./hf.css";
 import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
-import { numberChapters, readingProgress, shareBlock, trackChapters } from "./site/story.js";
+import { numberChapters, partContents, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { $, el, rich, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import { fmtNum } from "./lib/format.js";
@@ -89,22 +89,6 @@ function levelFloors(F, people) {
           .filter(([k, , level]) => level === lv && F.families[k])
           .map(([k, label]) => ({ label, share: share(F.families[k]), text: text(F.families[k]) })),
   }));
-}
-
-/** In each part's band, the chapters it holds, as links. */
-function partContents() {
-  for (const part of document.querySelectorAll("main > .part")) {
-    const items = [];
-    for (let n = part.nextElementSibling; n && !n.classList.contains("part"); n = n.nextElementSibling) {
-      const h = n.matches(".story-chapter") && n.querySelector("h2.section-title");
-      const no = h && n.querySelector(".chapter-num b");
-      if (h && no)
-        items.push(
-          el("li", {}, el("a", { href: `#${n.id}` }, [el("span", { text: no.textContent }), h.textContent.trim()])),
-        );
-    }
-    if (items.length) part.append(el("ol", { class: "part-toc", "aria-label": "Dans cette partie" }, items));
-  }
 }
 
 /** Accidents by number of Swiss-cheese layers cited: none, one, two, three or four. */

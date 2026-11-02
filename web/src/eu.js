@@ -5,13 +5,13 @@ import "./site/story.css";
 import "./eu.css";
 import "./site/atlas.css";
 import { initSiteMenu } from "./site/menu.js";
-import { numberChapters, readingProgress, shareBlock, trackChapters } from "./site/story.js";
+import { numberChapters, partContents, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { atlasFrame } from "./site/atlas.js";
 import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { asset } from "./lib/site.js";
 import { storyFacts, zoneFacts, shiftFacts } from "./eu/facts.js";
 import * as T from "./eu/text.js";
-import { monthChart, heatmap, partsChart, rankBars, dumbbell, bumpChart, airportTable } from "./eu/charts.js";
+import { monthChart, heatmap, partsChart, recoveryChart, rankBars, dumbbell, bumpChart, airportTable } from "./eu/charts.js";
 import { openMap, yearControls, choropleth, baryMap, spikeMap } from "./eu/map.js";
 import { bandsChart, offsetBars } from "./eu/shift.js";
 import { addSourceLines, initSources } from "./eu/sources.js";
@@ -106,11 +106,17 @@ async function main() {
   const open = safely("dashboard", () => dashboard(data));
   safely("record", () => {
     T.writeRecord(F);
-    partsChart($("#chart-union"), {
-      years: data.years,
-      parts: { nat: F.eu.nat, ieu: F.eu.ieu, xeu: F.eu.xeu },
-      from: data.meta.cross,
-    });
+    const before = F.union.parts(2019);
+    const now = F.union.parts(F.last);
+    recoveryChart(
+      $("#chart-union"),
+      [
+        ["ieu", "Entre pays de l'Union", "var(--eu-ieu)"],
+        ["xeu", "Vers le reste du monde", "var(--eu-xeu)"],
+        ["nat", "Vols intérieurs", "var(--eu-nat-ink)"],
+      ].map(([k, label, color]) => ({ label, color, before: before[k], now: now[k] })),
+      { y0: 2019, y1: F.last },
+    );
   });
   safely("south", () => {
     T.writeSud(F);
@@ -168,6 +174,7 @@ async function main() {
   safely("answer", () => T.writeReponse(F, H));
   safely("sources", () => initSources(data));
   numberChapters(".story-chapter");
+  partContents();
   addSourceLines();
   shareBlock();
   scrollHints(".topnav, .seg");

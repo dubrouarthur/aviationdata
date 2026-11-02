@@ -9,7 +9,7 @@ import { el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { addSourceLines } from "./lib/datasets.js";
 import { asset } from "./lib/site.js";
 import { atlasFrame } from "./site/atlas.js";
-import { trackChapters } from "./site/story.js";
+import { partContents, trackChapters } from "./site/story.js";
 
 const CHAPTERS = [
   ["globe", () => import("./modules/globe.js").then((m) => m.initGlobe)],
@@ -73,6 +73,7 @@ watchFrenchSpacing(document.body); // "Source : DGAC" never breaks before its co
 initSiteMenu();
 trackChapters();
 numberChapters();
+partContents();
 readingProgress();
 atlasFrame();
 

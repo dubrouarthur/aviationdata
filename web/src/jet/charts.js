@@ -1326,3 +1326,40 @@ export function pairedBars(node, { series, ticks, short, fmt, unit }) {
     rows: ticks.map((t, i) => [t, ...series.map((s) => fmt(s.values[i]))]),
   });
 }
+
+/* ------------------------------------------------------------------ concentration of the gain */
+/** Two bars of 100 %: the days, and the gain of the year; the best tenth of days, and its share of the gain,
+ * joined by a funnel. { share (0-100), days, total, label } */
+export function concentration(node, { share, days, total, name, label }) {
+  const top = 100 * (days / total);
+  const fmt = (v) => `${fmtNum(v, 0)}\u202f%`;
+  const bar = (name, part, text, rest) =>
+    el("div", { class: "conc-row" }, [
+      el("span", { class: "conc-name", text: name }),
+      el("span", { class: "conc-bar" }, [
+        el("i", { class: "conc-rest", style: `flex:${100 - part}` }, el("span", { text: rest })),
+        el("i", { class: "conc-top", style: `flex:${part}` }, el("span", { text })),
+      ]),
+    ]);
+  const funnel = d3
+    .create("svg")
+    .attr("class", "conc-funnel")
+    .attr("viewBox", "0 0 100 100")
+    .attr("preserveAspectRatio", "none")
+    .attr("aria-hidden", "true");
+  funnel.append("polygon").attr("points", `${100 - top},0 100,0 100,100 ${100 - share},100`);
+  node.setAttribute(
+    "aria-label",
+    `Les ${fmtNum(days)} jours où la meilleure route gagne le plus, ${fmt(top)} des jours, font ${fmt(share)} ${label}.`,
+  );
+  node.replaceChildren(
+    bar("Les jours", top, fmt(top), `${fmtNum(total - days)} autres jours`),
+    el("div", { class: "conc-row conc-mid" }, [el("span"), funnel.node()]),
+    bar(name, share, fmt(share), fmt(100 - share)),
+    el("p", { class: "conc-cap" }, [
+      `Les ${fmtNum(days)} meilleurs jours font `,
+      el("b", { text: fmt(share) }),
+      ` ${label}.`,
+    ]),
+  );
+}
