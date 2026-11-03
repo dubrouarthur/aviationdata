@@ -4,6 +4,7 @@ import "./style.css";
 import "./about.css";
 import "./donnees.css";
 import "./site/atlas.css";
+import "./site/carte.css";
 import { initSiteMenu } from "./site/menu.js";
 import { watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 

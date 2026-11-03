@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Le design system d'aviationdata : la Carte</title>
+    <meta
+      name="description"
+      content="Le design system d'aviationdata, la Carte : ses couleurs, sa typographie, ses signes tirés des cartes aéronautiques et ses composants, avec leurs règles d'usage."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <meta name="theme-color" content="#f3f5f2" />
+    <meta name="site-root" content="../" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="about design court">
+    <a class="skip-link" href="#principes">Aller au contenu</a>
+    <header class="site-head">
+      <div class="wrap">
+        <a class="wordmark" href="../" aria-label="aviationdata, accueil">aviation<b>data</b></a>
+        <nav class="site-nav" aria-label="Site">
+          <a href="../enquetes">Enquêtes</a>
+          <a href="../donnees">Données</a>
+          <a href="../a-propos">À propos</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main class="wrap about-page ds">
+      <header class="about-head">
+        <h1 class="about-title">La Carte, le design system du magazine</h1>
+        <p class="about-dek">
+          Le magazine se lit comme une carte aéronautique : du papier de carte pour lire, le bleu des cartes pour
+          les données, le magenta de l'OACI pour ce dont parle l'article, la nuit et son quadrillage pour les
+          ouvertures. Une seule palette pour tout le site ; chaque signe veut dire une seule chose.
+        </p>
+      </header>
+
+      <section class="ds-sec" id="principes" aria-labelledby="h-principes">
+        <h2 id="h-principes">Les principes</h2>
+        <ol class="ds-rules">
+          <li><b>Une couleur, un sens.</b> Le magenta désigne le constat, le sujet de l'article ou la série dont il parle. Jamais une décoration.</li>
+          <li><b>Un titre est une phrase.</b> Pas de mot isolé dans une autre couleur ; le titre d'une figure dit ce qu'on apprend, son sous-titre la mesure et l'unité.</li>
+          <li><b>Le triangle est une étape.</b> Comme un point de report sur une route aérienne : numéro de chapitre, étape de l'essentiel, plan de vol d'un article, progression de lecture.</li>
+          <li><b>La nuit ouvre.</b> Ouvertures, parties et pied de page sont sur la nuit quadrillée ; on lit sur le papier.</li>
+          <li><b>Le texte respire.</b> Une colonne de lecture d'environ 65 signes, deux chiffres au plus par phrase.</li>
+        </ol>
+      </section>
+
+      <section class="ds-sec" id="couleurs" aria-labelledby="h-couleurs">
+        <h2 id="h-couleurs">Les couleurs</h2>
+        <h3>Le papier et l'encre</h3>
+        <ul class="ds-swatches">
+          <li data-token="--paper"><i></i><b>Papier</b><code>--paper</code><span class="tk-val"></span><small>Fond de lecture</small></li>
+          <li data-token="--paper-2"><i></i><b>Papier 2</b><code>--paper-2</code><span class="tk-val"></span><small>Pistes des barres, encadrés</small></li>
+          <li data-token="--ink"><i></i><b>Encre</b><code>--ink</code><span class="tk-val"></span><small>Texte, références, totaux</small></li>
+          <li data-token="--ink-2"><i></i><b>Encre 2</b><code>--ink-2</code><span class="tk-val"></span><small>Texte secondaire</small></li>
+          <li data-token="--muted"><i></i><b>Gris</b><code>--muted</code><span class="tk-val"></span><small>Légendes, 5,6:1 sur le papier</small></li>
+          <li data-token="--rule"><i></i><b>Filet</b><code>--rule</code><span class="tk-val"></span><small>Séparations</small></li>
+        </ul>
+        <h3>Les encres de la carte</h3>
+        <ul class="ds-swatches">
+          <li data-token="--magenta"><i></i><b>Magenta OACI</b><code>--magenta</code><span class="tk-val"></span><small>Le constat, le sujet</small></li>
+          <li data-token="--blue"><i></i><b>Bleu carte</b><code>--blue</code><span class="tk-val"></span><small>Les données, les autres séries</small></li>
+          <li data-token="--ochre"><i></i><b>Ocre</b><code>--ochre</code><span class="tk-val"></span><small>Une troisième série, le sud</small></li>
+          <li data-token="--teal"><i></i><b>Vert d'eau</b><code>--teal</code><span class="tk-val"></span><small>L'environnement</small></li>
+          <li data-token="--violet"><i></i><b>Violet</b><code>--violet</code><span class="tk-val"></span><small>Les organisations</small></li>
+          <li data-token="--grey"><i></i><b>Gris de série</b><code>--grey</code><span class="tk-val"></span><small>Indéterminé, le reste</small></li>
+        </ul>
+        <h3>La nuit</h3>
+        <ul class="ds-swatches night">
+          <li data-token="--night"><i></i><b>Nuit</b><code>--night</code><span class="tk-val"></span><small>Ouvertures, parties, pied</small></li>
+          <li data-token="--night-ink"><i></i><b>Encre de nuit</b><code>--night-ink</code><span class="tk-val"></span><small>Texte sur la nuit</small></li>
+          <li data-token="--night-muted"><i></i><b>Gris de nuit</b><code>--night-muted</code><span class="tk-val"></span><small>Légendes, 8,3:1</small></li>
+          <li data-token="--magenta-hi"><i></i><b>Magenta de nuit</b><code>--magenta-hi</code><span class="tk-val"></span><small>Le constat sur la nuit</small></li>
+          <li data-token="--blue-hi"><i></i><b>Bleu de nuit</b><code>--blue-hi</code><span class="tk-val"></span><small>Les données sur la nuit</small></li>
+        </ul>
+      </section>
+
+      <section class="ds-sec" id="typo" aria-labelledby="h-typo">
+        <h2 id="h-typo">La typographie</h2>
+        <p class="ds-p">
+          Deux familles bien distinctes. Archivo, un peu étroit, est le lettrage de la carte : titres, chiffres,
+          légendes. Source Serif est la voix du texte. Échelle de 1,25 à partir de 16 px.
+        </p>
+        <div class="ds-type">
+          <p class="display">Titre d'ouverture</p>
+          <p class="ds-meta"><code>--t-display</code> Archivo, chasse 78 %, graisse 720</p>
+          <p class="section-title">Titre de chapitre, une phrase</p>
+          <p class="ds-meta"><code>--t-3xl</code> Archivo, même chasse et graisse</p>
+          <p class="ds-h3">Titre de figure : un constat</p>
+          <p class="ds-meta"><code>--t-xl</code> Archivo, graisse 700</p>
+          <p class="ds-read">
+            Le texte se lit en Source Serif, à 18 px environ, sur une colonne de quarante cadratins. Un chiffre y
+            est en gras, <strong class="num">34 %</strong>, jamais plus de deux par phrase.
+          </p>
+          <p class="ds-meta"><code>--t-read</code> Source Serif 4, interlignage 1,6</p>
+          <p class="note">Sous-titre de figure : la mesure et l'unité, en Archivo 0,9 rem.</p>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="signes" aria-labelledby="h-signes">
+        <h2 id="h-signes">Les signes</h2>
+        <div class="ds-signs">
+          <div>
+            <p class="chapter-num"><b>03</b> / 12</p>
+            <p class="ds-p">Le point de report : un numéro de chapitre, une étape.</p>
+          </div>
+          <div class="ds-grat"><span>Nuit quadrillée</span></div>
+          <div>
+            <p class="issue-kicker ds-kicker"><a href="#signes">En 5 minutes, n° 6</a><span>Prix</span></p>
+            <p class="ds-p">Le surtitre : la forme, le numéro, le thème.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="composants" aria-labelledby="h-composants">
+        <h2 id="h-composants">Les composants</h2>
+
+        <h3>Le plan de vol d'un article court</h3>
+        <ol class="flightplan ds-fp">
+          <li><a href="#composants"><span class="fp-no">1</span>La première question</a></li>
+          <li><a href="#composants"><span class="fp-no">2</span>Une question plus précise</a></li>
+          <li><a href="#composants"><span class="fp-no">3</span>Une comparaison</a></li>
+          <li class="fp-end"><a href="#composants"><span class="fp-no">✓</span>La réponse</a></li>
+        </ol>
+
+        <h3>La réponse courte</h3>
+        <div class="court-answer ds-answer">
+          <p class="ca-yes">Oui,</p>
+          <p>la réponse vient tout de suite, en une ou deux phrases, avec son chiffre clé <strong>en magenta</strong>.</p>
+        </div>
+
+        <h3>Une figure</h3>
+        <figure class="panel">
+          <p class="fig-no">Figure 1</p>
+          <h3>Le constat, en une phrase</h3>
+          <p class="note">La mesure, le lieu, la période, l'unité.</p>
+          <div class="chart" id="demo-bars"></div>
+          <div class="source-line"><p>Source : le producteur, le jeu de données en lien. Calculs aviationdata.</p></div>
+        </figure>
+
+        <h3>L'encadré « À savoir »</h3>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p>Les réserves de méthode : ce que la donnée mesure, ce qu'elle ne dit pas.</p>
+        </div>
+
+        <h3>Les boutons</h3>
+        <p class="ds-buttons">
+          <a class="btn primary" href="#composants">Action principale</a>
+          <a class="btn" href="#composants">Action secondaire</a>
+        </p>
+      </section>
+
+      <section class="ds-sec" id="formats" aria-labelledby="h-formats">
+        <h2 id="h-formats">Les deux formats</h2>
+        <div class="ds-formats">
+          <div>
+            <h3>En 5 minutes</h3>
+            <p class="ds-p">
+              Une question, sa réponse tout de suite, un plan de vol de quatre étapes ; chaque étape est une
+              question simple, une figure, deux paragraphes. Ouverture sur le papier. Code : <code>src/court/</code>.
+            </p>
+          </div>
+          <div>
+            <h3>L'enquête</h3>
+            <p class="ds-p">
+              Une ouverture sur la nuit avec sa figure, l'essentiel en étapes, des parties en bandeaux de nuit,
+              des chapitres numérotés, des outils. Code : <code>src/site/story.js</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/design.js"></script>
+  </body>
+</html>

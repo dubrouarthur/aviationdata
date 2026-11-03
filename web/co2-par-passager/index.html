@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Combien de CO2 pour un vol en avion ? En 5 minutes, avec les données</title>
+    <meta
+      name="description"
+      content="Le CO2 d'un vol par passager : par kilomètre selon le type de vol, pour un aller-retour Paris–New York ou Paris–Toulouse, et pourquoi le total monte quand chaque passager émet moins. D'après la DGAC."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Combien de CO2 pour un vol en avion ?",
+        "description": "Le CO2 des vols de France par passager et par kilomètre, d'après la DGAC.",
+        "inLanguage": "fr",
+        "datePublished": "2026-11-03",
+        "dateModified": "2026-11-03",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": [
+          "https://www.data.gouv.fr/datasets/emissions-nettes-annuelles-de-co2-du-trafic-aerien-commercial-en-france"
+        ]
+      }
+    </script>
+    <meta name="theme-color" content="#f3f5f2" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Combien de CO2 pour un vol en avion ?" />
+    <meta
+      property="og:description"
+      content="Un aller-retour Paris–New York, un Paris–Toulouse : le CO2 de chaque passager, et pourquoi le total monte. En 5 minutes."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-co2.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%co2-par-passager" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="court carbone">
+    <a class="skip-link" href="#question">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#question">Le CO2 d'un vol</a>
+        <nav class="topnav" aria-label="Étapes">
+          <a href="#au-kilometre">Au kilomètre</a>
+          <a href="#voyage">Votre voyage</a>
+          <a href="#efficacite">Les progrès</a>
+          <a href="#total">Le total</a>
+          <a href="#en-bref">La réponse</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main>
+      <section class="court-open" id="question" aria-labelledby="title">
+        <div class="wrap court-open-grid">
+          <div class="court-q">
+            <!--site:kicker-->
+            <h1 class="display" id="title">Combien de CO2 pour un vol en avion&nbsp;?</h1>
+            <!--site:byline-->
+          </div>
+          <div class="court-answer" id="court-answer" aria-live="polite"></div>
+          <nav class="flightplan-box" aria-labelledby="h-fp">
+            <h2 class="fp-title" id="h-fp">La réponse en quatre étapes</h2>
+            <ol class="flightplan" id="flightplan"></ol>
+          </nav>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="au-kilometre" aria-labelledby="h-km">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-km">Quel vol émet le plus, au kilomètre&nbsp;?</h2>
+          <div class="prose" id="km-prose"></div>
+        </div>
+        <figure class="panel" data-csource="co2">
+          <h3 id="h-km-fig"></h3>
+          <p class="note" id="km-note"></p>
+          <div class="chart" id="chart-km"></div>
+        </figure>
+        <div class="prose after-figure" id="km-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="voyage" aria-labelledby="h-trajet">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-trajet">Combien pour mon voyage&nbsp;?</h2>
+          <div class="prose" id="trajet-prose"></div>
+        </div>
+        <figure class="panel" data-csource="co2 ourairports">
+          <h3 id="h-trajet-fig"></h3>
+          <p class="note" id="trajet-note"></p>
+          <div class="chart" id="chart-trajet"></div>
+        </figure>
+        <div class="prose after-figure" id="trajet-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p>
+            C'est un ordre de grandeur, calculé avec la moyenne de chaque type de vol : un avion plus récent ou plus
+            rempli émet moins, une place en classe affaires davantage. Les traînées de condensation, qui réchauffent
+            aussi le climat, ne sont pas comptées.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="efficacite" aria-labelledby="h-efficacite">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-efficacite">Les avions émettent-ils moins qu'avant&nbsp;?</h2>
+          <div class="prose" id="efficacite-prose"></div>
+        </div>
+        <figure class="panel" data-csource="co2">
+          <h3 id="h-efficacite-fig"></h3>
+          <p class="note" id="efficacite-note"></p>
+          <div role="group" class="chart" id="chart-efficacite" tabindex="0" aria-labelledby="h-efficacite-fig"></div>
+        </figure>
+        <div class="prose after-figure" id="efficacite-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="total" aria-labelledby="h-total">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-total">Alors pourquoi le total ne baisse-t-il pas&nbsp;?</h2>
+          <div class="prose" id="total-prose"></div>
+        </div>
+        <figure class="panel" data-csource="co2">
+          <h3 id="h-total-fig"></h3>
+          <p class="note" id="total-note"></p>
+          <div class="chart" id="chart-total"></div>
+        </figure>
+        <div class="prose after-figure" id="total-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p>
+            Les deux effets viennent d'une méthode classique de décomposition (dite LMDI), déjà utilisée dans la
+            première enquête du magazine : leur somme est exactement la variation observée.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-end" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
+        <div class="share" id="share"></div>
+      </section>
+
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="carbone">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">
+          La méthode en 4 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est
+          en bas de page.
+        </p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir du bilan de l'État</h3>
+            <p>
+              La DGAC calcule chaque année le CO2 de tous les vols commerciaux de France, vol par vol, et le publie par
+              type de vol. Nous partons de ce fichier public.
+            </p>
+          </li>
+          <li>
+            <h3>Ramener au passager et au kilomètre</h3>
+            <p>
+              Un long vol émet plus qu'un court, un gros avion plus qu'un petit. Diviser par les passagers et par les
+              kilomètres rend tous les vols comparables.
+            </p>
+          </li>
+          <li>
+            <h3>Estimer un voyage</h3>
+            <p>
+              Pour un trajet, nous multiplions la distance à vol d'oiseau entre les deux aéroports par la moyenne de
+              son type de vol : un ordre de grandeur, pas le CO2 exact d'un vol.
+            </p>
+          </li>
+          <li>
+            <h3>Vérifier chaque chiffre</h3>
+            <p>
+              Avant chaque mise en ligne, un programme indépendant recalcule chaque nombre du texte depuis les
+              fichiers publiés. Le code est public.
+            </p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'article</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
+      <!--site:next-->
+    </main>
+
+    <section class="footer" id="sources" aria-labelledby="h-sources">
+      <div class="wrap">
+        <h2 id="h-sources">Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </section>
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/carbone.js"></script>
+  </body>
+</html>

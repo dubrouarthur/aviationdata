@@ -1,0 +1,69 @@
+{
+ "trips": [
+  {
+   "from": "LFPO",
+   "to": "LFBO",
+   "fromName": "Paris-Orly",
+   "toName": "Toulouse",
+   "segment": "MET_INTERIEUR",
+   "km": 572
+  },
+  {
+   "from": "LFPO",
+   "to": "LFMN",
+   "fromName": "Paris-Orly",
+   "toName": "Nice",
+   "segment": "MET_INTERIEUR",
+   "km": 676
+  },
+  {
+   "from": "LFPG",
+   "to": "LIRF",
+   "fromName": "Paris-CDG",
+   "toName": "Rome",
+   "segment": "INTL_MC",
+   "km": 1101
+  },
+  {
+   "from": "LFPO",
+   "to": "GMMX",
+   "fromName": "Paris-Orly",
+   "toName": "Marrakech",
+   "segment": "INTL_MC",
+   "km": 2094
+  },
+  {
+   "from": "LFPG",
+   "to": "KJFK",
+   "fromName": "Paris-CDG",
+   "toName": "New York",
+   "segment": "INTL_LC",
+   "km": 5834
+  },
+  {
+   "from": "LFPO",
+   "to": "TFFR",
+   "fromName": "Paris-Orly",
+   "toName": "Pointe-à-Pitre",
+   "segment": "MET-OM_ET_OM-OM",
+   "km": 6751
+  },
+  {
+   "from": "LFPO",
+   "to": "FMEE",
+   "fromName": "Paris-Orly",
+   "toName": "La Réunion",
+   "segment": "MET-OM_ET_OM-OM",
+   "km": 9360
+  },
+  {
+   "from": "LFPG",
+   "to": "RJTT",
+   "fromName": "Paris-CDG",
+   "toName": "Tokyo",
+   "segment": "INTL_LC",
+   "km": 9708
+  }
+ ],
+ "source": "OurAirports, distance orthodromique"
+}

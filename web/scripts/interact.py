@@ -56,7 +56,7 @@ with sync_playwright() as p:
     def tip_on():
         return "on" in (tip.get_attribute("class") or "")
 
-    check("light theme only", page.evaluate("getComputedStyle(document.body).backgroundColor") == "rgb(246, 248, 246)")
+    check("light theme only: chart paper (carte.css --paper)", page.evaluate("getComputedStyle(document.body).backgroundColor") == "rgb(243, 245, 242)")
     check("demo banner hidden on real data", page.locator("#demo-banner").is_hidden())
     check(
         "hero key figures",

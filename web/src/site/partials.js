@@ -4,7 +4,7 @@
 // Node only: imported by vite.config.js, never by the browser.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, sep } from "node:path";
-import { CORRECTIONS, CORRECTIONS_SINCE, ISSUES, PAGES, SITE, TOOLS, frDate, issueByKey } from "./issues.js";
+import { CORRECTIONS, CORRECTIONS_SINCE, ISSUES, PAGES, SITE, TOOLS, frDate, issueByKey, numbered } from "./issues.js";
 import {
   dataFacts,
   dataFiles,
@@ -20,6 +20,9 @@ const esc = (s) =>
     /[&<>"']/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
   );
+
+// a hyphenated word stays whole in a title ("est-il" never breaks after "est-")
+const nobr = (s) => esc(s).replace(/(\p{L}+(?:-\p{L}+)+)/gu, '<span class="nw">$1</span>');
 
 const ICON_MENU =
   '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -96,9 +99,14 @@ function menu({ root, issue, page }) {
 }
 
 function foot({ root }) {
-  // the five latest, then the archive
-  const issues = ISSUES.slice(0, 5)
-    .map((i) => `<li><a href="${href(root, i.slug)}"><span>N° ${i.no}</span> ${esc(i.title)}</a></li>`)
+  // the investigations, then the short answers (« En 5 minutes »), then the archive
+  const item = (i) => `<li><a href="${href(root, i.slug)}"><span>N° ${i.no}</span> ${esc(i.title)}</a></li>`;
+  const issues = ISSUES.filter((i) => i.format !== "court")
+    .slice(0, 5)
+    .map(item)
+    .join("");
+  const shorts = ISSUES.filter((i) => i.format === "court")
+    .map(item)
     .join("");
   const year = new Date().getFullYear();
   return `<footer class="site-foot" id="colophon">
@@ -112,6 +120,10 @@ function foot({ root }) {
         <h2 id="foot-h-issues">Les enquêtes</h2>
         <ul>${issues}<li><a href="${href(root, "enquetes")}">Toutes les enquêtes</a></li></ul>
       </nav>
+      <nav aria-labelledby="foot-h-short">
+        <h2 id="foot-h-short">En 5 minutes</h2>
+        <ul>${shorts}</ul>
+      </nav>
       <nav aria-labelledby="foot-h-mag">
         <h2 id="foot-h-mag">Le magazine</h2>
         <ul>
@@ -120,6 +132,7 @@ function foot({ root }) {
           <li><a href="${href(root, "a-propos")}#charte">La charte</a></li>
           <li><a href="${href(root, "a-propos")}#corrections">Corrections</a></li>
           <li><a href="${SITE.report}" target="_blank" rel="noopener">Signaler une erreur</a></li>
+          <li><a href="${href(root, "design")}">Le design system</a></li>
         </ul>
       </nav>
       <nav aria-labelledby="foot-h-follow">
@@ -148,13 +161,13 @@ function byline({ issue }) {
     issue.updated !== issue.published
       ? `, mise à jour le <time datetime="${issue.updated}">${frDate(issue.updated)}</time>`
       : "";
-  return `<p class="article-meta">Par <a href="${SITE.author.url}" target="_blank" rel="noopener">${esc(SITE.author.name)}</a>. Publiée le ${pub}${upd}. Environ ${issue.minutes} minutes de lecture, plus les outils.</p>`;
+  return `<p class="article-meta">Par <a href="${SITE.author.url}" target="_blank" rel="noopener">${esc(SITE.author.name)}</a>. Publiée le ${pub}${upd}. Environ ${issue.minutes} minutes de lecture${issue.format === "court" ? "" : ", plus les outils"}.</p>`;
 }
 
 /** An issue as a card: image, number and date, title, dek. */
-function card(root, i, kicker = `Enquête n° ${i.no}, ${frDate(i.published)}`) {
+function card(root, i, kicker = `${numbered(i)}, ${frDate(i.published)}`, cls = "also") {
   // a small cover (its figure, framed as on the home page), its title and the question it answers
-  return `<a class="also" href="${href(root, i.slug)}" style="--c: ${i.accent}; --pos: ${i.cover ?? "center"}">
+  return `<a class="${cls}" href="${href(root, i.slug)}" style="--c: ${i.accent}; --pos: ${i.cover ?? "center"}">
         <img src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
         <span><small>${esc(kicker)}</small><b>${esc(i.title)}</b>${esc(i.hook ?? i.dek)} <i>${i.minutes} minutes de lecture.</i></span>
       </a>`;
@@ -164,9 +177,15 @@ function card(root, i, kicker = `Enquête n° ${i.no}, ${frDate(i.published)}`) 
 function next({ root, issue }) {
   const prev = ISSUES.find((i) => i.no === issue.no - 1);
   const nxt = ISSUES.find((i) => i.no === issue.no + 1);
+  const near = new Set([prev?.key, nxt?.key]);
+  const related = (issue.related ?? [])
+    .map(issueByKey)
+    .filter((i) => i && !near.has(i.key))
+    .map((i) => card(root, i, `Sur le même sujet : ${numbered(i)}`, "also related"));
   const cards = [
-    prev && card(root, prev, `Enquête précédente, n° ${prev.no}`),
-    nxt && card(root, nxt, `Enquête suivante, n° ${nxt.no}`),
+    ...related,
+    prev && card(root, prev, `Le numéro précédent : ${numbered(prev)}`),
+    nxt && card(root, nxt, `Le numéro suivant : ${numbered(nxt)}`),
   ].filter(Boolean);
   return `<section class="chapter wrap read-next" id="lire-aussi" aria-labelledby="h-aussi">
   <h2 class="sub-title" id="h-aussi">Continuer la lecture</h2>
@@ -178,7 +197,7 @@ function next({ root, issue }) {
 /** The story's kicker: its number, linked to the archive, and its topic. */
 function kicker({ root, issue }) {
   if (!issue) throw new Error("site:kicker outside an investigation");
-  return `<p class="kicker issue-kicker"><a href="${href(root, "enquetes")}">Enquête n° ${issue.no}</a><span>${esc(issue.topic)}</span></p>`;
+  return `<p class="kicker issue-kicker"><a href="${href(root, "enquetes")}">${numbered(issue)}</a><span>${esc(issue.topic)}</span></p>`;
 }
 
 /** The archive: every investigation, newest first, with its topic for the filter. */
@@ -188,10 +207,10 @@ function archive({ root }) {
   <a class="arc-link" href="${href(root, i.slug)}">
     <img src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
     <span class="arc-text">
-      <span class="arc-kicker">Enquête n° ${i.no}<span>${esc(i.topic)}</span></span>
+      <span class="arc-kicker">${numbered(i)}<span>${esc(i.topic)}</span></span>
       <span class="arc-title">${esc(i.title)}</span>
       <span class="arc-dek">${esc(i.dek)}</span>
-      <span class="arc-meta">Publiée le ${frDate(i.published)}${i.updated !== i.published ? `, mise à jour le ${frDate(i.updated)}` : ""}. ${i.chapters} chapitres, environ ${i.minutes} minutes de lecture. Données : ${esc(i.sources)}.</span>
+      <span class="arc-meta">Publiée le ${frDate(i.published)}${i.updated !== i.published ? `, mise à jour le ${frDate(i.updated)}` : ""}. ${i.chapters} ${i.format === "court" ? "étapes" : "chapitres"}, environ ${i.minutes} minutes de lecture. Données : ${esc(i.sources)}.</span>
     </span>
   </a>
 </li>`,
@@ -209,8 +228,9 @@ function topics() {
 }
 
 function issuesList({ root }) {
-  // the six latest on the home page, each with its cover; the archive holds them all
-  return ISSUES.slice(0, 6)
+  // the investigations on the home page, each with its cover; the archive holds them all
+  return ISSUES.filter((i) => i.format !== "court")
+    .slice(0, 6)
     .map(
       // a cover, as on a magazine rack: the investigation's own figure, its number and its title
       (i) => `<li class="shelf-item" style="--c: ${i.accent}; --pos: ${i.cover ?? "center"}">
@@ -220,13 +240,44 @@ function issuesList({ root }) {
       <span class="shelf-no">N° ${i.no}</span>
       <span class="shelf-head">
         <span class="shelf-topic">${esc(i.topic)}</span>
-        <span class="shelf-title">${esc(i.title)}</span>
+        <span class="shelf-title">${nobr(i.title)}</span>
       </span>
     </span>
     <span class="shelf-dek">${esc(i.hook ?? i.dek)}</span>
     <span class="shelf-meta">${i.minutes} minutes de lecture. Données : ${esc(i.sources)}.</span>
   </a>
 </li>`,
+    )
+    .join("\n");
+}
+
+/** The short answers (« En 5 minutes »): the question in large type, what it answers, its card. */
+function questionsList({ root }) {
+  return ISSUES.filter((i) => i.format === "court")
+    .map(
+      (i) => `<li class="q-item">
+  <a class="q-link" href="${href(root, i.slug)}">
+    <img class="q-img" src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
+    <span class="q-text">
+      <span class="q-kicker">N° ${i.no}<span>${esc(i.topic)}</span></span>
+      <span class="q-title">${nobr(i.hook ?? i.title)}</span>
+      <span class="q-dek">${esc(i.dek)}</span>
+      <span class="q-meta">${i.minutes} minutes, ${i.chapters} étapes. Données : ${esc(i.sources)}.</span>
+    </span>
+  </a>
+</li>`,
+    )
+    .join("\n");
+}
+
+/** The home page's opening: the latest questions, as the points of a route. */
+function latestList({ root }) {
+  return ISSUES.slice(0, 5)
+    .map(
+      (i) => `<li><a href="${href(root, i.slug)}">
+    <span class="lt-q">${nobr(i.hook ?? i.title)}</span>
+    <span class="lt-meta">${i.format === "court" ? "En 5 minutes" : `Enquête, ${i.minutes} minutes`} · ${esc(i.topic)}</span>
+  </a></li>`,
     )
     .join("\n");
 }
@@ -300,7 +351,7 @@ function corrections({ root }) {
 function cite({ base }) {
   return ISSUES.map(
     (i) =>
-      `<li>${esc(SITE.author.name)}, « ${esc(i.title)} », <i>aviationdata</i>, enquête n° ${i.no}, ${frDate(i.published)}, ${base}${i.slug}</li>`,
+      `<li>${esc(SITE.author.name)}, « ${esc(i.title)} », <i>aviationdata</i>, ${numbered(i).toLowerCase()}, ${frDate(i.published)}, ${base}${i.slug}</li>`,
   ).join("");
 }
 
@@ -311,6 +362,8 @@ const PARTIALS = {
   byline,
   next,
   issues: issuesList,
+  questions: questionsList,
+  latest: latestList,
   tools: toolsList,
   corrections,
   cite,
@@ -374,7 +427,7 @@ export function sitemap(base) {
   const urls = [
     [base, last],
     ...ISSUES.map((i) => [`${base}${i.slug}`, i.updated]),
-    ...PAGES.map((p) => [`${base}${p.slug}`, last]),
+    ...PAGES.filter((p) => !p.noindex).map((p) => [`${base}${p.slug}`, last]),
   ];
   return `<?xml version="1.0" encoding="utf-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

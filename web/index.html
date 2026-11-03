@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>aviationdata, enquêtes en données ouvertes sur le transport aérien</title>
+    <title>aviationdata, l'avion expliqué par ses chiffres</title>
     <meta name="claude:viewport-fit-sides" content="cover" />
     <script>
       // the first story used to live here: its old chapter links (#co2, #aeroport-LFLL...) follow it
@@ -16,10 +16,10 @@
     </script>
     <meta
       name="description"
-      content="Des enquêtes sur le transport aérien construites uniquement sur des données publiques : Eurostat, DGAC, NTSB, Copernicus, NOAA, Météo-France, NASA, OpenSky. Chaque chiffre est recalculé depuis la source."
+      content="Le transport aérien expliqué par ses données publiques : prix des billets, CO2 d'un vol, accidents, vents, passagers européens. Des réponses en 5 minutes et des enquêtes au long cours, chaque chiffre recalculé depuis la source."
     />
     <meta name="author" content="Arthur Dubrou" />
-    <meta name="theme-color" content="#f6f8f6" />
+    <meta name="theme-color" content="#0e1b2c" />
     <meta name="site-root" content="./" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
@@ -36,7 +36,7 @@
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body class="home">
-    <a class="skip-link" href="#enquetes">Aller aux enquêtes</a>
+    <a class="skip-link" href="#questions">Aller aux articles</a>
     <header class="site-head">
       <div class="wrap">
         <a class="wordmark" href="./" aria-label="aviationdata, accueil">aviation<b>data</b></a>
@@ -51,20 +51,59 @@
     </header>
 
     <main>
-      <!-- lead story: the newest investigation, with its own opening figure -->
-      <section class="lead lead-split" aria-labelledby="lead-title">
-        <div class="wrap lead-grid">
-          <div class="lead-body">
-            <p class="lead-tag">Nouvelle enquête</p>
-            <h1 class="lead-title" id="lead-title">
-              <a href="calendrier-du-ciel">Le calendrier du ciel</a>
-            </h1>
-            <p class="lead-dek">
+      <!-- the opening: what the magazine is, and the latest questions as the points of a route -->
+      <section class="home-open" aria-labelledby="home-title">
+        <div class="wrap home-open-grid">
+          <div class="home-open-text">
+            <p class="home-kicker">Le magazine des données du transport aérien</p>
+            <h1 class="home-title" id="home-title">L'avion, expliqué par ses chiffres</h1>
+            <p class="home-lede">
+              Des réponses en cinq minutes aux questions que tout le monde se pose, et des enquêtes au long cours
+              pour aller plus loin. Chaque chiffre vient d'une donnée publique, et un programme le recalcule
+              avant chaque mise en ligne.
+            </p>
+            <p class="home-actions">
+              <a class="btn primary" href="#questions">Commencer par une question</a>
+              <a class="btn" href="#enquetes">Les enquêtes</a>
+            </p>
+          </div>
+          <nav class="home-latest" aria-labelledby="h-latest">
+            <h2 class="hl-title" id="h-latest">Les dernières questions</h2>
+            <ol class="latest-route">
+              <!--site:latest-->
+            </ol>
+          </nav>
+        </div>
+      </section>
+
+      <!-- the short answers: one question, five minutes -->
+      <section class="wrap questions" id="questions" aria-labelledby="h-questions">
+        <h2 class="home-h2" id="h-questions">En 5 minutes</h2>
+        <p class="home-dek">
+          Une question, sa réponse tout de suite, puis quatre étapes simples pour la comprendre. Pour tous, sans
+          connaissance préalable.
+        </p>
+        <ol class="q-list">
+          <!--site:questions-->
+        </ol>
+      </section>
+
+      <section class="wrap issues" id="enquetes" aria-labelledby="h-enquetes">
+        <h2 class="home-h2" id="h-enquetes">Les enquêtes</h2>
+        <p class="home-dek">
+          Des dossiers complets, en chapitres, avec leurs outils à manipuler soi-même.
+        </p>
+        <!-- the newest investigation, with its own opening figure -->
+        <div class="lead-feature">
+          <div class="lf-text">
+            <p class="lf-kicker">Dernière enquête</p>
+            <h3 class="lf-title"><a href="calendrier-du-ciel">Le calendrier du ciel</a></h3>
+            <p class="lf-dek">
               Quand l'Europe prend-elle l'avion ? Partout en été, mais pas au même rythme : en Croatie, un jour
               d'août compte sept fois plus de passagers qu'un jour de janvier, en Finlande à peine plus. Quinze
               ans de données mensuelles d'Eurostat, pays par pays.
             </p>
-            <p class="lead-actions">
+            <p class="lf-actions">
               <a class="btn primary" href="calendrier-du-ciel">Lire l'enquête</a>
               <a class="btn" href="calendrier-du-ciel#calendrier">Ouvrir le calendrier</a>
             </p>
@@ -82,10 +121,6 @@
             </figcaption>
           </figure>
         </div>
-      </section>
-
-      <section class="wrap issues" id="enquetes" aria-labelledby="h-enquetes">
-        <h2 class="home-h2" id="h-enquetes">Les enquêtes</h2>
         <ol class="shelf" reversed>
           <!--site:issues-->
         </ol>

@@ -1,0 +1,347 @@
+/* The short format, « En 5 minutes »: one question, its answer at once, then the route of the steps
+   that lead to it (the flight plan), each step a simple question, a figure and what it teaches.
+   Light opening on chart paper (the long investigations open on night): the format reads at a glance. */
+
+/* ------------------------------------------------------------------ the question and its answer */
+.court-open {
+  padding-block: clamp(36px, 7vh, 72px) clamp(28px, 5vh, 48px);
+  border-bottom: 1px solid var(--rule);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(rgba(20, 32, 46, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 32, 46, 0.055) 1px, transparent 1px);
+  background-size:
+    100% 88px,
+    88px 100%;
+  background-position: center top;
+}
+
+.court-open-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+}
+
+@media (min-width: 960px) {
+  .court-open-grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: 64px;
+    align-items: end;
+  }
+
+  .flightplan-box {
+    grid-column: 1 / -1;
+  }
+}
+
+.court-open .issue-kicker,
+.court-open .issue-kicker a {
+  color: var(--ink-2);
+}
+
+.court-open .issue-kicker a::before {
+  color: var(--magenta);
+}
+
+.court-open .issue-kicker span {
+  padding-left: 12px;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.court-open .display {
+  margin: 14px 0 20px;
+  max-width: 13em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.court-open .article-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--t-sm);
+}
+
+/* the answer, in the ink of the finding */
+.court-answer {
+  padding: 20px 0 4px 22px;
+  border-left: 3px solid var(--magenta);
+}
+
+.court-answer p {
+  margin: 0 0 10px;
+  font: 400 clamp(1.15rem, 1.7vw, 1.35rem) / 1.45 var(--f-text);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.court-answer .ca-yes {
+  margin: 0 0 2px;
+  font: 720 clamp(2.4rem, 4.4vw, 3.4rem) / 1 var(--f-display);
+  font-stretch: var(--stretch-display);
+  color: var(--magenta-text);
+}
+
+.court-answer strong {
+  color: var(--magenta-text);
+}
+
+/* ------------------------------------------------------------------ the flight plan: the route of the steps */
+.flightplan-box {
+  margin-top: 12px;
+}
+
+.fp-title {
+  margin: 0 0 14px;
+  font: 650 var(--t-sm) / 1.3 var(--f-ui);
+  color: var(--muted);
+}
+
+.flightplan {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.flightplan li {
+  position: relative;
+  padding-top: 26px;
+}
+
+/* the leg to the next point: dashed magenta, the last leg (to the answer) in ink */
+.flightplan li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  border-top: 2px dashed color-mix(in srgb, var(--magenta) 60%, transparent);
+}
+
+.flightplan li:last-child::before {
+  right: auto;
+  width: 16px;
+  border: 0;
+}
+
+.flightplan li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 14px;
+  background: var(--magenta);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.flightplan li.fp-end::after {
+  width: 14px;
+  height: 14px;
+  top: 1px;
+  clip-path: none;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.flightplan a {
+  display: grid;
+  gap: 2px;
+  padding-right: 16px;
+  min-height: 32px;
+  color: var(--ink);
+  font: 600 0.98rem / 1.3 var(--f-ui);
+  text-decoration: none;
+}
+
+.flightplan a:hover {
+  color: var(--magenta-text);
+}
+
+.fp-no {
+  font: 750 var(--t-sm) / 1 var(--f-ui);
+  color: var(--magenta-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-end .fp-no {
+  color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .flightplan {
+    grid-auto-flow: row;
+  }
+
+  .flightplan li {
+    padding: 0 0 14px 30px;
+  }
+
+  .flightplan li::before {
+    left: 7px;
+    right: auto;
+    top: 14px;
+    bottom: 0;
+    border-top: 0;
+    border-left: 2px dashed color-mix(in srgb, var(--magenta) 60%, transparent);
+  }
+
+  .flightplan li:last-child::before {
+    display: none;
+  }
+
+  .flightplan a {
+    display: block;
+    padding-right: 0;
+  }
+
+  .fp-no {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ steps */
+.court .court-step .section-title,
+.court .court-end .section-title {
+  font-size: var(--t-2xl);
+}
+
+.court .story-chapter {
+  padding-block: clamp(48px, 8vh, 88px) 8px;
+}
+
+.court-end .reponse-prose p:first-child {
+  font-size: 1.25em;
+}
+
+/* ------------------------------------------------------------------ the charts of the format */
+.chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.c-tick {
+  font: 500 12.5px var(--f-ui);
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.grid line {
+  stroke: var(--grid);
+}
+
+.c-base {
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.c-line {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.c-end {
+  font: 600 13px var(--f-ui);
+}
+
+.c-end-v {
+  font-weight: 760;
+  font-size: 17px;
+}
+
+.c-bar.up {
+  fill: var(--magenta);
+  opacity: 0.55;
+}
+
+.c-bar.down {
+  fill: var(--blue);
+  opacity: 0.55;
+}
+
+.c-bar.key {
+  opacity: 1;
+}
+
+.c-val {
+  font: 760 14px var(--f-ui);
+  fill: var(--ink);
+}
+
+.c-hbars {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.c-hbars li {
+  display: grid;
+  grid-template-columns: minmax(9rem, 2fr) minmax(0, 4fr) 5.2rem;
+  gap: 4px 16px;
+  align-items: center;
+}
+
+.c-hb-label {
+  font: 600 0.95rem / 1.25 var(--f-ui);
+  color: var(--ink);
+}
+
+.c-hb-label small {
+  display: block;
+  font-weight: 450;
+  font-size: var(--t-xs);
+  color: var(--muted);
+}
+
+.c-hb-track {
+  height: 18px;
+  background: var(--paper-2);
+}
+
+.c-hb-track i {
+  display: block;
+  height: 100%;
+  background: var(--c);
+}
+
+.c-hb-val {
+  white-space: nowrap;
+  font: 760 1.05rem / 1 var(--f-ui);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.c-hbars li.strong .c-hb-label,
+.c-hbars li.strong .c-hb-val {
+  color: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .c-hbars li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .c-hb-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+/* the method in four steps: one row of four on wide screens, two by two below */
+@media (min-width: 900px) {
+  .court .how-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 560px) and (max-width: 899px) {
+  .court .how-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

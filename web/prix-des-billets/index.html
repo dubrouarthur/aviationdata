@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Le billet d'avion est-il plus cher qu'avant ? En 5 minutes, avec les données</title>
+    <meta
+      name="description"
+      content="Le prix des billets d'avion au départ de France, de 2012 à aujourd'hui : dix ans sans hausse, puis un bond en deux ans. Comparé à l'inflation, à la saison, au type de vol et au train, d'après la DGAC et Eurostat."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Le billet d'avion est-il plus cher qu'avant ?",
+        "description": "Le prix des billets d'avion au départ de France depuis 2012, comparé à l'inflation, d'après la DGAC et Eurostat.",
+        "inLanguage": "fr",
+        "datePublished": "2026-11-03",
+        "dateModified": "2026-11-03",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": [
+          "https://www.data.gouv.fr/datasets/indices-des-prix-du-transport-aerien-de-passagers",
+          "https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_minr/default/table?lang=fr"
+        ]
+      }
+    </script>
+    <meta name="theme-color" content="#f3f5f2" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Le billet d'avion est-il plus cher qu'avant ?" />
+    <meta
+      property="og:description"
+      content="Dix ans sans hausse, puis un bond en deux ans. Le prix des billets d'avion depuis 2012, en 5 minutes."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-billet.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%prix-des-billets" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="court billet">
+    <a class="skip-link" href="#question">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#question">Le prix du billet</a>
+        <nav class="topnav" aria-label="Étapes">
+          <a href="#depuis-2012">Depuis 2012</a>
+          <a href="#saison">La saison</a>
+          <a href="#vols">Les vols</a>
+          <a href="#train">Le train</a>
+          <a href="#en-bref">La réponse</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main>
+      <!-- the question, its short answer and the route of the steps that lead to it -->
+      <section class="court-open" id="question" aria-labelledby="title">
+        <div class="wrap court-open-grid">
+          <div class="court-q">
+            <!--site:kicker-->
+            <h1 class="display" id="title">Le billet d'avion <span class="nw">est-il</span> plus cher qu'avant&nbsp;?</h1>
+            <!--site:byline-->
+          </div>
+          <div class="court-answer" id="court-answer" aria-live="polite"></div>
+          <nav class="flightplan-box" aria-labelledby="h-fp">
+            <h2 class="fp-title" id="h-fp">La réponse en quatre étapes</h2>
+            <ol class="flightplan" id="flightplan"></ol>
+          </nav>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="depuis-2012" aria-labelledby="h-prix">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-prix">Combien coûte un billet, comparé à 2012&nbsp;?</h2>
+          <div class="prose" id="prix-prose"></div>
+        </div>
+        <figure class="panel" data-csource="iptap hicp">
+          <h3 id="h-prix-fig"></h3>
+          <p class="note" id="prix-note"></p>
+          <div role="group" class="chart" id="chart-prix" tabindex="0" aria-labelledby="h-prix-fig"></div>
+        </figure>
+        <div class="prose after-figure" id="prix-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p>
+            L'indice suit le prix d'un même panier de voyages, taxes comprises. Il ne dit pas combien chacun a payé
+            en moyenne : si les voyageurs choisissent des billets moins chers, l'indice ne le voit pas.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="saison" aria-labelledby="h-saison">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-saison">Quand partir coûte-t-il le plus cher&nbsp;?</h2>
+          <div class="prose" id="saison-prose"></div>
+        </div>
+        <figure class="panel" data-csource="iptap">
+          <h3 id="h-saison-fig"></h3>
+          <p class="note" id="saison-note"></p>
+          <div role="group" class="chart" id="chart-saison" tabindex="0" aria-labelledby="h-saison-fig"></div>
+        </figure>
+        <div class="prose after-figure" id="saison-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="vols" aria-labelledby="h-vols">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-vols">Quels billets ont le plus augmenté&nbsp;?</h2>
+          <div class="prose" id="vols-prose"></div>
+        </div>
+        <figure class="panel" data-csource="iptap">
+          <h3 id="h-vols-fig"></h3>
+          <p class="note" id="vols-note"></p>
+          <div class="chart" id="chart-vols"></div>
+        </figure>
+        <div class="prose after-figure" id="vols-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-step" id="train" aria-labelledby="h-train">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-train">Et le train&nbsp;?</h2>
+          <div class="prose" id="train-prose"></div>
+        </div>
+        <figure class="panel" data-csource="hicp">
+          <h3 id="h-train-fig"></h3>
+          <p class="note" id="train-note"></p>
+          <div class="chart" id="chart-train"></div>
+        </figure>
+        <div class="prose after-figure" id="train-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p>
+            L'indice des prix à la consommation ne suit pas les mêmes billets que celui de la DGAC : ses chiffres
+            pour l'avion diffèrent. On le prend ici parce qu'il mesure l'avion et le train de la même façon.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter court-end" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
+        <div class="share" id="share"></div>
+      </section>
+
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="billet">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">
+          La méthode en 4 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est
+          en bas de page.
+        </p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir des prix relevés par l'État</h3>
+            <p>
+              La DGAC, l'administration de l'aviation civile, publie chaque mois un indice du prix des billets au
+              départ de France. Nous partons de ce fichier public.
+            </p>
+          </li>
+          <li>
+            <h3>Comparer à l'inflation</h3>
+            <p>
+              Un prix qui monte autant que tout le reste ne coûte pas plus cher. Nous mettons donc l'indice des billets
+              à côté de celui de tous les prix, publié par Eurostat.
+            </p>
+          </li>
+          <li>
+            <h3>Comparer des années entières</h3>
+            <p>
+              Les billets coûtent plus cher l'été : une année se résume à la moyenne de ses douze mois, pour comparer
+              les années sans être trompé par les saisons.
+            </p>
+          </li>
+          <li>
+            <h3>Vérifier chaque chiffre</h3>
+            <p>
+              Avant chaque mise en ligne, un programme indépendant recalcule chaque nombre du texte depuis les
+              fichiers publiés. Le code est public.
+            </p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'article</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
+      <!--site:next-->
+    </main>
+
+    <section class="footer" id="sources" aria-labelledby="h-sources">
+      <div class="wrap">
+        <h2 id="h-sources">Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </section>
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/billet.js"></script>
+  </body>
+</html>

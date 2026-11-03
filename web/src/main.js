@@ -3,6 +3,7 @@ import "@fontsource-variable/source-serif-4/index.css";
 import "./style.css";
 import "./site/story.css";
 import "./site/atlas.css";
+import "./site/carte.css";
 import { initSiteMenu } from "./site/menu.js";
 import { loadAll } from "./lib/data.js";
 import { el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";

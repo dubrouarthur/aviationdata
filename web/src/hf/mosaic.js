@@ -1,11 +1,11 @@
 // The opening: every accident of the period, one small square each, one column per year. The squares of
-// accidents whose probable cause names a person light up in orange, once, when the opening is seen. A year
+// accidents whose probable cause names a person light up in magenta, once, when the opening is seen. A year
 // pointed at (mouse, touch, arrow keys) stands out and its counts are handed to onYear.
 import { onResize, reducedMotion } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { BIT } from "./facts.js";
 
-const HUMAN = "#ff8a3d";
+const HUMAN = "#f59ac8"; // --magenta-hi (carte.css)
 const OTHER = "rgba(169, 188, 205, 0.3)";
 const LABEL = "#a9bccd";
 

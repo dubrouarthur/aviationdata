@@ -27,7 +27,7 @@ export function writeOpening(F) {
     ]),
   );
   $("#hf-mosaic-cap").textContent =
-    `Les ${num(F.n)} accidents aériens survenus aux États-Unis de ${F.period[0]} à ${F.period[1]} et clos par une cause probable du NTSB, année par année. En orange, ceux dont la cause probable cite une personne. Survolez ou touchez une année pour la détailler.`;
+    `Les ${num(F.n)} accidents aériens survenus aux États-Unis de ${F.period[0]} à ${F.period[1]} et clos par une cause probable du NTSB, année par année. En rose, ceux dont la cause probable cite une personne. Survolez ou touchez une année pour la détailler.`;
   $("#mosaic").setAttribute(
     "aria-label",
     `${num(F.person)} accidents sur ${num(F.n)} citent une personne dans leur cause probable, de ${F.period[0]} à ${F.period[1]}.`,
@@ -179,7 +179,7 @@ export function writeGravite(F) {
     `Accidents selon la blessure la plus grave, États-Unis, ${F.period[0]}-${F.period[1]}, et part de ceux qui citent une personne.`;
   lecture(
     "#chart-pyramid",
-    "la largeur de chaque étage suit le nombre d'accidents ; la partie orange, ceux qui citent une personne.",
+    "la largeur de chaque étage suit le nombre d'accidents ; la partie rose, ceux qui citent une personne.",
   );
 }
 
@@ -396,7 +396,7 @@ export function writeFromage(F) {
     `Accidents par combinaison des quatre couches citées dans leur cause probable, États-Unis, ${F.period[0]}-${F.period[1]}.`;
   lecture(
     "#chart-cheese",
-    "en haut, les accidents selon le nombre de couches citées, trous retenus en orange ; en bas, chaque ligne est une combinaison, les pastilles pleines désignent les couches citées.",
+    "en haut, les accidents selon le nombre de couches citées, trous retenus en rose ; en bas, chaque ligne est une combinaison, les pastilles pleines désignent les couches citées.",
   );
 }
 
@@ -433,7 +433,7 @@ export function writeEvenements(F) {
     `Accidents par événement déterminant, les 16 plus fréquents, États-Unis, ${F.period[0]}-${F.period[1]}, et part de ceux qui citent une personne.`;
   lecture(
     "#chart-events",
-    "la barre donne le nombre d'accidents, sa partie orange ceux qui citent une personne.",
+    "la barre donne le nombre d'accidents, sa partie rose ceux qui citent une personne.",
   );
 }
 

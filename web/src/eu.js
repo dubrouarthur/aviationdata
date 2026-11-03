@@ -4,6 +4,7 @@ import "./style.css";
 import "./site/story.css";
 import "./eu.css";
 import "./site/atlas.css";
+import "./site/carte.css";
 import { initSiteMenu } from "./site/menu.js";
 import { numberChapters, partContents, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { storyGuide } from "./site/glossary.js";

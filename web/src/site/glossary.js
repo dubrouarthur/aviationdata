@@ -169,6 +169,60 @@ export const TERMS = {
       d: "Les passagers d'un mois divisés par son nombre de jours, pour qu'un mois de 31 jours ne paraisse pas plus chargé qu'un mois de 28.",
     },
   ],
+  billet: [
+    {
+      re: rx("DGAC", ""),
+      t: "DGAC",
+      d: "Direction générale de l'Aviation civile, l'administration française de l'aviation. Elle publie chaque mois un indice du prix des billets d'avion au départ de France.",
+    },
+    {
+      re: rx("indice"),
+      t: "Indice",
+      d: "Un prix ramené à 100 une année de référence. À 130, ce qui coûtait 100 euros l'année de référence en coûte 130 : l'indice dit de combien les prix ont bougé, pas combien coûte un billet.",
+    },
+    {
+      re: rx("inflation"),
+      t: "Inflation",
+      d: "La hausse de l'ensemble des prix payés par les ménages : alimentation, logement, énergie, transports, loisirs. Un prix qui monte autant que l'inflation ne pèse pas plus lourd dans le budget.",
+    },
+    {
+      re: rx("long-courriers?"),
+      t: "Long-courrier",
+      d: "Un vol vers une destination lointaine, au-delà de l'Europe, du Maghreb et du Proche-Orient : l'Amérique, l'Asie, l'Afrique subsaharienne.",
+    },
+    {
+      re: rx("Eurostat", ""),
+      t: "Eurostat",
+      d: "L'office statistique de l'Union européenne. Il publie l'indice des prix à la consommation harmonisé, calculé de la même façon dans chaque pays.",
+    },
+  ],
+  carbone: [
+    {
+      re: rx("DGAC", ""),
+      t: "DGAC",
+      d: "Direction générale de l'Aviation civile, l'administration française de l'aviation. Elle calcule chaque année le CO2 de tous les vols commerciaux de France.",
+    },
+    {
+      re: rx("CO2", ""),
+      t: "CO2",
+      d: "Le dioxyde de carbone, gaz rejeté quand on brûle du kérosène : environ 3,16 kg de CO2 par kilo de carburant. C'est le principal gaz à effet de serre émis par les avions.",
+    },
+    {
+      re: rx("long-courriers?"),
+      t: "Long-courrier",
+      d: "Pour la DGAC, un vol de plus de 4 h 30 : vers l'outre-mer, ou hors d'Europe et du bassin méditerranéen.",
+    },
+    {
+      re: rx("trafic"),
+      t: "Trafic",
+      d: "Ici, le nombre de passagers multiplié par les kilomètres qu'ils parcourent : dix passagers sur 1 000 km font autant de trafic que cent sur 100 km.",
+    },
+    {
+      re: rx("à vol d'oiseau"),
+      t: "Distance à vol d'oiseau",
+      d: "Le plus court chemin entre deux aéroports à la surface de la Terre. Un avion fait un peu plus, à cause des routes aériennes et du vent.",
+    },
+  ],
 };
 
 let pop;
@@ -290,7 +344,7 @@ export function storyGuide() {
       el("p", { class: "read-guide" }, [
         "Les mots soulignés en pointillés s'expliquent d'un clic. ",
         el("a", { href: "#comment", text: "Comment nous avons fait" }),
-        ", en fin d'enquête.",
+        document.body.classList.contains("court") ? ", en fin d'article." : ", en fin d'enquête.",
       ]),
     );
 }

@@ -1,0 +1,535 @@
+/* ==================================================================================================
+   Carte — the design system of aviationdata, loaded LAST on every page.
+
+   The magazine reads like an aeronautical chart: chart paper for reading, chart blue for the data,
+   ICAO magenta for what the story is about, night (with its graticule) for openings and the parts.
+   One palette for the whole site: an investigation no longer has its own colour.
+
+   Signs borrowed from the chart, each meaning one thing:
+   - ▲ a reporting point = a step of the reading route (chapter numbers, the essentials, the
+     reading progress in the masthead, which marks each chapter on its track);
+   - the graticule (lines of latitude and longitude) = a night ground: openings, parts, footer;
+   - magenta = the finding (figure numbers, the protagonist series, the current place).
+
+   Tokens are documented on /design (web/design/index.html); older stylesheets keep their own rules,
+   this file sets the values they read and the shared components on top of them.
+   ================================================================================================== */
+
+:root:root {
+  /* --- paper and ink (light, the reading ground) */
+  --paper: #f3f5f2;
+  --paper-2: #e7ece9;
+  --card: #fbfcfb;
+  --ink: #14202e;
+  --ink-2: #364454;
+  --muted: #55616e; /* 5.6:1 on paper */
+  --rule: #cfd8d4;
+  --rule-strong: #aeb9b4;
+  --grid: #dfe5e2;
+  --axis: #aeb9b4;
+  --sea: #e6edf1;
+
+  /* --- the chart's inks (data). Text-safe on paper: blue 6.2:1, magenta 6.1:1, ochre 4.6:1, teal 4.9:1 */
+  --blue: #1f5fa8;
+  --blue-text: #1f5fa8;
+  --blue-soft: #d3e1f2;
+  --magenta: #b5246e;
+  --magenta-text: #a01f61;
+  --magenta-soft: #f3d6e5;
+  --ochre: #a86a12;
+  --teal: #12806a;
+  --violet: #6a4db0;
+  --grey: #8c97a3;
+  --focus: #b5246e;
+
+  /* --- night (openings, parts, footer) */
+  --night: #0e1b2c;
+  --night-2: #0a1522;
+  --night-ink: #e8eef4;
+  --night-muted: #a6b6c6; /* 8.3:1 on night */
+  --night-line: rgba(166, 182, 198, 0.13);
+  --blue-hi: #7db3f0;
+  --magenta-hi: #f59ac8;
+  --ochre-hi: #f2b55a;
+  --teal-hi: #5cd0b0;
+
+  /* one accent for every investigation */
+  --issue-accent: var(--magenta-text);
+  --band: var(--night);
+  --band-accent: var(--magenta-hi);
+
+  /* --- type: Archivo (lettering of the chart: titles, labels, numbers), Source Serif (reading) */
+  --f-display: "Archivo Variable", "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-text: "Source Serif 4 Variable", "Source Serif 4", Georgia, serif;
+  --f-ui: "Archivo Variable", "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --stretch-display: 78%;
+  --w-display: 720;
+  /* a scale of 1.25 from 16 px */
+  --t-xs: 0.8rem;
+  --t-sm: 0.9rem;
+  --t-md: 1rem;
+  --t-read: 1.125rem;
+  --t-lg: 1.25rem;
+  --t-xl: 1.563rem;
+  --t-2xl: clamp(1.75rem, 3.2vw, 2.441rem);
+  --t-3xl: clamp(2.1rem, 4.4vw, 3.3rem);
+  --t-display: clamp(2.9rem, 7.2vw, 5.6rem);
+
+  /* --- space (4 px steps, then a fourth each) */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 72px;
+  --s9: 112px;
+
+  --r: 4px; /* one corner for every control */
+  --col: 40rem;
+
+  --graticule:
+    linear-gradient(var(--night-line) 1px, transparent 1px) 0 0 / 100% 88px,
+    linear-gradient(90deg, var(--night-line) 1px, transparent 1px) 0 0 / 88px 100%;
+}
+
+/* the protagonist of each investigation draws in magenta, the rest in the chart's inks */
+:root:root /* hf */ {
+  --human: var(--magenta);
+  --human-2: #7e1a4d;
+  --human-3: var(--ochre);
+  --handling: #b0708f;
+  --env: var(--teal);
+  --machine: var(--blue);
+  --org: var(--violet);
+  --undet: #9aa5b1;
+  --night: #0e1b2c;
+  --flare: var(--magenta-hi);
+}
+
+:root:root .hf .bld-act {
+  --lit: #f7b0d4;
+  --glow: rgba(245, 154, 200, 0.5);
+}
+
+:root:root /* eu */ {
+  --eu-accent: var(--magenta-text);
+  --south: var(--ochre);
+  --south-text: #87540c;
+  --north: var(--blue);
+  --north-text: var(--blue-text);
+  --south-hi: var(--ochre-hi);
+  --north-hi: var(--blue-hi);
+  --night: #0e1b2c;
+}
+
+:root:root /* jet */ {
+  --east: var(--blue);
+  --west: var(--magenta);
+  --east-hi: var(--blue-hi);
+  --west-hi: var(--magenta-hi);
+  --night: #0e1b2c;
+  --night-2: #0a1522;
+}
+
+:root:root /* sea */ {
+  --sea-cool: #23557f;
+  --sea-warm: #a8580e;
+}
+
+/* ------------------------------------------------------------------ base */
+:root:root body {
+  background: var(--paper);
+  color: var(--ink);
+  text-rendering: optimizeLegibility;
+}
+
+:root:root ::selection {
+  background: var(--magenta-soft);
+  color: var(--ink);
+}
+
+:root:root :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+:root:root a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+/* the reporting point: a filled triangle, the sign of a step on the route */
+:root:root .wpt,
+:root:root .chapter-num::before,
+:root:root .issue-kicker a::before,
+:root:root .es-step::before {
+  content: "";
+  display: inline-block;
+  width: 0.62em;
+  height: 0.56em;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+/* a hyphenated word kept whole in a title (partials.js, nobr) */
+:root:root .nw {
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ titles: one family, one ink */
+:root:root .display,
+:root:root .section-title,
+:root:root .part-label,
+:root:root .lead-title,
+:root:root .panel h3,
+:root:root .panel-head h3,
+:root:root .essentiel-title,
+:root:root .how-title {
+  font-family: var(--f-display);
+  font-stretch: var(--stretch-display);
+  letter-spacing: -0.01em;
+}
+
+:root:root .display {
+  font-weight: var(--w-display);
+  font-size: var(--t-display);
+  line-height: 0.95;
+}
+
+/* no single word in another colour: the title reads as one sentence */
+:root:root .display em,
+:root:root .brand span,
+:root:root .lead-title em {
+  font-style: normal;
+  color: inherit !important;
+}
+
+:root:root .section-title {
+  font-weight: var(--w-display);
+  font-size: var(--t-3xl);
+  line-height: 1;
+}
+
+:root:root .part-label {
+  font-weight: var(--w-display);
+}
+
+:root:root .panel h3,
+:root:root .panel-head h3 {
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ masthead and the reading route */
+:root:root .masthead {
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  border-bottom-color: var(--rule);
+}
+
+:root:root .brand {
+  font-stretch: var(--stretch-display);
+  font-weight: 700;
+}
+
+:root:root .read-progress {
+  height: 3px;
+  background: none;
+}
+
+:root:root .read-progress i {
+  background: var(--magenta);
+}
+
+/* a reporting point on the track for each chapter (readingProgress, story.js) */
+:root:root .read-progress .rp-wpt {
+  position: absolute;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  background: var(--rule-strong);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  transition: background-color 0.2s;
+}
+
+:root:root .read-progress .rp-wpt.passed {
+  background: var(--magenta);
+}
+
+/* ------------------------------------------------------------------ controls: one corner, one weight */
+:root:root .btn,
+:root:root .seg,
+:root:root .seg button,
+:root:root .menu-open,
+:root:root .menu-close {
+  border-radius: var(--r) !important;
+}
+
+:root:root .seg button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------ the kicker: number and theme */
+:root:root .issue-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--s3);
+  font: 650 var(--t-sm) / 1.3 var(--f-ui);
+  letter-spacing: 0.01em;
+}
+
+:root:root .issue-kicker a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  text-decoration: none;
+}
+
+:root:root .issue-kicker a::before {
+  color: var(--magenta-hi);
+}
+
+/* ------------------------------------------------------------------ night grounds carry the graticule */
+:root:root .hf-open,
+:root:root .sea-open,
+:root:root .eu-open,
+:root:root .lead,
+:root:root .part,
+:root:root .site-foot {
+  background-color: var(--night);
+}
+
+:root:root .hf-open,
+:root:root .sea-open,
+:root:root .eu-open,
+:root:root .lead,
+:root:root .site-foot {
+  background-image:
+    linear-gradient(var(--night-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--night-line) 1px, transparent 1px);
+  background-size:
+    100% 88px,
+    88px 100%;
+  background-position: center top;
+}
+
+/* the part band paints past the column with border-image: the graticule goes on its own layer */
+:root:root .part {
+  --band-bg: var(--night);
+  --band-hi: var(--magenta-hi);
+  position: relative;
+  isolation: isolate;
+}
+
+:root:root .part::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
+  background:
+    linear-gradient(var(--night-line) 1px, transparent 1px) center top / 100% 88px,
+    linear-gradient(90deg, var(--night-line) 1px, transparent 1px) center top / 88px 100%;
+  pointer-events: none;
+}
+
+:root:root .part-no {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.5em;
+  font-stretch: 100%;
+  letter-spacing: 0.02em;
+}
+
+:root:root .part-no::before {
+  content: "";
+  width: 0.7em;
+  height: 0.62em;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+:root:root .part-toc a span {
+  color: var(--magenta-hi);
+}
+
+:root:root .part-toc a:hover {
+  border-bottom-color: var(--magenta-hi);
+}
+
+/* ------------------------------------------------------------------ chapter numbers: points on the route */
+:root:root .chapter-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  margin-bottom: var(--s3);
+  font: 600 var(--t-sm) / 1 var(--f-ui);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+:root:root .chapter-num::before {
+  color: var(--magenta);
+}
+
+:root:root .chapter-num b {
+  color: var(--ink);
+  font-weight: 750;
+}
+
+/* ------------------------------------------------------------------ figures */
+:root:root .dark-panel > .fig-no,
+:root:root .lead-feature .fig-no {
+  color: var(--magenta-hi);
+}
+
+:root:root .fig-no {
+  color: var(--magenta-text);
+  letter-spacing: 0.01em;
+}
+
+:root:root .panel:not(.dark-panel) {
+  border-top-color: var(--ink);
+}
+
+:root:root .note.lecture b,
+:root:root .note.lecture strong {
+  color: var(--ink);
+}
+
+:root:root .story-aside {
+  border-left: 2px solid var(--magenta);
+}
+
+/* ------------------------------------------------------------------ the essentials: the route in four steps */
+:root:root .essentiel {
+  padding-block: var(--s7) var(--s4);
+}
+
+:root:root .essentiel-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  font-weight: 700;
+  font-size: var(--t-xl);
+}
+
+:root:root .essentiel-title small {
+  font: 500 var(--t-sm) / 1.3 var(--f-ui);
+  color: var(--muted);
+  letter-spacing: 0;
+}
+
+:root:root .essentiel-dek {
+  max-width: 38em;
+  margin: 0 0 var(--s5);
+  font: 400 1.02rem / 1.5 var(--f-text);
+  color: var(--ink-2);
+}
+
+:root:root .essentiel-list {
+  position: relative;
+  border-top: 0;
+  counter-reset: es;
+}
+
+:root:root .essentiel-list > li {
+  position: relative;
+  counter-increment: es;
+}
+
+/* the route: a dashed magenta track through the reporting points */
+:root:root .essentiel-list > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: -28px;
+  top: 7px;
+  height: 0;
+  border-top: 2px dashed color-mix(in srgb, var(--magenta) 55%, transparent);
+}
+
+:root:root .essentiel-list > li:last-child::before {
+  right: 0;
+  border-top-style: solid;
+  border-top-color: var(--ink);
+}
+
+:root:root .essentiel-list > li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 14px;
+  background: var(--magenta);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+:root:root .essentiel-list > li:last-child::after {
+  background: var(--ink);
+}
+
+:root:root .essentiel-list a {
+  padding-top: 30px;
+  border-bottom: 0;
+}
+
+:root:root .es-n {
+  font-stretch: var(--stretch-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  color: var(--ink);
+}
+
+:root:root .es-q {
+  font-stretch: var(--stretch-display);
+  font-weight: 700;
+}
+
+:root:root .essentiel-list a:hover .es-q,
+:root:root .essentiel-list a:focus-visible .es-q {
+  color: var(--magenta-text);
+}
+
+@media (max-width: 720px) {
+  :root:root .essentiel-list > li::before {
+    left: 7px;
+    right: auto;
+    top: 14px;
+    bottom: -14px;
+    border-top: 0;
+    border-left: 2px dashed color-mix(in srgb, var(--magenta) 55%, transparent);
+  }
+
+  :root:root .essentiel-list > li:last-child::before {
+    display: none;
+  }
+
+  :root:root .essentiel-list a {
+    padding: 0 0 var(--s5) 32px;
+  }
+}
+
+/* ------------------------------------------------------------------ home: covers keep one ink */
+:root:root .shelf-item,
+:root:root .also,
+:root:root .menu-issues a,
+:root:root .arc-item {
+  --c: var(--magenta) !important;
+}
+
+/* ------------------------------------------------------------------ footer */
+:root:root .site-foot {
+  color: var(--night-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:root .read-progress .rp-wpt {
+    transition: none;
+  }
+}

@@ -44,7 +44,7 @@ function legendRow(items) {
   );
 }
 
-/** The pyramid of severity: each floor as wide as its accidents, the human part in orange, centred. */
+/** The pyramid of severity: each floor as wide as its accidents, the human part in magenta, centred. */
 export function pyramid(node, rows) {
   const max = d3.max(rows, (r) => r.n);
   node.replaceChildren(
@@ -162,7 +162,7 @@ export function cheeseChart(node, rows, n = 9) {
   );
 }
 
-/** Defining events: the bar is the accidents, its orange part those citing a person. */
+/** Defining events: the bar is the accidents, its magenta part those citing a person. */
 export function eventsChart(node, rows, n = 16) {
   const shown = rows.filter((r) => r.key !== "Miscellaneous/other").slice(0, n);
   const max = d3.max(shown, (r) => r.n);

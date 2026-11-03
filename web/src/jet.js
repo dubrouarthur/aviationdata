@@ -4,6 +4,7 @@ import "./style.css";
 import "./site/story.css";
 import "./jet.css";
 import "./site/atlas.css";
+import "./site/carte.css";
 import { initSiteMenu } from "./site/menu.js";
 import {
   numberChapters,

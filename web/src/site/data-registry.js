@@ -10,9 +10,11 @@ import { CASES } from "../hf/cases.js";
 import { DATASETS as DGAC } from "../lib/datasets.js";
 import { FACTS as CIEL_FACTS } from "../modules/sources.js";
 import { SSOURCES } from "../saisons/sources.js";
+import { BSOURCES } from "../billet/sources.js";
+import { CSOURCES } from "../carbone/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
-export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES };
+export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES };
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
 const PUBLIC = { text: "domaine public" };
@@ -106,13 +108,28 @@ export const DATASETS = [
     id: "dgac-prix",
     producer: "DGAC, via data.gouv.fr",
     title: "Indices des prix du transport aérien de passagers (IPTAP)",
-    refs: [["ciel", "iptap"]],
+    refs: [
+      ["ciel", "iptap"],
+      ["billet", "iptap"],
+    ],
     what: "Prix des billets d'avion au départ de France, en indice.",
     period: "Indices mensuels, base 100 en 2023.",
     terms: PRODUCER,
     files: ["data/prix.json"],
     etl: ["etl/fetch.py", "etl/build.py"],
-    checks: ["tests/test_etl.py", "web/scripts/audit_numbers.py"],
+    checks: ["tests/test_etl.py", "web/scripts/audit_numbers.py", "web/scripts/check_billet.py"],
+  },
+  {
+    id: "eurostat-ipch",
+    producer: "Eurostat",
+    title: "Indice des prix à la consommation harmonisé, France (prc_hicp_minr)",
+    refs: [["billet", "hicp"]],
+    what: "L'ensemble des prix à la consommation en France, et le prix du transport de voyageurs par avion et par train.",
+    period: "Mensuel, indice 100 en 2015, depuis 2012 sur le site.",
+    terms: NOTICE_EUROSTAT,
+    files: ["data/billet/hicp.json"],
+    etl: ["etl/billet/hicp.py", "etl/billet/build_billet.py"],
+    checks: ["web/scripts/check_billet.py"],
   },
   {
     id: "dgac-co2",
@@ -121,13 +138,19 @@ export const DATASETS = [
     refs: [
       ["ciel", "co2"],
       ["jet", "dgac"],
+      ["carbone", "co2"],
     ],
     what: "Émissions nettes annuelles, en tonnes et en grammes par passager-équivalent-kilomètre, par type de vol.",
     period: "Par an.",
     terms: PRODUCER,
     files: ["data/co2.json", "data/jet/cost.json"],
     etl: ["etl/fetch.py", "etl/build.py", "etl/jet/build_cost.py"],
-    checks: ["tests/test_etl.py", "web/scripts/audit_numbers.py", "web/scripts/check_site.py"],
+    checks: [
+      "tests/test_etl.py",
+      "web/scripts/audit_numbers.py",
+      "web/scripts/check_site.py",
+      "web/scripts/check_carbone.py",
+    ],
   },
   {
     id: "era5",
@@ -279,15 +302,17 @@ export const DATASETS = [
       ["eu", "ourairports"],
       ["jet", "ourairports"],
       ["sea", "ourairports"],
+      ["carbone", "ourairports"],
     ],
     what: "La position de chaque aéroport, complétée à la main pour les aéroports fermés, comme Berlin-Tegel, et pour les noms français.",
     period: "Fichier courant.",
     terms: PUBLIC,
-    files: ["data/eu/eu.json", "data/aeroports.json", "data/routes.json"],
+    files: ["data/eu/eu.json", "data/aeroports.json", "data/routes.json", "data/co2/trajets.json"],
     alsoIn: ["ciel"],
     etl: [
       "etl/eu/eurostat.py",
       "etl/airports_ref.py",
+      "etl/co2/build_trips.py",
       "data/ref/eu_airports.csv",
       "data/ref/airports_manual.csv",
     ],
@@ -355,11 +380,20 @@ export const REFERENCES = [
     ],
     use: "Les définitions d'Eurostat : un passager par vol, les doubles comptes des aéroports.",
   },
+  {
+    refs: [["carbone", "bilan"]],
+    use: "La méthode du CO2 de la DGAC : TARMAAC, passager-équivalent, partage entre départ et arrivée, ce qui n'est pas compté.",
+  },
+  {
+    refs: [["billet", "bulletin"]],
+    use: "La méthode de l'indice des prix des billets : liaisons suivies, tarifs relevés, pondération.",
+  },
   { refs: [["eu", "reg"]], use: "Le règlement qui rend les séries comparables depuis 2003 à 2005." },
   {
     refs: [
       ["eu", "copyright"],
       ["sea", "copyright"],
+      ["billet", "copyright"],
     ],
     use: "Les conditions de réutilisation des données d'Eurostat.",
   },

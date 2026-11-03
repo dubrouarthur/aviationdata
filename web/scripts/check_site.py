@@ -32,8 +32,10 @@ for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
 # every investigation, newest first (web/src/site/issues.js), and every page of the magazine
-SLUGS = ["calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
-PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes", "/donnees"]
+SLUGS = ["co2-par-passager", "prix-des-billets", "calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
+# the short format (« En 5 minutes »): their numbers are checked by check_billet.py and check_carbone.py
+COURT = ["co2-par-passager", "prix-des-billets"]
+PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes", "/donnees", "/design"]
 MONTHS = "janvier février mars avril mai juin juillet août septembre octobre novembre décembre".split()
 failures = []
 
@@ -189,8 +191,10 @@ with sync_playwright() as pw:
     # ------------------------------------------------------------ home
     pg = page_(viewport={"width": 1440, "height": 900})
     pg.goto(base + "/", wait_until="networkidle")
-    links = pg.eval_on_selector_all(".shelf-link", "as => as.map(a => a.getAttribute('href'))")
+    links = pg.eval_on_selector_all(".q-link, .shelf-link", "as => as.map(a => a.getAttribute('href'))")
     check("home lists every investigation", links == SLUGS, str(links))
+    latest = pg.eval_on_selector_all(".latest-route a", "as => as.map(a => a.getAttribute('href'))")
+    check("home opens on the five latest questions", latest == SLUGS[:5], str(latest))
     pg.wait_for_timeout(800)
     # the lead story's own figure: the calendar of the seasons, every country and the Union
     pg.wait_for_selector("#lead-cal g.cal-row", timeout=15000)
@@ -243,7 +247,7 @@ with sync_playwright() as pw:
     check("first story links back home", pg.title().startswith("aviationdata"), pg.url)
     # the page for a missing address is served at any depth: every link, script and image from the root
     pg.goto(base + "/404.html", wait_until="networkidle")
-    covers = pg.eval_on_selector_all(".shelf-link", "as => as.map(a => a.getAttribute('href'))")
+    covers = pg.eval_on_selector_all(".q-link, .shelf-link", "as => as.map(a => a.getAttribute('href'))")
     check("404: lists every investigation from the root", covers == [f"/{s}" for s in SLUGS], str(covers))
     rel = pg.evaluate(
         """() => [...document.querySelectorAll('[href], [src]')]
@@ -271,7 +275,7 @@ with sync_playwright() as pw:
                 # a story in parts lists its parts and chapters, not the links of its bar
                 (pg.locator("main > .part").count() > 0 or n >= pg.locator(".topnav a").count())
                 and n >= chapters - 1
-                and n > 5,
+                and (n > 5 or path.strip("/") in COURT),
                 f"{n} for {chapters} chapters",
             )
         pg.keyboard.press("Escape")
@@ -305,8 +309,9 @@ with sync_playwright() as pw:
     for k, slug in enumerate(SLUGS):
         no = len(SLUGS) - k
         pg.goto(base + "/" + slug, wait_until="networkidle")
-        has(f"/{slug}: kicker", norm(pg.inner_text(".issue-kicker")), f"Enquête n° {no}")
-        nxt = pg.eval_on_selector_all("#lire-aussi .also", "as => as.map(a => a.getAttribute('href'))")
+        kind = "En 5 minutes, n°" if slug in COURT else "Enquête n°"
+        has(f"/{slug}: kicker", norm(pg.inner_text(".issue-kicker")), f"{kind} {no}")
+        nxt = pg.eval_on_selector_all("#lire-aussi .also:not(.related)", "as => as.map(a => a.getAttribute('href'))")
         neighbours = (no > 1) + (no < len(SLUGS))
         check(f"/{slug}: the story leads to the previous and next ones", len(nxt) == neighbours, str(nxt))
         # every figure names its source (a link), and every chapter with figures lists its data at the top

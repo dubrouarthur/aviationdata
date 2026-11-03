@@ -5,6 +5,7 @@ import "./home.css";
 import "./eu.css";
 import "./saisons.css";
 import "./site/atlas.css";
+import "./site/carte.css";
 import { initSiteMenu } from "./site/menu.js";
 import { watchFrenchSpacing } from "./lib/ui.js";
 import { asset } from "./lib/site.js";

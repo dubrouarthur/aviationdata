@@ -2,6 +2,8 @@
 // (vite.config.js), the shared masthead menu, footer, bylines and "read also" (partials.js), the
 // home page's list, the Atom feed and the sitemap all come from here.
 // A new investigation = its folder + an entry in ISSUES (+ its lead or strip on the home page).
+// `related`: keys of publications on the same subject, offered at the end with the previous and next.
+// `format: "court"` marks the short format (« En 5 minutes », src/court/): one question, four steps.
 // `hook` is the investigation's own question, as its opening asks it; `cover` frames the picture of
 // its card on the home page (object-position of the og image: its figure, not its title).
 
@@ -17,6 +19,44 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "carbone",
+    slug: "co2-par-passager",
+    no: 7,
+    format: "court",
+    topic: "Climat",
+    title: "Combien de CO2 pour un vol ?",
+    dek: "Le CO2 d'un vol par passager : par kilomètre selon le type de vol, pour un aller-retour Paris–New York ou Paris–Toulouse, et pourquoi le total monte quand chaque passager émet moins.",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    minutes: 5,
+    chapters: 4,
+    image: "og-co2.jpg",
+    cover: "96% 50%",
+    hook: "Combien de CO2 pour un vol en avion ?",
+    accent: "var(--magenta)",
+    sources: "DGAC",
+    related: ["ciel", "jet"],
+  },
+  {
+    key: "billet",
+    slug: "prix-des-billets",
+    no: 6,
+    format: "court",
+    topic: "Prix",
+    title: "Le billet d'avion est-il plus cher ?",
+    dek: "Dix ans sans hausse, puis un bond en deux ans : le prix des billets d'avion au départ de France depuis 2012, comparé à l'inflation, à la saison, au type de vol et au train.",
+    published: "2026-11-03",
+    updated: "2026-11-03",
+    minutes: 5,
+    chapters: 4,
+    image: "og-billet.jpg",
+    cover: "96% 50%",
+    hook: "Le billet d'avion est-il plus cher qu'avant ?",
+    accent: "var(--magenta)",
+    sources: "DGAC, Eurostat",
+    related: ["ciel"],
+  },
+  {
     key: "sea",
     slug: "calendrier-du-ciel",
     no: 5,
@@ -30,7 +70,7 @@ export const ISSUES = [
     image: "og-saisons.jpg",
     cover: "70% 50%",
     hook: "Quand l'Europe prend-elle l'avion ?",
-    accent: "#9a4a00",
+    accent: "var(--magenta)",
     sources: "Eurostat",
   },
   {
@@ -47,7 +87,7 @@ export const ISSUES = [
     image: "og-eu.jpg",
     cover: "96% 50%",
     hook: "Le transport aérien européen a-t-il effacé le Covid ?",
-    accent: "#0f766e",
+    accent: "var(--magenta)",
     sources: "Eurostat",
   },
   {
@@ -64,7 +104,7 @@ export const ISSUES = [
     image: "og-hf.jpg",
     cover: "78% 50%",
     hook: "Dans les accidents aériens, le facteur humain est-il vraiment la première cause ?",
-    accent: "#b3460a",
+    accent: "var(--magenta)",
     sources: "NTSB",
   },
   {
@@ -81,8 +121,9 @@ export const ISSUES = [
     image: "og-jet.jpg",
     cover: "100% 50%",
     hook: "Les données météo peuvent-elles aider à brûler moins de kérosène ?",
-    accent: "#b5267e",
+    accent: "var(--magenta)",
     sources: "ERA5 Copernicus, NOAA, Météo-France, NASA, OpenSky",
+    related: ["carbone"],
   },
   {
     key: "ciel",
@@ -100,6 +141,7 @@ export const ISSUES = [
     hook: "Tout le transport aérien français a-t-il retrouvé son niveau d'avant-Covid ?",
     accent: "var(--magenta)",
     sources: "DGAC, data.gouv.fr",
+    related: ["billet", "carbone"],
   },
 ];
 
@@ -158,6 +200,7 @@ export const PAGES = [
   { key: "archive", slug: "enquetes", title: "Toutes les enquêtes" },
   { key: "data", slug: "donnees", title: "Les données" },
   { key: "about", slug: "a-propos", title: "À propos" },
+  { key: "design", slug: "design", title: "Le design system", noindex: true },
 ];
 
 const MONTHS = [
@@ -188,3 +231,9 @@ export function frMonth(iso) {
 }
 
 export const issueByKey = (key) => ISSUES.find((i) => i.key === key);
+
+/** "Enquête" or "En 5 minutes": what a publication is called in kickers, cards and the archive. */
+export const kind = (i) => (i.format === "court" ? "En 5 minutes" : "Enquête");
+
+/** "Enquête n° 3" or "En 5 minutes, n° 6". */
+export const numbered = (i) => (i.format === "court" ? `En 5 minutes, n° ${i.no}` : `Enquête n° ${i.no}`);

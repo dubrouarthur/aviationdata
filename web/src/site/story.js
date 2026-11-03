@@ -55,7 +55,10 @@ export function shareBlock() {
     el("div", { class: "author-card" }, [
       el("img", { src: asset("auteur.jpg"), alt: "Arthur Dubrou", width: 76, height: 76, loading: "lazy" }),
       el("div", {}, [
-        el("p", { class: "ac-by", text: "Une enquête en données de" }),
+        el("p", {
+        class: "ac-by",
+        text: document.body.classList.contains("court") ? "Un article en données de" : "Une enquête en données de",
+      }),
         el("p", { class: "ac-name", text: "Arthur Dubrou" }),
         el("a", {
           href: "https://www.linkedin.com/in/arthur-dubrou/",
@@ -66,7 +69,11 @@ export function shareBlock() {
       ]),
     ]),
     el("div", { class: "share-box" }, [
-      el("p", { text: "Cette enquête vous a appris quelque chose ? Partagez-la." }),
+      el("p", {
+        text: document.body.classList.contains("court")
+          ? "Cet article vous a appris quelque chose ? Partagez-le."
+          : "Cette enquête vous a appris quelque chose ? Partagez-la.",
+      }),
       el("div", { class: "share-actions" }, [
         el("a", {
           class: "btn primary",
@@ -121,14 +128,37 @@ export function trackChapters() {
 export function readingProgress() {
   const bar = document.getElementById("read-progress");
   if (!bar) return;
+  // the track carries a reporting point for each chapter, at the scroll where its title reaches the bar
+  const track = bar.parentElement;
+  let points = [];
+  const place = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    points.forEach((p) => p.node.remove());
+    points = [...document.querySelectorAll("main .chapter-num")].map((n) => {
+      const at = (n.closest("section") ?? n).getBoundingClientRect().top + scrollY - 80;
+      const node = el("b", { class: "rp-wpt" });
+      node.style.left = `${Math.max(0, Math.min(100, (at / max) * 100)).toFixed(2)}%`;
+      track.append(node);
+      return { node, at };
+    });
+  };
   let raf = 0;
   const update = () => {
     raf = 0;
     const max = document.documentElement.scrollHeight - innerHeight;
     bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max).toFixed(4) : 0})`;
+    for (const p of points) p.node.classList.toggle("passed", scrollY >= p.at);
   };
   addEventListener("scroll", () => (raf ||= requestAnimationFrame(update)), { passive: true });
-  addEventListener("resize", update);
+  let rt = 0;
+  const relayout = () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => (place(), update()), 200);
+  };
+  addEventListener("resize", relayout);
+  addEventListener("load", relayout);
+  // charts and tables written after this call change the page's height
+  new ResizeObserver(relayout).observe(document.querySelector("main") ?? document.body);
   update();
 }
 

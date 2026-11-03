@@ -5,6 +5,7 @@ import "./home.css";
 import "./about.css";
 import "./archive.css";
 import "./site/atlas.css";
+import "./site/carte.css";
 import { initSiteMenu } from "./site/menu.js";
 import { watchFrenchSpacing } from "./lib/ui.js";
 
