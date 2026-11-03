@@ -12,7 +12,7 @@ import { lineChart, hbars } from "./court/charts.js";
 import { carboneFacts, SEGMENTS } from "./carbone/facts.js";
 import { CSOURCES } from "./carbone/sources.js";
 import * as T from "./carbone/text.js";
-import { calculator } from "./carbone/calc.js";
+import { calculator } from "./carbone/calc-ui.js";
 
 const segLabel = (key) => SEGMENTS.find((s) => s.key === key)?.label ?? key;
 const signedMt = (v) => `${v > 0 ? "+" : "−"}${fmtNum(Math.abs(v), 1)} Mt`;

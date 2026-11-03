@@ -190,11 +190,17 @@ with sync_playwright() as p:
                 den += r["seats"][qi]
         return num / den
 
+    def pick_airport(sel, text):
+        pg.click(sel)
+        pg.keyboard.press("Control+A")
+        pg.keyboard.type(text)
+        pg.keyboard.press("Enter")
+
     def fill(frm, to, month, back):
-        pg.fill("#calc-from", frm)
-        pg.fill("#calc-to", to)
-        pg.select_option("#calc-month", str(month))
-        pg.select_option("#calc-trip", "1" if back else "0")
+        pick_airport("#calc-from", frm)
+        pick_airport("#calc-to", to)
+        pg.click(f".calc-months [data-m='{month}']")
+        pg.click(f".calc-trip [data-back='{1 if back else 0}']")
         pg.wait_for_timeout(150)
         return norm(pg.inner_text("#calc-result"))
 
@@ -212,11 +218,35 @@ with sync_playwright() as p:
         want = [f"{k10(kgv)} de CO2 par passager", f"{fr(km)} km à vol d'oiseau",
                 f"{fr(round(r['pax'][qi] / r['flights'][qi]))} passagers par vol en moyenne, pour {fr(round(r['seats'][qi] / r['flights'][qi]))} sièges",
                 f"{fr(load * 100)} % des sièges occupés", f"{fr(round(r['flights'][qi] / 26))} vols par semaine",
-                f"votre part serait d'environ {k10(kgv * seg_load(sg, qi) / load)}"]
+                ]
+        diff = round(load * 100) - round(seg_load(sg, qi) * 100)
+        want.append("remplie comme la moyenne" if diff == 0 else f"le CO2 de chacun serait d'environ {k10(kgv * seg_load(sg, qi) / load)}")
         has(f"calculator {frm}–{to}", out, *want)
     has("calculator: a confidential route", fill("ORY", "NCE", 6, True), "secret statistique")
     has("calculator: no direct flight", fill("BOD", "JFK", 6, True), "ne compte pas de vol direct")
-    has("calculator: an unknown airport", fill("zzz", "JFK", 6, True), "Choisissez deux aéroports de la liste")
+    pg.click("#calc-from")
+    pg.keyboard.press("Control+A")
+    pg.keyboard.type("zzz")
+    pg.wait_for_timeout(150)
+    has("calculator: an unknown airport", norm(pg.inner_text("#calc-from-list")), "Aucun aéroport relié à la France ne correspond.")
+    has("calculator: asks where from", norm(pg.inner_text("#calc-result")), "D'où partez-vous ?")
+    pick_airport("#calc-from", "NCE")
+    pg.click("#calc-to")
+    pg.keyboard.press("Control+A")
+    pg.keyboard.press("Backspace")
+    pg.wait_for_timeout(150)
+    nce = next(a for a in L["airports"] if a["iata"] == "NCE")["code"]
+    last = (len(L["years"]) - 1) * 4
+    tops = sorted(((r["b"] if r["a"] == nce else r["a"], sum(v or 0 for v in r["pax"][last:last + 4])) for r in L["routes"] if nce in (r["a"], r["b"])), key=lambda t: -t[1])
+    first = next(a for a in L["airports"] if a["code"] == tops[0][0])
+    chips = [norm(t) for t in pg.locator("#calc-suggest .calc-chip").all_inner_texts()]
+    check("calculator: proposes the busiest direct lines from the departure", chips and chips[0].startswith(first["iata"]), str(chips[:3]))
+    pg.locator("#calc-suggest .calc-chip").first.click()
+    pg.wait_for_timeout(150)
+    has("calculator: a proposal fills the arrival", norm(pg.inner_text("#calc-result")), first["iata"], "de CO2 par passager")
+    pg.goto(f"{base}/co2-par-passager?de=NCE&vers=CDG&mois=8&trajet=aller#calculer", wait_until="networkidle")
+    pg.wait_for_timeout(600)
+    has("calculator: a shared address gives the same result", norm(pg.inner_text("#calc-result")), "NCE", "CDG", "août", "aller simple")
     check("method in four steps", pg.locator("#comment .how-steps li").count() == 4)
     gl = pg.locator("main button.gloss")
     check("glossary: at least three terms", gl.count() >= 3, str(gl.count()))

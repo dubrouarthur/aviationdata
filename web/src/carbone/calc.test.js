@@ -37,3 +37,16 @@ describe("the CO2 calculator", () => {
     expect(greatCircle({ lat: 0, lon: 0 }, { lat: 0, lon: 90 })).toBeCloseTo((Math.PI / 2) * 6371, 6);
   });
 });
+
+describe("the airport search", () => {
+  it("puts the exact code first, ignores accents and case", async () => {
+    const { searchAirports, destinations } = await import("./calc.js");
+    expect(searchAirports(L, "jfk")[0].code).toBe("KJFK");
+    expect(searchAirports(L, "geneve")[0].code).toBe("LSGG");
+    expect(searchAirports(L, "lis").map((a) => a.code)).toContain("LPPT");
+    expect(searchAirports(L, "lis").map((a) => a.code)).not.toContain("EGPH"); // Ingliston, Edinburgh
+    expect(searchAirports(L, "")).toEqual([]);
+    const d = destinations(L, "LFMN");
+    expect(d[0].pax).toBeGreaterThanOrEqual(d.at(-1).pax);
+  });
+});

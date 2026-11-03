@@ -25,6 +25,22 @@ UNIT = {"PAS_CRD": "PAS", "ST_PAS": "SEAT", "CAF_PAS": "FLIGHT"}
 NOT_AIRPORTS = {"LF90", "XX99", "OTH"}
 OVERSEAS = {"GP", "MQ", "GF", "RE", "YT", "PM", "BL", "MF", "NC", "PF", "WF"}
 EUROSTAT_ISO = {"UK": "GB", "EL": "GR"}
+# French names of the foreign cities OurAirports writes in English (the label of an airport without one)
+CITY_FR = {
+    "London": "Londres", "Geneva": "Genève", "Barcelona": "Barcelone", "Lisbon": "Lisbonne", "Algiers": "Alger",
+    "Brussels": "Bruxelles", "Vienna": "Vienne", "Copenhagen": "Copenhague", "Athens": "Athènes",
+    "Venice": "Venise", "Seville": "Séville", "Warsaw": "Varsovie", "Edinburgh": "Édimbourg", "Moscow": "Moscou",
+    "Beijing": "Pékin", "Cairo": "Le Caire", "Marrakesh": "Marrakech", "Dubai": "Dubaï", "Frankfurt": "Francfort",
+    "Basel": "Bâle", "Hamburg": "Hambourg", "Genoa": "Gênes", "Bucharest": "Bucarest", "Singapore": "Singapour",
+    "Mexico City": "Mexico", "Saint Petersburg": "Saint-Pétersbourg", "Beirut": "Beyrouth", "Riyadh": "Riyad",
+    "Kuwait City": "Koweït", "Muscat": "Mascate", "Tehran": "Téhéran", "Munich": "Munich", "Cologne": "Cologne",
+    "Florence": "Florence", "Naples": "Naples", "Turin": "Turin", "Milan": "Milan", "Manchester": "Manchester",
+    "Dublin": "Dublin", "Cape Town": "Le Cap", "Havana": "La Havane", "New Delhi": "New Delhi", "Delhi": "Delhi",
+    "Mumbai": "Bombay", "Bangkok": "Bangkok", "Tokyo": "Tokyo", "Seoul": "Séoul", "Shanghai": "Shanghai",
+    "Hong Kong": "Hong Kong", "Montreal": "Montréal", "Quebec": "Québec", "Washington": "Washington",
+    "Philadelphia": "Philadelphie", "New Orleans": "La Nouvelle-Orléans", "Mauritius": "Maurice",
+    "Plaine Magnien": "Maurice", "Tel Aviv": "Tel-Aviv", "Cyprus": "Chypre", "Larnaca": "Larnaca",
+}
 
 
 def read_cube(path: Path):
@@ -109,10 +125,14 @@ def main() -> int:
                 continue
             cc = r["iso_country"]
             zone = "MET" if cc == "FR" else "OM" if cc in OVERSEAS else "INT"
+            fr_name = names.get(r["ident"])
+            city = (r["municipality"] or "").split(" (")[0]
             airports[r["ident"]] = {
                 "code": r["ident"],
                 "iata": r["iata_code"] or "",
-                "name": names.get(r["ident"]) or r["name"],
+                # what the reader sees: the French name, else the city in French
+                "label": fr_name or CITY_FR.get(city, city) or r["name"],
+                "name": fr_name or r["name"],
                 "city": r["municipality"] or "",
                 "country": country_fr.get(cc, cc),
                 "zone": zone,

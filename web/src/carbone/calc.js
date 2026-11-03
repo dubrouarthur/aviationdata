@@ -1,14 +1,12 @@
 // « Calculez votre vol »: the CO2 of a flight between two airports, and what Eurostat says of that route
 // (passengers, seats, flights per quarter). Pure computation in flightFacts(), recomputed in Python by
-// web/scripts/check_carbone.py; the form in calculator().
-import { $, el } from "../lib/ui.js";
-import { fmtNum } from "../lib/format.js";
+// web/scripts/check_carbone.py; the interface in calc-ui.js.
 import { SEGMENTS } from "./facts.js";
 
 const R_KM = 6371.0;
 /** Beyond this distance an international flight takes more than about 4 h 30: long-haul for the DGAC. */
 export const LONG_HAUL_KM = 3600;
-const MONTHS = [
+export const MONTHS = [
   "janvier",
   "février",
   "mars",
@@ -122,152 +120,46 @@ export function flightFacts(L, co2, from, to, month, back = false) {
   };
 }
 
-const kg10 = (v) => `${fmtNum(Math.round(v / 10) * 10, 0)} kg`;
-const pct = (v) => `${fmtNum(v * 100, 0)} %`;
-const label = (a) => `${a.name} (${a.iata || a.code}), ${a.country}`;
-
-/** The form and its answer. */
-export function calculator(node, L, co2) {
-  const byLabel = new Map(L.airports.map((a) => [label(a).toLowerCase(), a]));
-  const byCode = new Map(L.airports.flatMap((a) => [[a.code, a], ...(a.iata ? [[a.iata, a]] : [])]));
-  const find = (v) => {
-    const s = v.trim();
-    if (!s) return null;
-    return (
-      byLabel.get(s.toLowerCase()) ??
-      byCode.get(s.toUpperCase()) ??
-      L.airports.find((a) => `${a.name} ${a.city}`.toLowerCase().includes(s.toLowerCase())) ??
-      null
-    );
-  };
-  const list = el(
-    "datalist",
-    { id: "calc-airports" },
-    L.airports.map((a) => el("option", { value: label(a) })),
-  );
-  const field = (id, text, value) =>
-    el("p", { class: "calc-field" }, [
-      el("label", { for: id, text }),
-      el("input", {
-        id,
-        type: "text",
-        list: "calc-airports",
-        autocomplete: "off",
-        value,
-        spellcheck: "false",
-      }),
-    ]);
-  const monthSel = el(
-    "select",
-    { id: "calc-month" },
-    MONTHS.map((m, i) =>
-      el("option", { value: String(i), text: m[0].toUpperCase() + m.slice(1), selected: i === 6 }),
-    ),
-  );
-  const tripSel = el("select", { id: "calc-trip" }, [
-    el("option", { value: "1", text: "Aller-retour", selected: true }),
-    el("option", { value: "0", text: "Aller simple" }),
-  ]);
-  const ny = L.airports.find((a) => a.code === "KJFK");
-  const cdg = L.airports.find((a) => a.code === "LFPG");
-  const form = el("form", { class: "calc-form", "aria-label": "Votre vol" }, [
-    list,
-    field("calc-from", "Départ", cdg ? label(cdg) : ""),
-    field("calc-to", "Arrivée", ny ? label(ny) : ""),
-    el("p", { class: "calc-field" }, [el("label", { for: "calc-month", text: "Mois du voyage" }), monthSel]),
-    el("p", { class: "calc-field" }, [el("label", { for: "calc-trip", text: "Trajet" }), tripSel]),
-    el("p", {
-      class: "calc-hint",
-      text: "Tapez une ville, un aéroport ou son code (CDG, NCE…) et choisissez dans la liste.",
-    }),
-  ]);
-  const result = el("div", { class: "calc-result", id: "calc-result", "aria-live": "polite" });
-  node.replaceChildren(form, result);
-
-  const show = () => {
-    const a = find($("#calc-from").value);
-    const b = find($("#calc-to").value);
-    if (!a || !b || a === b) {
-      result.replaceChildren(
-        el("p", {
-          class: "calc-msg",
-          text:
-            !a || !b
-              ? "Choisissez deux aéroports de la liste : ceux que relient des vols au départ ou à l'arrivée de la France."
-              : "Le départ et l'arrivée sont le même aéroport.",
-        }),
-      );
-      return;
-    }
-    const F = flightFacts(L, co2, a.code, b.code, +monthSel.value, tripSel.value === "1");
-    const head = [
-      el("p", { class: "calc-big" }, [
-        el("b", { id: "calc-kg", text: kg10(F.kg) }),
-        el("span", { text: ` de CO2 par passager, ${F.trips === 2 ? "aller-retour" : "aller simple"}` }),
-      ]),
-      el("p", { class: "calc-line", id: "calc-basis" }, [
-        `${fmtNum(F.km, 0)} km à vol d'oiseau, ${F.segmentLabel.toLowerCase()} : ${fmtNum(F.g, 0)} g de CO2 par passager et par kilomètre en moyenne (DGAC, ${F.co2Year}).`,
-      ]),
-    ];
-    let route;
-    if (F.status === "route") {
-      const trend =
-        F.loadPrev == null
-          ? ""
-          : Math.round(F.load * 100) === Math.round(F.loadPrev * 100)
-            ? `, comme un an plus tôt`
-            : `, contre ${pct(F.loadPrev)} un an plus tôt`;
-      route = [
-        el("h4", { text: `Votre vol, d'après ${F.quarter} ${F.year}` }),
-        el("ul", { class: "calc-stats", id: "calc-stats" }, [
-          el("li", {}, [
-            el("b", { text: fmtNum(Math.round(F.perFlight), 0) }),
-            ` passagers par vol en moyenne, pour ${fmtNum(Math.round(F.seatsPerFlight), 0)} sièges`,
-          ]),
-          el("li", {}, [el("b", { text: pct(F.load) }), ` des sièges occupés${trend}`]),
-          el("li", {}, [
-            el("b", { text: fmtNum(Math.round(F.perWeek), 0) }),
-            " vols par semaine dans chaque sens, toutes compagnies",
-          ]),
-        ]),
-        el(
-          "div",
-          { class: "calc-q", role: "img", "aria-label": `Sièges occupés par trimestre en ${F.year}` },
-          F.loads.map((v, k) =>
-            el("span", { class: `calc-qbar${k === Math.floor(+monthSel.value / 3) ? " on" : ""}` }, [
-              el("i", { style: `height:${v == null ? 0 : (v * 100).toFixed(1)}%` }),
-              el("b", { text: v == null ? "–" : pct(v) }),
-              el("small", { text: `T${k + 1}` }),
-            ]),
-          ),
-        ),
-        F.kgAdjusted
-          ? el("p", { class: "calc-line", id: "calc-adjusted" }, [
-              `Les ${F.segmentLabel.toLowerCase() === "vol intérieur" ? "vols intérieurs" : `vols de ce type`} sont remplis à ${pct(F.segLoad)} en moyenne ce trimestre-là. Rapporté au remplissage de cette liaison, votre part serait d'environ `,
-              el("b", { text: kg10(F.kgAdjusted) }),
-              ".",
-            ])
-          : null,
-      ];
-    } else {
-      route = [
-        el("p", {
-          class: "calc-msg",
-          id: "calc-noroute",
-          text:
-            F.status === "secret"
-              ? `Eurostat ne publie pas les chiffres de cette liaison : ils révéleraient ceux d'une seule compagnie (secret statistique). Le CO2 ci-dessus reste une moyenne.`
-              : `Eurostat ne compte pas de vol direct entre ces deux aéroports en ${F.year}. Avec une escale, la distance et le CO2 augmentent.`,
-        }),
-      ];
-    }
-    result.replaceChildren(...head, ...route);
-  };
-  form.addEventListener("input", show);
-  form.addEventListener("change", show);
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    show();
-  });
-  show();
+/** Direct destinations from an airport, busiest first over the last complete year. */
+export function destinations(L, code) {
+  const last = (L.years.length - 1) * 4;
+  const sum = (r) => r.pax.slice(last, last + 4).reduce((a, v) => a + (v ?? 0), 0);
+  return L.routes
+    .filter((r) => r.a === code || r.b === code)
+    .map((r) => ({ code: r.a === code ? r.b : r.a, pax: sum(r) }))
+    .filter((d) => d.pax > 0)
+    .sort((x, y) => y.pax - x.pax);
 }
+
+/** Normalised text for the airport search: no accents, no case, no punctuation. */
+export const fold = (s) =>
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+/** Airports matching what the reader typed: IATA code first, then names and cities starting with it. */
+export function searchAirports(L, q, max = 8) {
+  const f = fold(q);
+  if (!f) return [];
+  const scored = [];
+  for (const a of L.airports) {
+    const words = fold(`${a.label} ${a.name} ${a.city} ${a.country}`);
+    let s = -1;
+    if (a.iata && fold(a.iata) === f) s = 0;
+    else if (fold(a.code) === f) s = 1;
+    else if (words.startsWith(f)) s = 2;
+    else if (` ${words}`.includes(` ${f}`)) s = 3;
+    else if (words.includes(f)) s = 4;
+    if (s >= 0) scored.push([s, a]);
+  }
+  // a word inside another ("lis" in "Ingliston") only when nothing starts with what was typed
+  const best = scored.some(([sc]) => sc <= 3) ? scored.filter(([sc]) => sc <= 3) : scored;
+  return best
+    .sort((x, y) => x[0] - y[0] || x[1].label.localeCompare(y[1].label, "fr"))
+    .slice(0, max)
+    .map((x) => x[1]);
+}
+
