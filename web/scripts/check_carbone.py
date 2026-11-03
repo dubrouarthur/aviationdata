@@ -161,7 +161,62 @@ with sync_playwright() as p:
 
     for fig in pg.locator("main figure.panel").all():
         check(f"figure source: {norm(fig.locator('h3').inner_text())[:40]}", fig.locator(".source-line a").count() >= 1)
-    check("chapters list their data", pg.locator(".chapter-sources").count() == 4)
+    check("chapters (and the calculator) list their data", pg.locator(".chapter-sources").count() == 5)
+
+    # ------------------------------------------------------------ the calculator, recomputed
+    L = json.loads((ROOT / "public" / "data" / "co2" / "liaisons.json").read_text())
+    AP = {a["code"]: a for a in L["airports"]}
+
+    def gc(a, b):
+        la1, lo1, la2, lo2 = map(math.radians, (a["lat"], a["lon"], b["lat"], b["lon"]))
+        h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
+        return 2 * 6371.0 * math.asin(math.sqrt(h))
+
+    def seg(a, b):
+        if a["zone"] == "MET" and b["zone"] == "MET":
+            return "MET_INTERIEUR"
+        if a["zone"] != "INT" and b["zone"] != "INT":
+            return "MET-OM_ET_OM-OM"
+        return "INTL_LC" if gc(a, b) > 3600 else "INTL_MC"
+
+    def route(x, y):
+        return next((r for r in L["routes"] if {r["a"], r["b"]} == {x, y}), None)
+
+    def seg_load(sg, qi):
+        num = den = 0
+        for r in L["routes"]:
+            if seg(AP[r["a"]], AP[r["b"]]) == sg and r["pax"][qi] is not None and r["seats"][qi] is not None:
+                num += r["pax"][qi]
+                den += r["seats"][qi]
+        return num / den
+
+    def fill(frm, to, month, back):
+        pg.fill("#calc-from", frm)
+        pg.fill("#calc-to", to)
+        pg.select_option("#calc-month", str(month))
+        pg.select_option("#calc-trip", "1" if back else "0")
+        pg.wait_for_timeout(150)
+        return norm(pg.inner_text("#calc-result"))
+
+    k10 = lambda v: f"{fr(round(v / 10) * 10)} kg"  # noqa: E731
+    for frm, to, month, back in (("CDG", "JFK", 6, True), ("LYS", "NTE", 0, False), ("CDG", "MAD", 10, True), ("ORY", "PTP", 3, True)):
+        pa = next(x for x in L["airports"] if x["iata"] == frm)
+        pb = next(x for x in L["airports"] if x["iata"] == to)
+        out = fill(frm, to, month, back)
+        km = gc(pa, pb)
+        sg = seg(pa, pb)
+        kgv = km * C["g_peqkm"][sg][-1] * (2 if back else 1) / 1000
+        r = route(pa["code"], pb["code"])
+        qi = (len(L["years"]) - 1) * 4 + month // 3
+        load = r["pax"][qi] / r["seats"][qi]
+        want = [f"{k10(kgv)} de CO2 par passager", f"{fr(km)} km à vol d'oiseau",
+                f"{fr(round(r['pax'][qi] / r['flights'][qi]))} passagers par vol en moyenne, pour {fr(round(r['seats'][qi] / r['flights'][qi]))} sièges",
+                f"{fr(load * 100)} % des sièges occupés", f"{fr(round(r['flights'][qi] / 26))} vols par semaine",
+                f"votre part serait d'environ {k10(kgv * seg_load(sg, qi) / load)}"]
+        has(f"calculator {frm}–{to}", out, *want)
+    has("calculator: a confidential route", fill("ORY", "NCE", 6, True), "secret statistique")
+    has("calculator: no direct flight", fill("BOD", "JFK", 6, True), "ne compte pas de vol direct")
+    has("calculator: an unknown airport", fill("zzz", "JFK", 6, True), "Choisissez deux aéroports de la liste")
     check("method in four steps", pg.locator("#comment .how-steps li").count() == 4)
     gl = pg.locator("main button.gloss")
     check("glossary: at least three terms", gl.count() >= 3, str(gl.count()))

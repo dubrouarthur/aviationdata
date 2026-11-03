@@ -290,6 +290,8 @@ const cells = (rows, cols, size, gap, fill) =>
     return `<rect x="${c * (size + gap)}" y="${r * (size + gap)}" width="${size}" height="${size}" ${fill(r, c)}/>`;
   }).join("");
 const GLYPHS = {
+  // a flight between two airports, and the seats filled
+  calculer: `<path class="g-mute" stroke-dasharray="2 3" d="M6 30Q32 4 58 30" /><circle class="g-on" cx="6" cy="30" r="3" /><circle class="g-on" cx="58" cy="30" r="3" /><rect class="g-on" x="14" y="36" width="26" height="5" /><rect class="g-cool-fill" x="40" y="36" width="10" height="5" />`,
   // monthly passengers since 2004: the seasons, the hole of 2020, the record
   tableau: `<path class="g-mute" d="M2 40H62" /><path class="g-line" d="M2 30l4-4 4 3 4-5 4 3 4-6 4 3 4-5 4 3 4-6 3 22 3-14 4-2 4-6 4 2 4-9 4 3" />`,
   // twelve months for three countries, from cool to warm

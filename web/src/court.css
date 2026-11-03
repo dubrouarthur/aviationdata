@@ -345,3 +345,161 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ------------------------------------------------------------------ the calculator (« Calculez votre vol ») */
+.court .court-tool {
+  padding-block: clamp(48px, 8vh, 88px) 8px;
+}
+
+.panel.calc {
+  background: var(--tool-ground, var(--paper-2));
+  border-top: 3px solid var(--magenta);
+  padding: 16px clamp(16px, 2.4vw, 28px) 20px;
+}
+
+.calc-box {
+  display: grid;
+  gap: 28px;
+  margin-top: 14px;
+}
+
+@media (min-width: 900px) {
+  .calc-box {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    column-gap: 40px;
+    align-items: start;
+  }
+}
+
+.calc-form {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.calc-field {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.calc-field label {
+  font: 650 var(--t-sm) / 1.2 var(--f-ui);
+  color: var(--ink);
+}
+
+.calc-field input,
+.calc-field select {
+  min-height: 44px;
+  padding: 8px 12px;
+  font: 500 1rem / 1.3 var(--f-ui);
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+}
+
+.calc-field input:focus-visible,
+.calc-field select:focus-visible {
+  outline: 2px solid var(--magenta);
+  outline-offset: 1px;
+}
+
+.calc-hint {
+  margin: 0;
+  font: 450 var(--t-xs) / 1.4 var(--f-ui);
+  color: var(--muted);
+}
+
+.calc-result h4 {
+  margin: 22px 0 10px;
+  font: 700 var(--t-lg) / 1.2 var(--f-display);
+  font-stretch: var(--stretch-display);
+}
+
+.calc-big {
+  margin: 0 0 8px;
+  font: 500 1.05rem / 1.3 var(--f-ui);
+  color: var(--ink-2);
+}
+
+.calc-big b {
+  display: block;
+  font: 720 clamp(2.6rem, 5vw, 3.6rem) / 1 var(--f-display);
+  font-stretch: var(--stretch-display);
+  color: var(--magenta-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-line,
+.calc-msg {
+  margin: 8px 0 0;
+  max-width: 36em;
+  font: 400 1rem / 1.5 var(--f-text);
+  color: var(--ink-2);
+}
+
+.calc-line b {
+  color: var(--ink);
+}
+
+.calc-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  font: 450 1rem / 1.35 var(--f-ui);
+  color: var(--ink-2);
+}
+
+.calc-stats b {
+  display: inline-block;
+  min-width: 3.4em;
+  font: 760 1.25rem / 1 var(--f-ui);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-q {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 72px));
+  gap: 10px;
+  align-items: end;
+  height: 120px;
+  margin: 16px 0 6px;
+}
+
+.calc-qbar {
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  height: 100%;
+  text-align: center;
+}
+
+.calc-qbar i {
+  align-self: end;
+  display: block;
+  background: var(--blue);
+  opacity: 0.45;
+}
+
+.calc-qbar.on i {
+  background: var(--magenta);
+  opacity: 1;
+}
+
+.calc-qbar b {
+  margin-top: 4px;
+  font: 700 var(--t-xs) / 1.2 var(--f-ui);
+  color: var(--ink);
+}
+
+.calc-qbar small {
+  font: 500 var(--t-xs) / 1.2 var(--f-ui);
+  color: var(--muted);
+}
+
+.court-tool figure.panel {
+  margin: 0;
+}

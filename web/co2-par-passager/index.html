@@ -57,6 +57,7 @@
           <a href="#efficacite">Les progrès</a>
           <a href="#total">Le total</a>
           <a href="#en-bref">La réponse</a>
+          <a href="#calculer">Votre vol</a>
         </nav>
         <!--site:menu-button-->
       </div>
@@ -149,6 +150,36 @@
         <h2 class="section-title" id="h-bref">La réponse</h2>
         <div class="prose reponse-prose" id="reponse-prose"></div>
         <div class="share" id="share"></div>
+      </section>
+
+      <!-- the reader's own flight: CO2, and what Eurostat says of the route -->
+      <section class="chapter wrap court-tool" id="calculer" aria-labelledby="h-calc">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-calc">À vous : calculez votre vol</h2>
+          <div class="prose">
+            <p>
+              Choisissez un aéroport de départ et un d'arrivée, au départ ou à l'arrivée de la France. Le calcul reprend
+              la méthode de l'article ; Eurostat dit en plus combien de passagers prennent ce vol, et à quel point
+              l'avion est rempli à cette saison.
+            </p>
+          </div>
+        </div>
+        <figure class="panel calc" data-csource="co2 routes ourairports">
+          <h3 id="h-calc-fig">Le CO2 de votre vol, et qui voyage avec vous</h3>
+          <p class="note">
+            Estimation par passager d'après les moyennes de la DGAC ; passagers, sièges et vols d'après Eurostat,
+            même trimestre de la dernière année complète.
+          </p>
+          <div class="calc-box" id="calc"></div>
+        </figure>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p>
+            C'est une estimation, pas le CO2 exact de votre vol : la compagnie, l'avion, la classe et le détour du jour
+            changent le résultat. Le remplissage est celui de la liaison toutes compagnies confondues, l'an dernier à la
+            même saison. Les traînées de condensation ne sont pas comptées.
+          </p>
+        </div>
       </section>
 
       <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="carbone">

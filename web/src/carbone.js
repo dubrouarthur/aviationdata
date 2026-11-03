@@ -12,14 +12,15 @@ import { lineChart, hbars } from "./court/charts.js";
 import { carboneFacts, SEGMENTS } from "./carbone/facts.js";
 import { CSOURCES } from "./carbone/sources.js";
 import * as T from "./carbone/text.js";
+import { calculator } from "./carbone/calc.js";
 
 const segLabel = (key) => SEGMENTS.find((s) => s.key === key)?.label ?? key;
 const signedMt = (v) => `${v > 0 ? "+" : "−"}${fmtNum(Math.abs(v), 1)} Mt`;
 
 courtPage({
-  files: ["data/co2.json", "data/co2/trajets.json"],
+  files: ["data/co2.json", "data/co2/trajets.json", "data/co2/liaisons.json"],
   sources: CSOURCES,
-  run(co2, trajets) {
+  run(co2, trajets, liaisons) {
     const F = carboneFacts(co2, trajets);
     safely("text", () => {
       T.writeAnswer(F);
@@ -57,6 +58,7 @@ courtPage({
         label: `CO2 par passager et par kilomètre, tous les vols de France, de ${F.first} à ${F.last}.`,
       }),
     );
+    safely("calc", () => calculator($("#calc"), liaisons, co2));
     safely("total", () =>
       hbars($("#chart-total"), {
         rows: [

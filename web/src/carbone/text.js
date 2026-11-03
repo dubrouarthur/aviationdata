@@ -25,6 +25,7 @@ export function writeAnswer(F) {
     p([
       `Chaque passager émet un tiers de moins qu'en ${F.first}. Mais le trafic a monté plus vite : le total des vols de France, lui, a augmenté.`,
     ]),
+    p([{ a: "Calculez le CO2 de votre vol", href: "#calculer" }, "."]),
   );
 }
 
@@ -171,6 +172,27 @@ export function writeSources(F) {
       li([
         link(CSOURCES.ourairports, CSOURCES.ourairports.label),
         " : la position des aéroports, pour la distance à vol d'oiseau de chaque voyage.",
+      ]),
+      li([
+        link(CSOURCES.routes, CSOURCES.routes.label),
+        " : pour le calculateur, les passagers, les sièges et les vols de chaque liaison, chaque trimestre. Réutilisation : ",
+        link(CSOURCES.copyright, "source citée, modifications signalées"),
+        ". Passagers par vol, sièges occupés et vols par semaine sont des calculs d'aviationdata.",
+      ]),
+    ]),
+    el("h3", { text: "Le calculateur" }),
+    el("ul", {}, [
+      li([
+        "Le CO2 multiplie la distance à vol d'oiseau par les grammes par passager et par kilomètre de la DGAC pour le type de vol : intérieur si les deux aéroports sont en métropole, outre-mer si l'un est outre-mer et l'autre en France, long-courrier au-delà de 3 600 km pour un vol international (environ 4 h 30 de vol, la limite de la DGAC), moyen-courrier en deçà.",
+      ]),
+      li([
+        "La liaison est décrite par le trimestre du mois choisi, la dernière année complète publiée par Eurostat, toutes compagnies et les deux sens confondus. Vols par semaine : les vols du trimestre divisés par treize semaines et par deux sens.",
+      ]),
+      li([
+        "Le CO2 « rapporté au remplissage » suppose que le CO2 d'un vol se partage entre ses passagers : il multiplie l'estimation par le remplissage moyen des vols du même type ce trimestre-là, divisé par celui de la liaison.",
+      ]),
+      li([
+        "Certaines liaisons ne sont pas publiées : leurs chiffres révéleraient ceux d'une seule compagnie (secret statistique). D'autres n'ont pas de vol direct.",
       ]),
     ]),
     el("h3", { text: "Ce que compte la DGAC" }),

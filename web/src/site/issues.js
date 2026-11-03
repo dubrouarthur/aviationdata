@@ -148,6 +148,12 @@ export const ISSUES = [
 // interactive tools inside the investigations, offered on their own from the home page and the menu
 export const TOOLS = [
   {
+    issue: "carbone",
+    hash: "calculer",
+    title: "Le CO2 de votre vol",
+    dek: "Choisissez votre départ et votre arrivée : le CO2 par passager, et ce qu'Eurostat dit de la liaison, passagers par vol, sièges occupés et vols par semaine.",
+  },
+  {
     issue: "eu",
     hash: "tableau",
     title: "Le tableau de bord européen",

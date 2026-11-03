@@ -12,4 +12,11 @@ export const CSOURCES = {
     url: "https://www.ecologie.gouv.fr/sites/default/files/documents/Bilan_emissions_CO2_transport_aerien_2024.pdf",
   },
   ourairports: ESOURCES.ourairports,
+  routes: {
+    producer: "Eurostat",
+    label: "Eurostat, transport aérien de passagers entre les principaux aéroports de France et leurs partenaires (avia_par_fr)",
+    short: "liaisons aériennes de la France (avia_par_fr)",
+    url: "https://ec.europa.eu/eurostat/databrowser/view/avia_par_fr/default/table?lang=fr",
+  },
+  copyright: ESOURCES.copyright,
 };
