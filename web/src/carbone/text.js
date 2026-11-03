@@ -186,10 +186,23 @@ export function writeSources(F) {
         "Le CO2 multiplie la distance à vol d'oiseau par les grammes par passager et par kilomètre de la DGAC pour le type de vol : intérieur si les deux aéroports sont en métropole, outre-mer si l'un est outre-mer et l'autre en France, long-courrier au-delà de 3 600 km pour un vol international (environ 4 h 30 de vol, la limite de la DGAC), moyen-courrier en deçà.",
       ]),
       li([
-        "La liaison est décrite par le trimestre du mois choisi, la dernière année complète publiée par Eurostat, toutes compagnies et les deux sens confondus. Vols par semaine : les vols du trimestre divisés par treize semaines et par deux sens.",
+        "La saison est le trimestre de la dernière année complète publiée par Eurostat, toutes compagnies et les deux sens confondus. Vols par semaine : les vols du trimestre divisés par treize semaines et par deux sens.",
       ]),
       li([
-        "Le CO2 « rapporté au remplissage » suppose que le CO2 d'un vol se partage entre ses passagers : il multiplie l'estimation par le remplissage moyen des vols du même type ce trimestre-là, divisé par celui de la liaison.",
+        "Le remplissage : le CO2 d'un vol se partage entre ses passagers. L'estimation est multipliée par le remplissage moyen des vols du même type à cette saison, divisé par celui de la ligne : une ligne pleine allège la part de chacun.",
+      ]),
+      li([
+        "La classe : un siège d'affaires occupe plus de place qu'un siège d'économie. Le calculateur reprend les rapports entre classes des ",
+        link(CSOURCES.desnz, "facteurs du gouvernement britannique"),
+        " (DESNZ, 2025) : vols courts (intérieur, moyen-courrier) en économie ou en affaires, vols longs (long-courrier, outre-mer) en économie, premium, affaires ou première. Seuls ces rapports sont repris ; les grammes restent ceux de la DGAC.",
+      ]),
+      li([
+        "Les effets hors CO2 (traînées de condensation, oxydes d'azote), si on les demande : le multiplicateur que le gouvernement britannique applique à la place moyenne, environ 1,7. Leur ampleur reste débattue.",
+      ]),
+      li([
+        "L'empreinte carbone moyenne d'un Français, 8,2 tonnes équivalent CO2 en 2024 d'après le ",
+        link(CSOURCES.sdes, "SDES"),
+        " (chiffre provisoire), compte tous les gaz à effet de serre : le vol, en CO2 seul, y est comparé en jours d'une année.",
       ]),
       li([
         "Certaines liaisons ne sont pas publiées : leurs chiffres révéleraient ceux d'une seule compagnie (secret statistique). D'autres n'ont pas de vol direct.",

@@ -132,6 +132,18 @@ export const DATASETS = [
     checks: ["web/scripts/check_carbone.py"],
   },
   {
+    id: "desnz-facteurs",
+    producer: "Gouvernement britannique (DESNZ)",
+    title: "Facteurs de conversion des gaz à effet de serre 2025",
+    refs: [["carbone", "desnz"]],
+    what: "Le CO2 par passager-kilomètre selon la classe (économie, premium, affaires, première) et avec ou sans les effets hors CO2 : le calculateur n'en garde que les rapports à la place moyenne.",
+    period: "Édition 2025 (10 juin 2025).",
+    terms: { text: "Open Government Licence v3.0, source citée" },
+    files: ["data/co2/classes.json"],
+    etl: ["etl/co2/desnz.py"],
+    checks: ["web/scripts/check_carbone.py"],
+  },
+  {
     id: "eurostat-ipch",
     producer: "Eurostat",
     title: "Indice des prix à la consommation harmonisé, France (prc_hicp_minr)",
@@ -391,6 +403,10 @@ export const REFERENCES = [
       ["sea", "esms"],
     ],
     use: "Les définitions d'Eurostat : un passager par vol, les doubles comptes des aéroports.",
+  },
+  {
+    refs: [["carbone", "sdes"]],
+    use: "L'empreinte carbone moyenne d'un Français, 8,2 tonnes équivalent CO2 en 2024 (provisoire), pour dire ce que pèse un vol.",
   },
   {
     refs: [["carbone", "bilan"]],

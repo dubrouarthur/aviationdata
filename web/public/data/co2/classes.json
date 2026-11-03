@@ -1,0 +1,33 @@
+{
+ "source": "DESNZ, UK Government GHG Conversion Factors for Company Reporting 2025 (flat file), Business travel - air, kg CO2e of CO2 per passenger.km",
+ "url": "https://assets.publishing.service.gov.uk/media/6846b6ea57f3515d9611f0dd/ghg-conversion-factors-2025-flat-format.xlsx",
+ "year": 2025,
+ "short": {
+  "without_rf": {
+   "average": 0.07466,
+   "economy": 0.07344,
+   "business": 0.11016
+  },
+  "with_rf": {
+   "average": 0.12693,
+   "economy": 0.12485,
+   "business": 0.18727
+  }
+ },
+ "long": {
+  "without_rf": {
+   "average": 0.08913,
+   "economy": 0.06826,
+   "premium": 0.10922,
+   "business": 0.19795,
+   "first": 0.27304
+  },
+  "with_rf": {
+   "average": 0.15152,
+   "economy": 0.11604,
+   "premium": 0.18567,
+   "business": 0.33652,
+   "first": 0.46417
+  }
+ }
+}

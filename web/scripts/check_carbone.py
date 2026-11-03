@@ -165,7 +165,10 @@ with sync_playwright() as p:
 
     # ------------------------------------------------------------ the calculator, recomputed
     L = json.loads((ROOT / "public" / "data" / "co2" / "liaisons.json").read_text())
+    CL = json.loads((ROOT / "public" / "data" / "co2" / "classes.json").read_text())
     AP = {a["code"]: a for a in L["airports"]}
+    SEASONS = ["hiver", "printemps", "été", "automne"]
+    FOOT_T = 8.2  # SDES, 2024 provisional
 
     def gc(a, b):
         la1, lo1, la2, lo2 = map(math.radians, (a["lat"], a["lon"], b["lat"], b["lon"]))
@@ -196,34 +199,65 @@ with sync_playwright() as p:
         pg.keyboard.type(text)
         pg.keyboard.press("Enter")
 
-    def fill(frm, to, month, back):
+    def fill(frm, to, season, back, cls, rf):
         pick_airport("#calc-from", frm)
         pick_airport("#calc-to", to)
-        pg.click(f".calc-months [data-m='{month}']")
-        pg.click(f".calc-trip [data-back='{1 if back else 0}']")
-        pg.wait_for_timeout(150)
-        return norm(pg.inner_text("#calc-result"))
+        pg.click(f".seasons [data-v='{season}']")
+        pg.click(f".classes [data-v='{cls}']")
+        pg.click(f".calc-seg:not(.seasons):not(.classes) [data-v='{1 if back else 0}']")
+        if pg.is_checked("#calc-rf") != rf:
+            pg.click("#calc-rf")
+        pg.wait_for_timeout(200)
+        return norm(pg.inner_text("#calc-result")), norm(pg.inner_text("#calc-plane"))
 
     k10 = lambda v: f"{fr(round(v / 10) * 10)} kg"  # noqa: E731
-    for frm, to, month, back in (("CDG", "JFK", 6, True), ("LYS", "NTE", 0, False), ("CDG", "MAD", 10, True), ("ORY", "PTP", 3, True)):
+    for frm, to, season, back, cls, rf in (
+        ("CDG", "JFK", 2, True, "business", False),
+        ("LYS", "NTE", 0, False, "economy", False),
+        ("CDG", "MAD", 3, True, "economy", True),
+        ("ORY", "PTP", 1, True, "premium", False),
+    ):
         pa = next(x for x in L["airports"] if x["iata"] == frm)
         pb = next(x for x in L["airports"] if x["iata"] == to)
-        out = fill(frm, to, month, back)
+        res, plane = fill(frm, to, season, back, cls, rf)
         km = gc(pa, pb)
         sg = seg(pa, pb)
-        kgv = km * C["g_peqkm"][sg][-1] * (2 if back else 1) / 1000
+        haul = "short" if sg in ("MET_INTERIEUR", "INTL_MC") else "long"
+        W = CL[haul]["without_rf"]
+        base_kg = km * C["g_peqkm"][sg][-1] * (2 if back else 1) / 1000
         r = route(pa["code"], pb["code"])
-        qi = (len(L["years"]) - 1) * 4 + month // 3
+        qi = (len(L["years"]) - 1) * 4 + season
         load = r["pax"][qi] / r["seats"][qi]
-        want = [f"{k10(kgv)} de CO2 par passager", f"{fr(km)} km à vol d'oiseau",
-                f"{fr(round(r['pax'][qi] / r['flights'][qi]))} passagers par vol en moyenne, pour {fr(round(r['seats'][qi] / r['flights'][qi]))} sièges",
-                f"{fr(load * 100)} % des sièges occupés", f"{fr(round(r['flights'][qi] / 26))} vols par semaine",
-                ]
-        diff = round(load * 100) - round(seg_load(sg, qi) * 100)
-        want.append("remplie comme la moyenne" if diff == 0 else f"le CO2 de chacun serait d'environ {k10(kgv * seg_load(sg, qi) / load)}")
-        has(f"calculator {frm}–{to}", out, *want)
-    has("calculator: a confidential route", fill("ORY", "NCE", 6, True), "secret statistique")
-    has("calculator: no direct flight", fill("BOD", "JFK", 6, True), "ne compte pas de vol direct")
+        kgv = base_kg * W[cls] / W["average"] * seg_load(sg, qi) / load
+        if rf:
+            kgv *= CL[haul]["with_rf"]["average"] / W["average"]
+        days = round(kgv / (FOOT_T * 1000) * 365)
+        tag = f"calculator {frm}–{to} ({SEASONS[season]}, {cls}{', hors CO2' if rf else ''})"
+        has(tag, res, k10(kgv), f"{fr(km)} km à vol d'oiseau", f"{fr(days)} jour", "8,2 tonnes par an")
+        classes = [norm(t) for t in pg.locator("#calc-classes li").all_inner_texts()]
+        want = [c for c in ("economy", "premium", "business", "first") if c in W]
+        check(f"{tag}: every class offered", len(classes) == len(want), str(classes))
+        for c, t in zip(want, classes, strict=False):
+            check(f"{tag}: class {c}", t.endswith(k10(kgv / (W[cls] / W["average"]) * W[c] / W["average"])), t)
+        has(f"{tag}: the cabin", plane,
+            f"{fr(round(r['pax'][qi] / r['flights'][qi]))} passagers pour {fr(round(r['seats'][qi] / r['flights'][qi]))} sièges",
+            f"{fr(load * 100)} % des sièges occupés", f"{fr(round(r['flights'][qi] / 26))} vols par semaine", f"Dans l'avion, en {SEASONS[season]}")
+        pg.click("#calc-steps summary")
+        steps = norm(pg.inner_text("#calc-steps"))
+        has(f"{tag}: the steps", steps, k10(base_kg), f"×{fr(W[cls] / W['average'], 2)}", f"×{fr(seg_load(sg, qi) / load, 2)}")
+        pg.click("#calc-steps summary")
+    pick_airport("#calc-from", "NCE")
+    pick_airport("#calc-to", "CDG")
+    pg.wait_for_timeout(150)
+    check("short-haul: premium and first are disabled", pg.is_disabled(".classes [data-v='first']") and pg.is_disabled(".classes [data-v='premium']"))
+    pick_airport("#calc-from", "ORY")
+    pick_airport("#calc-to", "NCE")
+    pg.wait_for_timeout(150)
+    has("calculator: a confidential route", norm(pg.inner_text("#calc-plane")), "secret statistique")
+    pick_airport("#calc-from", "BOD")
+    pick_airport("#calc-to", "JFK")
+    pg.wait_for_timeout(150)
+    has("calculator: no direct flight", norm(pg.inner_text("#calc-plane")), "ne compte pas de vol direct")
     pg.click("#calc-from")
     pg.keyboard.press("Control+A")
     pg.keyboard.type("zzz")
@@ -244,9 +278,12 @@ with sync_playwright() as p:
     pg.locator("#calc-suggest .calc-chip").first.click()
     pg.wait_for_timeout(150)
     has("calculator: a proposal fills the arrival", norm(pg.inner_text("#calc-result")), first["iata"], "de CO2 par passager")
-    pg.goto(f"{base}/co2-par-passager?de=NCE&vers=CDG&mois=8&trajet=aller#calculer", wait_until="networkidle")
+    pg.goto(f"{base}/co2-par-passager?de=NCE&vers=CDG&saison=hiver&classe=business&trajet=aller&hors-co2=1#calculer", wait_until="networkidle")
     pg.wait_for_timeout(600)
-    has("calculator: a shared address gives the same result", norm(pg.inner_text("#calc-result")), "NCE", "CDG", "août", "aller simple")
+    has("calculator: a shared address gives the same result", norm(pg.inner_text("#calc-result")), "NCE", "CDG", "aller simple, en affaires, effets hors CO2 compris")
+    has("calculator: the shared season", norm(pg.inner_text("#calc-plane")), "Dans l'avion, en hiver")
+    pg.goto(f"{base}/co2-par-passager", wait_until="networkidle")
+    pg.wait_for_timeout(600)
     check("method in four steps", pg.locator("#comment .how-steps li").count() == 4)
     gl = pg.locator("main button.gloss")
     check("glossary: at least three terms", gl.count() >= 3, str(gl.count()))

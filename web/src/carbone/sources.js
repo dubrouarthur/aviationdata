@@ -19,4 +19,16 @@ export const CSOURCES = {
     url: "https://ec.europa.eu/eurostat/databrowser/view/avia_par_fr/default/table?lang=fr",
   },
   copyright: ESOURCES.copyright,
+  desnz: {
+    producer: "Gouvernement britannique (DESNZ)",
+    label: "DESNZ, Greenhouse gas reporting: conversion factors 2025 (Open Government Licence v3.0), voyages d'affaires en avion",
+    short: "facteurs de conversion 2025 (DESNZ)",
+    url: "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2025",
+  },
+  sdes: {
+    producer: "SDES",
+    label: "SDES (ministère de la Transition écologique), L'empreinte carbone de la France de 1990 à 2024, 16 octobre 2025",
+    short: "empreinte carbone de la France (SDES)",
+    url: "https://www.statistiques.developpement-durable.gouv.fr/lempreinte-carbone-de-la-france-de-1990-2024",
+  },
 };

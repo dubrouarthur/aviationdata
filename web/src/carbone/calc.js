@@ -20,7 +20,6 @@ export const MONTHS = [
   "novembre",
   "décembre",
 ];
-const QUARTER_NAMES = ["janvier à mars", "avril à juin", "juillet à septembre", "octobre à décembre"];
 
 export function greatCircle(a, b) {
   const r = (d) => (d * Math.PI) / 180;
@@ -59,17 +58,44 @@ export function segmentLoad(L, segment, qi) {
  * Everything the calculator says of a flight from airport code a to b in a month (0-11), one way or return.
  * co2: co2.json; L: co2/liaisons.json.
  */
-export function flightFacts(L, co2, from, to, month, back = false) {
+export const SEASONS = ["hiver", "printemps", "été", "automne"];
+export const SEASON_MONTHS = ["janvier à mars", "avril à juin", "juillet à septembre", "octobre à décembre"];
+export const CLASSES = [
+  { key: "economy", label: "Économie" },
+  { key: "premium", label: "Premium" },
+  { key: "business", label: "Affaires" },
+  { key: "first", label: "Première" },
+];
+/** France's carbon footprint, 2024 provisional (SDES, 16 October 2025): all greenhouse gases, per person. */
+export const FOOTPRINT = { t: 8.2, year: 2024 };
+
+/** DESNZ's band for a kind of flight: short for domestic and medium-haul, long beyond. */
+export const haulOf = (segment) => (segment === "MET_INTERIEUR" || segment === "INTL_MC" ? "short" : "long");
+/** The classes DESNZ prices for a band (short-haul: economy and business only). */
+export const classesOf = (C, haul) => CLASSES.filter((c) => C[haul].without_rf[c.key] != null);
+
+/**
+ * Everything the calculator says of a flight between two airport codes in a season (0-3).
+ * opts: { back, cls, rf } ; co2: co2.json (DGAC) ; L: co2/liaisons.json (Eurostat) ; C: co2/classes.json (DESNZ).
+ * The CO2 per passenger is built in steps the page shows: the DGAC's average grams for the kind of flight,
+ * times the weight of the seat's class (DESNZ), times how full this route flies in that season against
+ * the average of its kind (Eurostat), times the effects other than CO2 if asked (DESNZ).
+ */
+export function flightFacts(L, co2, C, from, to, season, { back = true, cls = "economy", rf = false } = {}) {
   const A = L.airports.find((x) => x.code === from);
   const B = L.airports.find((x) => x.code === to);
   const km = greatCircle(A, B);
   const segment = segmentOf(A, B, km);
   const g = co2.g_peqkm[segment].at(-1);
   const trips = back ? 2 : 1;
-  const kg = (km * g * trips) / 1000;
-  const q = Math.floor(month / 3);
+  const base = (km * g * trips) / 1000;
+  const haul = haulOf(segment);
+  const offered = classesOf(C, haul);
+  const klass = offered.find((c) => c.key === cls) ?? offered[0];
+  const classRatio = C[haul].without_rf[klass.key] / C[haul].without_rf.average;
+  const rfRatio = C[haul].with_rf.average / C[haul].without_rf.average;
   const year = L.years.at(-1);
-  const qi = (L.years.length - 1) * 4 + q;
+  const qi = (L.years.length - 1) * 4 + season;
   const out = {
     A,
     B,
@@ -78,46 +104,66 @@ export function flightFacts(L, co2, from, to, month, back = false) {
     segmentLabel: SEGMENTS.find((s) => s.key === segment).label,
     g,
     co2Year: co2.years.at(-1),
-    kg,
+    base,
     trips,
-    month: MONTHS[month],
-    quarter: QUARTER_NAMES[q],
+    haul,
+    offered,
+    klass,
+    classRatio,
+    rf,
+    rfRatio,
+    season: SEASONS[season],
+    quarter: SEASON_MONTHS[season],
     year,
     status: "none",
+    loadRatio: 1,
   };
   const r = pairOf(L, from, to);
   if (!r) {
     out.status = L.confidential.some(([x, y]) => (x === from && y === to) || (x === to && y === from))
       ? "secret"
       : "none";
-    return out;
+  } else if (r.pax[qi] == null || r.seats[qi] == null || r.flights[qi] == null) {
+    out.status = "gap";
+  } else {
+    const load = r.pax[qi] / r.seats[qi];
+    const segLoad = segmentLoad(L, segment, qi);
+    const prev = qi - 4 >= 0 && r.pax[qi - 4] != null && r.seats[qi - 4] ? r.pax[qi - 4] / r.seats[qi - 4] : null;
+    Object.assign(out, {
+      status: "route",
+      pax: r.pax[qi],
+      seats: r.seats[qi],
+      flights: r.flights[qi],
+      perFlight: r.pax[qi] / r.flights[qi],
+      seatsPerFlight: r.seats[qi] / r.flights[qi],
+      // both directions over a quarter of 13 weeks: flights a week in each direction
+      perWeek: r.flights[qi] / 13 / 2,
+      load,
+      loadPrev: prev,
+      segLoad,
+      // the DGAC's grams are an average over its kind of flight: this route, fuller or emptier
+      loadRatio: segLoad ? segLoad / load : 1,
+      loads: [0, 1, 2, 3].map((k) => {
+        const i = (L.years.length - 1) * 4 + k;
+        return r.pax[i] != null && r.seats[i] ? r.pax[i] / r.seats[i] : null;
+      }),
+    });
   }
-  const at = (k) => r[k][qi];
-  if (at("pax") == null || at("seats") == null || at("flights") == null) return { ...out, status: "gap" };
-  const load = at("pax") / at("seats");
-  const segLoad = segmentLoad(L, segment, qi);
-  const prev =
-    qi - 4 >= 0 && r.pax[qi - 4] != null && r.seats[qi - 4] ? r.pax[qi - 4] / r.seats[qi - 4] : null;
-  return {
-    ...out,
-    status: "route",
-    pax: at("pax"),
-    seats: at("seats"),
-    flights: at("flights"),
-    perFlight: at("pax") / at("flights"),
-    seatsPerFlight: at("seats") / at("flights"),
-    // both directions over a quarter of 13 weeks: flights a week in each direction
-    perWeek: at("flights") / 13 / 2,
-    load,
-    loadPrev: prev,
-    segLoad,
-    // the DGAC's grams are an average over its kind of flight: the same flight, fuller or emptier
-    kgAdjusted: segLoad ? (kg * segLoad) / load : null,
-    loads: [0, 1, 2, 3].map((k) => {
-      const i = (L.years.length - 1) * 4 + k;
-      return r.pax[i] != null && r.seats[i] ? r.pax[i] / r.seats[i] : null;
-    }),
-  };
+  const steps = [
+    { key: "base", factor: 1, kg: base },
+    { key: "class", factor: classRatio, kg: base * classRatio },
+    { key: "load", factor: out.loadRatio, kg: base * classRatio * out.loadRatio },
+  ];
+  if (rf) steps.push({ key: "rf", factor: rfRatio, kg: steps.at(-1).kg * rfRatio });
+  out.steps = steps;
+  out.kg = steps.at(-1).kg;
+  // the same trip in every class offered, with the rest unchanged
+  out.byClass = offered.map((c) => ({
+    ...c,
+    kg: (out.kg / classRatio) * (C[haul].without_rf[c.key] / C[haul].without_rf.average),
+  }));
+  out.days = (out.kg / (FOOTPRINT.t * 1000)) * 365;
+  return out;
 }
 
 /** Direct destinations from an airport, busiest first over the last complete year. */

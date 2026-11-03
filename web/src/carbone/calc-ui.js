@@ -1,11 +1,16 @@
 // « Calculez votre vol », the interface. The reader picks two airports in a search box (ARIA combobox:
-// type a city, an airport or its code, arrows and Enter, or click), or a direct destination proposed
-// from the departure, then a month and one way or return. The answer is a boarding card: the CO2 per
-// passenger, then the cabin of an average flight of that route in that season, seat by seat.
-// The choice lives in the address (?de=NCE&vers=CDG&mois=8&trajet=ar#calculer): a result can be shared.
+// a city, an airport or its code), or a direct line proposed from the departure, then the season, the
+// cabin class, one way or return, and whether to count the effects other than CO2. The answer: the
+// route on a globe, the CO2 per passenger and what it weighs against a year of a French person's
+// footprint, the same trip in every class, the cabin of an average flight seat by seat, and the
+// calculation step by step. The choice lives in the address, so a result can be shared:
+// ?de=NCE&vers=CDG&saison=ete&classe=economy&trajet=ar&hors-co2=1#calculer
+import * as d3 from "d3";
+import { feature } from "topojson-client";
 import { el } from "../lib/ui.js";
-import { fmtNum, monthShort } from "../lib/format.js";
-import { flightFacts, destinations, searchAirports, MONTHS } from "./calc.js";
+import { asset } from "../lib/site.js";
+import { fmtNum } from "../lib/format.js";
+import { flightFacts, destinations, searchAirports, SEASONS, SEASON_MONTHS, CLASSES, FOOTPRINT, classesOf, haulOf, segmentOf, greatCircle } from "./calc.js";
 
 const kg10 = (v) => `${fmtNum(Math.round(v / 10) * 10, 0)} kg`;
 const pct = (v) => `${fmtNum(v * 100, 0)} %`;
@@ -180,32 +185,175 @@ function cabin(seats, taken) {
   return svg;
 }
 
-export function calculator(node, L, co2) {
-  const byCode = new Map(L.airports.flatMap((a) => [[a.code, a], ...(a.iata ? [[a.iata, a]] : [])]));
-  const state = { from: null, to: null, month: 6, back: true };
+/* ------------------------------------------------------------------ the route on a globe */
+let landP = null;
+const loadLand = () =>
+  (landP ||= fetch(asset("geo/world-110m.json"))
+    .then((r) => r.json())
+    .then((t) => feature(t, t.objects.land)));
 
-  const out = el("div", { class: "calc-out", id: "calc-result", "aria-live": "polite" });
-  const suggest = el("div", { class: "calc-suggest", id: "calc-suggest" });
-  const update = () => {
-    render();
-    // the choice in the address, so that a result can be shared
-    const p = new URLSearchParams(location.search);
-    for (const [k, v] of [
-      ["de", state.from && code(state.from)],
-      ["vers", state.to && code(state.to)],
-      ["mois", String(state.month + 1)],
-      ["trajet", state.back ? "ar" : "aller"],
-    ])
-      v ? p.set(k, v) : p.delete(k);
-    history.replaceState(null, "", `${location.pathname}?${p}${location.hash}`);
+/** An orthographic globe turned to the middle of the route, zoomed so that the route fills it. */
+function globe(node) {
+  const W = 520;
+  const H = 440;
+  const svg = d3
+    .select(node)
+    .append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("class", "globe")
+    .attr("role", "img");
+  const proj = d3.geoOrthographic().clipAngle(90).translate([W / 2, H / 2]);
+  const path = d3.geoPath(proj);
+  const gSphere = svg.append("path").attr("class", "gl-sphere");
+  const gGrat = svg.append("path").attr("class", "gl-grat");
+  const gLand = svg.append("path").attr("class", "gl-land");
+  const gArc = svg.append("path").attr("class", "gl-arc");
+  const gEnds = svg.append("g");
+  let land = null;
+  let last = null;
+  loadLand().then((l) => {
+    land = l;
+    if (last) draw(...last);
+  });
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function draw(A, B, label) {
+    last = [A, B, label];
+    svg.attr("aria-label", label);
+    const a = [A.lon, A.lat];
+    const b = [B.lon, B.lat];
+    const mid = d3.geoInterpolate(a, b)(0.5);
+    const theta = d3.geoDistance(a, b); // radians
+    proj.rotate([-mid[0], -mid[1]]);
+    // an end point lands at 38 % of the width from the centre; never smaller than the whole globe
+    const R = Math.max(H * 0.46, Math.min(W * 6, (W * 0.38) / Math.max(1e-3, Math.sin(theta / 2))));
+    proj.scale(R);
+    gSphere.attr("d", path({ type: "Sphere" }));
+    gGrat.attr("d", path(d3.geoGraticule10()));
+    if (land) gLand.attr("d", path(land));
+    const line = { type: "LineString", coordinates: [a, b] };
+    gArc.attr("d", path(line));
+    const len = gArc.node().getTotalLength();
+    gArc.interrupt().attr("stroke-dasharray", `${len} ${len}`).attr("stroke-dashoffset", reduce ? 0 : len);
+    if (!reduce) gArc.transition().duration(900).ease(d3.easeCubicOut).attr("stroke-dashoffset", 0);
+    const ends = [
+      [A, a, "start"],
+      [B, b, "end"],
+    ].map(([ap, p, k]) => ({ ap, xy: proj(p), k }));
+    gEnds
+      .selectAll("g")
+      .data(ends)
+      .join((e) => {
+        const g = e.append("g");
+        g.append("circle").attr("r", 5.5);
+        g.append("text").attr("class", "gl-code");
+        g.append("text").attr("class", "gl-name");
+        return g;
+      })
+      .attr("transform", (d) => `translate(${d.xy[0]},${d.xy[1]})`)
+      .each(function (d) {
+        // the label on the side with room: left of a point in the right half, right of it otherwise
+        const right = d.xy[0] < W / 2;
+        const g = d3.select(this);
+        g.select(".gl-code")
+          .attr("x", right ? 10 : -10)
+          .attr("y", -6)
+          .attr("text-anchor", right ? "start" : "end")
+          .text(d.ap.iata || d.ap.code);
+        g.select(".gl-name")
+          .attr("x", right ? 10 : -10)
+          .attr("y", 12)
+          .attr("text-anchor", right ? "start" : "end")
+          .text(d.ap.label.length > 26 ? `${d.ap.label.slice(0, 25)}…` : d.ap.label);
+      });
+  }
+  return { draw };
+}
+
+/* ------------------------------------------------------------------ a year of footprint, day by day */
+function yearGrid(days) {
+  const n = Math.min(365, Math.round(days));
+  const C = 53; // weeks
+  const S = 6;
+  const G = 1.6;
+  let cells = "";
+  for (let d = 0; d < 365; d++) {
+    const x = Math.floor(d / 7) * (S + G);
+    const y = (d % 7) * (S + G);
+    cells += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${S}" height="${S}" rx="1" class="${d < n ? "d-on" : "d-off"}"/>`;
+  }
+  const box = el("div", { class: "yr", role: "img", "aria-label": `${fmtNum(n, 0)} jours sur 365` });
+  box.innerHTML = `<svg viewBox="0 0 ${C * (S + G)} ${7 * (S + G)}">${cells}</svg>`;
+  return box;
+}
+
+/* ------------------------------------------------------------------ the calculator */
+const SEASON_KEYS = ["hiver", "printemps", "ete", "automne"];
+
+export function calculator(node, L, co2, C) {
+  const byCode = new Map(L.airports.flatMap((a) => [[a.code, a], ...(a.iata ? [[a.iata, a]] : [])]));
+  const state = { from: null, to: null, season: 2, back: true, cls: "economy", rf: false };
+
+  const seg = (label, items, get, set, cls = "") => {
+    const g = el(
+      "div",
+      { class: `calc-seg ${cls}`, role: "radiogroup", "aria-label": label },
+      items.map((it) =>
+        el("button", { type: "button", role: "radio", "data-v": it.v, "aria-checked": "false" }, [
+          el("span", { text: it.label }),
+          it.small ? el("small", { text: it.small }) : null,
+        ]),
+      ),
+    );
+    g.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-v]");
+      if (!b || b.disabled) return;
+      set(b.dataset.v);
+      update();
+    });
+    g.sync = () => {
+      for (const b of g.children) b.setAttribute("aria-checked", String(b.dataset.v === String(get())));
+    };
+    return g;
   };
+  const seasons = seg(
+    "Saison du voyage",
+    SEASONS.map((s, i) => ({ v: String(i), label: s[0].toUpperCase() + s.slice(1), small: SEASON_MONTHS[i].replace(" à ", "–") })),
+    () => state.season,
+    (v) => (state.season = +v),
+    "seasons",
+  );
+  const classes = seg(
+    "Classe",
+    CLASSES.map((c) => ({ v: c.key, label: c.label })),
+    () => state.cls,
+    (v) => (state.cls = v),
+    "classes",
+  );
+  const trip = seg(
+    "Trajet",
+    [
+      { v: "1", label: "Aller-retour" },
+      { v: "0", label: "Aller simple" },
+    ],
+    () => (state.back ? "1" : "0"),
+    (v) => (state.back = v === "1"),
+  );
+  const rfBox = el("input", { type: "checkbox", id: "calc-rf" });
+  rfBox.addEventListener("change", () => {
+    state.rf = rfBox.checked;
+    update();
+  });
+  const rf = el("label", { class: "calc-rf", for: "calc-rf" }, [
+    rfBox,
+    el("span", {}, [
+      "Compter aussi les traînées et autres effets hors CO2",
+      el("small", { text: "Comme le gouvernement britannique : environ ×1,7" }),
+    ]),
+  ]);
+
   const from = combobox({ id: "calc-from", label: "Départ", L, onPick: (a) => ((state.from = a), update()) });
   const to = combobox({ id: "calc-to", label: "Arrivée", L, onPick: (a) => ((state.to = a), update()) });
-  const swap = el("button", {
-    type: "button",
-    class: "calc-swap",
-    "aria-label": "Inverser le départ et l'arrivée",
-  });
+  const swap = el("button", { type: "button", class: "calc-swap", "aria-label": "Inverser le départ et l'arrivée" });
   swap.innerHTML = SWAP;
   swap.addEventListener("click", () => {
     [state.from, state.to] = [state.to, state.from];
@@ -213,54 +361,29 @@ export function calculator(node, L, co2) {
     to.set(state.to, { silent: true });
     update();
   });
-
-  const months = el(
-    "div",
-    { class: "calc-months", role: "radiogroup", "aria-label": "Mois du voyage" },
-    MONTHS.map((m, i) =>
-      el("button", {
-        type: "button",
-        role: "radio",
-        "aria-checked": String(i === state.month),
-        "aria-label": m,
-        "data-m": String(i),
-        text: monthShort(i),
-      }),
-    ),
-  );
-  months.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-m]");
-    if (!b) return;
-    state.month = +b.dataset.m;
-    for (const x of months.children) x.setAttribute("aria-checked", String(x === b));
-    update();
-  });
-  const trip = el("div", { class: "calc-trip seg", role: "group", "aria-label": "Trajet" }, [
-    el("button", { type: "button", "data-back": "1", "aria-pressed": "true", text: "Aller-retour" }),
-    el("button", { type: "button", "data-back": "0", "aria-pressed": "false", text: "Aller simple" }),
-  ]);
-  trip.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-back]");
-    if (!b) return;
-    state.back = b.dataset.back === "1";
-    for (const x of trip.children) x.setAttribute("aria-pressed", String(x === b));
-    update();
-  });
+  const suggest = el("div", { class: "calc-suggest", id: "calc-suggest" });
+  const mapBox = el("div", { class: "calc-map" });
+  const out = el("div", { class: "calc-out", id: "calc-result", "aria-live": "polite" });
+  const plane = el("div", { class: "calc-plane", id: "calc-plane" });
 
   node.replaceChildren(
-    el("div", { class: "calc-in" }, [
+    el("div", { class: "calc-top" }, [
       el("div", { class: "calc-route" }, [from.box, swap, to.box]),
       suggest,
-      el("div", { class: "calc-when" }, [
-        el("div", {}, [el("p", { class: "calc-lab", text: "Mois du voyage" }), months]),
-        el("div", {}, [el("p", { class: "calc-lab", text: "Trajet" }), trip]),
+      el("div", { class: "calc-opts" }, [
+        el("div", { class: "calc-opt" }, [el("p", { class: "calc-lab", text: "Saison" }), seasons]),
+        el("div", { class: "calc-opt" }, [el("p", { class: "calc-lab", text: "Classe" }), classes]),
+        el("div", { class: "calc-opt" }, [el("p", { class: "calc-lab", text: "Trajet" }), trip]),
+        el("div", { class: "calc-opt" }, [rf]),
       ]),
     ]),
-    out,
+    el("div", { class: "calc-stage" }, [mapBox, out]),
+    plane,
   );
+  const map = globe(mapBox);
 
-  const chip = (text, onClick, extra = {}) => {
-    const b = el("button", { type: "button", class: "calc-chip", ...extra }, text);
+  const chip = (content, onClick) => {
+    const b = el("button", { type: "button", class: "calc-chip" }, content);
     b.addEventListener("click", onClick);
     return b;
   };
@@ -272,24 +395,44 @@ export function calculator(node, L, co2) {
     update();
   };
 
+  function update() {
+    render();
+    const p = new URLSearchParams(location.search);
+    for (const [k, v] of [
+      ["de", state.from && code(state.from)],
+      ["vers", state.to && code(state.to)],
+      ["saison", SEASON_KEYS[state.season]],
+      ["classe", state.cls],
+      ["trajet", state.back ? "ar" : "aller"],
+      ["hors-co2", state.rf ? "1" : null],
+    ])
+      v ? p.set(k, v) : p.delete(k);
+    history.replaceState(null, "", `${location.pathname}?${p}${location.hash}`);
+  }
+
   function render() {
     const { from: A, to: B } = state;
-    // proposals: famous trips with nothing chosen, the busiest direct destinations once a departure is
+    for (const g of [seasons, trip]) g.sync();
+    // the classes a band offers: short-haul has economy and business only
+    const haul = A && B && A !== B ? haulOf(segmentOf(A, B, greatCircle(A, B))) : "long";
+    const offered = classesOf(C, haul).map((c) => c.key);
+    if (!offered.includes(state.cls)) state.cls = "economy";
+    for (const b of classes.children) {
+      b.disabled = !offered.includes(b.dataset.v);
+      b.title = b.disabled ? "Pas de cette classe sur les vols courts dans les facteurs du gouvernement britannique" : "";
+    }
+    classes.sync();
+
     if (A && !B) {
       const d = destinations(L, A.code).slice(0, 8);
       suggest.replaceChildren(
-        el("p", {
-          class: "calc-lab",
-          text: `Lignes directes les plus fréquentées depuis ${short(A)}`,
-        }),
+        el("p", { class: "calc-lab", text: `Lignes directes les plus fréquentées depuis ${short(A)}` }),
         el(
           "div",
           { class: "calc-chips" },
           d.map((x) => {
             const b = byCode.get(x.code);
-            return chip([el("b", { text: code(b) }), ` ${short(b)}`], () =>
-              pick(A, b),
-            );
+            return chip([el("b", { text: code(b) }), ` ${short(b)}`], () => pick(A, b));
           }),
         ),
       );
@@ -305,145 +448,155 @@ export function calculator(node, L, co2) {
         .filter(([x, y]) => x && y);
       suggest.replaceChildren(
         el("p", { class: "calc-lab", text: "Pour essayer" }),
-        el(
-          "div",
-          { class: "calc-chips" },
-          ex.map(([x, y]) => chip(`${short(x)} → ${short(y)}`, () => pick(x, y))),
-        ),
+        el("div", { class: "calc-chips" }, ex.map(([x, y]) => chip(`${short(x)} → ${short(y)}`, () => pick(x, y)))),
       );
     } else suggest.replaceChildren();
 
-    if (!A || !B) {
+    if (!A || !B || A === B) {
+      mapBox.hidden = true;
+      plane.replaceChildren();
       out.replaceChildren(
         el("div", { class: "calc-empty" }, [
-          el("p", { class: "calc-empty-t", text: !A ? "D'où partez-vous ?" : "Où allez-vous ?" }),
           el("p", {
-            text: "Les aéroports reliés à la France par des vols de ligne, en métropole, en outre-mer et à l'étranger.",
+            class: "calc-empty-t",
+            text: !A ? "D'où partez-vous ?" : !B ? "Où allez-vous ?" : "Le départ et l'arrivée sont le même aéroport.",
           }),
+          el("p", { text: "Les aéroports reliés à la France par des vols de ligne, en métropole, en outre-mer et à l'étranger." }),
         ]),
       );
       return;
     }
-    if (A === B) {
-      out.replaceChildren(
-        el("div", { class: "calc-empty" }, [
-          el("p", { class: "calc-empty-t", text: "Le départ et l'arrivée sont le même aéroport." }),
-        ]),
-      );
-      return;
-    }
-    const F = flightFacts(L, co2, A.code, B.code, state.month, state.back);
-    const head = el("div", { class: "bp-head" }, [
-      el("div", { class: "bp-end" }, [el("b", { text: code(A) }), el("span", { text: `${short(A)}, ${A.country}` })]),
-      el("div", { class: "bp-line", "aria-hidden": "true" }, [
-        el("i"),
-        el("span", { class: "bp-plane" }),
-        el("i"),
-      ]),
-      el("div", { class: "bp-end to" }, [el("b", { text: code(B) }), el("span", { text: `${short(B)}, ${B.country}` })]),
-    ]);
-    head.querySelector(".bp-plane").innerHTML = PLANE;
-    const meta = el("p", {
-      class: "bp-meta",
-      id: "calc-basis",
-      text: `${fmtNum(F.km, 0)} km à vol d'oiseau · ${F.segmentLabel.toLowerCase()} · ${F.month} · ${F.trips === 2 ? "aller-retour" : "aller simple"}`,
-    });
-    const big = el("div", { class: "bp-co2" }, [
-      el("p", { class: "bp-kg", id: "calc-kg", text: kg10(F.kg) }),
-      el("p", { class: "bp-kg-l" }, [
-        "de CO2 par passager",
-        el("small", {
-          text: `${fmtNum(F.g, 0)} g par passager et par kilomètre, moyenne des vols de ce type (DGAC, ${F.co2Year})`,
-        }),
-      ]),
-    ]);
+    const F = flightFacts(L, co2, C, A.code, B.code, state.season, { back: state.back, cls: state.cls, rf: state.rf });
+    mapBox.hidden = false;
+    map.draw(A, B, `Le trajet de ${short(A)} à ${short(B)}, ${fmtNum(F.km, 0)} km à vol d'oiseau.`);
 
-    let flight;
+    const tripText = `${F.trips === 2 ? "aller-retour" : "aller simple"}, en ${F.klass.label.toLowerCase()}`;
+    const days = Math.round(F.days);
+    const maxClass = Math.max(...F.byClass.map((c) => c.kg));
+    out.replaceChildren(
+      el("p", { class: "co-route" }, [
+        el("b", { text: `${code(A)} → ${code(B)}` }),
+        ` ${fmtNum(F.km, 0)} km à vol d'oiseau · ${F.segmentLabel.toLowerCase()}`,
+      ]),
+      el("p", { class: "co-kg", id: "calc-kg", text: kg10(F.kg) }),
+      el("p", { class: "co-kg-l", text: `de CO2 par passager, ${tripText}${F.rf ? ", effets hors CO2 compris" : ""}` }),
+      el("div", { class: "co-days" }, [
+        el("p", {}, [
+          "Autant que ",
+          el("b", { id: "calc-days", text: `${fmtNum(days, 0)} jour${days > 1 ? "s" : ""}` }),
+          ` de l'empreinte carbone moyenne d'un Français, qui est de ${fmtNum(FOOTPRINT.t, 1)} tonnes par an.`,
+        ]),
+        yearGrid(F.days),
+      ]),
+      el("div", { class: "co-classes" }, [
+        el("p", { class: "calc-lab", text: "Le même voyage, selon la classe" }),
+        el(
+          "ul",
+          { class: "co-cls", id: "calc-classes" },
+          F.byClass.map((c) => {
+            const b = el(
+              "button",
+              { type: "button", class: c.key === F.klass.key ? "on" : "", "aria-pressed": String(c.key === F.klass.key) },
+              [
+                el("span", { class: "cc-l", text: c.label }),
+                el("span", { class: "cc-bar" }, el("i", { style: `width:${((c.kg / maxClass) * 100).toFixed(1)}%` })),
+                el("b", { text: kg10(c.kg) }),
+              ],
+            );
+            b.addEventListener("click", () => {
+              state.cls = c.key;
+              update();
+            });
+            return el("li", {}, b);
+          }),
+        ),
+      ]),
+      steps(F),
+    );
+
+    // the cabin of an average flight of the route, in the chosen season
     if (F.status === "route") {
       const trend =
-        F.loadPrev == null || Math.round(F.load * 100) === Math.round(F.loadPrev * 100)
-          ? ""
-          : ` (${pct(F.loadPrev)} un an plus tôt)`;
-      const fuller = Math.round(F.load * 100) - Math.round(F.segLoad * 100);
-      flight = el("div", { class: "bp-flight" }, [
-        el("p", { class: "bp-h", text: `Dans l'avion, d'après ${F.quarter} ${F.year}` }),
-        cabin(F.seatsPerFlight, F.perFlight),
-        el("ul", { class: "bp-stats", id: "calc-stats" }, [
-          el("li", {}, [
-            el("b", { text: fmtNum(Math.round(F.perFlight), 0) }),
-            el("span", {
-              text: `passagers par vol en moyenne, pour ${fmtNum(Math.round(F.seatsPerFlight), 0)} sièges`,
-            }),
-          ]),
-          el("li", {}, [el("b", { text: pct(F.load) }), el("span", { text: `des sièges occupés${trend}` })]),
-          el("li", {}, [
-            el("b", { text: fmtNum(Math.round(F.perWeek), 0) }),
-            el("span", { text: "vols par semaine dans chaque sens, toutes compagnies" }),
-          ]),
+        F.loadPrev == null || Math.round(F.load * 100) === Math.round(F.loadPrev * 100) ? "" : ` (${pct(F.loadPrev)} un an plus tôt)`;
+      const sb = el(
+        "div",
+        { class: "pl-seasons", role: "group", "aria-label": `Sièges occupés selon la saison, ${F.year}` },
+        F.loads.map((v, k) => {
+          const b = el("button", { type: "button", class: k === state.season ? "on" : "", "aria-pressed": String(k === state.season) }, [
+            el("span", { class: "ps-bar" }, el("i", { style: `height:${v == null ? 0 : (v * 100).toFixed(1)}%` })),
+            el("b", { text: v == null ? "–" : pct(v) }),
+            el("small", { text: SEASONS[k] }),
+          ]);
+          b.addEventListener("click", () => {
+            state.season = k;
+            update();
+          });
+          return b;
+        }),
+      );
+      plane.replaceChildren(
+        el("div", { class: "pl-head" }, [
+          el("p", { class: "pl-h", text: `Dans l'avion, en ${F.season}` }),
+          el("p", { class: "pl-sub", text: `Un vol moyen de la ligne ${code(A)}–${code(B)}, ${F.quarter} ${F.year}, toutes compagnies (Eurostat).` }),
         ]),
-        el("p", { class: "bp-season" }, [
-          "Sièges occupés selon la saison : ",
-          ...F.loads.flatMap((v, k) => [
-            k ? " · " : "",
-            el(k === Math.floor(state.month / 3) ? "b" : "span", {
-              text: `${["hiver", "printemps", "été", "automne"][k]} ${v == null ? "–" : pct(v)}`,
-            }),
+        el("div", { class: "pl-body" }, [
+          cabin(F.seatsPerFlight, F.perFlight),
+          el("ul", { class: "pl-stats", id: "calc-stats" }, [
+            el("li", {}, [el("b", { text: fmtNum(Math.round(F.perFlight), 0) }), el("span", { text: `passagers pour ${fmtNum(Math.round(F.seatsPerFlight), 0)} sièges` })]),
+            el("li", {}, [el("b", { text: pct(F.load) }), el("span", { text: `des sièges occupés${trend}` })]),
+            el("li", {}, [el("b", { text: fmtNum(Math.round(F.perWeek), 0) }), el("span", { text: "vols par semaine dans chaque sens" })]),
           ]),
-          ".",
+          el("div", { class: "pl-season-box" }, [el("p", { class: "calc-lab", text: "Remplissage selon la saison" }), sb]),
         ]),
-        el("p", { class: "bp-note", id: "calc-adjusted" }, [
-          fuller === 0
-            ? "Cette ligne est remplie comme la moyenne des vols de ce type : l'estimation tient."
-            : `Cette ligne est ${fuller > 0 ? "plus" : "moins"} remplie que la moyenne des vols de ce type (${pct(F.segLoad)}) : partagé entre ses vrais passagers, le CO2 de chacun serait d'environ `,
-          fuller === 0 ? null : el("b", { text: kg10(F.kgAdjusted) }),
-          fuller === 0 ? null : ".",
-        ]),
-      ]);
+      );
     } else {
-      flight = el("div", { class: "bp-flight" }, [
+      plane.replaceChildren(
         el("p", {
-          class: "bp-note",
+          class: "pl-none",
           id: "calc-noroute",
           text:
             F.status === "secret"
-              ? "Eurostat ne publie pas les chiffres de cette ligne : ils révéleraient ceux d'une seule compagnie (secret statistique). Le CO2 ci-dessus reste une moyenne."
+              ? "Eurostat ne publie pas les chiffres de cette ligne : ils révéleraient ceux d'une seule compagnie (secret statistique). Le CO2 ci-dessus suppose un remplissage moyen."
               : `Eurostat ne compte pas de vol direct entre ces deux aéroports en ${F.year}. Avec une escale, la distance et le CO2 augmentent.`,
         }),
-      ]);
+      );
     }
-    const share = el("button", {
-      type: "button",
-      class: "btn calc-share",
-      text: "Copier le lien de ce calcul",
-    });
-    share.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(location.href);
-        share.textContent = "Lien copié";
-      } catch {
-        share.textContent = location.href;
-      }
-      setTimeout(() => (share.textContent = "Copier le lien de ce calcul"), 2500);
-    });
-    out.replaceChildren(
-      el("article", { class: "bp", "aria-label": `Votre vol ${code(A)}–${code(B)}` }, [
-        head,
-        meta,
-        big,
-        flight,
-        share,
-      ]),
-    );
+  }
+
+  /** The calculation, step by step, folded. */
+  function steps(F) {
+    const x = (f) => `×${fmtNum(f, 2)}`;
+    const rows = [
+      [
+        `${fmtNum(F.km, 0)} km${F.trips === 2 ? " × 2" : ""} × ${fmtNum(F.g, 0)} g, la moyenne d'un passager de ${F.segmentLabel.toLowerCase()} (DGAC, ${F.co2Year})`,
+        F.steps[0].kg,
+      ],
+      [`${x(F.classRatio)} pour un siège en ${F.klass.label.toLowerCase()} plutôt qu'une place moyenne (gouvernement britannique, ${C.year})`, F.steps[1].kg],
+      [
+        F.status === "route"
+          ? `${x(F.loadRatio)} car la ligne est remplie à ${pct(F.load)} en ${F.season}, contre ${pct(F.segLoad)} pour les vols du même type (Eurostat, ${F.year})`
+          : "×1 : sans chiffres de la ligne, un remplissage moyen",
+        F.steps[2].kg,
+      ],
+    ];
+    if (F.rf) rows.push([`${x(F.rfRatio)} pour les traînées et autres effets hors CO2 (gouvernement britannique, ${C.year})`, F.steps[3].kg]);
+    return el("details", { class: "co-steps", id: "calc-steps" }, [
+      el("summary", { text: "Le calcul, étape par étape" }),
+      el(
+        "ol",
+        {},
+        rows.map(([t, v]) => el("li", {}, [el("span", { text: t }), el("b", { text: kg10(v) })])),
+      ),
+    ]);
   }
 
   // from the address, or an example the reader can change at once
   const p = new URLSearchParams(location.search);
-  const m = +(p.get("mois") ?? 7);
-  if (m >= 1 && m <= 12) {
-    state.month = m - 1;
-    for (const x of months.children) x.setAttribute("aria-checked", String(+x.dataset.m === state.month));
-  }
-  if (p.get("trajet") === "aller") trip.children[1].click();
+  const si = SEASON_KEYS.indexOf(p.get("saison") ?? "");
+  if (si >= 0) state.season = si;
+  if (CLASSES.some((c) => c.key === p.get("classe"))) state.cls = p.get("classe");
+  if (p.get("trajet") === "aller") state.back = false;
+  if (p.get("hors-co2") === "1") state.rf = rfBox.checked = true;
   state.from = byCode.get((p.get("de") ?? "").toUpperCase()) ?? null;
   state.to = byCode.get((p.get("vers") ?? "").toUpperCase()) ?? null;
   if (!p.has("de") && !p.has("vers")) {

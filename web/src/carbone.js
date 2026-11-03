@@ -18,9 +18,9 @@ const segLabel = (key) => SEGMENTS.find((s) => s.key === key)?.label ?? key;
 const signedMt = (v) => `${v > 0 ? "+" : "−"}${fmtNum(Math.abs(v), 1)} Mt`;
 
 courtPage({
-  files: ["data/co2.json", "data/co2/trajets.json", "data/co2/liaisons.json"],
+  files: ["data/co2.json", "data/co2/trajets.json", "data/co2/liaisons.json", "data/co2/classes.json"],
   sources: CSOURCES,
-  run(co2, trajets, liaisons) {
+  run(co2, trajets, liaisons, classes) {
     const F = carboneFacts(co2, trajets);
     safely("text", () => {
       T.writeAnswer(F);
@@ -58,7 +58,7 @@ courtPage({
         label: `CO2 par passager et par kilomètre, tous les vols de France, de ${F.first} à ${F.last}.`,
       }),
     );
-    safely("calc", () => calculator($("#calc"), liaisons, co2));
+    safely("calc", () => calculator($("#calc"), liaisons, co2, classes));
     safely("total", () =>
       hbars($("#chart-total"), {
         rows: [
