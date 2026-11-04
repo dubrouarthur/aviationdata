@@ -6,10 +6,10 @@ import { el } from "../lib/ui.js";
 export const link = (s, text) =>
   el("a", { href: s.url, target: "_blank", rel: "noopener", text: text ?? s.short });
 
-export function addSourceLines(table, root = document) {
-  for (const node of root.querySelectorAll("[data-csource]")) {
+export function addSourceLines(table, root = document, attr = "csource") {
+  for (const node of root.querySelectorAll(`[data-${attr}]`)) {
     if (node.querySelector(":scope > .source-line")) continue;
-    const keys = node.dataset.csource.split(/\s+/).filter((k) => table[k]);
+    const keys = node.dataset[attr].split(/\s+/).filter((k) => table[k]);
     const parts = [keys.length > 1 ? "Sources : " : "Source : "];
     keys.forEach((k, i) => {
       if (i) parts.push(i === keys.length - 1 ? " et " : ", ");

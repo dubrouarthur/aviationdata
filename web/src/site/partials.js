@@ -99,10 +99,9 @@ function menu({ root, issue, page }) {
 }
 
 function foot({ root }) {
-  // the investigations, then the short answers (« En 5 minutes »), then the archive
+  // every investigation, then the short answers (« En 5 minutes »), then the archive
   const item = (i) => `<li><a href="${href(root, i.slug)}"><span>N° ${i.no}</span> ${esc(i.title)}</a></li>`;
   const issues = ISSUES.filter((i) => i.format !== "court")
-    .slice(0, 5)
     .map(item)
     .join("");
   const shorts = ISSUES.filter((i) => i.format === "court")

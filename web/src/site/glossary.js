@@ -223,6 +223,38 @@ export const TERMS = {
       d: "Le plus court chemin entre deux aéroports à la surface de la Terre. Un avion fait un peu plus, à cause des routes aériennes et du vent.",
     },
   ],
+  avions: [
+    {
+      re: rx("OpenSky"),
+      t: "OpenSky",
+      d: "Un réseau de récepteurs tenus par des bénévoles et des universités, qui captent les signaux que les avions émettent pour signaler leur position. Il publie les vols qu'il a suivis, pour la recherche.",
+    },
+    {
+      re: rx("monocouloirs?"),
+      t: "Monocouloir",
+      d: "Un avion à une seule allée entre les sièges, comme l'A320 ou le 737 : de 100 à 240 places, pour les vols de quelques heures.",
+    },
+    {
+      re: rx("gros-porteurs?"),
+      t: "Gros-porteur",
+      d: "Un avion à deux allées, comme l'A350, le 777 ou le 787 : de 250 à 500 places, pour les longs trajets.",
+    },
+    {
+      re: rx("transpondeur"),
+      t: "Transpondeur",
+      d: "L'émetteur de bord qui envoie l'identité de l'avion et, sur les avions récents, sa position. Chaque avion a sa propre adresse, qui permet de le suivre d'un vol à l'autre.",
+    },
+    {
+      re: rx("immatriculation"),
+      t: "Immatriculation",
+      d: "La plaque d'un avion, peinte sur son fuselage (N123AA aux États-Unis, F-HXXX en France). Elle dit quel avion, donc quel modèle, a fait le vol.",
+    },
+    {
+      re: rx("compagnies? régionales?"),
+      t: "Compagnie régionale",
+      d: "Une compagnie qui fait voler de petits avions pour le compte d'une grande, sous ses couleurs et ses numéros de vol, sur les lignes courtes ou peu chargées.",
+    },
+  ],
 };
 
 let pop;

@@ -32,7 +32,7 @@ for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
 # every investigation, newest first (web/src/site/issues.js), and every page of the magazine
-SLUGS = ["co2-par-passager", "prix-des-billets", "calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
+SLUGS = ["modeles-d-avions", "co2-par-passager", "prix-des-billets", "calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
 # the short format (« En 5 minutes »): their numbers are checked by check_billet.py and check_carbone.py
 COURT = ["co2-par-passager", "prix-des-billets"]
 PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes", "/donnees", "/design"]
@@ -192,7 +192,8 @@ with sync_playwright() as pw:
     pg = page_(viewport={"width": 1440, "height": 900})
     pg.goto(base + "/", wait_until="networkidle")
     links = pg.eval_on_selector_all(".q-link, .shelf-link", "as => as.map(a => a.getAttribute('href'))")
-    check("home lists every investigation", links == SLUGS, str(links))
+    home_order = COURT + [s for s in SLUGS if s not in COURT]
+    check("home lists every investigation, short answers first", links == home_order, str(links))
     latest = pg.eval_on_selector_all(".latest-route a", "as => as.map(a => a.getAttribute('href'))")
     check("home opens on the five latest questions", latest == SLUGS[:5], str(latest))
     pg.wait_for_timeout(800)
@@ -248,7 +249,7 @@ with sync_playwright() as pw:
     # the page for a missing address is served at any depth: every link, script and image from the root
     pg.goto(base + "/404.html", wait_until="networkidle")
     covers = pg.eval_on_selector_all(".q-link, .shelf-link", "as => as.map(a => a.getAttribute('href'))")
-    check("404: lists every investigation from the root", covers == [f"/{s}" for s in SLUGS], str(covers))
+    check("404: lists every investigation from the root", covers == [f"/{s}" for s in COURT + [s for s in SLUGS if s not in COURT]], str(covers))
     rel = pg.evaluate(
         """() => [...document.querySelectorAll('[href], [src]')]
           .map(e => e.getAttribute('href') ?? e.getAttribute('src'))

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Le ciel, modèle par modèle : quels avions volent le plus, et lesquels arrivent à l'heure</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Airbus A320, Boeing 737, Embraer, A350 : les avions de ligne comparés sur des données réelles. Leurs vols dans le monde (OpenSky, 2019 et 2022), la longueur de leurs trajets, leur usage quotidien, leur ponctualité et leurs annulations aux États-Unis (BTS, 2025)."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Le ciel, modèle par modèle",
+        "description": "Les avions de ligne comparés modèle par modèle, sur les vols suivis par OpenSky et les vols intérieurs américains.",
+        "inLanguage": "fr",
+        "datePublished": "2026-11-04",
+        "dateModified": "2026-11-04",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": ["https://doi.org/10.5281/zenodo.7923702", "https://www.transtats.bts.gov/"]
+      }
+    </script>
+    <meta name="theme-color" content="#0e1b2c" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Le ciel, modèle par modèle" />
+    <meta
+      property="og:description"
+      content="Quels avions font le ciel, lesquels volent le plus, et lesquels arrivent à l'heure ? Les avions de ligne comparés sur des données réelles."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-avions.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%modeles-d-avions" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="av">
+    <a class="skip-link" href="#ouverture">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#ouverture">Modèle par modèle</a>
+        <nav class="topnav" aria-label="Parties">
+          <a href="#partie-1">Qui fait le ciel</a>
+          <a href="#partie-2">À l'heure ?</a>
+          <a href="#comparer">Comparer</a>
+          <a href="#en-bref">La réponse</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main>
+      <!-- opening: a hundred flights of the year, by family -->
+      <section class="av-open" id="ouverture" aria-labelledby="title">
+        <div class="wrap av-open-grid">
+          <div class="av-open-text">
+            <!--site:kicker-->
+            <h1 class="display" id="title">Le ciel, modèle par modèle</h1>
+            <p class="open-q">
+              Quels avions font le ciel ? Lesquels volent le plus loin, le plus souvent, et lesquels arrivent à
+              l'heure ? Les avions de ligne comparés sur des données réelles, vol par vol.
+            </p>
+          </div>
+          <figure class="av-open-fig" aria-labelledby="av-open-cap">
+            <p class="av-open-h" id="av-open-h"></p>
+            <div id="open-waffle"></div>
+            <div class="av-legend" id="open-legend" aria-hidden="true"></div>
+            <figcaption class="av-open-cap" id="av-open-cap"></figcaption>
+          </figure>
+        </div>
+      </section>
+      <div class="wrap standfirst">
+        <p class="open-dek" id="open-dek"></p>
+        <!--site:byline-->
+      </div>
+
+      <section class="wrap essentiel" id="essentiel" aria-labelledby="h-essentiel">
+        <h2 class="essentiel-title" id="h-essentiel">L'essentiel, étape par étape</h2>
+        <p class="essentiel-dek">
+          Deux minutes pour l'enquête entière : ses réponses dans l'ordre où elle les construit. Chaque étape mène
+          au chapitre qui l'explique.
+        </p>
+        <ol class="essentiel-list" id="essentiel-list"></ol>
+      </section>
+
+      <div class="part wrap" id="partie-1">
+        <p class="part-label"><span class="part-no">Partie 1</span> Qui fait le ciel</p>
+        <p class="part-dek">
+          Les avions de ligne dans les vols que suit le réseau OpenSky, partout où ses récepteurs les entendent.
+        </p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="familles" aria-labelledby="h-familles">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-familles"></h2>
+          <div class="prose" id="familles-prose"></div>
+        </div>
+        <figure class="panel" data-asource="opensky aircraft">
+          <h3 id="h-fam-fig"></h3>
+          <p class="note" id="fam-note"></p>
+          <div class="chart" id="chart-fam"></div>
+        </figure>
+        <div class="prose after-figure" id="familles-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="distances" aria-labelledby="h-distances">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-distances"></h2>
+          <div class="prose" id="distances-prose"></div>
+        </div>
+        <figure class="panel" data-asource="opensky ourairports">
+          <h3 id="h-km-fig"></h3>
+          <p class="note" id="km-note"></p>
+          <div class="av-legend" id="km-legend" aria-hidden="true"></div>
+          <div role="group" class="chart" id="chart-km" tabindex="0" aria-labelledby="h-km-fig"></div>
+        </figure>
+        <div class="prose after-figure" id="distances-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="usage" aria-labelledby="h-usage">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-usage"></h2>
+          <div class="prose" id="usage-prose"></div>
+        </div>
+        <figure class="panel" data-asource="opensky">
+          <h3 id="h-use-fig"></h3>
+          <p class="note" id="use-note"></p>
+          <div class="chart" id="chart-use"></div>
+        </figure>
+        <div class="prose after-figure" id="usage-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="releve" aria-labelledby="h-releve">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-releve"></h2>
+          <div class="prose" id="releve-prose"></div>
+        </div>
+        <figure class="panel" data-asource="opensky aircraft">
+          <h3 id="h-chg-fig"></h3>
+          <p class="note" id="chg-note"></p>
+          <div class="chart" id="chart-chg"></div>
+        </figure>
+        <div class="prose after-figure" id="releve-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="pays" aria-labelledby="h-pays">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-pays"></h2>
+          <div class="prose" id="pays-prose"></div>
+        </div>
+        <figure class="panel" data-asource="opensky ourairports">
+          <h3 id="h-heat-fig"></h3>
+          <p class="note" id="heat-note"></p>
+          <div class="chart" id="chart-heat"></div>
+        </figure>
+        <div class="prose after-figure" id="pays-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="pays-aside"></p>
+        </div>
+      </section>
+
+      <div class="part wrap" id="partie-2">
+        <p class="part-label"><span class="part-no">Partie 2</span> À l'heure ?</p>
+        <p class="part-dek">
+          Retards et annulations n'existent en données publiques, vol par vol, qu'aux États-Unis : les vols intérieurs
+          des grandes compagnies américaines en 2025.
+        </p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="ponctualite" aria-labelledby="h-ponctualite">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-ponctualite"></h2>
+          <div class="prose" id="ponctualite-prose"></div>
+        </div>
+        <figure class="panel" data-asource="bts aircraft">
+          <h3 id="h-ot-fig"></h3>
+          <p class="note" id="ot-note"></p>
+          <div role="group" class="chart" id="chart-ot" tabindex="0" aria-labelledby="h-ot-fig"></div>
+        </figure>
+        <div class="prose after-figure" id="ponctualite-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="compagnie" aria-labelledby="h-compagnie">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-compagnie"></h2>
+          <div class="prose" id="compagnie-prose"></div>
+        </div>
+        <figure class="panel" data-asource="bts aircraft">
+          <h3 id="h-sp-fig"></h3>
+          <p class="note" id="sp-note"></p>
+          <div class="av-legend" id="sp-legend" aria-hidden="true"></div>
+          <div role="group" class="chart" id="chart-sp" tabindex="0" aria-labelledby="h-sp-fig"></div>
+        </figure>
+        <div class="prose after-figure" id="compagnie-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="annulations" aria-labelledby="h-annulations">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-annulations"></h2>
+          <div class="prose" id="annulations-prose"></div>
+        </div>
+        <figure class="panel" data-asource="bts aircraft">
+          <h3 id="h-cx-fig"></h3>
+          <p class="note" id="cx-note"></p>
+          <div role="group" class="chart" id="chart-cx" tabindex="0" aria-labelledby="h-cx-fig"></div>
+        </figure>
+        <div class="prose after-figure" id="annulations-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="annulations-aside"></p>
+        </div>
+      </section>
+
+      <!-- the reader's own comparison -->
+      <section class="chapter wrap av-tool" id="comparer" aria-labelledby="h-comparer">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-comparer">Comparez deux avions</h2>
+          <div class="prose">
+            <p>
+              Choisissez deux modèles : leurs vols dans le monde, la longueur de leurs trajets, le nombre de vols qu'un
+              avion enchaîne dans la journée, et, pour ceux qui volent aux États-Unis, leur ponctualité et leurs
+              annulations.
+            </p>
+          </div>
+        </div>
+        <figure class="panel av-cmp-panel" data-asource="opensky bts aircraft">
+          <h3 id="h-cmp-fig">Deux modèles côte à côte</h3>
+          <p class="note" id="cmp-note"></p>
+          <div id="compare"></div>
+        </figure>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
+        <div class="share" id="share"></div>
+      </section>
+
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="avions">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">
+          La méthode en 5 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en
+          bas de page.
+        </p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir des vols suivis</h3>
+            <p>
+              Le réseau OpenSky, des milliers de récepteurs tenus par des bénévoles, enregistre les signaux que les
+              avions émettent. Il publie la liste des vols qu'il a suivis, avec le type de chaque avion.
+            </p>
+          </li>
+          <li>
+            <h3>Ne garder que les avions de ligne</h3>
+            <p>
+              Avions d'affaires, de tourisme, militaires et hélicoptères sont écartés : seuls restent les modèles qui
+              transportent des passagers sur des lignes régulières.
+            </p>
+          </li>
+          <li>
+            <h3>Mesurer chaque vol</h3>
+            <p>
+              Quand le réseau a vu le départ et l'arrivée, la distance entre les deux aéroports et la durée du vol se
+              calculent. Les traces incohérentes sont écartées.
+            </p>
+          </li>
+          <li>
+            <h3>Relier les retards aux modèles</h3>
+            <p>
+              Le gouvernement américain publie chaque vol intérieur avec son immatriculation, son retard et son
+              éventuelle annulation. L'immatriculation donne le modèle, grâce à la base des avions d'OpenSky.
+            </p>
+          </li>
+          <li>
+            <h3>Comparer à compagnie égale</h3>
+            <p>
+              Un retard tient beaucoup à la compagnie et à ses aéroports. Chaque modèle est donc aussi comparé à ce
+              qu'il obtiendrait avec la ponctualité moyenne de ses compagnies.
+            </p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
+      <!--site:next-->
+    </main>
+
+    <section class="footer" id="sources" aria-labelledby="h-sources">
+      <div class="wrap">
+        <h2 id="h-sources">Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </section>
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/avions.js"></script>
+  </body>
+</html>

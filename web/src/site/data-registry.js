@@ -12,9 +12,10 @@ import { FACTS as CIEL_FACTS } from "../modules/sources.js";
 import { SSOURCES } from "../saisons/sources.js";
 import { BSOURCES } from "../billet/sources.js";
 import { CSOURCES } from "../carbone/sources.js";
+import { ASOURCES } from "../avions/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
-export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES };
+export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES, avions: ASOURCES };
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
 const PUBLIC = { text: "domaine public" };
@@ -245,15 +246,42 @@ export const DATASETS = [
     id: "opensky",
     producer: "The OpenSky Network",
     title: "Vols observés, 2019-2022 (Zenodo)",
-    refs: [["jet", "opensky"]],
-    what: "Les vols entre la France et l'Amérique du Nord captés par le réseau de récepteurs d'OpenSky, avec leurs heures de premier et de dernier signal.",
-    period: "2019-2022.",
+    refs: [
+      ["jet", "opensky"],
+      ["avions", "opensky"],
+    ],
+    what: "Les vols captés par le réseau de récepteurs d'OpenSky, avec le type de l'avion, ses aéroports de départ et d'arrivée et ses heures de premier et de dernier signal : ceux entre la France et l'Amérique du Nord pour le courant-jet, tous les avions de ligne pour la comparaison des modèles.",
+    period: "2019-2022 ; 2019 et 2022 pour les modèles.",
     terms: {
       text: "recherche et enseignement à but non lucratif ; seuls des agrégats sont publiés ici, sans aucun identifiant d'avion",
     },
-    files: ["data/jet/flights.json"],
-    etl: ["etl/jet/opensky.py"],
-    checks: ["web/scripts/check_site.py"],
+    files: ["data/jet/flights.json", "data/avions/monde.json"],
+    etl: ["etl/jet/opensky.py", "etl/avions/fetch.py", "etl/avions/build_world.py", "etl/avions/types_table.py"],
+    checks: ["web/scripts/check_site.py", "web/scripts/check_avions.py"],
+  },
+  {
+    id: "opensky-avions",
+    producer: "The OpenSky Network",
+    title: "Base des avions (aircraft database)",
+    refs: [["avions", "aircraft"]],
+    what: "Pour chaque transpondeur, l'immatriculation et le type de l'avion : elle donne le modèle d'un vol américain par son immatriculation, et celui d'un vol d'OpenSky quand sa liste ne le dit pas.",
+    period: "Version d'avril 2024.",
+    terms: { text: "usage non commercial ; aucune immatriculation ni aucun identifiant n'est publié ici" },
+    files: ["data/avions/us.json", "data/avions/monde.json"],
+    etl: ["etl/avions/fetch.py", "etl/avions/build_us.py"],
+    checks: ["web/scripts/check_avions.py"],
+  },
+  {
+    id: "bts-ontime",
+    producer: "Bureau of Transportation Statistics (États-Unis)",
+    title: "Reporting Carrier On-Time Performance",
+    refs: [["avions", "bts"]],
+    what: "Chaque vol intérieur des grandes compagnies américaines : immatriculation, horaires, retard et ses causes, annulation, déroutement.",
+    period: "Mensuel ; l'année 2025 sur le site.",
+    terms: PUBLIC,
+    files: ["data/avions/us.json"],
+    etl: ["etl/avions/fetch.py", "etl/avions/build_us.py"],
+    checks: ["web/scripts/check_avions.py"],
   },
   {
     id: "openap",
@@ -327,11 +355,12 @@ export const DATASETS = [
       ["jet", "ourairports"],
       ["sea", "ourairports"],
       ["carbone", "ourairports"],
+      ["avions", "ourairports"],
     ],
     what: "La position de chaque aéroport, complétée à la main pour les aéroports fermés, comme Berlin-Tegel, et pour les noms français.",
     period: "Fichier courant.",
     terms: PUBLIC,
-    files: ["data/eu/eu.json", "data/aeroports.json", "data/routes.json", "data/co2/trajets.json"],
+    files: ["data/eu/eu.json", "data/aeroports.json", "data/routes.json", "data/co2/trajets.json", "data/avions/monde.json"],
     alsoIn: ["ciel"],
     etl: [
       "etl/eu/eurostat.py",

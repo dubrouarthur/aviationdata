@@ -19,6 +19,24 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "avions",
+    slug: "modeles-d-avions",
+    no: 8,
+    topic: "Flottes",
+    title: "Le ciel, modèle par modèle",
+    dek: "Quels avions font le ciel, lesquels volent le plus loin, le plus souvent, et lesquels arrivent à l'heure ? Les vols du monde suivis par OpenSky en 2019 et 2022, et les 7 millions de vols intérieurs américains de 2025, modèle par modèle, avec un comparateur.",
+    published: "2026-11-04",
+    updated: "2026-11-04",
+    minutes: 15,
+    chapters: 8,
+    image: "og-avions.jpg",
+    cover: "90% 50%",
+    hook: "Quels avions font le ciel, et lesquels arrivent à l'heure ?",
+    accent: "var(--magenta)",
+    sources: "OpenSky Network, BTS",
+    related: ["carbone", "hf"],
+  },
+  {
     key: "carbone",
     slug: "co2-par-passager",
     no: 7,
@@ -147,6 +165,12 @@ export const ISSUES = [
 
 // interactive tools inside the investigations, offered on their own from the home page and the menu
 export const TOOLS = [
+  {
+    issue: "avions",
+    hash: "comparer",
+    title: "Le comparateur de modèles",
+    dek: "Deux avions côte à côte : leurs vols dans le monde, la longueur de leurs trajets, leur usage quotidien, leur ponctualité et leurs annulations aux États-Unis.",
+  },
   {
     issue: "carbone",
     hash: "calculer",
