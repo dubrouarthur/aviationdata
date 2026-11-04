@@ -415,26 +415,3 @@
     display: none;
   }
 }
-
-/* the essentials: under each big figure, what it counts */
-.av .es-u {
-  margin-top: -2px;
-  font: 600 var(--t-sm) / 1.2 var(--f-ui);
-  color: var(--muted);
-}
-
-.av .es-n {
-  font-size: clamp(1.9rem, 3vw, 2.5rem);
-}
-
-/* on a phone: figure, what it counts, question and answer read one under the other, full width */
-@media (max-width: 720px) {
-  .av .essentiel-list a {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .av .es-n {
-    grid-row: auto;
-    font-size: 2.1rem;
-  }
-}

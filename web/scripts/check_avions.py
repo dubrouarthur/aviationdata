@@ -192,11 +192,21 @@ with sync_playwright() as p:
         f"{fr(U['flightsAll'])} vols de {U['year']}",
     )
     es = txt("#essentiel-list")
+    near = sum(1 for m in big if abs(gap(m)) < 5)
     has("essentials", es,
-        f"{pc(top2)} des vols de ligne", f"assurent {pc(top2)} des vols d'avions de ligne suivis dans le monde en {LAST}",
-        f"Un {by_use[0]['name']} enchaîne en moyenne {fr(by_use[0]['flightsPerDay'], 1)} vols dans une journée de vol ; un {by_use[-1]['name']}, qui part loin, {fr(by_use[-1]['flightsPerDay'], 1)}.",
-        f"{pc(best['ontime'])} des vols en {best['name']} arrivent à l'heure", f"En {worst['name']}, {pc(worst['ontime'])}.",
-        f"l'écart est de {fr(round(across))} vols à l'heure sur 100", "à moins de 5 vols sur 100 près")
+        "Quels avions font le ciel ?",
+        f"{pc(top2)} des vols de ligne se font en Airbus A320 ou en Boeing 737.",
+        f"Vols suivis dans le monde en {LAST}.",
+        f"{fr(by_use[0]['flightsPerDay'], 1)} vols par jour pour un {by_use[0]['name']}, le modèle le plus occupé.",
+        f"Un {by_use[-1]['name']}, qui part loin, n'en fait que {fr(by_use[-1]['flightsPerDay'], 1)}.",
+        f"{pc(best['ontime'])} des vols en {best['name']} arrivent à l'heure, le meilleur score.",
+        f"En {worst['name']}, le moins bon, {pc(worst['ontime'])}.",
+        f"Vols intérieurs américains de {U['year']}",
+        f"{fr(round(across))} vols à l'heure sur 100 séparent la compagnie la plus ponctuelle de la moins ponctuelle.",
+        f"{near} modèles sur {len(big)} font pareil, à moins de 5 vols sur 100 près.")
+    order = pg.eval_on_selector_all("#essentiel-list a", "as => as.map(a => [...a.children].map(c => c.className).join(' '))")
+    check("essentials: the question first, then the number in its sentence", all(o == "es-q es-l es-a" for o in order), str(order))
+    check("essentials: most models do like their airlines", near >= len(big) * 0.75, f"{near}/{len(big)}")
 
     f1, f2 = families[0], families[1]
     has(

@@ -1,10 +1,33 @@
 // What every investigation in chapters does on its page: number its chapters, follow the reader in the
 // bar of parts, show how far they have read, and close on the author and the share buttons.
-import { $, el } from "../lib/ui.js";
+import { $, el, rich } from "../lib/ui.js";
 import { asset } from "../lib/site.js";
 import { shareUrl, linkedInShare } from "../lib/datasets.js";
 
 /** "03 / 10" above each chapter title (chapters of the given class, except the closing answer). */
+/**
+ * The essentials, in reading order: the question, then the answer as one sentence that opens on the big
+ * number ("65 %" + "des vols de ligne se font en Airbus A320 ou en Boeing 737."), then a detail.
+ * The number never stands alone: `lead` says what it counts. Each step links to its chapter.
+ * items: [{ id, q, n, lead, more }], `lead` and `more` in rich() parts.
+ */
+export function essentialSteps(items, node = $("#essentiel-list")) {
+  const parts = (x) => rich([].concat(x ?? []));
+  node.replaceChildren(
+    ...items.map(({ id, q, n, lead, more }) =>
+      el(
+        "li",
+        {},
+        el("a", { href: `#${id}` }, [
+          el("b", { class: "es-q", text: q }),
+          el("span", { class: "es-l" }, [el("span", { class: "es-n", text: n }), " ", parts(lead)]),
+          el("span", { class: "es-a" }, parts(more)),
+        ]),
+      ),
+    ),
+  );
+}
+
 export function numberChapters(chapterClass) {
   const titles = [...document.querySelectorAll(`main ${chapterClass} h2.section-title`)].filter(
     (h) => h.id !== "h-bref",
@@ -56,9 +79,11 @@ export function shareBlock() {
       el("img", { src: asset("auteur.jpg"), alt: "Arthur Dubrou", width: 76, height: 76, loading: "lazy" }),
       el("div", {}, [
         el("p", {
-        class: "ac-by",
-        text: document.body.classList.contains("court") ? "Un article en données de" : "Une enquête en données de",
-      }),
+          class: "ac-by",
+          text: document.body.classList.contains("court")
+            ? "Un article en données de"
+            : "Une enquête en données de",
+        }),
         el("p", { class: "ac-name", text: "Arthur Dubrou" }),
         el("a", {
           href: "https://www.linkedin.com/in/arthur-dubrou/",

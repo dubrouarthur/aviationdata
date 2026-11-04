@@ -4,7 +4,17 @@
 // Node only: imported by vite.config.js, never by the browser.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, sep } from "node:path";
-import { CORRECTIONS, CORRECTIONS_SINCE, ISSUES, PAGES, SITE, TOOLS, frDate, issueByKey, numbered } from "./issues.js";
+import {
+  CORRECTIONS,
+  CORRECTIONS_SINCE,
+  ISSUES,
+  PAGES,
+  SITE,
+  TOOLS,
+  frDate,
+  issueByKey,
+  numbered,
+} from "./issues.js";
 import {
   dataFacts,
   dataFiles,
@@ -289,6 +299,8 @@ const cells = (rows, cols, size, gap, fill) =>
     return `<rect x="${c * (size + gap)}" y="${r * (size + gap)}" width="${size}" height="${size}" ${fill(r, c)}/>`;
   }).join("");
 const GLYPHS = {
+  // two models side by side: one bar each, measure after measure
+  comparer: `<rect class="g-on" x="4" y="8" width="44" height="5" /><rect class="g-cool-fill" x="4" y="15" width="30" height="5" /><rect class="g-on" x="4" y="26" width="22" height="5" /><rect class="g-cool-fill" x="4" y="33" width="52" height="5" />`,
   // a flight between two airports, and the seats filled
   calculer: `<path class="g-mute" stroke-dasharray="2 3" d="M6 30Q32 4 58 30" /><circle class="g-on" cx="6" cy="30" r="3" /><circle class="g-on" cx="58" cy="30" r="3" /><rect class="g-on" x="14" y="36" width="26" height="5" /><rect class="g-cool-fill" x="40" y="36" width="10" height="5" />`,
   // monthly passengers since 2004: the seasons, the hole of 2020, the record
@@ -467,8 +479,7 @@ export function sitePartials(webRoot, base) {
     // /courant-jet/xyz they would miss, so the missing-address page asks for them from the root
     writeBundle(options) {
       const file = join(options.dir, NOT_FOUND);
-      if (existsSync(file))
-        writeFileSync(file, readFileSync(file, "utf8").replace(/(["(])\.\//g, "$1/"));
+      if (existsSync(file)) writeFileSync(file, readFileSync(file, "utf8").replace(/(["(])\.\//g, "$1/"));
     },
     generateBundle() {
       this.emitFile({ type: "asset", fileName: "feed.xml", source: feed(abs) });

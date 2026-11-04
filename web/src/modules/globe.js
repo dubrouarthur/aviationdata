@@ -512,7 +512,7 @@ export function initGlobe(data, { dots }) {
       el("span", {}, [el("i", { style: `--c:${color}` }), label]),
     ]);
   $("#hero-kpis").replaceChildren(
-    kpi(`${fmtNum(f.TOTAL[iL] / 1e6, 1)} M`, `passagers en ${lastYear}, un record`, "var(--ink)"),
+    kpi(`${fmtNum(f.TOTAL[iL] / 1e6, 1)} M`, `de passagers en ${lastYear}, un record`, "var(--ink)"),
     kpi(fmtPct(dIntl), `vols internationaux depuis 2019`, "var(--blue)"),
     kpi(fmtPct(dNat), `vols intérieurs depuis 2019`, "var(--magenta)"),
   );

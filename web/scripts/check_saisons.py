@@ -139,13 +139,16 @@ with sync_playwright() as p:
     has(
         "essentials",
         text("#essentiel"),
-        f"Août, dans {n_aug} pays sur {rows} ; juillet dans {n_jul}. Par jour, janvier est partout le plus creux",
-        f"×{fr(hr['gap'], 1)}",
-        f"En Croatie : {dw(hr)}. Dans l'Union, {fr(ue['gap'], 1)} fois",
-        f"×{fr(kd['EU27_2020']['nat']['gap'], 1)}",
-        f"dans l'Union, leur écart saisonnier est de {fr(kd['EU27_2020']['nat']['gap'], 1)}, contre {fr(kd['EU27_2020']['intl']['gap'], 1)} pour les vols internationaux",
-        f"Elle s'atténue dans {len(narrower)} pays sur {rows} depuis {SY[0]}",
+        f"Août est le mois le plus chargé dans {n_aug} pays sur {rows}.",
+        f"Juillet l'est dans {n_jul}. En passagers par jour, janvier est partout le plus creux.",
+        f"{fr(hr['gap'], 1)} fois plus de passagers un jour d'août qu'un jour de janvier en Croatie, le pays le plus saisonnier.",
+        f"Dans l'Union, l'écart n'est que de {fr(ue['gap'], 1)} fois.",
+        f"{fr(kd['EU27_2020']['nat']['gap'], 1)} fois plus de passagers au mois le plus chargé qu'au plus creux, sur les vols intérieurs de l'Union.",
+        f"Moins que les vols internationaux ({fr(kd['EU27_2020']['intl']['gap'], 1)} fois) : ils lissent l'année.",
+        f"{len(narrower)} sur {rows} pays ont une saison moins marquée qu'en {SY[0]}.",
     )
+    check("Croatia is the most seasonal country", max(gap_to.values()) == hr["gap"])
+    check("Croatia: August against January", (hr["peak"], hr["low"]) == (8, 1), str((hr["peak"], hr["low"])))
     check("the busiest month of the year is August for most", n_aug > rows / 2)
     check(
         "Bulgaria narrows clearly, Croatia and Greece widen",

@@ -125,7 +125,7 @@ export function initPrices(data) {
   );
   addSummary("prix", {
     value: fmtPct(dom.dPrice, 0),
-    label: `prix des billets intérieurs entre 2019 et ${lastT}`,
+    label: `sur le prix des billets intérieurs entre 2019 et ${lastT}`,
     color: "var(--magenta)",
   });
 

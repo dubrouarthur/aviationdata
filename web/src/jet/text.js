@@ -33,6 +33,7 @@ import {
   routeSavings,
 } from "./cost.js";
 import { JSOURCES } from "./sources.js";
+import { essentialSteps } from "../site/story.js";
 
 const utc = (h) => `${String(h).padStart(2, "0")} h UTC`;
 
@@ -897,73 +898,54 @@ export function writeHistoire({ climate, history }) {
 
 /* ------------------------------------------------------------------ the essentials, at the top */
 export function writeEssentiel(F, C, P) {
-  // each answer under its number: [chapter, number, question, answer]
   const items = [
-    [
-      "ecart",
-      tonnes(C.kgOf(F.gap) / 1000),
-      "Combien coûte le vent ?",
-      [
-        "Un vol vers New York met en médiane ",
-        { b: hm(F.gap) },
-        ` de plus que le retour, et brûle environ ${tonnes(C.kgOf(F.gap) / 1000)} de kérosène de plus. Une minute de croisière d'un long-courrier moyen : `,
+    {
+      id: "ecart",
+      q: "Combien coûte le vent ?",
+      n: hm(F.gap),
+      lead: "de vol en plus vers New York qu'au retour, en médiane, pour la même distance.",
+      more: [
+        "Soit environ ",
+        { b: tonnes(C.kgOf(F.gap) / 1000) },
+        " de kérosène de plus par vol. Une minute de croisière d'un long-courrier moyen : ",
         { b: kg(C.KG) },
         ", ",
         { b: euros(C.EUR) },
         " au prix des douze derniers mois.",
       ],
-    ],
+    },
   ];
   if (C.route)
-    items.push([
-      "bilan",
-      euros(C.eurOf(C.route.west)),
-      "Que vaut le vent bien utilisé ?",
-      [
-        `Pour un ${C.ledger.aircraft}, suivre chaque jour la route la plus rapide plutôt que la ligne droite vaut `,
-        { b: euros(C.eurOf(C.route.west)) },
-        ` de kérosène par vol vers New York. Pour les ${fmtNum(C.ledger.flights)} vols de ${C.ledger.year} entre Paris-CDG et New York-JFK : `,
+    items.push({
+      id: "bilan",
+      q: "Que vaut le vent bien utilisé ?",
+      n: euros(C.eurOf(C.route.west)),
+      lead: "de kérosène gagnés par vol vers New York en suivant la route la plus rapide du jour plutôt que la ligne droite.",
+      more: [
+        `Calcul pour un ${C.ledger.aircraft}. Sur les ${fmtNum(C.ledger.flights)} vols Paris-CDG–New York-JFK de ${C.ledger.year} : `,
         { b: `${fmtNum((C.route.tonnesYear * C.price) / 1e6, 1)} millions d'euros` },
         `. C'est ${pct(C.ledger.share, 1)} de leur facture de kérosène.`,
       ],
-    ]);
+    });
   if (P) {
     const short = Math.min(...P.leads);
-    items.push([
-      "prevoir",
-      pct(P.west.share(`hres${short}`)),
-      "Faut-il une prévision parfaite ?",
-      [
-        `Non : calculée sur la prévision émise ${leadText(short)} avant le départ, la route capte `,
-        { b: pct(P.west.share(`hres${short}`)) },
-        " du gain possible. Avec le seul vent moyen du mois, ",
-        { b: pct(P.west.share("clim")) },
-        ".",
-      ],
-    ]);
+    items.push({
+      id: "prevoir",
+      q: "Faut-il une prévision parfaite ?",
+      n: pct(P.west.share(`hres${short}`)),
+      lead: `du gain possible, avec une route calculée sur la prévision émise ${leadText(short)} avant le départ.`,
+      more: ["Non. Avec le seul vent moyen du mois, la route n'en capte que ", { b: pct(P.west.share("clim")) }, "."],
+    });
   }
   if (C.route)
-    items.push([
-      "quels-vols",
-      pct(C.topShare("west")),
-      "Quels vols y gagnent ?",
-      [
-        "Les vols vers l'ouest, l'hiver, les jours de jet fort : un jour sur dix fait ",
-        { b: pct(C.topShare("west")) },
-        " du gain annuel vers New York.",
-      ],
-    ]);
-  $("#essentiel-list").replaceChildren(
-    ...items.map(([id, n, q, a]) =>
-      el("li", {}, [
-        el("a", { href: `#${id}` }, [
-          el("span", { class: "es-n", text: n }),
-          el("b", { class: "es-q", text: q }),
-          el("span", { class: "es-a" }, rich(a)),
-        ]),
-      ]),
-    ),
-  );
+    items.push({
+      id: "quels-vols",
+      q: "Quels vols y gagnent le plus ?",
+      n: pct(C.topShare("west")),
+      lead: "du gain annuel vers New York se fait sur un jour sur dix, les meilleurs.",
+      more: "Les vols vers l'ouest, l'hiver, les jours où le courant-jet souffle fort.",
+    });
+  essentialSteps(items);
 }
 
 /* ------------------------------------------------------------------ the answer */

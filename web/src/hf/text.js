@@ -4,6 +4,7 @@
 import { $, el, rich, lecture } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { BIT, group } from "./facts.js";
+import { essentialSteps } from "../site/story.js";
 
 export const pct = (v, d = 0) => `${fmtNum(v, d)} %`;
 export const num = (v) => fmtNum(v);
@@ -37,63 +38,52 @@ export function writeOpening(F) {
 /* ------------------------------------------------------------------ the essentials */
 export function writeEssentiel(F) {
   const air = F.seg.airline;
-  const items = [
-    [
-      "verdict",
-      pct(F.share.person),
-      "Le facteur humain est-il le premier ?",
-      [
-        "Oui, de loin. Une personne est citée dans ",
-        { b: pct(F.share.person) },
-        ` des accidents, l'environnement dans ${pct(F.share.env)}, une panne de l'appareil dans ${pct(F.share.machine)}.`,
+  essentialSteps([
+    {
+      id: "verdict",
+      q: "Le facteur humain est-il la première cause ?",
+      n: pct(F.share.person),
+      lead: `des accidents aériens survenus aux États-Unis citent une personne dans leur cause probable.`,
+      more: [
+        "Oui, de loin. L'environnement est cité dans ",
+        { b: pct(F.share.env) },
+        ", une panne de l'appareil dans ",
+        { b: pct(F.share.machine) },
+        ".",
       ],
-    ],
-    [
-      "gravite",
-      pct(F.fatal.share),
-      "Et quand l'accident tue ?",
-      [
-        "Plus encore : une personne est citée dans ",
-        { b: pct(F.fatal.share) },
-        " des accidents mortels, qui comptent ",
-        { b: pct(ratio(F.deaths.person, F.deaths.n)) },
-        " des morts.",
-      ],
-    ],
-    [
-      "loupe",
-      pct(F.kinds.M.org),
-      "Que cache « l'erreur humaine » ?",
-      [
-        "Des enquêtes qui s'arrêtent souvent au geste : une organisation n'est citée que dans ",
+    },
+    {
+      id: "gravite",
+      q: "Et quand l'accident tue ?",
+      n: pct(F.fatal.share),
+      lead: "des accidents mortels citent une personne, plus encore que l'ensemble des accidents.",
+      more: ["Ces accidents comptent ", { b: pct(ratio(F.deaths.person, F.deaths.n)) }, " des morts."],
+    },
+    {
+      id: "loupe",
+      q: "Que cache « l'erreur humaine » ?",
+      n: pct(F.kinds.M.org),
+      lead: "des enquêtes majeures, les plus approfondies, citent aussi une organisation, au-delà du geste d'une personne.",
+      more: [
+        "Sur l'ensemble des accidents, à peine ",
         { b: pct(F.share.org) },
-        " des accidents, mais dans ",
-        { b: pct(F.kinds.M.org) },
-        " des enquêtes majeures.",
+        " : la plupart des enquêtes s'arrêtent au geste.",
       ],
-    ],
-    [
-      "compagnies",
-      pct(air.person),
-      "Partout ?",
-      [
-        "Non. Dans les compagnies aériennes, une personne n'est citée que dans ",
-        { b: pct(air.person) },
-        ` des accidents, l'environnement dans ${pct(air.env)} : ${pct(ratio(F.airline.turbulence, F.airline.n))} de leurs accidents sont des turbulences.`,
+    },
+    {
+      id: "compagnies",
+      q: "Est-ce pareil dans les compagnies aériennes ?",
+      n: pct(air.person),
+      lead: "des accidents des compagnies aériennes citent une personne, bien moins qu'ailleurs.",
+      more: [
+        "Non. L'environnement y est cité aussi souvent, dans ",
+        { b: pct(air.env) },
+        " : ",
+        { b: pct(ratio(F.airline.turbulence, F.airline.n)) },
+        " de leurs accidents sont des turbulences.",
       ],
-    ],
-  ];
-  $("#essentiel-list").replaceChildren(
-    ...items.map(([id, n, q, a]) =>
-      el("li", {}, [
-        el("a", { href: `#${id}` }, [
-          el("span", { class: "es-n", text: n }),
-          el("b", { class: "es-q", text: q }),
-          el("span", { class: "es-a" }, rich(a)),
-        ]),
-      ]),
-    ),
-  );
+    },
+  ]);
 }
 
 /* ------------------------------------------------------------------ a chapter */

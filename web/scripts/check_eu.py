@@ -210,15 +210,14 @@ with sync_playwright() as p:
     has(
         "essentials",
         text("#essentiel"),
-        f"{fr(now / 1e9, 2)} Md",
-        f"En {LAST}, l'Union compte {big(now)} de passagers aériens (un aller-retour compte deux fois), {up(100 * (now / y19 - 1), 1)} de plus qu'en 2019",
-        f"Elle avait retrouvé son niveau d'avant-Covid dès {back}",
-        f"{len(above)} sur {len(vs)}",
-        f"Non : {len(below)} pays restent sous 2019, dont la Finlande ({sign(get('FI')['ch'])}) et l'Allemagne ({sign(get('DE')['ch'])})",
-        sign(ngot("DE")["ch"]),
-        f"Ils reculent dans {len(nat_down)} pays sur {len(nat)}",
-        f"la Suède {up(ngot('SE')['ch'])}",
-        f"Oui, vers le sud. Les aéroports au sud du 45e parallèle ont gagné {big(s_ch)} de passagers depuis 2019, ceux du nord en ont perdu. Le centre de gravité a glissé de {fr(south19)} km",
+        f"{sign(100 * (now / y19 - 1), 1)} de passagers aériens dans l'Union en {LAST} par rapport à 2019.",
+        f"Oui. L'Union compte {big(now)} de passagers aériens (un aller-retour compte deux fois). Elle avait retrouvé son niveau d'avant-Covid dès {back}",
+        f"{len(above)} sur {len(vs)} pays dépassent leur niveau d'avant-Covid.",
+        f"Pas tous : {len(below)} restent en dessous, dont la Finlande ({sign(get('FI')['ch'])}) et l'Allemagne ({sign(get('DE')['ch'])})",
+        f"{sign(ngot('DE')['ch'])} de passagers sur les vols intérieurs allemands depuis 2019",
+        f"Ils reculent dans {len(nat_down)} pays sur {len(nat)}, dont la Suède ({sign(ngot('SE')['ch'])})",
+        f"{fr(south19)} km vers le sud : c'est le glissement, depuis 2019, du centre de gravité des passagers européens.",
+        f"Oui. Les aéroports au sud du 45e parallèle ont gagné {big(s_ch)} de passagers depuis 2019 ; ceux du nord en ont perdu.",
     )
     check("the north lost passengers", n_ch < 0)
     check("Malta and Poland: more than a third above 2019", get("MT")["ch"] > 100 / 3 and get("PL")["ch"] > 100 / 3)

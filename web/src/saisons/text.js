@@ -3,6 +3,7 @@
 import { $, el, rich, lecture } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { MONTHS, times } from "./charts.js";
+import { essentialSteps } from "../site/story.js";
 
 const EU = "EU27_2020";
 /** "d'août", "de janvier" */
@@ -78,51 +79,38 @@ export function writeEssentiel(Q) {
   const [hr, ue] = [Q.at("HR", L), Q.at(EU, L)];
   const euKinds = Q.kinds.find((r) => r.code === EU);
   const count = (f) => rows.filter(f).length;
-  const items = [
-    [
-      "profils",
-      "Août",
-      "Quel est le mois le plus chargé ?",
-      [
-        `Août, dans ${count((r) => r.peak === 8)} pays sur ${rows.length} ; juillet dans ${count((r) => r.peak === 7)}. Par jour, janvier est ${count((r) => r.low === 1) === rows.length ? "partout" : "presque partout"} le plus creux.`,
-      ],
-    ],
-    [
-      "carte",
-      times(hr.gap),
-      "Où l'été pèse-t-il le plus ?",
-      [`En Croatie : ${dayWords(hr)}. Dans l'Union, `, { b: `${d1(ue.gap)} fois` }, "."],
-    ],
-    [
-      "interieurs",
-      times(euKinds.nat.gap),
-      "Et les vols intérieurs ?",
-      [
-        "Ils lissent l'année : dans l'Union, leur écart saisonnier est de ",
-        { b: d1(euKinds.nat.gap) },
-        `, contre ${d1(euKinds.intl.gap)} pour les vols internationaux.`,
-      ],
-    ],
-    [
-      "evolution",
-      `${Q.narrower.length} sur ${Q.change.length}`,
-      "La saison change-t-elle ?",
-      [
-        `Elle s'atténue dans ${Q.narrower.length} pays sur ${Q.change.length} depuis ${Q.first}, nettement en Bulgarie ; elle se creuse en Croatie et en Grèce.`,
-      ],
-    ],
-  ];
-  $("#essentiel-list").replaceChildren(
-    ...items.map(([id, n, q, a]) =>
-      el("li", {}, [
-        el("a", { href: `#${id}` }, [
-          el("span", { class: "es-n", text: n }),
-          el("b", { class: "es-q", text: q }),
-          el("span", { class: "es-a" }, rich(a)),
-        ]),
-      ]),
-    ),
-  );
+  const month = (m) => MONTHS[m - 1];
+  const lowAll = count((r) => r.low === 1) === rows.length ? "partout" : "presque partout";
+  essentialSteps([
+    {
+      id: "profils",
+      q: "Quel est le mois le plus chargé ?",
+      n: "Août",
+      lead: `est le mois le plus chargé dans ${count((r) => r.peak === 8)} pays sur ${rows.length}.`,
+      more: `Juillet l'est dans ${count((r) => r.peak === 7)}. En passagers par jour, janvier est ${lowAll} le plus creux.`,
+    },
+    {
+      id: "carte",
+      q: "Où l'été pèse-t-il le plus ?",
+      n: `${d1(hr.gap)} fois`,
+      lead: `plus de passagers un jour ${de(month(hr.peak))} qu'un jour ${de(month(hr.low))} en Croatie, le pays le plus saisonnier.`,
+      more: ["Dans l'Union, l'écart n'est que de ", { b: `${d1(ue.gap)} fois` }, "."],
+    },
+    {
+      id: "interieurs",
+      q: "Les vols intérieurs sont-ils aussi saisonniers ?",
+      n: `${d1(euKinds.nat.gap)} fois`,
+      lead: "plus de passagers au mois le plus chargé qu'au plus creux, sur les vols intérieurs de l'Union.",
+      more: ["Moins que les vols internationaux (", { b: `${d1(euKinds.intl.gap)} fois` }, ") : ils lissent l'année."],
+    },
+    {
+      id: "evolution",
+      q: "L'écart entre l'été et l'hiver se réduit-il ?",
+      n: `${Q.narrower.length} sur ${Q.change.length}`,
+      lead: `pays ont une saison moins marquée qu'en ${Q.first}.`,
+      more: "Oui, dans la plupart, nettement en Bulgarie. L'écart se creuse en Croatie et en Grèce.",
+    },
+  ]);
 }
 
 /** The line under the calendar: the Union, or the country the reader picks. */

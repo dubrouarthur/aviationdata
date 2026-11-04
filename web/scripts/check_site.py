@@ -692,19 +692,19 @@ with sync_playwright() as pw:
         )
         has(
             "the essentials",
-            text("#essentiel"),
+            " ".join(text("#essentiel").split()),
+            f"{hm(gapm)} de vol en plus vers New York qu'au retour, en médiane, pour la même distance.",
+            f"Soit environ {tonnes(KG * gapm / 1000)} de kérosène de plus par vol.",
             f"Une minute de croisière d'un long-courrier moyen : {kgf(KG)}, {euros(EUR)}",
             "au prix des douze derniers mois",
-            f"de plus que le retour, et brûle environ {tonnes(KG * gapm / 1000)} de kérosène de plus",
-            f"Pour un {ss['aircraft']}, suivre chaque jour la route la plus rapide",
-            f"vaut {euros(west * EUR)} de kérosène par vol vers New York",
-            f"Pour les {fr(pr['mvt'])} vols de {pr['y']} entre Paris-CDG et New York-JFK : ",
+            f"{euros(west * EUR)} de kérosène gagnés par vol vers New York en suivant la route la plus rapide du jour",
+            f"Calcul pour un {ss['aircraft']}.",
+            f"Sur les {fr(pr['mvt'])} vols Paris-CDG–New York-JFK de {pr['y']} : ",
             f"{fr(ty * price / 1e6, 1)} millions d'euros",
             f"C'est {pct1(share)} de leur facture de kérosène",
-            f"un jour sur dix fait {pct(share_top)}",
         )
         big = pg.eval_on_selector_all("#essentiel .es-n", "els => els.map(e => e.textContent)")
-        want = [f"{fr(KG * gapm / 1000, 1)} t", euros(west * EUR)]
+        want = [hm(gapm), euros(west * EUR)]
         check(
             "the essentials' big numbers",
             [norm(x) for x in big[:2]] == [norm(x) for x in want] and norm(big[-1]) == norm(pct(share_top)),
@@ -732,9 +732,9 @@ with sync_playwright() as pw:
         )
         has(
             "forecasts in the essentials",
-            text("#essentiel"),
-            f"la route capte {pct(share(fw_, 'hres12'))} du gain possible",
-            f"Avec le seul vent moyen du mois, {pct(share(fw_, 'clim'))}",
+            " ".join(text("#essentiel").split()),
+            f"{pct(share(fw_, 'hres12'))} du gain possible, avec une route calculée sur la prévision émise 12 heures avant le départ.",
+            f"Non. Avec le seul vent moyen du mois, la route n'en capte que {pct(share(fw_, 'clim'))}.",
         )
         has(
             "forecasts in euros",

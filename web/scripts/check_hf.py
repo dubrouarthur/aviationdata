@@ -123,12 +123,20 @@ with sync_playwright() as p:
     has(
         "essentials",
         text("#essentiel"),
-        f"Une personne est citée dans {pct(S['person'])} des accidents, l'environnement dans {pct(S['env'])}, une panne de l'appareil dans {pct(S['machine'])}",
-        f"citée dans {pct(100 * NF and 100 * n_of(fat, lambda m: m & PERSON) / NF)} des accidents mortels, qui comptent {pct(100 * deaths_p / deaths)} des morts",
-        f"n'est citée que dans {pct(seg['airline']['person'])} des accidents, l'environnement dans {pct(seg['airline']['env'])}",
-        f"une organisation n'est citée que dans {pct(S['org'])} des accidents, mais dans {pct(KD['M']['org'])} des enquêtes majeures",
+        f"{pct(S['person'])} des accidents aériens survenus aux États-Unis citent une personne dans leur cause probable.",
+        f"Oui, de loin. L'environnement est cité dans {pct(S['env'])}, une panne de l'appareil dans {pct(S['machine'])}.",
+        f"{pct(100 * NF and 100 * n_of(fat, lambda m: m & PERSON) / NF)} des accidents mortels citent une personne, plus encore que l'ensemble des accidents.",
+        f"Ces accidents comptent {pct(100 * deaths_p / deaths)} des morts.",
+        f"{pct(KD['M']['org'])} des enquêtes majeures, les plus approfondies, citent aussi une organisation",
+        f"Sur l'ensemble des accidents, à peine {pct(S['org'])} : la plupart des enquêtes s'arrêtent au geste.",
+        f"{pct(seg['airline']['person'])} des accidents des compagnies aériennes citent une personne, bien moins qu'ailleurs.",
+        f"Non. L'environnement y est cité aussi souvent, dans {pct(seg['airline']['env'])}",
     )
     check("three accidents in four", 70 <= S["person"] < 80, pct(S["person"], 1))
+    check(
+        "airlines: the environment as often as a person, far less than elsewhere",
+        seg["airline"]["env"] >= seg["airline"]["person"] - 2 and seg["airline"]["person"] < S["person"] - 15,
+    )
     has(
         "the verdict",
         text("#verdict"),

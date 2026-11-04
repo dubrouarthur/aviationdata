@@ -4,6 +4,7 @@ import { $, el, rich, lecture } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { monthLabel, mio, pct } from "./charts.js";
 import { km } from "./facts.js";
+import { essentialSteps } from "../site/story.js";
 
 /** 1 093 600 000 -> "1,09 milliard" ; 172 000 000 -> "172,0 millions" */
 export const big = (v) =>
@@ -50,63 +51,54 @@ export function writeEssentiel(F, H) {
   const ger = F.vs.find((c) => c.code === "DE");
   const natDE = F.nat.find((n) => n.code === "DE");
   const natSE = F.nat.find((n) => n.code === "SE");
-  const items = [
-    [
-      "record",
-      `${fmtNum(U.now / 1e9, 2)} Md`,
-      "Le Covid est-il effacé ?",
-      [
-        `Oui. En ${F.last}, l'Union compte `,
+  essentialSteps([
+    {
+      id: "record",
+      q: "Le Covid est-il effacé ?",
+      n: pct(U.vs2019, 1),
+      lead: `de passagers aériens dans l'Union en ${F.last} par rapport à 2019.`,
+      more: [
+        "Oui. L'Union compte ",
         { b: `${big(U.now)} de passagers aériens` },
-        ` (un aller-retour compte deux fois), ${up(U.vs2019, 1)} de plus qu'en 2019. Elle avait retrouvé son niveau d'avant-Covid dès ${U.back}.`,
+        ` (un aller-retour compte deux fois). Elle avait retrouvé son niveau d'avant-Covid dès ${U.back}.`,
       ],
-    ],
-    [
-      "sud",
-      `${F.above.length} sur ${F.vs.length}`,
-      "Partout ?",
-      [
-        `Non : ${F.below.length} pays restent sous 2019, dont la Finlande (`,
+    },
+    {
+      id: "sud",
+      q: "Tous les pays ont-ils retrouvé 2019 ?",
+      n: `${F.above.length} sur ${F.vs.length}`,
+      lead: "pays dépassent leur niveau d'avant-Covid.",
+      more: [
+        `Pas tous : ${F.below.length} restent en dessous, dont la Finlande (`,
         { b: pct(fi.change) },
         ") et l'Allemagne (",
         { b: pct(ger.change) },
         "). Malte et la Pologne dépassent 2019 de plus d'un tiers.",
       ],
-    ],
-    [
-      "interieur",
-      pct(natDE.change),
-      "Et les vols intérieurs ?",
-      [
-        `Ils reculent dans ${F.natDown.length} pays sur ${F.nat.length}. L'Allemagne en a perdu près de la moitié depuis 2019, la Suède `,
-        { b: up(natSE.change) },
-        ". Ils progressent en Espagne, en Italie, en Grèce et au Portugal.",
+    },
+    {
+      id: "interieur",
+      q: "Et les vols intérieurs ?",
+      n: pct(natDE.change),
+      lead: "de passagers sur les vols intérieurs allemands depuis 2019 : près de la moitié.",
+      more: [
+        `Ils reculent dans ${F.natDown.length} pays sur ${F.nat.length}, dont la Suède (`,
+        { b: pct(natSE.change) },
+        "). Ils progressent en Espagne, en Italie, en Grèce et au Portugal.",
       ],
-    ],
-    [
-      "pics",
-      kmTxt(F.bary.south2019),
-      "Le ciel a-t-il bougé ?",
-      [
-        "Oui, vers le sud. Les aéroports au sud du 45e parallèle ont gagné ",
+    },
+    {
+      id: "pics",
+      q: "Le ciel a-t-il bougé ?",
+      n: kmTxt(F.bary.south2019),
+      lead: "vers le sud : c'est le glissement, depuis 2019, du centre de gravité des passagers européens.",
+      more: [
+        "Oui. Les aéroports au sud du 45e parallèle ont gagné ",
         { b: `${big(H.south.change)} de passagers` },
-        " depuis 2019, ceux du nord en ont perdu. Le centre de gravité a glissé de ",
-        { b: kmTxt(F.bary.south2019) },
-        ".",
+        " depuis 2019 ; ceux du nord en ont perdu.",
       ],
-    ],
-  ];
-  $("#essentiel-list").replaceChildren(
-    ...items.map(([id, n, q, a]) =>
-      el("li", {}, [
-        el("a", { href: `#${id}` }, [
-          el("span", { class: "es-n", text: n }),
-          el("b", { class: "es-q", text: q }),
-          el("span", { class: "es-a" }, rich(a)),
-        ]),
-      ]),
-    ),
-  );
+    },
+  ]);
 }
 
 /** The opening map's caption and its line under the year slider. */

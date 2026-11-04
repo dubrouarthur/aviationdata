@@ -7,6 +7,7 @@ import { fmtNum } from "../lib/format.js";
 import { link } from "../court/sources.js";
 import { ASOURCES } from "./sources.js";
 import { GROUPS } from "./charts.js";
+import { essentialSteps } from "../site/story.js";
 
 const p = (parts) => el("p", {}, rich(parts));
 const pc = (v, d = 0) => `${fmtNum(v * 100, d)} %`;
@@ -39,69 +40,49 @@ export function writeOpening(Wf, Uf) {
 export function writeEssentiel(Wf, Uf) {
   const busy = Wf.byUse[0];
   const calm = Wf.byUse.at(-1);
-  // [chapter, big figure, what the figure counts, the question, the answer in plain words]
-  const items = [
-    [
-      "familles",
-      pc(Wf.top2),
-      "des vols de ligne",
-      "Quels avions font le ciel ?",
-      [
-        "Surtout deux familles. L'Airbus A320 et le Boeing 737, toutes versions confondues, assurent ",
-        { b: pc(Wf.top2) },
-        ` des vols d'avions de ligne suivis dans le monde en ${Wf.last}.`,
-      ],
-    ],
-    [
-      "usage",
-      fmtNum(busy.flightsPerDay, 1),
-      "vols par jour",
-      "Lesquels volent le plus souvent ?",
-      [
-        `Les petits avions. Un ${busy.name} enchaîne en moyenne `,
-        { b: `${fmtNum(busy.flightsPerDay, 1)} vols` },
-        ` dans une journée de vol ; un ${calm.name}, qui part loin, `,
+  const near = Uf.big.filter((m) => Math.abs(Uf.gap(m)) < 5).length;
+  essentialSteps([
+    {
+      id: "familles",
+      q: "Quels avions font le ciel ?",
+      n: pc(Wf.top2),
+      lead: "des vols de ligne se font en Airbus A320 ou en Boeing 737.",
+      more: `Deux familles, avec leurs nouvelles versions (A320neo, 737 MAX). Vols suivis dans le monde en ${Wf.last}.`,
+    },
+    {
+      id: "usage",
+      q: "Lesquels volent le plus souvent ?",
+      n: `${fmtNum(busy.flightsPerDay, 1)} vols`,
+      lead: `par jour pour un ${busy.name}, le modèle le plus occupé.`,
+      more: [
+        `Les petits avions enchaînent les trajets courts. Un ${calm.name}, qui part loin, n'en fait que `,
         { b: fmtNum(calm.flightsPerDay, 1) },
-        ".",
+        ". Comptés sur les jours où l'avion vole.",
       ],
-    ],
-    [
-      "ponctualite",
-      pc(Uf.best.ontime),
-      "des vols à l'heure",
-      "Lesquels arrivent à l'heure ?",
-      [
-        `Aux États-Unis en ${Uf.year}, `,
-        { b: pc(Uf.best.ontime) },
-        ` des vols en ${Uf.best.name} arrivent à l'heure, avec moins de 15 minutes de retard. En ${Uf.worst.name}, `,
+    },
+    {
+      id: "ponctualite",
+      q: "Lesquels arrivent le plus à l'heure ?",
+      n: pc(Uf.best.ontime),
+      lead: `des vols en ${Uf.best.name} arrivent à l'heure, le meilleur score.`,
+      more: [
+        `En ${Uf.worst.name}, le moins bon, `,
         { b: pc(Uf.worst.ontime) },
-        ".",
+        `. Vols intérieurs américains de ${Uf.year} ; à l'heure veut dire moins de 15 minutes de retard.`,
       ],
-    ],
-    [
-      "compagnie",
-      "La compagnie",
-      "plus que l'avion",
-      "Est-ce la faute de l'avion ?",
-      [
-        "Rarement. Entre la compagnie la plus ponctuelle et la moins ponctuelle, l'écart est de ",
-        { b: `${n0(Math.round(Uf.across * 100))} vols à l'heure sur 100` },
-        ". Comparés à leur propre compagnie, la plupart des avions font presque pareil, à moins de 5 vols sur 100 près.",
+    },
+    {
+      id: "compagnie",
+      q: "Est-ce la faute de l'avion ?",
+      n: `${n0(Math.round(Uf.across * 100))} vols`,
+      lead: "à l'heure sur 100 séparent la compagnie la plus ponctuelle de la moins ponctuelle.",
+      more: [
+        "Rarement : c'est surtout la compagnie qui compte. Comparés à leurs propres compagnies, ",
+        { b: `${near} modèles sur ${Uf.big.length}` },
+        " font pareil, à moins de 5 vols sur 100 près.",
       ],
-    ],
-  ];
-  $("#essentiel-list").replaceChildren(
-    ...items.map(([id, n, unit, q, a]) =>
-      el("li", {}, [
-        el("a", { href: `#${id}` }, [
-          el("span", { class: "es-n", text: n }),
-          el("span", { class: "es-u", text: unit }),
-          el("b", { class: "es-q", text: q }),
-          el("span", { class: "es-a" }, rich(a)),
-        ]),
-      ]),
-    ),
-  );
+    },
+  ]);
 }
 
 export function writeWorld(Wf) {
