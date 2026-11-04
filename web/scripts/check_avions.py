@@ -192,14 +192,11 @@ with sync_playwright() as p:
         f"{fr(U['flightsAll'])} vols de {U['year']}",
     )
     es = txt("#essentiel-list")
-    has(
-        "essentials",
-        es,
-        f"{pc(top2)} des vols de ligne suivis en {LAST}",
-        f"un {by_use[0]['name']} enchaîne {fr(by_use[0]['flightsPerDay'], 1)} vols par jour de vol, un {by_use[-1]['name']} {fr(by_use[-1]['flightsPerDay'], 1)}",
-        f"de {pc(worst['ontime'])} des vols pour le {worst['name']} à {pc(best['ontime'])} pour le {best['name']}",
-        f"{pt(across)} d'écart",
-    )
+    has("essentials", es,
+        f"{pc(top2)} des vols de ligne", f"assurent {pc(top2)} des vols d'avions de ligne suivis dans le monde en {LAST}",
+        f"Un {by_use[0]['name']} enchaîne en moyenne {fr(by_use[0]['flightsPerDay'], 1)} vols dans une journée de vol ; un {by_use[-1]['name']}, qui part loin, {fr(by_use[-1]['flightsPerDay'], 1)}.",
+        f"{pc(best['ontime'])} des vols en {best['name']} arrivent à l'heure", f"En {worst['name']}, {pc(worst['ontime'])}.",
+        f"l'écart est de {fr(round(across))} vols à l'heure sur 100", "à moins de 5 vols sur 100 près")
 
     f1, f2 = families[0], families[1]
     has(

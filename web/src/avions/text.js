@@ -37,45 +37,65 @@ export function writeOpening(Wf, Uf) {
 }
 
 export function writeEssentiel(Wf, Uf) {
+  const busy = Wf.byUse[0];
+  const calm = Wf.byUse.at(-1);
+  // [chapter, big figure, what the figure counts, the question, the answer in plain words]
   const items = [
     [
       "familles",
-      outOfTen(Wf.top2),
+      pc(Wf.top2),
+      "des vols de ligne",
       "Quels avions font le ciel ?",
       [
-        `L'A320 et le 737, avec leurs nouvelles versions : ${pc(Wf.top2)} des vols de ligne suivis en ${Wf.last}.`,
+        "Surtout deux familles. L'Airbus A320 et le Boeing 737, toutes versions confondues, assurent ",
+        { b: pc(Wf.top2) },
+        ` des vols d'avions de ligne suivis dans le monde en ${Wf.last}.`,
       ],
     ],
     [
       "usage",
-      `${fmtNum(Wf.byUse[0].flightsPerDay, 1)} vols`,
+      fmtNum(busy.flightsPerDay, 1),
+      "vols par jour",
       "Lesquels volent le plus souvent ?",
       [
-        `Les petits : un ${Wf.byUse[0].name} enchaîne ${fmtNum(Wf.byUse[0].flightsPerDay, 1)} vols par jour de vol, un ${Wf.byUse.at(-1).name} ${fmtNum(Wf.byUse.at(-1).flightsPerDay, 1)}.`,
+        `Les petits avions. Un ${busy.name} enchaîne en moyenne `,
+        { b: `${fmtNum(busy.flightsPerDay, 1)} vols` },
+        ` dans une journée de vol ; un ${calm.name}, qui part loin, `,
+        { b: fmtNum(calm.flightsPerDay, 1) },
+        ".",
       ],
     ],
     [
       "ponctualite",
       pc(Uf.best.ontime),
+      "des vols à l'heure",
       "Lesquels arrivent à l'heure ?",
       [
-        `Aux États-Unis en ${Uf.year}, de ${pc(Uf.worst.ontime)} des vols pour le ${Uf.worst.name} à ${pc(Uf.best.ontime)} pour le ${Uf.best.name}.`,
+        `Aux États-Unis en ${Uf.year}, `,
+        { b: pc(Uf.best.ontime) },
+        ` des vols en ${Uf.best.name} arrivent à l'heure, avec moins de 15 minutes de retard. En ${Uf.worst.name}, `,
+        { b: pc(Uf.worst.ontime) },
+        ".",
       ],
     ],
     [
       "compagnie",
-      pt(Uf.across * 100),
-      "L'avion compte-t-il ?",
+      "La compagnie",
+      "plus que l'avion",
+      "Est-ce la faute de l'avion ?",
       [
-        `Moins que la compagnie : d'une compagnie à l'autre, ${pt(Uf.across * 100)} d'écart ; à compagnie égale, la plupart des modèles restent à moins de cinq points.`,
+        "Rarement. Entre la compagnie la plus ponctuelle et la moins ponctuelle, l'écart est de ",
+        { b: `${n0(Math.round(Uf.across * 100))} vols à l'heure sur 100` },
+        ". Comparés à leur propre compagnie, la plupart des avions font presque pareil, à moins de 5 vols sur 100 près.",
       ],
     ],
   ];
   $("#essentiel-list").replaceChildren(
-    ...items.map(([id, n, q, a]) =>
+    ...items.map(([id, n, unit, q, a]) =>
       el("li", {}, [
         el("a", { href: `#${id}` }, [
           el("span", { class: "es-n", text: n }),
+          el("span", { class: "es-u", text: unit }),
           el("b", { class: "es-q", text: q }),
           el("span", { class: "es-a" }, rich(a)),
         ]),
