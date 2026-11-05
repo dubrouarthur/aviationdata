@@ -105,6 +105,13 @@ CARD = """
   .duo span {{ font-size: 27px; font-weight: 600; line-height: 1.25; color: {ink}; }}
   .duo .others b {{ color: {muted}; }}
   .duo .others span {{ color: {muted}; }}
+  .duo.two {{ grid-template-columns: 1fr 1fr; }}
+  .duo.two > div {{ grid-template-rows: 250px auto auto auto; gap: 4px; }}
+  .duo.two .pl {{ height: 250px; }}
+  .duo.two span {{ font-size: 32px; font-weight: 700; margin-top: 18px; }}
+  .duo.two b {{ font-size: 150px; }}
+  .duo.two small {{ font-size: 28px; color: {muted}; }}
+  .duo.two + .x, .chart:has(.duo.two) {{ margin-bottom: 26px; }}
   .av-pl-body {{ fill: var(--pc); }} .av-pl-prop {{ fill: var(--pc); opacity: .45; }}
   .note {{ margin: 30px 0 0; font: 400 36px/1.32 "Source Serif 4 Variable", Georgia, serif; color: {ink};
            text-wrap: pretty; }}
@@ -288,6 +295,45 @@ def card_avions(t, pg):
     }
 
 
+def card_avions_retard(t, pg):
+    """Same aircraft, two airlines: the A321's on-time share at its best and worst airline (figure 7's table)."""
+    rows = pg.evaluate(
+        "[...document.querySelector('#chart-sp').parentElement.querySelectorAll('details.data tbody tr')]"
+        ".map(tr => [...tr.cells].map(td => td.innerText))"
+    )
+    model = "Airbus A321"
+    vals = []
+    for airline, _, models in rows:
+        m = re.search(model + r" (\d+) %(?:,|$)", norm(models))
+        if m:
+            vals.append((int(m.group(1)), norm(airline)))
+    vals.sort()
+    (lo, a_lo), (hi, a_hi) = vals[0], vals[-1]
+    assert hi - lo >= 8, vals
+    year = find(t, r"États-Unis, vols intérieurs, (\d{4})", "avions")
+    svg = pg.evaluate("document.querySelector('#chart-fam .av-bar-pl svg').outerHTML")  # an A320-family drawing
+    w = float(re.search(r'width="([\d.]+)"', svg).group(1))
+    h = float(re.search(r'height="([\d.]+)"', svg).group(1))
+    k = 5.2 / 0.72  # 5.2 px a metre once drawn
+    svg = re.sub(r'width="[\d.]+"', f'width="{w * k:.0f}"', svg, count=1)
+    svg = re.sub(r'height="[\d.]+"', f'height="{h * k:.0f}"', svg, count=1)
+    one = lambda c: re.sub(r"--pc:[^;\"]+", f"--pc:{c}", svg)  # noqa: E731
+    chart = f"""<div class="duo two">
+      <div><div class="pl">{one("#5aa2ff")}</div><span>{model} chez {a_hi}</span><b style="color:#5aa2ff">{hi} %</b><small>des vols à l'heure</small></div>
+      <div><div class="pl">{one("#ff6fb6")}</div><span>{model} chez {a_lo}</span><b style="color:#ff6fb6">{lo} %</b><small>des vols à l'heure</small></div>
+    </div>"""
+    return {
+        "file": "modeles-d-avions-retard",
+        "accent": "#ff6fb6",
+        "ctx": "Votre vol a du retard ?",
+        "headline": "Même avion. Pas la même ponctualité.",
+        "chart": chart,
+        "note": f"Vols intérieurs américains, {year}. Pour arriver à l'heure, <b>la compagnie compte plus que l'avion</b>.",
+        "ask": "Quels avions volent le plus, le plus loin, et lesquels arrivent à l'heure ? Tous les avions de ligne comparés.",
+        "src": "BTS (vols intérieurs américains), OpenSky",
+    }
+
+
 STORIES = [
     ("calendrier-du-ciel", card_sea),
     ("ciel-europeen", card_eu),
@@ -295,6 +341,7 @@ STORIES = [
     ("courant-jet", card_jet),
     ("le-ciel-a-deux-vitesses", card_ciel),
     ("modeles-d-avions", card_avions),
+    ("modeles-d-avions", card_avions_retard),
 ]
 
 with sync_playwright() as pw:
@@ -318,7 +365,7 @@ with sync_playwright() as pw:
         card.evaluate("document.fonts.ready")
         card.wait_for_timeout(500)
         foot = card.evaluate("document.querySelector('.foot').getBoundingClientRect().bottom")
-        card.locator(".li").screenshot(path=str(out / f"{slug}.png"))
+        card.locator(".li").screenshot(path=str(out / f"{c.get('file', slug)}.png"))
         card.close()
         print(f"{slug}: {c['headline']}" + ("  !! déborde" if foot > 1350 else ""))
     browser.close()
