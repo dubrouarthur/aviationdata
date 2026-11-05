@@ -415,3 +415,353 @@
     display: none;
   }
 }
+
+/* ------------------------------------------------------------------ the drawings (plane.js) */
+.av-plane {
+  display: block;
+  overflow: visible;
+}
+
+/* a drawing keeps its own size (the charts' svg rule would stretch it to the column) */
+.av .chart svg.av-plane,
+.av svg.av-plane {
+  width: auto;
+  max-width: none;
+}
+
+.av-day-ruler i {
+  white-space: nowrap;
+}
+
+.av-pl-body {
+  fill: var(--pc, currentColor);
+}
+
+.av-pl-prop {
+  fill: var(--pc, currentColor);
+  opacity: 0.45;
+}
+
+/* opening: a hundred aircraft on the apron */
+.waffle i.wf-plane {
+  display: grid;
+  place-items: center;
+  border-radius: 0;
+}
+
+.waffle i.wf-plane .av-plane {
+  width: 88%;
+  height: 88%;
+}
+
+/* figure 1: each family's most flown model, to scale, before its bar */
+.c-hbars.av-bars-pl li {
+  grid-template-columns: 60px minmax(9rem, 2fr) minmax(0, 4fr) 5.2rem;
+}
+
+.av-bar-pl {
+  display: grid;
+  place-items: center;
+  min-height: 30px;
+}
+
+@media (max-width: 560px) {
+  .c-hbars.av-bars-pl li {
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+  }
+
+  .c-hbars.av-bars-pl .av-bar-pl {
+    grid-row: 1 / span 2;
+  }
+
+  .c-hbars.av-bars-pl .c-hb-track {
+    grid-column: 2 / -1;
+  }
+}
+
+/* figure 2: the aircraft along the distances */
+.av-sw-plot svg {
+  display: block;
+  overflow: visible;
+}
+
+.av-sw-refs line {
+  stroke: var(--rule-strong, #9aa7b4);
+  stroke-dasharray: 3 4;
+}
+
+.av-sw-refs text {
+  font: 650 var(--t-xs) / 1 var(--f-ui);
+  fill: var(--ink-2);
+}
+
+.av-sw-refs .av-sw-ref-km {
+  font-weight: 450;
+  fill: var(--muted);
+}
+
+.av-sw-axis line {
+  stroke: var(--ink-2);
+}
+
+.av-sw-p .av-sw-ring {
+  fill: var(--paper);
+  stroke: none;
+}
+
+.av-sw-p.on .av-sw-ring {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.av-sw-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.av-sw-end {
+  font: 600 var(--t-xs) / 1 var(--f-ui);
+  fill: var(--ink-2);
+}
+
+.av-sw-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 24px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--ink);
+  background: var(--paper-2);
+}
+
+.av-sw-txt b {
+  display: block;
+  font: 760 1.05rem / 1.2 var(--f-ui);
+}
+
+.av-sw-txt > span {
+  font: 500 var(--t-xs) / 1.3 var(--f-ui);
+  color: var(--muted);
+}
+
+.av-sw-txt p {
+  margin: 6px 0 2px;
+  font: 400 0.98rem / 1.45 var(--f-text);
+}
+
+.av-sw-txt small {
+  font: 450 var(--t-xs) / 1.3 var(--f-ui);
+  color: var(--muted);
+}
+
+.av-sw-draw {
+  justify-self: end;
+}
+
+@media (max-width: 560px) {
+  .av-sw-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .av-sw-draw {
+    justify-self: start;
+  }
+}
+
+/* figure 3: a day of each model's median aircraft */
+.av-day-head,
+.av-day li {
+  display: grid;
+  grid-template-columns: minmax(11rem, 2fr) minmax(0, 5fr) 6.4rem;
+  gap: 4px 16px;
+  align-items: center;
+}
+
+.av-day-ruler {
+  position: relative;
+  height: 18px;
+}
+
+.av-day-ruler i {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font: 500 var(--t-xs) / 1 var(--f-ui);
+  font-style: normal;
+  color: var(--muted);
+}
+
+.av-day-ruler i:first-child {
+  transform: none;
+}
+
+.av-day-ruler i:last-child {
+  transform: translateX(-100%);
+}
+
+.av-day {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.av-day li {
+  padding: 4px 0;
+  border-radius: 2px;
+}
+
+.av-day li:hover,
+.av-day li:focus-visible {
+  background: var(--paper-2);
+}
+
+.av-day-l {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font: 600 0.92rem / 1.2 var(--f-ui);
+}
+
+.av-day-l small {
+  display: block;
+  font-weight: 450;
+  font-size: var(--t-xs);
+  color: var(--muted);
+}
+
+.av-day-ic {
+  flex: 0 0 26px;
+}
+
+.av-day-track {
+  position: relative;
+  height: 20px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), var(--rule) calc(25% - 1px) 25%),
+    var(--paper-2);
+}
+
+.av-day-track i {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  background: var(--c);
+  border-radius: 2px;
+}
+
+.av-day-track i.some {
+  background: repeating-linear-gradient(135deg, var(--c) 0 3px, transparent 3px 6px);
+  outline: 1.5px solid var(--c);
+  outline-offset: -1.5px;
+}
+
+.av-day-v {
+  text-align: right;
+  font: 760 1rem / 1.1 var(--f-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.av-day-v small {
+  display: block;
+  font-weight: 450;
+  font-size: var(--t-xs);
+  color: var(--muted);
+}
+
+@media (max-width: 620px) {
+  .av-day-head,
+  .av-day li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .av-day-head > span:first-child,
+  .av-day-head > span:last-child {
+    display: none;
+  }
+
+  .av-day-head .av-day-ruler,
+  .av-day-track {
+    grid-column: 1 / -1;
+  }
+
+  .av-day-track {
+    grid-row: 2;
+  }
+}
+
+/* figure 5: the families' drawings over the columns */
+.av-heat-ic {
+  display: block;
+  margin: 0 0 4px auto;
+  width: 26px;
+}
+
+/* figure 7: the best and worst model of each airline, named */
+.av-sp-name {
+  font: 550 var(--t-xs) / 1 var(--f-ui);
+  fill: var(--ink-2);
+}
+
+/* the comparator: the two models overlaid to scale */
+.cmp-ov {
+  margin: 18px 0 8px;
+}
+
+.av-ov {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+
+.av-ov-draw {
+  position: relative;
+  max-width: 100%;
+}
+
+.av-ov-draw .av-plane {
+  position: absolute;
+}
+
+.av-ov-a {
+  opacity: 0.85;
+}
+
+.av-ov-b .av-pl-body,
+.av-ov-b .av-pl-prop {
+  fill: none;
+  stroke: var(--magenta);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  opacity: 1;
+}
+
+.av-ov-key {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font: 450 var(--t-sm) / 1.45 var(--f-ui);
+  color: var(--ink-2);
+}
+
+.av-ov-key i {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  margin-right: 8px;
+  vertical-align: baseline;
+}
+
+.av-ov-key .a i {
+  background: var(--blue);
+}
+
+.av-ov-key .b i {
+  border: 2px solid var(--magenta);
+}
+
+.av-ov-key b {
+  color: var(--ink);
+}

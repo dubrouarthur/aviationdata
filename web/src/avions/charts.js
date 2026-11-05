@@ -3,6 +3,7 @@
 import * as d3 from "d3";
 import { el, dataTable, onResize, showTip, hideTip } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
+import { plane, planeIcon, planeInG, GROUP_ICON } from "./plane.js";
 
 /** The groups of models the page colours, in the order of the legend. */
 export const GROUPS = [
@@ -37,7 +38,7 @@ export function legend(node, keys = GROUPS.map((g) => g.key), hi = false) {
 }
 
 /** A hundred squares: one per hundredth of the flights, by group (largest remainders, so they sum to 100). */
-export function waffle(node, parts, { label, hi = true }) {
+export function waffle(node, parts, { label, hi = true, planes = false }) {
   const total = parts.reduce((a, p) => a + p.value, 0);
   const exact = parts.map((p) => (p.value / total) * 100);
   const n = exact.map(Math.floor);
@@ -55,7 +56,15 @@ export function waffle(node, parts, { label, hi = true }) {
     el(
       "div",
       { class: "waffle", role: "img", "aria-label": label },
-      cells.map((g) => el("i", { style: `background:${color(g, hi)}` })),
+      cells.map((g) => {
+        if (!planes) return el("i", { style: `background:${color(g, hi)}` });
+        // a flight, an aircraft: the group's most flown model, nose up
+        const i = el("i", { class: "wf-plane" });
+        const svg = planeIcon(GROUP_ICON[g], 40, { nose: "up", color: color(g, hi) });
+        if (svg) i.append(svg);
+        else i.style.background = color(g, hi);
+        return i;
+      }),
     ),
   );
   node._counts = Object.fromEntries(parts.map((p, i) => [p.key, n[i]]));
@@ -70,7 +79,7 @@ export function dumbbell(node, rows, { label, fmt, domain, better = "high", aNam
   const draw = (width) => {
     const narrow = width < 620;
     const W = Math.max(320, width);
-    const L = narrow ? 128 : 210;
+    const L = narrow ? 150 : 236;
     const R = 64;
     const row = 30;
     const H = rows.length * row + 34;
@@ -111,9 +120,11 @@ export function dumbbell(node, rows, { label, fmt, domain, better = "high", aNam
       const y = 34 + i * row;
       const worse = better === "high" ? r.b < r.a : r.b > r.a;
       const g = svg.append("g").attr("class", "av-db");
+      // the model's drawing, an icon of the same size for all, between its name and the axis
+      if (r.code) planeInG(svg.append("g").attr("transform", `translate(${L - 19},${y})`).node(), r.code, 22, color(r.group));
       g.append("text")
         .attr("class", "av-db-l")
-        .attr("x", L - 12)
+        .attr("x", L - 38)
         .attr("y", y)
         .attr("dy", "0.32em")
         .attr("text-anchor", "end")
@@ -226,14 +237,17 @@ export function strip(node, rows, { label, fmt, log = false, unit = "", head }) 
 }
 
 /** Horizontal bars, one per row, coloured by group, the value at the end. rows: [{label, note, value, group}] */
-export function bars(node, rows, { label, fmt, head, max }) {
+export function bars(node, rows, { label, fmt, head, max, draw }) {
   const top = max ?? Math.max(...rows.map((r) => r.value));
   node.replaceChildren(
     el(
       "ol",
-      { class: "c-hbars av-bars", "aria-label": label },
+      { class: `c-hbars av-bars${draw ? " av-bars-pl" : ""}`, "aria-label": label },
       rows.map((r) =>
         el("li", {}, [
+          draw
+            ? el("span", { class: "av-bar-pl", "aria-hidden": "true" }, plane(r.code, { scale: draw, color: color(r.group) }))
+            : null,
           el("span", { class: "c-hb-label" }, [r.label, r.note ? el("small", { text: r.note }) : null]),
           el(
             "span",
@@ -259,7 +273,10 @@ export function heat(node, { rows, cols, label, fmt }) {
           el("tr", {}, [
             el("th", { scope: "col", text: "Pays de départ" }),
             ...cols.map((c) =>
-              el("th", { scope: "col" }, [el("i", { style: `background:${color(c.group)}` }), c.label]),
+              el("th", { scope: "col" }, [
+                el("span", { class: "av-heat-ic", "aria-hidden": "true" }, planeIcon(GROUP_ICON[c.group], 26, { nose: "up", color: color(c.group) })),
+                c.label,
+              ]),
             ),
           ]),
         ),
@@ -284,13 +301,19 @@ export function heat(node, { rows, cols, label, fmt }) {
   );
 }
 
+/** "Boeing 737-800" → "737-800", "Embraer 175" → "E175", "Bombardier CRJ900" → "CRJ900". */
+export const shortName = (name) =>
+  name
+    .replace(/^Embraer (\d)/, "E$1")
+    .replace(/^(Airbus|Boeing|Bombardier|Embraer|McDonnell Douglas|De Havilland Canada|Sukhoï) /, "");
+
 /** For each airline, its models along one axis: how far apart models fly within one airline. */
 export function airlineSpread(node, rows, { label, fmt, domain }) {
   const draw = (width) => {
     const narrow = width < 620;
     const W = Math.max(320, width);
     const L = narrow ? 92 : 130;
-    const row = 40;
+    const row = 56;
     const H = rows.length * row + 30;
     const x = d3
       .scaleLinear()
@@ -355,12 +378,26 @@ export function airlineSpread(node, rows, { label, fmt, domain }) {
           .append("circle")
           .attr("cx", x(m.value))
           .attr("cy", y)
-          .attr("r", 5)
+          .attr("r", 5.5)
           .style("fill", color(m.group))
           .on("pointermove", (ev) =>
             showTip(ev, `${r.label}, ${m.label}`, [{ label: "à l'heure", value: fmt(m.value) }]),
           )
           .on("pointerleave", hideTip);
+      // its best and worst models, named under their dots (only the best when the two are too close)
+      const sorted = [...r.models].sort((p, q) => p.value - q.value);
+      const lo = sorted[0];
+      const hi = sorted.at(-1);
+      const named = x(hi.value) - x(lo.value) > (narrow ? 76 : 96) ? [lo, hi] : [hi];
+      for (const m of named)
+        svg
+          .append("text")
+          .attr("class", "av-sp-name")
+          .attr("x", x(m.value))
+          .attr("y", y + 18)
+          .attr("text-anchor", m === lo ? "end" : named.length > 1 ? "start" : "middle")
+          .attr("dx", named.length > 1 ? (m === lo ? 6 : -6) : 0)
+          .text(shortName(m.label));
     });
   };
   onResize(node, draw);

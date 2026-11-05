@@ -4,6 +4,23 @@
 import { groupOf, GROUPS } from "./charts.js";
 
 const sum = (a) => a.reduce((x, y) => x + y, 0);
+
+/** Great-circle distance in km between two [lat, lon]. */
+export function haversine([la1, lo1], [la2, lo2]) {
+  const r = Math.PI / 180;
+  const h =
+    Math.sin(((la2 - la1) * r) / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin(((lo2 - lo1) * r) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
+
+// landmarks for the distances, from Paris-Charles-de-Gaulle (coordinates: OurAirports)
+const CDG = [49.00896, 2.554117];
+export const REFS = [
+  { label: "Paris–Londres", short: "Londres", to: [51.470748, -0.459909] },
+  { label: "Paris–Rome", short: "Rome", to: [41.804532, 12.251998] },
+  { label: "Paris–New York", short: "New York", to: [40.639447, -73.779317] },
+  { label: "Paris–Tokyo", short: "Tokyo", to: [35.549678, 139.786958] },
+].map((r) => ({ ...r, km: haversine(CDG, r.to) }));
 const wmean = (rows, key, w = "flights") => sum(rows.map((r) => r[key] * r[w])) / sum(rows.map((r) => r[w]));
 
 export function worldFacts(W) {
@@ -44,8 +61,10 @@ export function worldFacts(W) {
     const m = new Map();
     for (const r of rows) {
       const k = famKey(r);
-      const x = m.get(k) ?? { label: k, group: r.group, flights: 0 };
+      const x = m.get(k) ?? { label: k, group: r.group, flights: 0, code: r.code, top: 0 };
       x.flights += r.flights;
+      // the family's most flown model stands for it in the drawings
+      if (r.flights > x.top) [x.top, x.code] = [r.flights, r.code];
       m.set(k, x);
     }
     return [...m.values()].map((x) => ({ ...x, share: x.flights / t })).sort((a, b) => b.share - a.share);
@@ -179,6 +198,8 @@ export function usFacts(U) {
     air,
     spreadRows,
     withinMean: sum(within) / within.length,
+    // models whose on-time share is within 5 points of their airlines'
+    near5: big.filter((m) => Math.abs(gap(m)) < 5).length,
     withinMax: Math.max(...within),
     across,
     cm,

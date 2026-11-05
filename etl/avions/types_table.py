@@ -90,3 +90,16 @@ KIND_FR = {"regional": "régional", "narrow": "monocouloir", "wide": "gros-porte
 
 # type designators that are one model for the reader (the short-wing Embraer 175)
 ALIAS = {"E75S": "E75L"}
+
+# Where the engines hang, for the drawings (etl/avions/build_dims.py): under the wings unless listed here.
+# "rear": two engines on the rear fuselage (CRJ, ERJ 145, Boeing 717); "tri": two under the wings and one
+# in the tail (MD-11).
+MOUNT: dict[str, str] = {
+    "CRJ2": "rear",
+    "CRJ7": "rear",
+    "CRJ9": "rear",
+    "CRJX": "rear",
+    "E145": "rear",
+    "B712": "rear",
+    "MD11": "tri",
+}

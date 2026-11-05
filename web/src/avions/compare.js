@@ -4,6 +4,7 @@ import { el } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { groupOf, GROUPS } from "./charts.js";
 import { fmt } from "./text.js";
+import { overlay } from "./figures.js";
 
 const BANDS = [
   "moins de 1 000 km",
@@ -41,6 +42,7 @@ export function compare(node, W, U, Wf) {
     return el("p", { class: "cmp-field" }, [el("label", { for: id, text: label }), s]);
   };
   const out = el("div", { class: "cmp-out", id: "cmp-out", "aria-live": "polite" });
+  const ov = el("div", { class: "cmp-ov" });
   node.replaceChildren(
     el("div", { class: "cmp-pick" }, [
       select(
@@ -57,6 +59,7 @@ export function compare(node, W, U, Wf) {
         (v) => (b = v),
       ),
     ]),
+    ov,
     out,
   );
 
@@ -171,6 +174,7 @@ export function compare(node, W, U, Wf) {
         ]),
       ]),
     );
+    overlay(ov, a, b, { nameA: name(a), nameB: name(b) });
     const q = new URLSearchParams(location.search);
     q.set("a", a);
     q.set("b", b);

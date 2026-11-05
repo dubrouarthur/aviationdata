@@ -272,6 +272,18 @@ export const DATASETS = [
     checks: ["web/scripts/check_avions.py"],
   },
   {
+    id: "faa-acd",
+    producer: "Federal Aviation Administration (États-Unis)",
+    title: "Aircraft Characteristics Database",
+    refs: [["avions", "faa"]],
+    what: "La longueur, l'envergure et les moteurs de chaque type d'avion, d'après les manuels des constructeurs : ils donnent les dessins à l'échelle de l'enquête sur les modèles d'avions.",
+    period: "Édition d'octobre 2024.",
+    terms: PUBLIC,
+    files: ["data/avions/dims.json"],
+    etl: ["etl/avions/fetch.py", "etl/avions/build_dims.py"],
+    checks: ["web/scripts/check_avions.py"],
+  },
+  {
     id: "bts-ontime",
     producer: "Bureau of Transportation Statistics (États-Unis)",
     title: "Reporting Carrier On-Time Performance",

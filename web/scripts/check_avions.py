@@ -47,6 +47,47 @@ def fr(v, d=0):
 pc = lambda v, d=0: f"{fr(v * 100, d)} %"  # noqa: E731
 pt = lambda v: f"{fr(abs(v), 1)} point{'s' if abs(v) >= 2 else ''}"  # noqa: E731
 km = lambda v: f"{fr(Decimal(str(v / 10)).quantize(Decimal(1), rounding=ROUND_HALF_UP) * 10)} km"  # noqa: E731
+
+
+def hm(minutes):
+    t = int(Decimal(str(minutes)).quantize(Decimal(1), rounding=ROUND_HALF_UP))
+    h, m = divmod(t, 60)
+    return f"{h} h {m:02d}" if h else f"{m} min"
+
+
+# the drawings' sizes (FAA Aircraft Characteristics Database), read again from the spreadsheet
+DIMS = json.loads((ROOT / "public" / "data" / "avions" / "dims.json").read_text())["types"]
+
+
+def faa_dims():
+    import pandas as pd
+
+    df = pd.read_excel(ROOT.parent / "data" / "raw" / "aircraft" / "faa_acd.xlsx", sheet_name="ACD_Data")
+    df = df.drop_duplicates("ICAO_Code").set_index("ICAO_Code")
+    out = {}
+    for c in DIMS:
+        r = df.loc[c]
+        span = r["Wingspan_ft_with_winglets_sharklets"]
+        if span != span:  # NaN: no winglets
+            span = r["Wingspan_ft_without_winglets_sharklets"]
+        out[c] = (round(float(r["Length_ft"]) * 0.3048, 1), round(float(span) * 0.3048, 1), int(r["Num_Engines"]))
+    return out
+
+
+def haversine(a, b):
+    import math
+
+    (la1, lo1), (la2, lo2) = a, b
+    p1, p2 = math.radians(la1), math.radians(la2)
+    h = math.sin((p2 - p1) / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lo2 - lo1) / 2) ** 2
+    return 2 * 6371 * math.asin(math.sqrt(h))
+
+
+def ourairports(*idents):
+    import csv
+
+    with (ROOT.parent / "data" / "raw" / "eurostat" / "ourairports.csv").open(encoding="utf-8") as f:
+        return {r["ident"]: (float(r["latitude_deg"]), float(r["longitude_deg"])) for r in csv.DictReader(f) if r["ident"] in idents}
 ten = lambda v: f"{fr(round(v * 10))} sur 10"  # noqa: E731
 
 
@@ -74,6 +115,7 @@ for r in now:
     gshare[r["group"]] += r["flights"] / TOT
 top2 = gshare["a320"] + gshare["b737"]
 fam = defaultdict(int)
+famtop = {}
 for r in now:
     k = (
         "Airbus A320"
@@ -85,7 +127,10 @@ for r in now:
         else f"{r['maker']} {r['family']}"
     )
     fam[k] += r["flights"]
+    if r["flights"] > famtop.get(k, ("", 0))[1]:
+        famtop[k] = (r["code"], r["flights"])
 families = sorted(((k, v / TOT) for k, v in fam.items()), key=lambda x: -x[1])
+families_full = [{"label": k, "code": famtop[k][0]} for k, _ in families]
 solid = [r for r in now if r["complete"] >= 5000]
 by_km = sorted(solid, key=lambda r: r["kmMedian"])
 by_use = sorted(
@@ -234,8 +279,32 @@ with sync_playwright() as p:
         f"Le vol médian d'un {s_['name']} fait {km(s_['kmMedian'])}, celui d'un {l_['name']} {km(l_['kmMedian'])}",
         f"autour de {km(model['A320']['kmMedian'])} pour l'A320 et {km(model['B738']['kmMedian'])} pour le 737-800",
     )
-    pts = pg.evaluate("[...document.querySelectorAll('#chart-km .av-st-l')].length")
-    check("figure 2: one dot per model", pts == len(by_km), f"{pts} {len(by_km)}")
+    pts = pg.evaluate("[...document.querySelectorAll('#chart-km .av-sw-p')].length")
+    check("figure 2: one aircraft per model", pts == len(by_km), f"{pts} {len(by_km)}")
+    # the landmarks: great circles from Paris-CDG, coordinates of OurAirports
+    ap = ourairports("LFPG", "EGLL", "LIRF", "KJFK", "RJTT")
+    refs = norm(pg.text_content("#chart-km .av-sw-refs"))
+    for to in ("EGLL", "LIRF", "KJFK", "RJTT"):
+        check(f"figure 2: landmark Paris-{to}", km(haversine(ap["LFPG"], ap[to])) in refs, refs)
+    # the card: the first model shown is the A320, its distance and its size
+    card = norm(pg.inner_text("#chart-km .av-sw-card"))
+    a320 = DIMS["A320"]
+    has("figure 2: the A320's card", card, f"Vol médian : {km(model['A320']['kmMedian'])}",
+        f"Longueur {fr(a320['len'], 1)} m, envergure {fr(a320['span'], 1)} m")
+    pg.focus("#chart-km")
+    pg.keyboard.press("End")
+    card = norm(pg.inner_text("#chart-km .av-sw-card"))
+    check("figure 2: End picks the longest", card.startswith(by_km[-1]["name"]), card[:60])
+    # every size drawn is the FAA's
+    if (ROOT.parent / "data" / "raw" / "aircraft" / "faa_acd.xlsx").exists():
+        faa = faa_dims()
+        bad = [c for c, d in DIMS.items() if (d["len"], d["span"], d["eng"]) != faa[c]]
+        check("drawings: lengths, spans and engines are the FAA's", not bad, str(bad))
+    check("drawings: the A380 is longer and wider than the A320", DIMS["A388"]["len"] > 70 and DIMS["A388"]["span"] > 79)
+    drawn = pg.evaluate("[...document.querySelectorAll('#chart-fam .av-bar-pl svg')].map(s => [+s.getAttribute('width'), +s.getAttribute('height')])")
+    fam_codes = [f.get("code") for f in families_full[: len(drawn)]]
+    ratios = [w / DIMS[c]["len"] for (w, h), c in zip(drawn, fam_codes, strict=False) if c in DIMS]
+    check("figure 1: the drawings share one scale", ratios and max(ratios) - min(ratios) < 0.02, str(ratios[:4]))
 
     u0, u1 = by_use[0], by_use[-1]
     has(
@@ -243,16 +312,23 @@ with sync_playwright() as p:
         txt("#usage"),
         f"{fr(u0['flightsPerDay'], 1)} vols par jour pour un {u0['name']}, {fr(u1['flightsPerDay'], 1)} pour un {u1['name']}",
     )
-    rows = [norm(t) for t in pg.locator("#chart-use .c-hbars li").all_inner_texts()]
+    rows = [norm(t) for t in pg.locator("#chart-use .av-day li").all_inner_texts()]
     check(
-        "figure 3: the models in order",
+        "figure 3: the models in order, their flights a day and their median flight",
         len(rows) == len(by_use)
         and all(
-            r.startswith(m["name"]) and r.endswith(fr(m["flightsPerDay"], 1))
+            r.startswith(m["name"]) and r.endswith(f"{fr(m['flightsPerDay'], 1)} vols de {hm(m['durMedian'])}")
             for m, r in zip(by_use, rows, strict=False)
         ),
         str(rows[:2]),
     )
+    blocks = pg.evaluate("[...document.querySelectorAll('#chart-use .av-day li')].map(li => [li.querySelectorAll('.av-day-track i').length, li.querySelectorAll('.av-day-track i.some').length])")
+    want = [
+        (int(m["flightsPerDay"]) + (1 if m["flightsPerDay"] - int(m["flightsPerDay"]) >= 0.05 else 0),
+         1 if m["flightsPerDay"] - int(m["flightsPerDay"]) >= 0.05 else 0)
+        for m in by_use
+    ]
+    check("figure 3: one block a flight, the last hatched when made only some days", [tuple(b) for b in blocks] == want, str(blocks[:3]))
 
     up = change[:3]
     has(

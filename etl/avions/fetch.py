@@ -4,7 +4,9 @@
   month (every domestic flight of the large US airlines: tail number, times, delays and their causes,
   cancellations, diversions). Public domain (US government work).
 - aircraft/: the OpenSky Network's aircraft database (registration, ICAO type code, manufacturer, model)
-  and ICAO Doc 8643 aircraft types, to turn a tail number or a type code into a model.
+  and ICAO Doc 8643 aircraft types, to turn a tail number or a type code into a model; the FAA's
+  Aircraft Characteristics Database (faa_acd.xlsx: length, wingspan, engines of each type, from the
+  manufacturers' manuals; public domain), for the drawings to scale (etl/avions/build_dims.py).
 - opensky/flightlist/: the OpenSky Network's flight lists on Zenodo (record 7923702: every flight its
   receivers saw, with the aircraft's type code, origin and destination airports, first and last seen).
   Non-commercial use, no redistribution of the raw data: only aggregates by model leave data/raw/.
@@ -28,6 +30,7 @@ BTS = "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Perfor
 OPENSKY_META = "https://s3.opensky-network.org/data-samples/metadata/"
 ZENODO = "https://zenodo.org/api/records/7923702"
 UA = {"User-Agent": "aviationdata (open-data magazine)"}
+FAA_ACD = "https://www.faa.gov/airports/engineering/aircraft_char_database/aircraft_data"
 
 
 def get(url: str, dest: Path) -> None:
@@ -68,6 +71,7 @@ def main() -> int:
     a = ap.parse_args()
     for f in ("aircraftDatabase-2024-04.csv", "doc8643AircraftTypes.csv", "doc8643Manufacturers.csv"):
         get(OPENSKY_META + f, RAW / "aircraft" / f)
+    get(FAA_ACD, RAW / "aircraft" / "faa_acd.xlsx")
     for m in range(1, 13):
         get(BTS.format(y=a.bts, m=m), RAW / "bts" / f"ot_{a.bts}_{m}.zip")
     rec = json.loads(urllib.request.urlopen(urllib.request.Request(ZENODO, headers=UA), timeout=120).read())

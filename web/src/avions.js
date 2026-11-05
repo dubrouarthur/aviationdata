@@ -14,9 +14,11 @@ import { $, el, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { fmtNum } from "./lib/format.js";
 import { getJSON, safely } from "./court/page.js";
 import { addSourceLines } from "./court/sources.js";
-import { worldFacts, usFacts } from "./avions/facts.js";
-import { waffle, legend, bars, strip, dumbbell, heat, airlineSpread, GROUPS } from "./avions/charts.js";
+import { worldFacts, usFacts, REFS } from "./avions/facts.js";
+import { waffle, legend, bars, dumbbell, heat, airlineSpread, GROUPS } from "./avions/charts.js";
 import { compare } from "./avions/compare.js";
+import { swarm, dayStrips } from "./avions/figures.js";
+import { setFleet } from "./avions/plane.js";
 import { ASOURCES } from "./avions/sources.js";
 import * as T from "./avions/text.js";
 
@@ -34,6 +36,12 @@ async function main() {
     );
     return;
   }
+  // the drawings: sizes from the FAA (a page without them keeps its figures, without drawings)
+  const D = await getJSON("data/avions/dims.json").catch(() => null);
+  setFleet(D, {
+    ...Object.fromEntries(U.models.map((m) => [m.code, m.kind])),
+    ...Object.fromEntries(Object.entries(W.types).map(([c, t]) => [c, t.kind])),
+  });
   const Wf = worldFacts(W);
   const Uf = usFacts(U);
   safely("text", () => {
@@ -52,7 +60,7 @@ async function main() {
     waffle(
       $("#open-waffle"),
       GROUPS.map((g) => ({ key: g.key, value: Wf.groups[g.key] })),
-      { label: `Cent vols d'avions de ligne suivis en ${Wf.last}, par famille.` },
+      { label: `Cent vols d'avions de ligne suivis en ${Wf.last}, par famille.`, planes: true },
     );
     legend($("#open-legend"), undefined, true);
   });
@@ -66,36 +74,42 @@ async function main() {
           : "",
         value: f.share,
         group: f.group,
+        code: f.code,
       })),
       {
         label: `Part des vols par famille, ${Wf.last}.`,
         fmt: pct(1),
+        draw: 0.72,
         head: ["Famille", `Part des vols, ${Wf.last}`],
       },
     ),
   );
   safely("distances", () => {
     legend($("#km-legend"));
-    strip(
+    swarm(
       $("#chart-km"),
-      Wf.byKm.map((m) => ({ label: m.name, value: m.kmMedian, group: m.group })),
+      Wf.byKm.map((m) => ({ code: m.code, label: m.name, value: m.kmMedian, group: m.group, kindFr: m.kindFr })),
       {
         label: `Distance médiane d'un vol par modèle, ${Wf.last}.`,
         fmt: T.fmt.km,
-        log: true,
+        refs: REFS,
+        start: "A320",
         head: ["Modèle", "Distance médiane"],
       },
     );
   });
   safely("usage", () =>
-    bars(
+    dayStrips(
       $("#chart-use"),
-      Wf.byUse.map((m) => ({ label: m.name, value: m.flightsPerDay, group: m.group, note: m.kindFr })),
-      {
-        label: `Vols par jour de vol, par modèle, ${Wf.last}.`,
-        fmt: (v) => fmtNum(v, 1),
-        head: ["Modèle", "Vols par jour de vol"],
-      },
+      Wf.byUse.map((m) => ({
+        code: m.code,
+        label: m.name,
+        note: m.kindFr,
+        group: m.group,
+        perDay: m.flightsPerDay,
+        dur: m.durMedian,
+      })),
+      { label: `Une journée de l'avion médian de chaque modèle, ${Wf.last}.`, hm: T.fmt.hm },
     ),
   );
   safely("changes", () => {
@@ -136,7 +150,7 @@ async function main() {
   safely("ontime", () =>
     dumbbell(
       $("#chart-ot"),
-      Uf.byOntime.map((m) => ({ label: m.name, a: m.ontimeExpected, b: m.ontime })),
+      Uf.byOntime.map((m) => ({ label: m.name, a: m.ontimeExpected, b: m.ontime, code: m.code, group: m.group })),
       {
         label: `Ponctualité par modèle et ponctualité attendue de ses compagnies, États-Unis, ${Uf.year}.`,
         fmt: pct(0),
@@ -159,7 +173,7 @@ async function main() {
       $("#chart-cx"),
       [...Uf.cm]
         .sort((x, y) => y.cancelRate - x.cancelRate)
-        .map((m) => ({ label: m.name, a: m.cancelExpected, b: m.cancelRate })),
+        .map((m) => ({ label: m.name, a: m.cancelExpected, b: m.cancelRate, code: m.code, group: m.group })),
       {
         label: `Part des vols annulés par modèle, États-Unis, ${Uf.year}.`,
         fmt: pct(1),
@@ -172,7 +186,7 @@ async function main() {
   );
   safely("compare", () => {
     $("#cmp-note").textContent =
-      `Dans le monde : vols suivis par OpenSky en ${Wf.last}. Aux États-Unis : vols intérieurs de ${Uf.year} (BTS). Chaque barre compare les deux modèles entre eux.`;
+      `En haut, les deux avions superposés à la même échelle, vus de dessus (longueur et envergure : FAA). Dans le monde : vols suivis par OpenSky en ${Wf.last}. Aux États-Unis : vols intérieurs de ${Uf.year} (BTS). Chaque barre compare les deux modèles entre eux.`;
     compare($("#compare"), W, U, Wf);
   });
   numberChapters(".story-chapter");

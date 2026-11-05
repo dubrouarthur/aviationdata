@@ -5,7 +5,7 @@ chart, why it matters, the question the investigation answers, and where to read
 Every number is read on the investigation's own page (its key figures, opening, chapter text) with a
 pattern that must match: the card says what the story says, and fails loudly when the page changes.
 
-Serve web/dist on 127.0.0.1:4173, then: python3 web/scripts/linkedin_cards.py [--base URL] [--out DIR]
+Serve web/dist on 127.0.0.1:4173, then: python3 web/scripts/linkedin_cards.py [--base URL] [--out DIR] [--only SLUG]
 Output: promo/out/linkedin/<slug>.png (not versioned).
 """
 
@@ -97,6 +97,15 @@ CARD = """
   .bt .z {{ position: absolute; top: -10px; bottom: -10px; width: 3px; margin-left: -1px; background: {ink}; }}
   .many {{ gap: 18px; }} .many .bt {{ height: 40px; }} .many .bv {{ font-size: 68px; }} .many .bl {{ font-size: 30px; }}
   .bn {{ margin: 0; font-size: 26px; color: {muted}; }}
+  .duo {{ width: 100%; margin-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; align-items: start; }}
+  .duo > div {{ display: grid; grid-template-rows: 220px auto auto; justify-items: center; text-align: center; gap: 8px; }}
+  .duo .pl {{ height: 220px; display: flex; align-items: center; justify-content: center; }}
+  .duo .pl svg {{ transform: rotate(-90deg); overflow: visible; }}
+  .duo b {{ font-weight: 800; font-stretch: 70%; font-size: 92px; line-height: 0.9; }}
+  .duo span {{ font-size: 27px; font-weight: 600; line-height: 1.25; color: {ink}; }}
+  .duo .others b {{ color: {muted}; }}
+  .duo .others span {{ color: {muted}; }}
+  .av-pl-body {{ fill: var(--pc); }} .av-pl-prop {{ fill: var(--pc); opacity: .45; }}
   .note {{ margin: 30px 0 0; font: 400 36px/1.32 "Source Serif 4 Variable", Georgia, serif; color: {ink};
            text-wrap: pretty; }}
   .note b {{ color: {accent}; font-weight: 700; }}
@@ -106,7 +115,7 @@ CARD = """
                color: {muted}; }}
   .foot {{ margin-top: 30px; padding-top: 20px; border-top: 2px solid {rule}; display: flex;
            justify-content: space-between; gap: 24px; font-size: 25px; color: {muted}; }}
-  .foot b {{ color: {ink}; font-weight: 700; }}
+  .foot b {{ color: {ink}; font-weight: 700; white-space: nowrap; }}
 </style>
 <div class="li">
   <div class="top"><span class="mark">aviation<b>data</b></span><span>Enquête n° {no}, « {title} »</span></div>
@@ -241,25 +250,67 @@ def card_ciel(t):
     }
 
 
+def card_avions(t, pg):
+    a = find(t, r"Airbus A320 \d+,\d % en \d{4} (\d+,\d) %", "avions")
+    b = find(t, r"Boeing 737 \d+,\d % en \d{4} (\d+,\d) %", "avions")
+    year = find(t, r"Part des vols d'avions de ligne suivis par OpenSky en (\d{4})", "avions")
+    both = num(a) + num(b)
+    assert 60 <= both < 66.7, both  # "près de deux sur trois"
+    rest = f"{100 - both:.1f}".replace(".", ",")
+    # the two drawings of figure 1, the same scale for both (FAA lengths and spans)
+    svgs = pg.evaluate(
+        "[...document.querySelectorAll('#chart-fam .av-bar-pl svg')].slice(0, 2).map(s => s.outerHTML)"
+    )
+    big = []
+    for svg, color in zip(svgs, ("#5aa2ff", "#ff6fb6"), strict=True):
+        w = float(re.search(r'width="([\d.]+)"', svg).group(1))
+        h = float(re.search(r'height="([\d.]+)"', svg).group(1))
+        k = 5.4  # px per metre: both at the same scale
+        m = 0.72
+        svg = re.sub(r'width="[\d.]+"', f'width="{w / m * k:.0f}"', svg, count=1)
+        svg = re.sub(r'height="[\d.]+"', f'height="{h / m * k:.0f}"', svg, count=1)
+        big.append(re.sub(r"--pc:[^;\"]+", f"--pc:{color}", svg))
+    chart = f"""<div class="duo">
+      <div><div class="pl">{big[0]}</div><b style="color:#5aa2ff">{a} %</b><span>des vols en Airbus A320</span></div>
+      <div><div class="pl">{big[1]}</div><b style="color:#ff6fb6">{b} %</b><span>des vols en Boeing 737</span></div>
+      <div class="others"><div class="pl"></div><b>{rest} %</b><span>pour tous les autres avions réunis</span></div>
+    </div>"""
+    return {
+        "accent": "#ff6fb6",
+        "ctx": f"Les vols de ligne dans le monde, en {year}",
+        "headline": "Presque deux vols sur trois se font en Airbus A320 ou en Boeing 737",
+        "chart": chart,
+        "note": "Toutes versions comprises. Les dizaines d'autres modèles, du petit <b>ATR 72</b> "
+        "au géant <b>A380</b>, se partagent le reste.",
+        "ask": "Quels avions volent le plus, le plus loin, et lesquels arrivent à l'heure ? "
+        "Tous les avions de ligne comparés.",
+        "src": "OpenSky, BTS, FAA",
+    }
+
+
 STORIES = [
     ("calendrier-du-ciel", card_sea),
     ("ciel-europeen", card_eu),
     ("facteur-humain", card_hf),
     ("courant-jet", card_jet),
     ("le-ciel-a-deux-vitesses", card_ciel),
+    ("modeles-d-avions", card_avions),
 ]
 
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
     pg = browser.new_page(viewport={"width": 1440, "height": 900})
+    only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     for slug, make in STORIES:
+        if only and slug != only:
+            continue
         pg.goto(f"{base}/{slug}", wait_until="networkidle")
         pg.wait_for_timeout(2500)
         pg.evaluate("document.querySelectorAll('details').forEach(d => d.open = true)")
         text = norm(pg.inner_text("main"))
         title = norm(pg.inner_text("h1"))
         no = find(norm(pg.inner_text(".issue-kicker")), r"Enquête n° (\d+)", slug)
-        c = make(text)
+        c = make(text, pg) if make.__code__.co_argcount == 2 else make(text)
         html = CARD.format(night=NIGHT, ink=INK, muted=MUTED, rule=RULE, no=no, title=title, slug=slug, **c)
         card = browser.new_page(viewport={"width": 1080, "height": 1350}, device_scale_factor=1)
         card.goto(base + "/", wait_until="networkidle")  # the site's fonts

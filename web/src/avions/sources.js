@@ -18,4 +18,10 @@ export const ASOURCES = {
     url: "https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGJ&QO_fu146_anzr=b0-gvzr",
   },
   ourairports: ESOURCES.ourairports,
+  faa: {
+    producer: "FAA (États-Unis)",
+    label: "Federal Aviation Administration, Aircraft Characteristics Database (octobre 2024)",
+    short: "dimensions des avions (Aircraft Characteristics Database)",
+    url: "https://www.faa.gov/airports/engineering/aircraft_char_database/",
+  },
 };

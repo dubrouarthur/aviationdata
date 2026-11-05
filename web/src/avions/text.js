@@ -15,8 +15,9 @@ const pt = (v) => `${fmtNum(Math.abs(v), 1)} point${Math.abs(v) >= 2 ? "s" : ""}
 const n0 = (v) => fmtNum(v, 0);
 const km = (v) => `${n0(Math.round(v / 10) * 10)} km`;
 const hm = (min) => {
-  const h = Math.floor(min / 60);
-  const m = Math.round(min - h * 60);
+  const t = Math.round(min);
+  const h = Math.floor(t / 60);
+  const m = t - h * 60;
   return h ? `${h} h ${String(m).padStart(2, "0")}` : `${m} min`;
 };
 /** "8 sur 10", "un sur deux"... for a share */
@@ -27,7 +28,7 @@ export const fmt = { pc, pt, km, hm, n0 };
 export function writeOpening(Wf, Uf) {
   $("#av-open-h").textContent = `Cent vols d'avions de ligne en ${Wf.last}, par famille`;
   $("#av-open-cap").textContent =
-    `Chaque case est un vol sur cent parmi les ${n0(Wf.total)} vols d'avions de ligne que le réseau OpenSky a suivis en ${Wf.last}.`;
+    `Chaque avion dessiné est un vol sur cent parmi les ${n0(Wf.total)} vols d'avions de ligne que le réseau OpenSky a suivis en ${Wf.last}.`;
   $("#open-dek").replaceChildren(
     rich([
       "Deux familles d'avions, l'Airbus A320 et le Boeing 737, font ",
@@ -100,7 +101,7 @@ export function writeWorld(Wf) {
     `Part des vols d'avions de ligne suivis par OpenSky en ${Wf.last}, par famille d'avions, en %.`;
   lecture(
     "#chart-fam",
-    `chaque famille réunit ses versions : la famille A320 compte l'A319, l'A320, l'A321 et leurs « neo », la famille 737 ses générations Classic, NG et MAX.`,
+    `chaque famille réunit ses versions : la famille A320 compte l'A319, l'A320, l'A321 et leurs « neo », la famille 737 ses générations Classic, NG et MAX. À gauche, le modèle le plus fréquent de chaque famille, vu de dessus et dessiné à l'échelle (longueur et envergure de la FAA).`,
   );
   $("#familles-after").replaceChildren(
     p([
@@ -131,10 +132,10 @@ export function writeWorld(Wf) {
   $("#h-km-fig").textContent =
     `Un ${l.name} vole ${n0(Math.round(l.kmMedian / s.kmMedian))} fois plus loin qu'un ${s.name}`;
   $("#km-note").textContent =
-    `Distance médiane d'un vol entre ses deux aéroports, par modèle, en ${Wf.last}, en kilomètres (échelle logarithmique).`;
+    `Distance médiane d'un vol entre ses deux aéroports, par modèle, en ${Wf.last}, en kilomètres (échelle logarithmique), avec quatre repères au départ de Paris-Charles-de-Gaulle.`;
   lecture(
     "#chart-km",
-    "la moitié des vols du modèle sont plus courts que la distance indiquée, l'autre moitié plus longs. L'échelle grandit par multiples : chaque graduation double ou quintuple la précédente.",
+    "chaque avion est un modèle, posé à la distance de son vol médian : la moitié de ses vols sont plus courts, l'autre moitié plus longs ; les avions s'empilent là où ils se pressent. Survolez ou touchez un avion, ou parcourez-les avec les flèches du clavier, pour afficher sa fiche et son dessin à l'échelle. L'échelle grandit par multiples : chaque graduation double ou quintuple la précédente.",
   );
   $("#distances-after").replaceChildren(
     p([
@@ -161,10 +162,11 @@ export function writeWorld(Wf) {
   $("#h-use-fig").textContent =
     `${fmtNum(u0.flightsPerDay, 1)} vols par jour pour un ${u0.name}, ${fmtNum(u1.flightsPerDay, 1)} pour un ${u1.name}`;
   $("#use-note").textContent =
-    `Nombre médian de vols d'un avion par jour où il vole, par modèle, en ${Wf.last}.`;
+    `Une journée de l'avion médian de chaque modèle, en ${Wf.last} : ses vols par jour de vol, chacun de la durée médiane d'un vol du modèle.`;
+  const whole = Math.floor(u0.flightsPerDay);
   lecture(
     "#chart-use",
-    "pour chaque avion, ses vols divisés par ses jours de vol ; la barre donne l'avion du milieu de chaque modèle.",
+    `un schéma, pas des horaires : les vols sont posés à intervalles réguliers sur vingt-quatre heures. Le dernier, hachuré, n'a lieu que certains jours : ${fmtNum(u0.flightsPerDay, 1)} vols par jour, c'est ${n0(whole)} vols chaque jour et un de plus certains jours. Durée d'un vol : du premier au dernier signal reçu par le réseau.`,
   );
   $("#usage-after").replaceChildren(
     p([
@@ -264,7 +266,8 @@ export function writeUS(Uf) {
       " de ces vols se relient à un modèle d'avion.",
     ]),
   );
-  $("#h-ot-fig").textContent = "La ponctualité, modèle par modèle, et ce qu'en attendaient ses compagnies";
+  $("#h-ot-fig").textContent =
+    `${n0(Uf.near5)} modèles sur ${n0(Uf.big.length)} font comme leurs compagnies, à 5 vols sur 100 près`;
   $("#ot-note").textContent =
     `Part des vols arrivés moins de quinze minutes après l'heure prévue, États-Unis, vols intérieurs, ${Uf.year}, modèles d'au moins 50 000 vols, en %.`;
   lecture(
@@ -301,7 +304,7 @@ export function writeUS(Uf) {
     `Part des vols à l'heure de chaque modèle dans chaque compagnie (au moins 3 000 vols), et moyenne de la compagnie, États-Unis, ${Uf.year}, en %.`;
   lecture(
     "#chart-sp",
-    "chaque ligne est une compagnie ; le trait vertical, sa ponctualité moyenne ; chaque point, un de ses modèles.",
+    "chaque ligne est une compagnie ; le trait vertical, sa ponctualité moyenne ; chaque point, un de ses modèles. Sous les points, le modèle le moins ponctuel et le plus ponctuel de la compagnie ; survolez ou touchez un point pour les autres.",
   );
   $("#compagnie-after").replaceChildren(
     p([
