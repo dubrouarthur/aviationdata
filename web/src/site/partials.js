@@ -16,6 +16,7 @@ import {
   issueByKey,
   numbered,
 } from "./issues.js";
+import { buildIndex } from "./search-index.js";
 import {
   dataFacts,
   dataFiles,
@@ -40,7 +41,17 @@ const ICON_MENU =
 const ICON_CLOSE =
   '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 
+const ICON_SEARCH =
+  '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.4 12.4L17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+// a half-lit disc: the moon side shows in light mode, the sun side in dark mode (site/chrome.css)
+const ICON_THEME =
+  '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 3.8a6.2 6.2 0 0 1 0 12.4z" fill="currentColor"/></svg>';
+
 const NOT_FOUND = "404.html";
+
+// Runs in the head before the first paint: the reader's theme (saved, else the system's), so that a
+// dark page never flashes white. The masthead button changes it (site/chrome.js).
+const THEME_BOOT = `(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark"})()`;
 
 /** Where a page sits: its path back to the site root ("./" or "../") and the investigation it is, if any. */
 export function pageInfo(file, webRoot) {
@@ -55,7 +66,11 @@ export function pageInfo(file, webRoot) {
 const href = (root, slug, hash = "") => `${root === "./" ? "" : root}${slug}${hash ? `#${hash}` : ""}`;
 
 function menuButton() {
-  return `<button class="menu-open" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">${ICON_MENU}<span>Sommaire</span><b class="menu-where" aria-hidden="true"></b></button>`;
+  return `<div class="head-tools">
+          <button class="head-btn" type="button" data-search-open aria-haspopup="dialog" aria-label="Rechercher (⌘K)" title="Rechercher (⌘K)">${ICON_SEARCH}</button>
+          <button class="head-btn theme-btn" type="button" data-theme-toggle aria-pressed="false" aria-label="Mode sombre" title="Mode sombre">${ICON_THEME}</button>
+          <button class="menu-open" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">${ICON_MENU}<span>Sommaire</span><b class="menu-where" aria-hidden="true"></b></button>
+        </div>`;
 }
 
 function menu({ root, issue, page }) {
@@ -434,6 +449,15 @@ ${entries}
 `;
 }
 
+/** search.json: the index of src/site/search-index.js, chapters read in each page's chapter bar. */
+export function searchJson(webRoot) {
+  const read = (slug) => {
+    const file = join(webRoot, slug, "index.html");
+    return existsSync(file) ? readFileSync(file, "utf8") : null;
+  };
+  return JSON.stringify(buildIndex(read));
+}
+
 export function sitemap(base) {
   const last = ISSUES.map((i) => i.updated)
     .sort()
@@ -462,6 +486,13 @@ export function sitePartials(webRoot, base) {
         return {
           html: renderPartials(html, info),
           tags: [
+            { tag: "script", children: THEME_BOOT, injectTo: "head-prepend" },
+            { tag: "link", attrs: { rel: "manifest", href: `${info.root}manifest.webmanifest` }, injectTo: "head" },
+            {
+              tag: "link",
+              attrs: { rel: "apple-touch-icon", href: `${info.root}icons/apple-touch-icon.png` },
+              injectTo: "head",
+            },
             {
               tag: "link",
               attrs: {
@@ -482,7 +513,16 @@ export function sitePartials(webRoot, base) {
       const file = join(options.dir, NOT_FOUND);
       if (existsSync(file)) writeFileSync(file, readFileSync(file, "utf8").replace(/(["(])\.\//g, "$1/"));
     },
+    // the search index, served in development as the build writes it
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (!req.url?.split("?")[0].endsWith("/search.json")) return next();
+        res.setHeader("Content-Type", "application/json");
+        res.end(searchJson(webRoot));
+      });
+    },
     generateBundle() {
+      this.emitFile({ type: "asset", fileName: "search.json", source: searchJson(webRoot) });
       this.emitFile({ type: "asset", fileName: "feed.xml", source: feed(abs) });
       this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemap(abs) });
       this.emitFile({
