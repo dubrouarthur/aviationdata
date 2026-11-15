@@ -1,3 +1,4 @@
+// @ts-check
 // Six well-known accidents: what happened, the probable cause and the factors the NTSB retained, and what
 // followed, each with its source. These are facts from outside the data, dated and sourced; the findings
 // themselves come from the NTSB database (web/public/data/hf/cases.json, etl/hf/cases.py).

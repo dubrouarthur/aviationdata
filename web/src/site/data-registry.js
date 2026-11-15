@@ -1,3 +1,4 @@
+// @ts-check
 // Every dataset the magazine reads, every reference value and every dated fact, in one place: the data
 // page (/donnees) is written from here at build time (partials.js). Names and addresses come from each
 // story's own source table, so that a link is written once; src/site/data-registry.test.js fails if a

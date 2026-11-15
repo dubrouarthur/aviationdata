@@ -1,3 +1,4 @@
+// @ts-check
 // Sources of « Combien de CO2 pour un vol en avion ? »: the DGAC's emissions (the same dataset as the
 // first investigation), the DGAC's 2024 report for its method, OurAirports for the distances.
 import { DATASETS as DGAC } from "../lib/datasets.js";

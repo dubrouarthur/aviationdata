@@ -1,3 +1,4 @@
+// @ts-check
 // Build-time partials: the pieces every page of the magazine shares (masthead menu, footer, byline,
 // "read also", the home page's lists), written into the HTML from issues.js so that they exist without
 // JavaScript and stay identical everywhere. Also writes the Atom feed, the sitemap and robots.txt.

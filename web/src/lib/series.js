@@ -1,3 +1,4 @@
+// @ts-check
 // Pure series helpers. Monthly series are arrays aligned on a "YYYY-MM" month axis;
 // null always means "no data" (never zero).
 

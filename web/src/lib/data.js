@@ -1,3 +1,4 @@
+// @ts-check
 import { asset } from "./site.js";
 import { toDate } from "./series.js";
 

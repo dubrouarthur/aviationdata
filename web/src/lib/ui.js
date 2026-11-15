@@ -1,3 +1,4 @@
+// @ts-check
 // Small UI helpers shared by every module. All text goes through textContent.
 
 export const $ = (sel, root = document) => root.querySelector(sel);

@@ -1,3 +1,4 @@
+// @ts-check
 // « Calculez votre vol »: the CO2 of a flight between two airports, and what Eurostat says of that route
 // (passengers, seats, flights per quarter). Pure computation in flightFacts(), recomputed in Python by
 // web/scripts/check_carbone.py; the interface in calc-ui.js.

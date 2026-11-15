@@ -1,3 +1,4 @@
+// @ts-check
 // French number and date formatting (narrow no-break spaces, true minus sign).
 const NNBSP = " ";
 const MINUS = "−";

@@ -1,3 +1,4 @@
+// @ts-check
 // Every number of the fifth investigation, the seasons of Europe's air passengers, from eu.json
 // (etl/eu/build_eu.py, Eurostat avia_paoc by month). The text, the charts and
 // web/scripts/check_saisons.py read the same values.

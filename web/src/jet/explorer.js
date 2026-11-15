@@ -1,3 +1,4 @@
+// @ts-check
 // The route explorer: any day of 2019-2022, five destinations, the 12 UTC wind at 250 hPa and the
 // fastest route each way, solved in the browser (route.js, checked against the Python build).
 import * as d3 from "d3";

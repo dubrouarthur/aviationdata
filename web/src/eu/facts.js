@@ -1,3 +1,4 @@
+// @ts-check
 // Every number of the fourth investigation, from eu.json (etl/eu/build_eu.py). The text, the charts and
 // web/scripts/check_eu.py read the same values: a figure written in the story is computed here once.
 

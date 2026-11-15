@@ -1,3 +1,4 @@
+// @ts-check
 // The data page (/donnees), written at build time from data-registry.js: every dataset with its
 // producer, its terms, the investigations and figures that use it, the files the magazine publishes from it
 // and the code that reads it; the reference values; the models and dated facts; the list of our files.

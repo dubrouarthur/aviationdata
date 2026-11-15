@@ -16,8 +16,6 @@ const kg10 = (v) => `${fmtNum(Math.round(v / 10) * 10, 0)} kg`;
 const pct = (v) => `${fmtNum(v * 100, 0)} %`;
 const short = (a) => a.label;
 const code = (a) => a.iata || a.code;
-const PLANE =
-  '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M21 15.5v-1.7l-8-5V3.6a1.4 1.4 0 0 0-2.8 0v5.2l-8 5v1.7l8-2.4v4.6L8 19.2v1.3l3.6-1 3.6 1v-1.3l-2.2-1.5v-4.6z" fill="currentColor"/></svg>';
 const SWAP =
   '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 7h11m0 0-3-3m3 3-3 3M15 13H4m0 0 3-3m-3 3 3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CLEAR =

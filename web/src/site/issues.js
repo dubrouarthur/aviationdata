@@ -1,3 +1,4 @@
+// @ts-check
 // The magazine's table of contents. One entry per investigation, newest first: the pages Vite builds
 // (vite.config.js), the shared masthead menu, footer, bylines and "read also" (partials.js), the
 // home page's list, the Atom feed and the sitemap all come from here.

@@ -1,3 +1,4 @@
+// @ts-check
 // Four questions on the home page, one per investigation: the reader guesses, the data answer, and the
 // chapter that explains it is one click away. Each answer and each number of its sentence is copied
 // from what its investigation shows (its key figures, its opening): check_site.py reads them on the

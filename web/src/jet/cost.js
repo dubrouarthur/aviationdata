@@ -1,3 +1,4 @@
+// @ts-check
 // The money side of the routes (cost.json): a flight's fuel from the DGAC long-haul CO2 factor and the
 // load of a Paris-New York flight, its price from the EIA jet fuel price and the ECB rate.
 // One conversion runs through the whole story: a minute of cruise at flight level 340, in kilos of fuel

@@ -1,3 +1,4 @@
+// @ts-check
 // Every number of the human-factor story, computed from web/public/data/hf/*.json. The text, the charts
 // and the tool read them from here; web/scripts/check_hf.py recomputes them in Python.
 // A cell of accidents.json: [year, segment index, severity index, layer mask, accidents, deaths].
@@ -39,7 +40,11 @@ export const LAYERS = [
   { key: "undet", label: "Cause indéterminée", short: "Indéterminée", color: "var(--undet)" },
 ];
 
-/** A view on the cells: filter by segment key, severity key, years; count accidents, deaths, layers. */
+/**
+ * A view on the cells: filter by segment key, severity key, years; count accidents, deaths, layers.
+ * @param {any} acc
+ * @param {{ seg?: string, sev?: string, from?: number, to?: number }} [opts]
+ */
 export function view(acc, { seg = "all", sev = "all", from, to } = {}) {
   const si = seg === "all" ? -1 : acc.segments.findIndex(([k]) => k === seg);
   const vi = sev === "all" ? -1 : acc.severities.findIndex(([k]) => k === sev);

@@ -3,7 +3,7 @@
 import * as d3 from "d3";
 import { el, showTip, hideTip, onResize, dataTable } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
-import { hm, kmh, longDate, minutes, monthShort, monthName, winter } from "./fmt.js";
+import { hm, kmh, longDate, monthShort, monthName, winter } from "./fmt.js";
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const C = () => ({

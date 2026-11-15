@@ -1,3 +1,4 @@
+// @ts-check
 import { fmtNum } from "../lib/format.js";
 
 const NNBSP = " ";
