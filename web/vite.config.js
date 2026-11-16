@@ -18,6 +18,10 @@ process.env.VITE_SITE_URL = host
   ? `${host.startsWith("http") ? host : `https://${host}`}`.replace(/\/?$/, "/")
   : "";
 
+// One id per build, appended to the data files the pages fetch (getJSON): a browser that kept the data of an earlier
+// deployment in its HTTP cache (stale-while-revalidate) never feeds it to the new code
+process.env.VITE_BUILD_ID ||= (process.env.VERCEL_GIT_COMMIT_SHA || Date.now().toString(36)).slice(0, 12);
+
 // Vercel serves /courant-jet from courant-jet/index.html (cleanUrls, no trailing slash); the dev and
 // preview servers do the same, so links behave locally as in production
 const cleanUrls = {

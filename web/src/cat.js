@@ -11,7 +11,7 @@ import { initSiteMenu } from "./site/menu.js";
 import { numberChapters, partContents, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { storyGuide } from "./site/glossary.js";
 import { atlasFrame } from "./site/atlas.js";
-import { $, el, segmented, reducedMotion, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
+import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { getJSON, safely } from "./court/page.js";
 import { addSourceLines } from "./court/sources.js";
 import { catFacts, SEASONS, SEASON_FR } from "./cat/facts.js";
@@ -24,8 +24,8 @@ import {
   crossSection,
   routeMap,
   regionStripes,
-  yearsMap,
-  yearsLine,
+  decadeMap,
+  decadeLegend,
 } from "./cat/charts.js";
 import { TSOURCES } from "./cat/sources.js";
 import * as T from "./cat/text.js";
@@ -56,66 +56,27 @@ async function main() {
   });
   // one scale for every frequency map: the 99th percentile of the winter cells, rounded up to the half-percent
   const max = Math.ceil(C.meta.mapMax * 0.6 * 200) / 200;
-  safely("opening", async () => {
-    // year after year: the change against the reference decade, the North Atlantic line under it
-    const Y = C.yearly;
-    const run = F.years.map((_, k) => {
-      const w = F.atl.annual.slice(Math.max(0, k - 2), k + 3);
-      return (w.reduce((a, b) => a + b, 0) / w.length) * 8766;
-    });
-    const map = await yearsMap($("#tc-open-map"), C, {
-      label: `Carte animée : évolution des conditions propices à la turbulence en air clair année après année, de ${F.first} à ${F.last}, par rapport à ${Y.baseYears[0]}-${Y.baseYears[1]}.`,
-    });
-    const line = yearsLine($("#tc-spark"), F.years, run, {
-      label: `Heures par an de conditions propices au-dessus de l'Atlantique Nord, moyenne sur cinq ans, ${F.first}-${F.last}.`,
-    });
-    const range = /** @type {HTMLInputElement} */ ($("#tc-range"));
-    const btn = $("#tc-play");
-    range.max = String(map.count - 1);
-    const show = (k) => {
-      map.show(k);
-      line(k);
-      range.value = String(k);
-      $("#tc-year").textContent = String(F.years[k]);
-      $("#tc-spark-h").textContent = `Atlantique Nord : ${T.fmt.hrs(run[k] / 8766)} par an`;
-    };
-    let timer = 0;
-    let k = 0;
-    const stop = () => {
-      clearInterval(timer);
-      timer = 0;
-      btn.textContent = "▶";
-      btn.setAttribute("aria-label", "Lecture");
-    };
-    const play = () => {
-      if (k >= map.count - 1) k = 0;
-      btn.textContent = "❚❚";
-      btn.setAttribute("aria-label", "Pause");
-      timer = window.setInterval(() => {
-        show(k);
-        if (++k >= map.count) stop();
-      }, 220);
-    };
-    btn.addEventListener("click", () => (timer ? stop() : play()));
-    range.addEventListener("input", () => {
-      stop();
-      k = +range.value;
-      show(k);
-    });
-    if (reducedMotion()) {
-      k = map.count - 1;
-      show(k);
-      stop();
-    } else {
-      show(0);
-      // start when the opening is seen
-      new IntersectionObserver((es, obs) => {
-        if (es.some((e) => e.isIntersecting)) {
-          obs.disconnect();
-          play();
-        }
-      }).observe($("#tc-open-map"));
-    }
+  safely("opening", () => {
+    // two decades side by side, the strongest conditions, one scale
+    const D = C.decades;
+    const atl = F.atl.decadesSev;
+    const max = 0.006;
+    const head = (id, years, f, strong) =>
+      $(id).replaceChildren(
+        el("b", { text: `${years[0]}-${years[1]}` }),
+        el("span", { class: strong ? "up" : "", text: `Atlantique Nord : ${T.fmt.hrs(f)} par an` }),
+      );
+    head("#tc-h0", D.first, atl.first, false);
+    head("#tc-h1", D.last, atl.last, true);
+    for (const [id, key, years] of [
+      ["#tc-map0", "first", D.first],
+      ["#tc-map1", "last", D.last],
+    ])
+      decadeMap($(id), C, key, {
+        max,
+        label: `Carte des conditions les plus fortes de turbulence en air clair, ${years[0]}-${years[1]}, Atlantique Nord, Europe et Amérique du Nord.`,
+      });
+    decadeLegend($("#tc-legend"), max);
   });
   safely("map", () =>
     freqMap($("#chart-map"), C, "annual", {

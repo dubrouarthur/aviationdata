@@ -20,21 +20,34 @@ with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=os.environ.get("PW_CHROMIUM") or None)
     page = browser.new_page(viewport={"width": 1200, "height": 900}, reduced_motion="reduce")
     page.goto(f"{base}/turbulences", wait_until="networkidle")
-    page.wait_for_selector("#tc-open-map canvas")
-    page.wait_for_function("document.querySelector('#tc-year').textContent.length > 0")
+    page.wait_for_selector("#tc-map1 canvas")
     page.evaluate("window.dispatchEvent(new Event('resize'))")
     page.wait_for_timeout(800)
-    # the winter map of the opening, drawn by the page, then the title over it on a page of its own
-    url = page.evaluate("document.querySelector('#tc-open-map canvas').toDataURL('image/png')")
+    # the two decades of the opening, side by side, read from the page's own canvases and labels
+    maps = page.evaluate("['#tc-map0', '#tc-map1'].map(s => document.querySelector(s + ' canvas').toDataURL('image/png'))")
+    heads = page.evaluate("['#tc-h0', '#tc-h1'].map(s => [...document.querySelector(s).children].map(e => e.textContent))")
     title = page.inner_text("h1")
+    import re
+
+    strong = re.search(r"Les plus fortes, (\+\d+\s%)", page.inner_text("#essentiel-list")).group(1)
     page.goto(f"{base}/", wait_until="networkidle")  # the site's fonts
+    cell = lambda url, head, hi: f"""<div style="width:552px">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:10px">
+        <b style="font:800 44px/1 'Archivo Variable',Archivo,sans-serif;font-stretch:72%;color:#e8eef4">{head[0]}</b>
+        <span style="font:650 21px/1.2 'Archivo Variable',Archivo,sans-serif;color:{'#f59ac8' if hi else '#a6b6c6'}">{head[1]}</span></div>
+      <img src="{url}" style="display:block;width:552px;border-radius:8px"></div>"""  # noqa: E731
     page.evaluate(
         "h => { document.body.innerHTML = h; document.body.className = ''; document.body.style.margin = 0; }",
-        f"""<div style="position:relative;width:1200px;height:630px;overflow:hidden;background:#f3f5f2">
-        <img src="{url}" style="position:absolute;left:-330px;top:-20px;width:1900px">
-        <div style="position:absolute;left:44px;bottom:48px;background:rgba(14,27,44,.94);color:#e8eef4;padding:20px 30px 24px;
-             font:800 76px/1 'Archivo Variable', Archivo, system-ui, sans-serif;font-stretch:72%;max-width:760px;letter-spacing:-.005em">{title}
-          <div style="font:600 26px/1.3 'Archivo Variable', Archivo, system-ui, sans-serif;color:#f59ac8;margin-top:14px">Turbulences en air clair, 1979-2022</div></div>
+        f"""<div style="width:1200px;height:630px;box-sizing:border-box;padding:44px 40px;background:#0e1b2c;
+             background-image:linear-gradient(rgba(166,182,198,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(166,182,198,.13) 1px,transparent 1px);
+             background-size:100% 88px,88px 100%">
+          <div style="font:800 64px/1 'Archivo Variable',Archivo,sans-serif;font-stretch:72%;color:#e8eef4">{title}</div>
+          <div style="font:600 24px/1.3 'Archivo Variable',Archivo,sans-serif;color:#f59ac8;margin:12px 0 30px">
+            Turbulences en air clair au-dessus de l'Atlantique, deux décennies comparées</div>
+          <div style="display:flex;gap:16px">{cell(maps[0], heads[0], False)}{cell(maps[1], heads[1], True)}</div>
+          <div style="display:flex;align-items:baseline;gap:18px;margin-top:22px">
+            <b style="font:800 76px/1 'Archivo Variable',Archivo,sans-serif;font-stretch:70%;color:#f59ac8">{strong}</b>
+            <span style="font:650 26px/1.25 'Archivo Variable',Archivo,sans-serif;color:#e8eef4">de conditions propices aux fortes turbulences, d'une décennie à l'autre</span></div>
         </div>""",
     )
     page.evaluate("document.fonts.ready")

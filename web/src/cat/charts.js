@@ -51,13 +51,15 @@ function legend(node, { interp, domain, ticks, fmt, title }) {
     .scaleLinear()
     .domain(domain)
     .range([10, W - 10]);
-  for (const t of ticks)
-    s.append("text")
+  ticks.forEach((t, k) =>
+    s
+      .append("text")
       .attr("class", "c-tick")
       .attr("x", X(t))
       .attr("y", 34)
-      .attr("text-anchor", "middle")
-      .text(fmt(t));
+      .attr("text-anchor", k === 0 ? "start" : k === ticks.length - 1 ? "end" : "middle")
+      .text(fmt(t)),
+  );
 }
 
 /**
@@ -649,151 +651,113 @@ export function regionStripes(node, rows, years, { label, fmtChange }) {
 }
 
 /**
- * The opening: one map per year (5-year running mean, 3° cells) drawn as the change against the reference
- * decade, white where nothing moved, magenta where the conditions became more frequent; the land outlines
- * once over it. Returns show(i), which redraws frame i without rebuilding the canvas.
+ * One decade of the opening comparison: the strongest conditions over the North Atlantic, Europe and North
+ * America, on the same scale for both decades (max), smoothed over the 3 x 3 neighbouring cells, the land and
+ * the Paris - New York great circle over it.
  */
-export async function yearsMap(node, C, { label }) {
-  const Y = C.yearly;
+export async function decadeMap(node, C, key, { max, label }) {
   const land = await loadLand();
-  const base = bytes(Y.base);
-  // each frame as the change against the reference, smoothed over the 3 x 3 neighbouring cells (longitudes wrap)
-  const ok = Array.from(base, (b) => b / Y.scale >= 0.002);
-  const frames = Y.maps.map((m) => {
-    const f = bytes(m);
-    const r = new Float32Array(f.length).fill(NaN);
-    f.forEach((v, n) => {
-      if (ok[n]) r[n] = v / base[n] - 1;
-    });
-    const out = new Float32Array(f.length).fill(NaN);
-    for (let i = 0; i < Y.nlat; i++)
-      for (let j = 0; j < Y.nlon; j++) {
-        if (!ok[i * Y.nlon + j]) continue;
-        let sum = 0;
-        let w = 0;
-        for (let di = -1; di <= 1; di++)
-          for (let dj = -1; dj <= 1; dj++) {
-            const ii = i + di;
-            if (ii < 0 || ii >= Y.nlat) continue;
-            const v = r[ii * Y.nlon + ((j + dj + Y.nlon) % Y.nlon)];
-            if (Number.isNaN(v)) continue;
-            const k = di || dj ? 1 : 2;
-            sum += v * k;
-            w += k;
-          }
-        out[i * Y.nlon + j] = sum / w;
-      }
-    return out;
-  });
+  const m = C.meta;
+  const D = C.decades;
+  const raw = bytes(D.sev[key]);
+  // 3 x 3 smoothing (longitudes wrap): ten years of the rarest situations are still grainy at 1.5°
+  const v = new Float32Array(raw.length);
+  for (let i = 0; i < m.nlat; i++)
+    for (let j = 0; j < m.nlon; j++) {
+      let sum = 0;
+      let w = 0;
+      for (let di = -1; di <= 1; di++)
+        for (let dj = -1; dj <= 1; dj++) {
+          const ii = i + di;
+          if (ii < 0 || ii >= m.nlat) continue;
+          const k = di || dj ? 1 : 2;
+          sum += raw[ii * m.nlon + ((j + dj + m.nlon) % m.nlon)] * k;
+          w += k;
+        }
+      v[i * m.nlon + j] = sum / w / D.scale;
+    }
+  const [L0, L1, P0, P1] = [-92, 24, 22, 72];
   node.replaceChildren();
   node.setAttribute("aria-label", label);
   const canvas = el("canvas", { "aria-hidden": "true" });
   const box = el("div", { class: "t-map" }, [canvas]);
   node.append(box);
-  let current = frames.length - 1;
-  let W = 0;
-  let H = 0;
-  let ctx = null;
-  let landImg = null;
-  const resize = (width) => {
-    W = Math.max(280, width);
-    H = Math.round(W * (126 / 360)); // 63 S to 63 N: the cruise routes, not the poles
+  const draw = (width) => {
+    const W = Math.max(260, width);
+    const H = Math.round((W * (P1 - P0)) / (L1 - L0));
+    const proj = d3
+      .geoEquirectangular()
+      .center([(L0 + L1) / 2, (P0 + P1) / 2])
+      .scale(W / (((L1 - L0) * Math.PI) / 180))
+      .translate([W / 2, H / 2]);
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     canvas.style.width = "100%";
     canvas.style.aspectRatio = `${W} / ${H}`;
-    ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
+    const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // the land, drawn once per size on its own canvas
-    const off = document.createElement("canvas");
-    off.width = canvas.width;
-    off.height = canvas.height;
-    const o = /** @type {CanvasRenderingContext2D} */ (off.getContext("2d"));
-    o.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const proj = d3
-      .geoEquirectangular()
-      .scale(W / (2 * Math.PI))
-      .translate([W / 2, H / 2]);
-    o.beginPath();
-    d3.geoPath(proj, o)(land);
-    o.strokeStyle = "rgba(20, 32, 46, 0.6)";
-    o.lineWidth = 0.8;
-    o.stroke();
-    landImg = off;
-    show(current);
-  };
-  const show = (k) => {
-    current = k;
-    if (!ctx) return;
     ctx.fillStyle = "#f3f5f2";
     ctx.fillRect(0, 0, W, H);
-    const f = frames[k];
-    const cw = W / (360 / Y.step);
-    for (let i = 0; i < Y.nlat; i++) {
-      const la = Y.lat0 + i * Y.step;
-      if (Math.abs(la) > 64) continue;
-      const y = H / 2 - ((la + Y.step / 2) / 126) * H;
-      for (let j = 0; j < Y.nlon; j++) {
-        const r = f[i * Y.nlon + j];
-        if (Number.isNaN(r)) continue;
-        ctx.fillStyle = DIV(Math.max(0, Math.min(1, (r / 0.8 + 1) / 2)));
-        const lo = Y.lon0 + j * Y.step;
-        ctx.fillRect(W / 2 + ((lo - Y.step / 2) / 360) * W, y, cw + 0.6, (Y.step / 126) * H + 0.6);
+    const h = m.step / 2;
+    for (let i = 0; i < m.nlat; i++) {
+      const la = m.lat0 + i * m.step;
+      if (la < P0 - 2 || la > P1 + 2) continue;
+      for (let j = 0; j < m.nlon; j++) {
+        const lo = m.lon0 + j * m.step;
+        if (lo < L0 - 2 || lo > L1 + 2) continue;
+        const [x0, y0] = /** @type {[number, number]} */ (proj([lo - h, la + h]));
+        const [x1, y1] = /** @type {[number, number]} */ (proj([lo + h, la - h]));
+        ctx.fillStyle = SEQ(Math.min(1, v[i * m.nlon + j] / max) ** 0.8);
+        ctx.fillRect(x0, y0, x1 - x0 + 0.7, y1 - y0 + 0.7);
       }
     }
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.drawImage(landImg, 0, 0);
-    const dpr = canvas.width / W;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const path = d3.geoPath(proj, ctx);
+    ctx.beginPath();
+    path(land);
+    ctx.strokeStyle = "rgba(20, 32, 46, 0.55)";
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    const A = C.airports.CDG;
+    const B = C.airports.JFK;
+    ctx.beginPath();
+    path({
+      type: "LineString",
+      coordinates: [
+        [A.lon, A.lat],
+        [B.lon, B.lat],
+      ],
+    });
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = "#14202e";
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+    ctx.setLineDash([]);
+    for (const [p, name, dx] of [
+      [A, "Paris", 7],
+      [B, "New York", -7],
+    ]) {
+      const [x, y] = /** @type {[number, number]} */ (proj([p.lon, p.lat]));
+      ctx.fillStyle = "#14202e";
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.font = `700 ${W < 420 ? 11 : 13}px Archivo, system-ui, sans-serif`;
+      ctx.textAlign = dx > 0 ? "left" : "right";
+      ctx.fillText(name, x + dx, y + 16);
+    }
   };
-  onResize(box, resize);
-  resize(box.clientWidth || 900);
-  return { show, count: frames.length };
+  onResize(box, draw);
+  draw(box.clientWidth || 600);
 }
 
-/** The North Atlantic line under the opening: hours a year, a dot on the year shown. */
-export function yearsLine(node, years, values, { label }) {
-  const W = 320;
-  const H = 96;
-  const M = { l: 6, r: 6, t: 10, b: 18 };
-  const X = d3
-    .scaleLinear()
-    .domain([0, years.length - 1])
-    .range([M.l, W - M.r]);
-  const Y = d3
-    .scaleLinear()
-    .domain([Math.min(...values), Math.max(...values)])
-    .nice()
-    .range([H - M.b, M.t]);
-  node.replaceChildren();
-  const s = d3
-    .select(node)
-    .append("svg")
-    .attr("viewBox", `0 0 ${W} ${H}`)
-    .attr("width", "100%")
-    .attr("role", "img")
-    .attr("aria-label", label);
-  const line = d3
-    .line()
-    .x((_, i) => X(i))
-    .y((d) => Y(/** @type {number} */ (/** @type {unknown} */ (d))));
-  s.append("path").attr("class", "tc-line-all").attr("d", line(values));
-  const done = s.append("path").attr("class", "tc-line-done");
-  const dot = s.append("circle").attr("class", "tc-line-dot").attr("r", 5);
-  s.append("text")
-    .attr("class", "tc-line-t")
-    .attr("x", M.l)
-    .attr("y", H - 3)
-    .text(String(years[0]));
-  s.append("text")
-    .attr("class", "tc-line-t")
-    .attr("x", W - M.r)
-    .attr("y", H - 3)
-    .attr("text-anchor", "end")
-    .text(String(years.at(-1)));
-  return (k) => {
-    done.attr("d", line(values.slice(0, k + 1)));
-    dot.attr("cx", X(k)).attr("cy", Y(values[k]));
-  };
+/** The scale under the two decades. */
+export function decadeLegend(node, max) {
+  legend(node, {
+    interp: (t) => SEQ(t ** 0.8),
+    domain: [0, max],
+    ticks: [0, max / 2, max],
+    fmt: (t) => (t === max ? `${pc(t, 1)} et +` : t ? pc(t, 1) : "0"),
+    title: "Échelle : part du temps aux conditions les plus fortes",
+  });
 }

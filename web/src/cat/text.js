@@ -15,8 +15,11 @@ const n0 = (v) => fmtNum(v, 0);
 const pc = (v, d = 1) => `${fmtNum(v * 100, d)} %`;
 /** a change, signed: +38 %, −4 % */
 const chg = (r) => (Math.abs(r) < 0.005 ? "0 %" : `${r >= 0 ? "+" : "−"}${fmtNum(Math.abs(r) * 100, 0)} %`);
-/** hours a year of a frequency, to the nearest five */
-const hrs = (f) => `${n0(Math.round((f * 8766) / 5) * 5)} heures`;
+/** hours a year of a frequency, to the nearest five (to the hour under 50: 15 against 25 would overstate 17 against 24) */
+const hrs = (f) => {
+  const h = f * 8766;
+  return `${n0(h < 50 ? Math.round(h) : Math.round(h / 5) * 5)} heures`;
+};
 const WORDS = ["zéro", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 /** "près de deux fois", "trois fois", "1,6 fois" */
@@ -53,7 +56,7 @@ const moved = (r) =>
 
 export function writeOpening(F) {
   $("#tc-open-cap").textContent =
-    `Chaque image est une année (moyenne sur cinq ans) : part des analyses du vent où l'indice d'Ellrod dépasse, au niveau de vol 340 (environ 10 400 m), le seuil des situations les plus fortes du globe, comparée à ${F.first}-${F.first + 9}. En blanc, rien n'a changé ; en magenta, ces conditions sont devenues plus fréquentes ; en bleu, moins. Les régions où elles sont rares restent vides.`;
+    `Part du temps où l'indice d'Ellrod dépasse, au niveau de vol 340 (environ 10 400 m), le seuil des situations les plus fortes du globe (${pc(F.pctSev, 2)} des analyses), en moyenne sur chaque décennie, même échelle pour les deux cartes. En pointillés, Paris – New York ; les heures par an sont la moyenne de l'Atlantique Nord (40-65° N, 70-10° O).`;
   const atl = F.atl;
   $("#open-dek").replaceChildren(
     rich([
@@ -420,7 +423,7 @@ export function writeSources(C, F) {
         `Conditions propices : l'indice au-dessus de ${fmtNum(F.thrMod * 1e7, 0)} × 10⁻⁷ s⁻², le seuil que dépassent ${pc(F.pctMod, 2)} des analyses du globe au niveau 250 hPa, chaque case pesée par sa surface ; conditions les plus fortes : au-dessus de ${fmtNum(C.meta.thrSev * 1e7, 0)} × 10⁻⁷ s⁻², ${pc(F.pctSev, 2)} des analyses. Les mêmes seuils servent aux trois niveaux et à toutes les années. Centiles de l'indice à 250 hPa, en 10⁻⁷ s⁻² : médiane ${fmtNum(P[250][50], 2)}, 99e ${fmtNum(P[250][99], 1)}, 99,9e ${fmtNum(P[250][99.9], 1)}.`,
       ]),
       li([
-        "Heures par an : la part des analyses multipliée par les 8 766 heures d'une année moyenne, arrondie à cinq heures.",
+        "Heures par an : la part des analyses multipliée par les 8 766 heures d'une année moyenne, arrondie à cinq heures (à l'heure sous 50 heures).",
       ]),
       li([
         `Régions de vol, en latitude et longitude : Atlantique Nord 40-65° N, 70-10° O ; Pacifique Nord 30-55° N, 150° E-150° O ; Europe 35-60° N, 10° O-30° E ; États-Unis 30-50° N, 125-70° O ; Asie de l'Est 25-45° N, 100-145° E. Moyennes pesées par la surface des cases.`,
