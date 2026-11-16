@@ -53,7 +53,7 @@ const moved = (r) =>
 
 export function writeOpening(F) {
   $("#tc-open-cap").textContent =
-    `Part des analyses du vent de chaque saison, ${F.first}-${F.last}, où l'indice d'Ellrod dépasse au niveau de vol 340 (environ 10 400 m) le seuil des situations les plus fortes du globe. Du papier (rare) au magenta (fréquent) ; en pointillés, Paris – New York et Paris – Tokyo.`;
+    `Chaque image est une année (moyenne sur cinq ans) : part des analyses du vent où l'indice d'Ellrod dépasse, au niveau de vol 340 (environ 10 400 m), le seuil des situations les plus fortes du globe, comparée à ${F.first}-${F.first + 9}. En blanc, rien n'a changé ; en magenta, ces conditions sont devenues plus fréquentes ; en bleu, moins. Les régions où elles sont rares restent vides.`;
   const atl = F.atl;
   $("#open-dek").replaceChildren(
     rich([

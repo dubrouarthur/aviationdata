@@ -72,8 +72,16 @@
           </p>
         </div>
         <figure class="wrap tc-open-fig" aria-labelledby="tc-open-cap">
-          <div class="seg tc-open-seg" id="open-seg" role="group" aria-label="Saison de la carte"><button type="button" data-v="DJF">Hiver</button><button type="button" data-v="MAM">Printemps</button><button type="button" data-v="JJA">Été</button><button type="button" data-v="SON">Automne</button></div>
           <div class="tc-open-map" id="tc-open-map" role="img"></div>
+          <div class="tc-play">
+            <button type="button" class="tc-play-btn" id="tc-play" aria-label="Lecture">❚❚</button>
+            <p class="tc-year" id="tc-year" aria-live="polite"></p>
+            <input type="range" class="tc-range" id="tc-range" min="0" max="0" step="1" aria-label="Année" />
+            <div class="tc-spark">
+              <p class="tc-spark-h" id="tc-spark-h"></p>
+              <div id="tc-spark"></div>
+            </div>
+          </div>
           <figcaption class="tc-open-cap" id="tc-open-cap"></figcaption>
         </figure>
       </section>

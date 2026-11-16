@@ -198,6 +198,23 @@ MICRO = """
 </div>
 """
 
+MICRO_MAP = MICRO.replace(
+    """  <p class="big"><b>{big}</b><span>{bigsub}</span></p>
+  <div class="viz">{chart}</div>""",
+    """  <div class="viz map">{chart}</div>
+  <p class="big"><b>{big}</b><span>{bigsub}</span></p>""",
+).replace(
+    "</style>",
+    """  .viz.map {{ flex: none; margin: 30px 0 22px; }}
+  .li:has(.viz.map) h1 {{ margin-top: 38px; }}
+  .li:has(.viz.map) .kick {{ margin-top: 22px; }}
+  .viz.map canvas {{ display: block; width: 936px; height: 440px; border-radius: 14px; }}
+  .map + .big {{ margin-top: 0; }} .map + .big b {{ font-size: 170px; }}
+  .map + .big span {{ font-size: 36px; max-width: 14em; }}
+</style>""",
+)
+assert MICRO_MAP != MICRO
+
 JET_PINK = "#ff4fa8"  # magenta OACI on the night (--magenta-hi)
 PLANE = "M0 -14 L3 -5 L14 2 L14 5 L3 2 L2 10 L6 13 L6 15 L0 13 L-6 15 L-6 13 L-2 10 L-3 2 L-14 5 L-14 2 L-3 -5 Z"
 
@@ -292,50 +309,85 @@ def card_jets_covid(t):
     }
 
 
+# the winter map of the North Atlantic, drawn in the card from the investigation's own data and land outlines
+CAT_MAP_JS = r"""
+async () => {
+  const [C, topo] = await Promise.all([fetch("data/cat/cat.json").then((r) => r.json()), fetch("geo/world-110m.json").then((r) => r.json())]);
+  const cv = document.querySelector("#cat-map");
+  const W = 936, H = 440, dpr = 2;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext("2d"); g.scale(dpr, dpr);
+  const L0 = -102, L1 = 32, P0 = 18, P1 = 74;  // lon, lat window
+  const X = (lo) => ((lo - L0) / (L1 - L0)) * W;
+  const Y = (la) => ((P1 - la) / (P1 - P0)) * H;
+  g.fillStyle = "#08131f"; g.fillRect(0, 0, W, H);
+  const bin = atob(C.maps.DJF); const m = C.meta; const sc = m.mapScale;
+  const stops = [[0, [8, 19, 31]], [0.3, [12, 32, 58]], [0.5, [28, 78, 150]], [0.7, [80, 150, 240]], [0.86, [200, 90, 210]], [1, [255, 79, 168]]];
+  const ramp = (t) => { t = Math.max(0, Math.min(1, t)); let k = 1; while (stops[k][0] < t) k++;
+    const [a, ca] = stops[k - 1], [b, cb] = stops[k]; const f = (t - a) / (b - a);
+    return `rgb(${ca.map((c, i) => Math.round(c + (cb[i] - c) * f)).join(",")})`; };
+  const max = 0.055;
+  for (let i = 0; i < m.nlat; i++) { const la = m.lat0 + i * m.step; if (la < P0 - 2 || la > P1 + 2) continue;
+    for (let j = 0; j < m.nlon; j++) { const lo = m.lon0 + j * m.step; if (lo < L0 - 2 || lo > L1 + 2) continue;
+      const v = bin.charCodeAt(i * m.nlon + j) / sc;
+      g.fillStyle = ramp(v / max);
+      g.fillRect(X(lo - m.step / 2), Y(la + m.step / 2), X(lo + m.step) - X(lo) + 0.8, Y(la) - Y(la + m.step) + 0.8); } }
+  // land outlines: a minimal TopoJSON reader (quantized, delta-encoded arcs)
+  const [sx, sy] = topo.transform.scale, [tx, ty] = topo.transform.translate;
+  const arcs = topo.arcs.map((a) => { let x = 0, y = 0; return a.map(([dx, dy]) => [(x += dx) * sx + tx, (y += dy) * sy + ty]); });
+  const ring = (r) => r.flatMap((k, n) => { const a = k < 0 ? [...arcs[~k]].reverse() : arcs[k]; return n ? a.slice(1) : a; });
+  const obj = topo.objects.land ?? topo.objects.countries;
+  const polys = (o) => (o.type === "GeometryCollection" ? o.geometries.flatMap(polys) : o.type === "Polygon" ? [o.arcs] : o.type === "MultiPolygon" ? o.arcs : []);
+  g.strokeStyle = "rgba(230, 238, 244, 0.55)"; g.lineWidth = 1.2;
+  for (const p of polys(obj)) for (const r of p) { const pts = ring(r); g.beginPath();
+    pts.forEach(([lo, la], n) => (n && Math.abs(lo - pts[n - 1][0]) < 90 ? g.lineTo(X(lo), Y(la)) : g.moveTo(X(lo), Y(la)))); g.stroke(); }
+  // Paris - New York on the great circle, a plane on it
+  const rad = Math.PI / 180, A = [49.0097, 2.5479], B = [40.6413, -73.7781];
+  const v3 = ([la, lo]) => [Math.cos(la * rad) * Math.cos(lo * rad), Math.cos(la * rad) * Math.sin(lo * rad), Math.sin(la * rad)];
+  const a = v3(A), b = v3(B), d = Math.acos(a[0] * b[0] + a[1] * b[1] + a[2] * b[2]);
+  const at = (f) => { const p = a.map((x, i) => (Math.sin((1 - f) * d) * x + Math.sin(f * d) * b[i]) / Math.sin(d));
+    return [Math.atan2(p[2], Math.hypot(p[0], p[1])) / rad, Math.atan2(p[1], p[0]) / rad]; };
+  const pts = Array.from({ length: 121 }, (_, k) => at(k / 120));
+  g.setLineDash([10, 9]); g.lineWidth = 3; g.strokeStyle = "#f2f6fa"; g.beginPath();
+  pts.forEach(([la, lo], n) => (n ? g.lineTo(X(lo), Y(la)) : g.moveTo(X(lo), Y(la)))); g.stroke(); g.setLineDash([]);
+  const [pa, po] = at(0.42), [qa, qo] = at(0.44);
+  const ang = Math.atan2(Y(qa) - Y(pa), X(qo) - X(po));
+  g.save(); g.translate(X(po), Y(pa)); g.rotate(ang + Math.PI / 2); g.scale(2.4, 2.4);
+  g.fillStyle = "#f2f6fa"; g.strokeStyle = "#08131f"; g.lineWidth = 0.8;
+  g.beginPath(); const P = [[0,-14],[3,-5],[14,2],[14,5],[3,2],[2,10],[6,13],[6,15],[0,13],[-6,15],[-6,13],[-2,10],[-3,2],[-14,5],[-14,2],[-3,-5]];
+  P.forEach(([x, y], n) => (n ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); g.fill(); g.stroke(); g.restore();
+  for (const [[la, lo], name, dx] of [[A, "Paris", 14], [B, "New York", -14]]) {
+    g.fillStyle = "#f2f6fa"; g.beginPath(); g.arc(X(lo), Y(la), 7, 0, 7); g.fill();
+    g.font = "800 28px 'Archivo Variable', Archivo, sans-serif"; g.textAlign = dx > 0 ? "left" : "right";
+    g.lineWidth = 6; g.strokeStyle = "#08131f"; g.strokeText(name, X(lo) + dx, Y(la) + 34); g.fillText(name, X(lo) + dx, Y(la) + 34); }
+  // the legend, in the corner
+  g.font = "650 20px 'Archivo Variable', Archivo, sans-serif"; g.textAlign = "left"; g.fillStyle = "rgba(242,246,250,.85)";
+  g.fillText("Hiver, à 10 400 m : là où le ciel clair secoue le plus", 22, H - 50);
+  for (let k = 0; k < 200; k++) { g.fillStyle = ramp(k / 199); g.fillRect(22 + k * 1.6, H - 36, 1.7, 12); }
+  g.fillStyle = "rgba(242,246,250,.7)"; g.font = "600 16px 'Archivo Variable', Archivo, sans-serif";
+  g.fillText("rare", 22, H - 8); g.textAlign = "right"; g.fillText("fréquent", 22 + 320, H - 8);
+}
+"""
+
+
 def card_cat(t, pg):
-    """Clear-air turbulence: the strongest conditions over the North Atlantic, decade against decade, and the
-    44 years as stripes (each year against the region's mean), from the page's own data file."""
+    """Clear-air turbulence: the paradox (no cloud, and it shakes) over the winter map of the North Atlantic, then
+    the strongest conditions decade against decade; numbers read on the page."""
     strong = find(t, r"Les plus fortes, (\+\d+ %)", "turbulences")
-    all_ = find(t, r"(\+\d+ %) au-dessus de l'Atlantique Nord, de la décennie", "turbulences")
-    d0 = find(t, r"de la décennie (\d{4}-\d{4}) à la décennie \d{4}-\d{4}\. Les plus fortes", "turbulences")
-    d1 = find(t, r"de la décennie \d{4}-\d{4} à la décennie (\d{4}-\d{4})\. Les plus fortes", "turbulences")
-    pny = find(t, r"Et sur Paris – New York \? (\d+,\d %) du trajet", "turbulences")
-    annual = pg.evaluate(
-        "fetch(document.querySelector('meta[name=site-root]').content + 'data/cat/cat.json')"
-        ".then(r => r.json()).then(C => [C.meta.years, C.regions.atlantique.annual])"
-    )
-    years, vals = annual
-    m = sum(vals) / len(vals)
-
-    def col(v):  # blue (calmer) -> night paper -> magenta (more agitated), as the page's stripes
-        x = max(-1, min(1, (v / m - 1) / 0.3))
-        a, b = ((90, 162, 255), (255, 79, 168))
-        mid = (34, 58, 86)
-        c = b if x > 0 else a
-        k = abs(x)
-        return "rgb({},{},{})".format(*(round(mid[i] + (c[i] - mid[i]) * k) for i in range(3)))
-
-    w = 936 / len(vals)
-    stripes = "".join(
-        f'<rect x="{i * w:.2f}" y="0" width="{w + 0.6:.2f}" height="190" fill="{col(v)}"/>'
-        for i, v in enumerate(vals)
-    )
-    chart = f"""<figure style="width:100%"><svg viewBox="0 0 936 190" width="936" height="190">{stripes}</svg>
-      <figcaption style="display:flex;justify-content:space-between;width:100%"><span>{years[0]}</span>
-      <span>une bande par année, <b>magenta</b> = plus agitée</span><span>{years[-1]}</span></figcaption></figure>"""
+    find(t, r"(\+\d+ %) au-dessus de l'Atlantique Nord, de la décennie", "turbulences")
     return {
         "file": "turbulences-micro",
-        "tpl": "micro",
+        "tpl": "map",
+        "script": CAT_MAP_JS,
         "accent": JET_PINK,
         "tag": "Turbulences",
-        "headline": "Le ciel clair secoue <em>de plus en plus.</em>",
+        "headline": "Pas un nuage. <em>Et pourtant, ça secoue de plus en plus.</em>",
+        "chart": '<canvas id="cat-map" aria-hidden="true"></canvas>',
         "big": strong.replace(" %", "&nbsp;%"),
-        "bigsub": "de conditions propices aux fortes turbulences sur l'Atlantique Nord.",
-        "chart": chart,
-        "kick": f"De {d0} à {d1}. Toutes intensités : <b>{all_}</b>. "
-        f"Sur Paris – New York l'hiver, {pny} du trajet, sans un nuage.",
+        "bigsub": "de conditions propices aux fortes turbulences sur l'Atlantique Nord en quarante ans.",
+        "kick": "Invisible aux radars, elle se loge dans le courant&#8209;jet. En plein sur la route Paris – New York.",
         "cta": "Lire l'enquête",
-        "src": "Conditions propices, réanalyse ERA5 (Copernicus), indice d'Ellrod, niveau 340. Calculs aviationdata.",
+        "src": "ERA5 (Copernicus), 2013-2022 contre 1979-1988. Calculs aviationdata.",
     }
 
 
@@ -565,12 +617,16 @@ with sync_playwright() as pw:
         title = norm(pg.inner_text("h1"))
         no = find(norm(pg.inner_text(".issue-kicker")), r"Enquête n° (\d+)", slug)
         c = make(text, pg) if make.__code__.co_argcount == 2 else make(text)
-        tpl = MICRO if c.pop("tpl", None) == "micro" else CARD
+        kind = c.pop("tpl", None)
+        script = c.pop("script", None)
+        tpl = {"micro": MICRO, "map": MICRO_MAP}.get(kind, CARD)
         html = tpl.format(night=NIGHT, ink=INK, muted=MUTED, rule=RULE, no=no, title=title, slug=slug, **c)
         card = browser.new_page(viewport={"width": 1080, "height": 1350}, device_scale_factor=1)
         card.goto(base + "/", wait_until="networkidle")  # the site's fonts
         card.evaluate("h => { document.body.innerHTML = h; document.body.className = ''; }", html)
         card.evaluate("document.fonts.ready")
+        if script:
+            card.evaluate(script)
         card.wait_for_timeout(500)
         foot = card.evaluate("document.querySelector('.foot').getBoundingClientRect().bottom")
         card.locator(".li").screenshot(path=str(out / f"{c.get('file', slug)}.png"))

@@ -24,6 +24,8 @@ import {
   crossSection,
   routeMap,
   regionStripes,
+  yearsMap,
+  yearsLine,
 } from "./cat/charts.js";
 import { TSOURCES } from "./cat/sources.js";
 import * as T from "./cat/text.js";
@@ -54,29 +56,65 @@ async function main() {
   });
   // one scale for every frequency map: the 99th percentile of the winter cells, rounded up to the half-percent
   const max = Math.ceil(C.meta.mapMax * 0.6 * 200) / 200;
-  const routes = C.routes.filter((r) => r.key === "CDG-JFK" || r.key === "CDG-NRT");
-  safely("opening", () => {
-    // the four seasons in turn, until the reader picks one; still on winter with reduced motion
-    const draw = (k) =>
-      freqMap($("#tc-open-map"), C, k, {
-        routes,
-        max,
-        compact: true,
-        label: `Carte des conditions propices à la turbulence en air clair, ${SEASON_FR[k]}, ${F.first}-${F.last}.`,
-      });
-    let timer = 0;
-    const seg = segmented($("#open-seg"), "DJF", (k) => {
-      clearInterval(timer);
-      draw(k);
+  safely("opening", async () => {
+    // year after year: the change against the reference decade, the North Atlantic line under it
+    const Y = C.yearly;
+    const run = F.years.map((_, k) => {
+      const w = F.atl.annual.slice(Math.max(0, k - 2), k + 3);
+      return (w.reduce((a, b) => a + b, 0) / w.length) * 8766;
     });
-    draw("DJF");
-    if (!reducedMotion()) {
-      let i = 0;
+    const map = await yearsMap($("#tc-open-map"), C, {
+      label: `Carte animée : évolution des conditions propices à la turbulence en air clair année après année, de ${F.first} à ${F.last}, par rapport à ${Y.baseYears[0]}-${Y.baseYears[1]}.`,
+    });
+    const line = yearsLine($("#tc-spark"), F.years, run, {
+      label: `Heures par an de conditions propices au-dessus de l'Atlantique Nord, moyenne sur cinq ans, ${F.first}-${F.last}.`,
+    });
+    const range = /** @type {HTMLInputElement} */ ($("#tc-range"));
+    const btn = $("#tc-play");
+    range.max = String(map.count - 1);
+    const show = (k) => {
+      map.show(k);
+      line(k);
+      range.value = String(k);
+      $("#tc-year").textContent = String(F.years[k]);
+      $("#tc-spark-h").textContent = `Atlantique Nord : ${T.fmt.hrs(run[k] / 8766)} par an`;
+    };
+    let timer = 0;
+    let k = 0;
+    const stop = () => {
+      clearInterval(timer);
+      timer = 0;
+      btn.textContent = "▶";
+      btn.setAttribute("aria-label", "Lecture");
+    };
+    const play = () => {
+      if (k >= map.count - 1) k = 0;
+      btn.textContent = "❚❚";
+      btn.setAttribute("aria-label", "Pause");
       timer = window.setInterval(() => {
-        i = (i + 1) % SEASONS.length;
-        seg.set(SEASONS[i], false);
-        draw(SEASONS[i]);
-      }, 2600);
+        show(k);
+        if (++k >= map.count) stop();
+      }, 220);
+    };
+    btn.addEventListener("click", () => (timer ? stop() : play()));
+    range.addEventListener("input", () => {
+      stop();
+      k = +range.value;
+      show(k);
+    });
+    if (reducedMotion()) {
+      k = map.count - 1;
+      show(k);
+      stop();
+    } else {
+      show(0);
+      // start when the opening is seen
+      new IntersectionObserver((es, obs) => {
+        if (es.some((e) => e.isIntersecting)) {
+          obs.disconnect();
+          play();
+        }
+      }).observe($("#tc-open-map"));
     }
   });
   safely("map", () =>
