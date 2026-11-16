@@ -38,6 +38,8 @@ Magazine d'enquêtes en données ouvertes sur le transport aérien, en deux form
 
 ## Commandes
 
+- Pull requests (demande de l'auteur, novembre 2026 : « merge toujours les PR, ne fais pas attendre ») : une fois les contrôles locaux passés et la prévisualisation Vercel prête, fusionner la PR soi-même, sans demander ; la production Vercel suit `main`.
+
 - `python3 etl/fetch.py` : télécharge les 3 jeux DGAC dans `data/raw/` (data.gouv.fr doit être joignable : en local, pas dans la session cloud Claude ; plus de rafraîchissement mensuel automatique, à relancer à la main après le 15 de chaque mois quand la DGAC publie son indice des prix).
 - `python3 etl/build.py` : lit `data/raw/`, écrit `web/public/data/*.json`. `--demo` génère des données fictives clairement signalées.
 - `python3 -m pytest -q` : tests ETL (fixtures) + tests de référence (sautés si `data/raw/` est vide).
