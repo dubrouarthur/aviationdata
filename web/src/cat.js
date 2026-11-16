@@ -64,7 +64,7 @@ async function main() {
     const head = (id, years, f, strong) =>
       $(id).replaceChildren(
         el("b", { text: `${years[0]}-${years[1]}` }),
-        el("span", { class: strong ? "up" : "", text: `Atlantique Nord : ${T.fmt.hrs(f)} par an` }),
+        el("span", { class: strong ? "up" : "", text: `${T.fmt.hrs(f)} de ciel très agité par an` }),
       );
     head("#tc-h0", D.first, atl.first, false);
     head("#tc-h1", D.last, atl.last, true);

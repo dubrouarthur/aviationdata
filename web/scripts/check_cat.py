@@ -231,6 +231,10 @@ with sync_playwright() as pw:
         else (f"a augmenté de {pc(vws, 0)}" if vws > 0 else f"a baissé de {pc(-vws, 0)}")
     )
     has("ch8: the shear", f"le cisaillement moyen au niveau 340 {moved} de {first} à {last}", "#evolution-prose")
+    D = C["decades"]
+    sv = C["regions"]["atlantique"]["decadesSev"]
+    for name, yrs, f in [("first", D["first"], sv["first"]), ("last", D["last"], sv["last"])]:
+        has(f"opening: {name} decade", f"{yrs[0]}-{yrs[1]} {hrs(f)} de ciel très agité par an", ".tc-open")
     has(
         "answer",
         f"{chg(atl['change'])} de la décennie {dec0} à la décennie {dec1}, {chg(atl['sev'])} pour les plus fortes",
