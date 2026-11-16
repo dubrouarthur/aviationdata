@@ -670,7 +670,8 @@ footer[id] {
 }
 
 .moments button[aria-selected="true"] span {
-  color: #b9c3be;
+  /* the paper's colour, a little inked: readable on the dark tab in light mode, and on the light tab at night */
+  color: color-mix(in srgb, var(--paper) 74%, var(--ink));
 }
 
 .moment-card {

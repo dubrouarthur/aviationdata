@@ -616,6 +616,7 @@
 /* a figure: a sheet of paper, its content box as wide as before (the sheet grows into the margin, so
    charts keep their measured width when the theme changes) */
 :root:root[data-theme="dark"] .panel:not(.dark-panel) {
+  color-scheme: light; /* the native controls of a figure (selects, sliders) are drawn on its paper */
   --sheet: clamp(10px, 1.6vw, 20px);
   background: var(--paper);
   color: var(--ink);
