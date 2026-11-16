@@ -318,10 +318,10 @@ def card_cat(t, pg):
     pg.wait_for_selector("#tc-map1 canvas")
     maps = pg.evaluate("['#tc-map0', '#tc-map1'].map(s => document.querySelector(s + ' canvas').toDataURL('image/png'))")
     heads = pg.evaluate("['#tc-h0', '#tc-h1'].map(s => [...document.querySelector(s).children].map(e => e.textContent))")
-    h = [find(norm(x[1]), r"(\d+) heures par an", "turbulences") for x in heads]
-    chart = f"""<div class="d"><div class="dh"><b>{norm(heads[0][0])}</b><span><i>{h[0]}</i> heures par an</span></div>
+    h = [find(norm(x[1]), r"(\d+) heures de ciel très agité par an", "turbulences") for x in heads]
+    chart = f"""<div class="d"><div class="dh"><b>{norm(heads[0][0])}</b><span><i>{h[0]}</i> h de ciel très agité par an</span></div>
         <img src="{maps[0]}"></div>
-      <div class="d"><div class="dh"><b>{norm(heads[1][0])}</b><span class="hi"><i>{h[1]}</i> heures par an, {strong}</span></div>
+      <div class="d"><div class="dh"><b>{norm(heads[1][0])}</b><span class="hi"><i>{h[1]}</i> h par an, {strong}</span></div>
         <img src="{maps[1]}"></div>"""
     return {
         "file": "turbulences-micro",
@@ -330,7 +330,7 @@ def card_cat(t, pg):
         "tag": "Turbulences",
         "headline": "Pas un nuage. <em>Et pourtant, ça secoue de plus en plus.</em>",
         "chart": chart,
-        "kick": "Invisibles aux radars, <b>en plein sur Paris – New York</b>.",
+        "kick": "Heures où le vent réunit, en un point de l'Atlantique Nord, les conditions des plus fortes turbulences. <b>Invisibles aux radars.</b>",
         "cta": "Lire l'enquête",
         "src": "ERA5 (Copernicus), indice d'Ellrod. Calculs aviationdata.",
     }
