@@ -12,6 +12,7 @@ Micro cards (`"tpl": "micro"`): one number, one sentence, a hundred dots, the ad
 PW_CHROMIUM=/path/to/chrome points Playwright at an installed browser when its own is missing.
 """
 
+import math
 import os
 import re
 import sys
@@ -212,10 +213,11 @@ def shuttle(k):
         yy = (1 - t) ** 2 * y + 2 * (1 - t) * t * (y - 2 * lift) + t * t * y
         dx = 2 * (1 - t) * (w / 2 - x0) + 2 * t * (x1 - w / 2)
         dy = 2 * (1 - t) * (-2 * lift) + 2 * t * (2 * lift)
-        import math
-
         ang = math.degrees(math.atan2(dy, dx)) + 90
-        planes += f'<path d="{PLANE}" fill="{JET_PINK}" transform="translate({x:.1f} {yy:.1f}) rotate({ang:.1f}) scale(1.9)"/>'
+        planes += (
+            f'<path d="{PLANE}" fill="{JET_PINK}" '
+            f'transform="translate({x:.1f} {yy:.1f}) rotate({ang:.1f}) scale(1.9)"/>'
+        )
     return f"""<svg viewBox="0 0 {w} {h}" width="{w}" height="{h}">
       <path d="M{x0} {y} Q{w / 2} {y - 2 * lift} {x1} {y}" fill="none" stroke="{MUTED}" stroke-width="3"
             stroke-dasharray="4 12" stroke-linecap="round"/>
@@ -240,7 +242,7 @@ def card_jets_geneve(t):
         "big": str(per_day),
         "bigsub": f"par jour, toute l'année.<br>{n} vols en 2022.",
         "chart": shuttle(per_day),
-        "kick": f"Et <b>4 vols de jet privé sur 10</b> font moins de 500 km.",
+        "kick": "Et <b>4 vols de jet privé sur 10</b> font moins de 500 km.",
         "cta": "Lire l'enquête",
         "src": "Vols suivis par le réseau OpenSky, Paris-Le Bourget – Genève, 2022. Calculs aviationdata.",
     }
