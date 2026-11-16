@@ -292,6 +292,51 @@ def card_jets_covid(t):
     }
 
 
+def card_cat(t, pg):
+    """Clear-air turbulence: the strongest conditions over the North Atlantic, decade against decade, and the
+    44 years as stripes (each year against the region's mean), from the page's own data file."""
+    strong = find(t, r"Les plus fortes, (\+\d+ %)", "turbulences")
+    all_ = find(t, r"(\+\d+ %) au-dessus de l'Atlantique Nord, de la décennie", "turbulences")
+    d0 = find(t, r"de la décennie (\d{4}-\d{4}) à la décennie \d{4}-\d{4}\. Les plus fortes", "turbulences")
+    d1 = find(t, r"de la décennie \d{4}-\d{4} à la décennie (\d{4}-\d{4})\. Les plus fortes", "turbulences")
+    pny = find(t, r"Et sur Paris – New York \? (\d+,\d %) du trajet", "turbulences")
+    annual = pg.evaluate(
+        "fetch(document.querySelector('meta[name=site-root]').content + 'data/cat/cat.json')"
+        ".then(r => r.json()).then(C => [C.meta.years, C.regions.atlantique.annual])"
+    )
+    years, vals = annual
+    m = sum(vals) / len(vals)
+
+    def col(v):  # blue (calmer) -> night paper -> magenta (more agitated), as the page's stripes
+        x = max(-1, min(1, (v / m - 1) / 0.3))
+        a, b = ((90, 162, 255), (255, 79, 168))
+        mid = (34, 58, 86)
+        c = b if x > 0 else a
+        k = abs(x)
+        return "rgb({},{},{})".format(*(round(mid[i] + (c[i] - mid[i]) * k) for i in range(3)))
+
+    w = 936 / len(vals)
+    stripes = "".join(
+        f'<rect x="{i * w:.2f}" y="0" width="{w + 0.6:.2f}" height="190" fill="{col(v)}"/>' for i, v in enumerate(vals)
+    )
+    chart = f"""<figure style="width:100%"><svg viewBox="0 0 936 190" width="936" height="190">{stripes}</svg>
+      <figcaption style="display:flex;justify-content:space-between;width:100%"><span>{years[0]}</span>
+      <span>une bande par année, <b>magenta</b> = plus agitée</span><span>{years[-1]}</span></figcaption></figure>"""
+    return {
+        "file": "turbulences-micro",
+        "tpl": "micro",
+        "accent": JET_PINK,
+        "tag": "Turbulences",
+        "headline": "Le ciel clair secoue <em>de plus en plus.</em>",
+        "big": strong.replace(" %", "&nbsp;%"),
+        "bigsub": "de conditions propices aux fortes turbulences sur l'Atlantique Nord.",
+        "chart": chart,
+        "kick": f"De {d0} à {d1}. Toutes intensités : <b>{all_}</b>. Sur Paris – New York l'hiver, {pny} du trajet, sans un nuage.",
+        "cta": "Lire l'enquête",
+        "src": "Conditions propices, réanalyse ERA5 (Copernicus), indice d'Ellrod, niveau 340. Calculs aviationdata.",
+    }
+
+
 def card_hf(t):
     y0, y1 = find(t, r"De (\d{4}) à (?:\d{4}), une personne", "hf"), find(t, r"De \d{4} à (\d{4}), une personne", "hf")
     p = find(t, r"Une personne est citée dans (\d+) % des accidents", "hf")
@@ -498,6 +543,7 @@ STORIES = [
     ("le-ciel-a-deux-vitesses", card_ciel),
     ("modeles-d-avions", card_avions),
     ("modeles-d-avions", card_avions_retard),
+    ("turbulences", card_cat),
     ("jets-prives", card_jets_geneve),
     ("jets-prives", card_jets_court),
     ("jets-prives", card_jets_covid),
