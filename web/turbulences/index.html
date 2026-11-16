@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Le ciel clair est-il plus agité ? Les turbulences en air clair depuis 1979</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Où et quand les avions rencontrent-ils des conditions propices à la turbulence en air clair, à quelle altitude, sur quelles routes, et ces conditions sont-elles devenues plus fréquentes depuis 1979 ? Quarante-quatre ans de vents de la réanalyse ERA5."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Le ciel clair est-il plus agité ?",
+        "description": "Les conditions propices à la turbulence en air clair à l'altitude des avions de ligne, de 1979 à 2022, dans la réanalyse ERA5.",
+        "inLanguage": "fr",
+        "datePublished": "2026-11-16",
+        "dateModified": "2026-11-16",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": ["https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels"]
+      }
+    </script>
+    <meta name="theme-color" content="#0e1b2c" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Le ciel clair est-il plus agité ?" />
+    <meta
+      property="og:description"
+      content="Où le ciel clair secoue-t-il les avions, à quelle saison, et est-ce de plus en plus souvent ? Quarante-quatre ans de vents en altitude."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-cat.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%turbulences" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="tc">
+    <a class="skip-link" href="#ouverture">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#ouverture">Turbulences</a>
+        <nav class="topnav" aria-label="Parties">
+          <a href="#partie-1">Où</a>
+          <a href="#partie-2">À quelle altitude</a>
+          <a href="#partie-3">Ont-elles augmenté</a>
+          <a href="#en-bref">La réponse</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main>
+      <!-- opening: the winter map of the conditions, at the cruise level of the airliners -->
+      <section class="tc-open" id="ouverture" aria-labelledby="title">
+        <div class="wrap">
+          <!--site:kicker-->
+          <h1 class="display" id="title">Le ciel clair <span class="nw">est-il</span> plus agité ?</h1>
+          <p class="open-q">
+            Où le ciel sans nuage secoue-t-il les avions de ligne, à quelle saison, à quelle altitude, et est-ce de
+            plus en plus souvent ? Quarante-quatre ans de vents en altitude, de 1979 à 2022.
+          </p>
+        </div>
+        <figure class="wrap tc-open-fig" aria-labelledby="tc-open-cap">
+          <div class="seg tc-open-seg" id="open-seg" role="group" aria-label="Saison de la carte"><button type="button" data-v="DJF">Hiver</button><button type="button" data-v="MAM">Printemps</button><button type="button" data-v="JJA">Été</button><button type="button" data-v="SON">Automne</button></div>
+          <div class="tc-open-map" id="tc-open-map" role="img"></div>
+          <figcaption class="tc-open-cap" id="tc-open-cap"></figcaption>
+        </figure>
+      </section>
+      <div class="wrap standfirst">
+        <p class="open-dek" id="open-dek"></p>
+        <!--site:byline-->
+      </div>
+
+      <section class="wrap essentiel" id="essentiel" aria-labelledby="h-essentiel">
+        <h2 class="essentiel-title" id="h-essentiel">L'essentiel, étape par étape</h2>
+        <p class="essentiel-dek">
+          Deux minutes pour l'enquête entière : ses réponses dans l'ordre où elle les construit. Chaque étape mène
+          au chapitre qui l'explique.
+        </p>
+        <ol class="essentiel-list" id="essentiel-list"></ol>
+      </section>
+
+      <div class="part wrap" id="partie-1">
+        <p class="part-label"><span class="part-no">Partie 1</span> Où</p>
+        <p class="part-dek">Les régions et les saisons où le vent réunit les conditions de la turbulence en air clair, à l'altitude de croisière des avions de ligne.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="carte" aria-labelledby="h-carte">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-carte"></h2>
+          <div class="prose" id="carte-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod naturalearth">
+          <h3 id="h-map-fig"></h3>
+          <p class="note" id="map-note"></p>
+          <div role="group" class="chart" id="chart-map" aria-labelledby="h-map-fig"></div>
+          <p class="note lecture" id="map-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="carte-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="carte-aside"></p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="saisons" aria-labelledby="h-saisons">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-saisons"></h2>
+          <div class="prose" id="saisons-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod naturalearth">
+          <h3 id="h-seasons-fig"></h3>
+          <p class="note" id="seasons-note"></p>
+          <div role="group" class="chart t-quad" id="chart-seasons" aria-labelledby="h-seasons-fig"></div>
+          <p class="note lecture" id="seasons-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="saisons-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="latitudes" aria-labelledby="h-latitudes">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-latitudes"></h2>
+          <div class="prose" id="latitudes-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod">
+          <h3 id="h-lat-fig"></h3>
+          <p class="note" id="lat-note"></p>
+          <div role="group" class="chart" id="chart-lat" aria-labelledby="h-lat-fig"></div>
+          <p class="note lecture" id="lat-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="latitudes-after"></div>
+      </section>
+
+      <div class="part wrap" id="partie-2">
+        <p class="part-label"><span class="part-no">Partie 2</span> À quelle altitude</p>
+        <p class="part-dek">Les trois niveaux de croisière des avions de ligne, et les grandes routes depuis Paris.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="altitude" aria-labelledby="h-altitude">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-altitude"></h2>
+          <div class="prose" id="altitude-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod">
+          <h3 id="h-levels-fig"></h3>
+          <p class="note" id="levels-note"></p>
+          <div class="seg t-seg" id="levels-seg" role="group" aria-label="Saison"><button type="button" data-v="annual">Toute l'année</button><button type="button" data-v="DJF">Décembre à février</button><button type="button" data-v="JJA">Juin à août</button></div>
+          <div role="group" class="chart" id="chart-levels" aria-labelledby="h-levels-fig"></div>
+          <p class="note lecture" id="levels-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="altitude-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="routes" aria-labelledby="h-routes">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-routes"></h2>
+          <div class="prose" id="routes-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod ourairports">
+          <h3 id="h-routes-fig"></h3>
+          <p class="note" id="routes-note"></p>
+          <div class="seg t-seg" id="routes-seg" role="group" aria-label="Saison"><button type="button" data-v="DJF">Décembre à février</button><button type="button" data-v="JJA">Juin à août</button></div>
+          <div role="group" class="chart" id="chart-routes" aria-labelledby="h-routes-fig"></div>
+          <p class="note lecture" id="routes-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="routes-after"></div>
+      </section>
+
+      <div class="part wrap" id="partie-3">
+        <p class="part-label"><span class="part-no">Partie 3</span> Ont-elles augmenté</p>
+        <p class="part-dek">Quarante-quatre ans de vents, de 1979 à 2022 : l'Atlantique Nord hiver après hiver, puis le reste du monde.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="atlantique" aria-labelledby="h-atlantique">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-atlantique"></h2>
+          <div class="prose" id="atlantique-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod">
+          <h3 id="h-stripes-fig"></h3>
+          <p class="note" id="stripes-note"></p>
+          <div role="group" class="chart" id="chart-stripes" aria-labelledby="h-stripes-fig"></div>
+          <p class="note lecture" id="stripes-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="atlantique-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="tendance" aria-labelledby="h-tendance">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-tendance"></h2>
+          <div class="prose" id="tendance-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod">
+          <h3 id="h-trend-fig"></h3>
+          <p class="note" id="trend-note"></p>
+          <div role="group" class="chart" id="chart-trend" aria-labelledby="h-trend-fig"></div>
+          <p class="note lecture" id="trend-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="tendance-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="tendance-aside"></p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="evolution" aria-labelledby="h-evolution">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-evolution"></h2>
+          <div class="prose" id="evolution-prose"></div>
+        </div>
+        <figure class="panel" data-tsource="era5 wb2 ellrod naturalearth">
+          <h3 id="h-change-fig"></h3>
+          <p class="note" id="change-note"></p>
+          <div role="group" class="chart" id="chart-change" aria-labelledby="h-change-fig"></div>
+          <p class="note lecture" id="change-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="evolution-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="evolution-aside"></p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
+        <div class="share" id="share"></div>
+      </section>
+
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="cat">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">
+          La méthode en 5 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en
+          bas de page.
+        </p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir du vent reconstitué</h3>
+            <p>
+              La réanalyse ERA5 du service Copernicus reconstitue le vent sur tout le globe, toutes les heures depuis
+              1940, en mêlant observations et modèle météo. L'enquête en lit une analyse toutes les six heures, sur une
+              grille d'un degré et demi.
+            </p>
+          </li>
+          <li>
+            <h3>Repérer les conditions de la turbulence</h3>
+            <p>
+              La turbulence en air clair naît là où le vent change vite avec l'altitude et s'étire à l'horizontale. Un
+              indice classique des prévisionnistes, celui d'Ellrod, multiplie ces deux mesures en chaque point.
+            </p>
+          </li>
+          <li>
+            <h3>Garder les situations les plus fortes</h3>
+            <p>
+              Une grille aussi large adoucit le vent : l'indice ne se lit pas comme une valeur absolue. Seules comptent
+              les situations où il atteint le niveau des plus fortes du globe, à l'altitude de croisière.
+            </p>
+          </li>
+          <li>
+            <h3>Compter les heures de chaque lieu</h3>
+            <p>
+              En chaque point, on compte la part des analyses qui dépassent ce niveau, chaque mois de chaque année,
+              puis on compare les premières années aux dernières, région par région.
+            </p>
+          </li>
+          <li>
+            <h3>Dire ce que l'on mesure</h3>
+            <p>
+              Ces chiffres décrivent des conditions propices, pas des secousses ressenties à bord : les avions évitent
+              les zones annoncées, et aucune donnée publique ne compte les turbulences rencontrées vol par vol.
+            </p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
+      <!--site:next-->
+    </main>
+
+    <section class="footer" id="sources" aria-labelledby="h-sources">
+      <div class="wrap">
+        <h2 id="h-sources">Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </section>
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/cat.js"></script>
+  </body>
+</html>

@@ -20,6 +20,24 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "cat",
+    slug: "turbulences",
+    no: 10,
+    topic: "Météo",
+    title: "Le ciel clair est-il plus agité ?",
+    dek: "Où le ciel sans nuage secoue-t-il les avions de ligne, à quelle saison, à quelle altitude, et est-ce de plus en plus souvent ? Quarante-quatre ans de vents en altitude de la réanalyse ERA5, de 1979 à 2022.",
+    published: "2026-11-16",
+    updated: "2026-11-16",
+    minutes: 12,
+    chapters: 8,
+    image: "og-cat.jpg",
+    cover: "70% 60%",
+    hook: "Les turbulences en air clair sont-elles plus fréquentes qu'avant ?",
+    accent: "var(--magenta)",
+    sources: "ERA5 (Copernicus)",
+    related: ["jet", "hf"],
+  },
+  {
     key: "jets",
     slug: "jets-prives",
     no: 9,
