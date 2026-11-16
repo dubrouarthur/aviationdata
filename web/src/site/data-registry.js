@@ -15,9 +15,10 @@ import { BSOURCES } from "../billet/sources.js";
 import { CSOURCES } from "../carbone/sources.js";
 import { ASOURCES } from "../avions/sources.js";
 import { JPSOURCES, FACTS as JETS_FACTS } from "../jets/sources.js";
+import { TSOURCES, FACTS as CAT_FACTS } from "../cat/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
-export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES, avions: ASOURCES, jets: JPSOURCES };
+export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES, avions: ASOURCES, jets: JPSOURCES, cat: TSOURCES };
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
 const PUBLIC = { text: "domaine public" };
@@ -183,10 +184,14 @@ export const DATASETS = [
     id: "era5",
     producer: "Copernicus / ECMWF",
     title: "Réanalyse ERA5",
-    refs: [["jet", "era5"]],
+    refs: [
+      ["jet", "era5"],
+      ["cat", "era5"],
+      ["cat", "wb2"],
+    ],
     what: "Vents et températures en altitude reconstitués heure par heure sur tout le globe.",
     period:
-      "Vents à 250 hPa toutes les 6 heures de 2019 à 2022 (grille de 1,5°, via WeatherBench 2), vents et températures à 300, 250 et 200 hPa pour le simulateur, quelques instantanés à 0,25°.",
+      "Vents à 250 hPa toutes les 6 heures de 2019 à 2022 (grille de 1,5°, via WeatherBench 2), vents et températures à 300, 250 et 200 hPa pour le simulateur, quelques instantanés à 0,25° ; pour les turbulences, vents de 150 à 400 hPa sur tout le globe toutes les 6 heures de 1979 à 2022 (grille de 1,5°), réduits en fréquences de l'indice d'Ellrod.",
     terms: { text: "citer « Contient des informations modifiées du Copernicus Climate Change Service »" },
     files: [
       "data/jet/winds.json",
@@ -198,15 +203,18 @@ export const DATASETS = [
       "data/jet/sim.json",
       "data/jet/sim_stats.json",
       "data/jet/flights.json",
+      "data/cat/cat.json",
     ],
     etl: [
+      "etl/cat/era5_cat.py",
+      "etl/cat/build_cat.py",
       "etl/jet/era5.py",
       "etl/jet/era5_daily.py",
       "etl/jet/era5_levels.py",
       "etl/jet/build_jet.py",
       "etl/jet/build_sim.py",
     ],
-    checks: ["web/scripts/check_site.py"],
+    checks: ["web/scripts/check_site.py", "web/scripts/check_cat.py"],
   },
   {
     id: "ncep",
@@ -395,6 +403,7 @@ export const DATASETS = [
       ["carbone", "ourairports"],
       ["avions", "ourairports"],
       ["jets", "ourairports"],
+      ["cat", "ourairports"],
     ],
     what: "La position de chaque aéroport, complétée à la main pour les aéroports fermés, comme Berlin-Tegel, et pour les noms français.",
     period: "Fichier courant.",
@@ -424,6 +433,7 @@ export const DATASETS = [
     refs: [
       ["eu", "naturalearth"],
       ["sea", "naturalearth"],
+      ["cat", "naturalearth"],
     ],
     extra: [
       {
@@ -509,6 +519,7 @@ export const MODELS = [
   { refs: [["hf", "reason"]] },
   { refs: [["hf", "hfacs"]] },
   { refs: [["hf", "tem"]] },
+  { refs: [["cat", "ellrod"]] },
 ];
 
 /** The six accidents of "À la loupe": their report and what followed, each with its source. */
@@ -531,6 +542,7 @@ export const FACTS = [
   { issue: "jet", facts: Object.values(JET_FACTS) },
   { issue: "hf", facts: [...Object.values(HF_FACTS), ...caseFacts] },
   { issue: "jets", facts: Object.values(JETS_FACTS) },
+  { issue: "cat", facts: Object.values(CAT_FACTS) },
 ];
 
 /** A dataset's or a reference's own name and address, from the first story table it is in. */

@@ -223,6 +223,38 @@ export const TERMS = {
       d: "Le plus court chemin entre deux aéroports à la surface de la Terre. Un avion fait un peu plus, à cause des routes aériennes et du vent.",
     },
   ],
+  cat: [
+    {
+      re: rx("turbulence en air clair"),
+      t: "Turbulence en air clair",
+      d: "Des secousses qui frappent un avion loin de tout nuage, sans signe visible ni écho radar. Elle naît là où le vent change vite de force ou de direction, souvent au bord des courants-jets.",
+    },
+    {
+      re: rx("courants?-jets?"),
+      t: "Courant-jet",
+      d: "Un couloir de vent d'ouest très fort, vers 10 000 mètres d'altitude, qui fait le tour de la planète en ondulant. Il est plus fort l'hiver, quand l'écart de température entre le pôle et les tropiques se creuse.",
+    },
+    {
+      re: rx("réanalyses?"),
+      t: "Réanalyse",
+      d: "Une reconstitution du temps passé : un modèle météo rejoue chaque jour en avalant toutes les observations disponibles, stations, ballons-sondes, avions, satellites, pour donner un état complet de l'atmosphère partout.",
+    },
+    {
+      re: rx("cisaillement"),
+      t: "Cisaillement",
+      d: "La façon dont le vent change d'une altitude à une autre. Un fort cisaillement vertical fait naître des tourbillons, comme le vent sur l'eau fait naître des vagues.",
+    },
+    {
+      re: rx("niveaux? de vol"),
+      t: "Niveau de vol",
+      d: "Une altitude de croisière en centaines de pieds, mesurée sur la pression de l'air : le niveau 340 est à 34 000 pieds, environ 10 400 mètres.",
+    },
+    {
+      re: rx("indice d'Ellrod"),
+      t: "Indice d'Ellrod",
+      d: "Un indice de prévision de la turbulence en air clair, publié en 1992 : il multiplie le cisaillement vertical du vent par la façon dont le vent s'étire et se resserre à l'horizontale.",
+    },
+  ],
   jets: [
     {
       re: rx("OpenSky"),

@@ -7,8 +7,13 @@ pattern that must match: the card says what the story says, and fails loudly whe
 
 Serve web/dist on 127.0.0.1:4173, then: python3 web/scripts/linkedin_cards.py [--base URL] [--out DIR] [--only SLUG]
 Output: promo/out/linkedin/<slug>.png (not versioned).
+
+Micro cards (`"tpl": "micro"`): one number, one sentence, a hundred dots, the address; nothing to read twice.
+PW_CHROMIUM=/path/to/chrome points Playwright at an installed browser when its own is missing.
 """
 
+import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -49,6 +54,18 @@ def waffle(share, color, legend):
     )
     return f"""<div class="waffle"><svg viewBox="0 0 394 394" width="360" height="360">{cells}</svg>
       <p class="wl">{legend}</p></div>"""
+
+
+def dots(k, color, size=34, gap=8):
+    """A 10 x 10 grid of round dots, the first `k` coloured."""
+    step = size + gap
+    cells = "".join(
+        f'<circle cx="{(i % 10) * step + size / 2}" cy="{(i // 10) * step + size / 2}" r="{size / 2}" '
+        f'fill="{color if i < k else GREY}"/>'
+        for i in range(100)
+    )
+    side = 10 * step - gap
+    return f'<svg viewBox="0 0 {side} {side}" width="{side}" height="{side}">{cells}</svg>'
 
 
 def bars(rows, unit_note=""):
@@ -134,6 +151,192 @@ CARD = """
   <div class="foot"><span>Données : {src}</span><b>aviationdata.vercel.app/{slug}</b></div>
 </div>
 """
+
+
+MICRO = """
+<style>
+  html, body {{ margin: 0; background: {night}; }}
+  .li {{ box-sizing: border-box; width: 1080px; height: 1350px; padding: 60px 72px 52px; overflow: hidden;
+         display: flex; flex-direction: column; background: {night}; color: {ink};
+         font-family: "Archivo Variable", Archivo, system-ui, sans-serif; position: relative;
+         background-image: radial-gradient(circle at 85% 30%, #ff4fa833, transparent 45%),
+                           linear-gradient(#ffffff08 1px, transparent 1px),
+                           linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+         background-size: auto, 54px 54px, 54px 54px; }}
+  .top {{ display: flex; justify-content: space-between; align-items: center; font-size: 28px; color: {muted}; }}
+  .tag {{ padding: 10px 20px; border-radius: 999px; background: {accent}; color: {night}; font-weight: 800;
+          font-size: 26px; letter-spacing: 0.08em; text-transform: uppercase; }}
+  .mark {{ color: {ink}; }} .mark b {{ font-weight: 800; }}
+  h1 {{ margin: 46px 0 0; font-weight: 800; font-stretch: 70%; font-size: 96px; line-height: 0.98;
+        text-wrap: balance; letter-spacing: -0.005em; }}
+  h1 em {{ font-style: normal; color: {accent}; }}
+  .big {{ margin: 34px 0 0; display: flex; align-items: baseline; gap: 26px; }}
+  .big b {{ font-weight: 800; font-stretch: 66%; font-size: 220px; line-height: 0.78; color: {accent};
+            letter-spacing: -0.02em; }}
+  .big span {{ font-size: 42px; font-weight: 700; line-height: 1.1; max-width: 11em; }}
+  .viz {{ flex: 1; min-height: 0; display: flex; align-items: center; justify-content: space-between; gap: 40px;
+          margin: 26px 0; }}
+  .viz figure {{ margin: 0; display: grid; gap: 14px; justify-items: start; }}
+  .viz figcaption {{ font-size: 30px; font-weight: 700; color: {muted}; }}
+  .viz figcaption b {{ color: {accent}; }}
+  .kick {{ margin: 0; font: 600 38px/1.28 "Source Serif 4 Variable", Georgia, serif; text-wrap: pretty; }}
+  .kick b {{ color: {accent}; }}
+  .foot {{ margin-top: 30px; padding: 22px 28px; border-radius: 14px; background: {ink}; color: {night};
+           display: flex; justify-content: space-between; align-items: center; gap: 24px; font-size: 30px;
+           font-weight: 700; }}
+  .foot b {{ font-weight: 800; white-space: nowrap; }}
+  .src {{ margin: 14px 0 0; font-size: 22px; color: {muted}; }}
+</style>
+<div class="li">
+  <div class="top"><span class="tag">{tag}</span><span class="mark">aviation<b>data</b></span></div>
+  <h1>{headline}</h1>
+  <p class="big"><b>{big}</b><span>{bigsub}</span></p>
+  <div class="viz">{chart}</div>
+  <p class="kick">{kick}</p>
+  <div class="foot"><span>{cta}</span><b>aviationdata.vercel.app/{slug} →</b></div>
+  <p class="src">{src}</p>
+</div>
+"""
+
+JET_PINK = "#ff4fa8"  # magenta OACI on the night (--magenta-hi)
+PLANE = "M0 -14 L3 -5 L14 2 L14 5 L3 2 L2 10 L6 13 L6 15 L0 13 L-6 15 L-6 13 L-2 10 L-3 2 L-14 5 L-14 2 L-3 -5 Z"
+
+
+def shuttle(k):
+    """Paris and Geneva, one arc between them, `k` small jets along it: a picture of the daily shuttle."""
+    w, h = 936, 290
+    x0, x1, y, lift = 90, w - 90, 220, 150
+    planes = ""
+    for i in range(k):
+        t = (i + 0.5) / k
+        x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * (w / 2) + t * t * x1
+        yy = (1 - t) ** 2 * y + 2 * (1 - t) * t * (y - 2 * lift) + t * t * y
+        dx = 2 * (1 - t) * (w / 2 - x0) + 2 * t * (x1 - w / 2)
+        dy = 2 * (1 - t) * (-2 * lift) + 2 * t * (2 * lift)
+        ang = math.degrees(math.atan2(dy, dx)) + 90
+        planes += (
+            f'<path d="{PLANE}" fill="{JET_PINK}" '
+            f'transform="translate({x:.1f} {yy:.1f}) rotate({ang:.1f}) scale(1.9)"/>'
+        )
+    return f"""<svg viewBox="0 0 {w} {h}" width="{w}" height="{h}">
+      <path d="M{x0} {y} Q{w / 2} {y - 2 * lift} {x1} {y}" fill="none" stroke="{MUTED}" stroke-width="3"
+            stroke-dasharray="4 12" stroke-linecap="round"/>
+      <circle cx="{x0}" cy="{y}" r="14" fill="{INK}"/><circle cx="{x1}" cy="{y}" r="14" fill="{INK}"/>
+      <text x="{x0}" y="{y + 58}" fill="{INK}" font-size="36" font-weight="800" text-anchor="middle">Paris</text>
+      <text x="{x1}" y="{y + 58}" fill="{INK}" font-size="36" font-weight="800" text-anchor="middle">Genève</text>
+      {planes}</svg>"""
+
+
+def card_jets_geneve(t):
+    """The first business-jet route from France (chapter 4), and the short-hop share (chapter 3)."""
+    n = find(t, r"(\d+ \d{3}) vols en 2022 entre Paris-Le Bourget et Genève", "jets")
+    p = find(t, r"Volent-ils loin \? (\d+) % de leurs vols font moins de 500 km", "jets")
+    assert 35 <= num(p) < 40, p  # "4 sur 10"
+    per_day = int(num(n) / 365)
+    return {
+        "file": "jets-prives-micro-geneve",
+        "tpl": "micro",
+        "accent": JET_PINK,
+        "tag": "Jets privés",
+        "headline": "Paris – Genève en jet privé&nbsp;: <em>combien par jour&nbsp;?</em>",
+        "big": str(per_day),
+        "bigsub": f"par jour, toute l'année.<br>{n} vols en 2022.",
+        "chart": shuttle(per_day),
+        "kick": "Et <b>4 vols de jet privé sur 10</b> font moins de 500 km.",
+        "cta": "Lire l'enquête",
+        "src": "Vols suivis par le réseau OpenSky, Paris-Le Bourget – Genève, 2022. Calculs aviationdata.",
+    }
+
+
+def card_jets_court(t):
+    """Short hops: the share of business-jet flights under 500 km (chapter 3, figure 3)."""
+    p = find(t, r"Volent-ils loin \? (\d+) % de leurs vols font moins de 500 km", "jets")
+    air = find(t, r"Près de deux fois la part des avions de ligne, (\d+) %", "jets")
+    assert 35 <= num(p) < 40, p
+    return {
+        "file": "jets-prives-micro-court",
+        "tpl": "micro",
+        "accent": JET_PINK,
+        "tag": "Jets privés",
+        "headline": "Moins de 500 km&nbsp;? <em>On prend le jet.</em>",
+        "big": f"{p}&nbsp;%",
+        "bigsub": "des vols en jet privé font moins de 500&nbsp;km.",
+        "chart": f"""<figure>{dots(round(num(p)), JET_PINK, 26, 7)}
+          <figcaption><b>Jets privés</b> : {p} vols sur 100</figcaption></figure>
+          <figure>{dots(round(num(air)), MUTED, 26, 7)}
+          <figcaption>Avions de ligne : {air} sur 100</figcaption></figure>""",
+        "kick": "Près de <b>deux fois plus</b> qu'en avion de ligne.",
+        "cta": "Lire l'enquête",
+        "src": "Vols suivis par le réseau OpenSky au-dessus de l'Europe, 2022. Calculs aviationdata.",
+    }
+
+
+def card_jets_covid(t):
+    """The investigation's opening: business jets per hundred flights, 2019 against June 2020."""
+    a = find(t, r"(\d+) sur 100 en 2019", "jets")
+    b = find(t, r"(\d+) sur 100 en juin 2020", "jets")
+    k = find(t, r"En juin 2020, quand les avions de ligne restaient au sol, un sur (\d+)\.", "jets")
+    return {
+        "file": "jets-prives-micro-covid",
+        "tpl": "micro",
+        "accent": JET_PINK,
+        "tag": "Covid",
+        "headline": "Le monde est confiné.<br><em>Les jets privés volent.</em>",
+        "big": f"1/{k}",
+        "bigsub": "des vols au-dessus de l'Europe, en juin 2020.",
+        "chart": f"""<figure>{dots(int(a), MUTED, 26, 7)}<figcaption>2019 : {a} sur 100</figcaption></figure>
+          <figure>{dots(int(b), JET_PINK, 26, 7)}<figcaption><b>Juin 2020 : {b} sur 100</b></figcaption></figure>""",
+        "kick": "Ils volent moins qu'en 2019. Mais les avions de ligne, eux, sont <b>cloués au sol</b>.",
+        "cta": "Lire l'enquête",
+        "src": "Mêmes avions suivis par le réseau OpenSky en 2019 et 2020. Calculs aviationdata.",
+    }
+
+
+def card_cat(t, pg):
+    """Clear-air turbulence: the strongest conditions over the North Atlantic, decade against decade, and the
+    44 years as stripes (each year against the region's mean), from the page's own data file."""
+    strong = find(t, r"Les plus fortes, (\+\d+ %)", "turbulences")
+    all_ = find(t, r"(\+\d+ %) au-dessus de l'Atlantique Nord, de la décennie", "turbulences")
+    d0 = find(t, r"de la décennie (\d{4}-\d{4}) à la décennie \d{4}-\d{4}\. Les plus fortes", "turbulences")
+    d1 = find(t, r"de la décennie \d{4}-\d{4} à la décennie (\d{4}-\d{4})\. Les plus fortes", "turbulences")
+    pny = find(t, r"Et sur Paris – New York \? (\d+,\d %) du trajet", "turbulences")
+    annual = pg.evaluate(
+        "fetch(document.querySelector('meta[name=site-root]').content + 'data/cat/cat.json')"
+        ".then(r => r.json()).then(C => [C.meta.years, C.regions.atlantique.annual])"
+    )
+    years, vals = annual
+    m = sum(vals) / len(vals)
+
+    def col(v):  # blue (calmer) -> night paper -> magenta (more agitated), as the page's stripes
+        x = max(-1, min(1, (v / m - 1) / 0.3))
+        a, b = ((90, 162, 255), (255, 79, 168))
+        mid = (34, 58, 86)
+        c = b if x > 0 else a
+        k = abs(x)
+        return "rgb({},{},{})".format(*(round(mid[i] + (c[i] - mid[i]) * k) for i in range(3)))
+
+    w = 936 / len(vals)
+    stripes = "".join(
+        f'<rect x="{i * w:.2f}" y="0" width="{w + 0.6:.2f}" height="190" fill="{col(v)}"/>'
+        for i, v in enumerate(vals)
+    )
+    chart = f"""<figure style="width:100%"><svg viewBox="0 0 936 190" width="936" height="190">{stripes}</svg>
+      <figcaption style="display:flex;justify-content:space-between;width:100%"><span>{years[0]}</span>
+      <span>une bande par année, <b>magenta</b> = plus agitée</span><span>{years[-1]}</span></figcaption></figure>"""
+    return {
+        "file": "turbulences-micro",
+        "tpl": "micro",
+        "accent": JET_PINK,
+        "tag": "Turbulences",
+        "headline": "Le ciel clair secoue <em>de plus en plus.</em>",
+        "big": strong.replace(" %", "&nbsp;%"),
+        "bigsub": "de conditions propices aux fortes turbulences sur l'Atlantique Nord.",
+        "chart": chart,
+        "kick": f"De {d0} à {d1}. Toutes intensités : <b>{all_}</b>. "
+        f"Sur Paris – New York l'hiver, {pny} du trajet, sans un nuage.",
+        "cta": "Lire l'enquête",
+        "src": "Conditions propices, réanalyse ERA5 (Copernicus), indice d'Ellrod, niveau 340. Calculs aviationdata.",
+    }
 
 
 def card_hf(t):
@@ -342,10 +545,14 @@ STORIES = [
     ("le-ciel-a-deux-vitesses", card_ciel),
     ("modeles-d-avions", card_avions),
     ("modeles-d-avions", card_avions_retard),
+    ("turbulences", card_cat),
+    ("jets-prives", card_jets_geneve),
+    ("jets-prives", card_jets_court),
+    ("jets-prives", card_jets_covid),
 ]
 
 with sync_playwright() as pw:
-    browser = pw.chromium.launch()
+    browser = pw.chromium.launch(executable_path=os.environ.get("PW_CHROMIUM") or None)
     pg = browser.new_page(viewport={"width": 1440, "height": 900})
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     for slug, make in STORIES:
@@ -358,7 +565,8 @@ with sync_playwright() as pw:
         title = norm(pg.inner_text("h1"))
         no = find(norm(pg.inner_text(".issue-kicker")), r"Enquête n° (\d+)", slug)
         c = make(text, pg) if make.__code__.co_argcount == 2 else make(text)
-        html = CARD.format(night=NIGHT, ink=INK, muted=MUTED, rule=RULE, no=no, title=title, slug=slug, **c)
+        tpl = MICRO if c.pop("tpl", None) == "micro" else CARD
+        html = tpl.format(night=NIGHT, ink=INK, muted=MUTED, rule=RULE, no=no, title=title, slug=slug, **c)
         card = browser.new_page(viewport={"width": 1080, "height": 1350}, device_scale_factor=1)
         card.goto(base + "/", wait_until="networkidle")  # the site's fonts
         card.evaluate("h => { document.body.innerHTML = h; document.body.className = ''; }", html)
