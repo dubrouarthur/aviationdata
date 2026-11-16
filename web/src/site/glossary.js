@@ -223,6 +223,38 @@ export const TERMS = {
       d: "Le plus court chemin entre deux aéroports à la surface de la Terre. Un avion fait un peu plus, à cause des routes aériennes et du vent.",
     },
   ],
+  kero: [
+    {
+      re: rx("kérosène"),
+      t: "Kérosène",
+      d: "Le carburant des avions à réaction, tiré du pétrole brut dans les raffineries. Les avions de ligne en brûlent plusieurs tonnes par heure de vol.",
+    },
+    {
+      re: rx("raffineries?"),
+      t: "Raffinerie",
+      d: "Une usine qui chauffe et sépare le pétrole brut en produits : essence, gazole, kérosène, fioul. Le kérosène n'en est qu'une petite partie.",
+    },
+    {
+      re: rx("détroit d'Ormuz"),
+      t: "Détroit d'Ormuz",
+      d: "Le passage maritime, large d'une cinquantaine de kilomètres, entre l'Iran et la péninsule arabique, par où sortent les navires des ports du golfe Persique.",
+    },
+    {
+      re: rx("Brent"),
+      t: "Brent",
+      d: "Le pétrole brut de la mer du Nord, dont le prix sert de référence pour une grande partie du pétrole vendu dans le monde.",
+    },
+    {
+      re: rx("douanes?"),
+      t: "Douane",
+      d: "L'administration qui enregistre ce qui entre dans un pays et en sort : la nature de la marchandise, son poids, sa valeur et son pays d'origine.",
+    },
+    {
+      re: rx("embargo"),
+      t: "Embargo",
+      d: "L'interdiction d'acheter ou de vendre certaines marchandises à un pays, décidée par un État ou un groupe d'États.",
+    },
+  ],
   cat: [
     {
       re: rx("turbulence en air clair"),

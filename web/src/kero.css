@@ -1,0 +1,192 @@
+/* « D'où vient le kérosène des avions européens ? »: the flow maps, the gap, the stream, the shift, the grids.
+   The opening reuses the night and the side-by-side maps of cat.css (.tc-open, .tc-compare). Tokens: carte.css. */
+
+.kr-map {
+  aspect-ratio: auto;
+}
+
+.k-sea {
+  fill: #eef2f5;
+}
+
+.k-land {
+  fill: #dfe5ea;
+  stroke: rgba(20, 32, 46, 0.35);
+  stroke-width: 0.5;
+}
+
+.k-flow {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.82;
+}
+
+.k-flow:hover {
+  opacity: 1;
+}
+
+.k-eu {
+  fill: #14202e;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.k-lab {
+  font: 700 12px var(--f-ui);
+  fill: #14202e;
+  paint-order: stroke;
+  stroke: #eef2f5;
+  stroke-width: 3px;
+}
+
+.kr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 14px 0 6px;
+  font: 600 var(--t-sm) / 1.3 var(--f-ui);
+  color: var(--night-ink);
+}
+
+.kr-legend.light {
+  color: var(--ink);
+}
+
+.k-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.k-key i {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+.k-grid {
+  stroke: var(--ink);
+  stroke-opacity: 0.1;
+}
+
+.k-gap {
+  fill: var(--magenta);
+  opacity: 0.22;
+}
+
+.k-line {
+  fill: none;
+  stroke-width: 2.4;
+}
+
+.k-line.del {
+  stroke: var(--magenta);
+}
+
+.k-line.ref {
+  stroke: var(--blue);
+}
+
+.k-end {
+  font: 700 13px var(--f-ui);
+}
+
+.k-end.del {
+  fill: var(--magenta-text, var(--magenta));
+}
+
+.k-end.ref {
+  fill: var(--blue);
+}
+
+.k-mark {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.k-mark.light {
+  stroke: #fff;
+}
+
+.k-mark-t {
+  font: 700 12px var(--f-ui);
+  fill: var(--ink);
+}
+
+.k-mark-t.light {
+  fill: #fff;
+  paint-order: stroke;
+  stroke: rgba(20, 32, 46, 0.6);
+  stroke-width: 3px;
+}
+
+.k-band-t {
+  font: 700 12px var(--f-ui);
+  fill: var(--ink) !important;
+}
+
+.k-row {
+  font: 650 14px var(--f-ui);
+  fill: var(--ink);
+}
+
+.k-shift {
+  stroke-width: 3;
+  opacity: 0.55;
+}
+
+.k-dot-b {
+  fill: var(--paper, #f3f5f2);
+  stroke-width: 2.5;
+}
+
+.k-val {
+  font: 800 14px var(--f-ui);
+  fill: var(--ink);
+}
+
+.k-grids {
+  display: grid;
+  gap: 22px 28px;
+}
+
+@media (min-width: 720px) {
+  .k-grids {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .k-grids {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.k-country-h {
+  margin: 0 0 8px;
+  font: 800 var(--t-md, 1.1rem) / 1.2 var(--f-ui);
+  color: var(--ink);
+}
+
+.k-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.k-cell {
+  display: grid;
+  gap: 6px;
+}
+
+.k-cell span {
+  font: 600 var(--t-xs, 0.8rem) / 1.3 var(--f-ui);
+  color: var(--muted);
+}
+
+.k-hundred {
+  width: 100%;
+  max-width: 180px;
+}

@@ -20,6 +20,24 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "kero",
+    slug: "kerosene",
+    no: 11,
+    topic: "Énergie",
+    title: "D'où vient le kérosène des avions européens ?",
+    dek: "Ce que l'Europe raffine, ce qu'elle importe et de quels pays, mois par mois depuis 2015 : la moitié de son kérosène importé venait des pays du Golfe, jusqu'à la fermeture du détroit d'Ormuz. Données Eurostat, douanes et prix.",
+    published: "2026-11-16",
+    updated: "2026-11-16",
+    minutes: 10,
+    chapters: 7,
+    image: "og-kero.jpg",
+    cover: "70% 60%",
+    hook: "Qui fournit le kérosène de l'Europe depuis la fermeture d'Ormuz ?",
+    accent: "var(--magenta)",
+    sources: "Eurostat, EIA",
+    related: ["jet", "billet"],
+  },
+  {
     key: "cat",
     slug: "turbulences",
     no: 10,
