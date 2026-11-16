@@ -56,7 +56,7 @@ const moved = (r) =>
 
 export function writeOpening(F) {
   $("#tc-open-cap").textContent =
-    `Part du temps où l'indice d'Ellrod dépasse, au niveau de vol 340 (environ 10 400 m), le seuil des situations les plus fortes du globe (${pc(F.pctSev, 2)} des analyses), en moyenne sur chaque décennie, même échelle pour les deux cartes. En pointillés, Paris – New York. Heures de ciel très agité : le temps où le vent réunit ces conditions, en un point moyen de l'Atlantique Nord (40-65° N, 70-10° O).`;
+    `Part du temps où l'indice d'Ellrod dépasse, au niveau de vol 340 (environ 10 400 m), le seuil des situations les plus fortes du globe (${pc(F.pctSev, 2)} des analyses), en moyenne sur chaque décennie, même échelle pour les deux cartes. En pointillés, Paris – New York. Heures par an : le temps cumulé où l'air réunit ces conditions, en moyenne sur les points de l'Atlantique Nord (40-65° N, 70-10° O).`;
   const atl = F.atl;
   $("#open-dek").replaceChildren(
     rich([

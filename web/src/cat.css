@@ -187,3 +187,18 @@
 .tc-compare-legend .t-legend text {
   fill: var(--night-muted);
 }
+
+.tc-dec-h strong {
+  font-weight: 800;
+}
+
+.tc-read {
+  margin: 18px 0 6px;
+  max-width: 52rem;
+  font: 400 clamp(1.05rem, 1.6vw, 1.3rem) / 1.45 var(--f-text);
+  color: var(--night-ink);
+}
+
+.tc-read strong {
+  color: var(--magenta-hi);
+}

@@ -11,7 +11,7 @@ import { initSiteMenu } from "./site/menu.js";
 import { numberChapters, partContents, readingProgress, shareBlock, trackChapters } from "./site/story.js";
 import { storyGuide } from "./site/glossary.js";
 import { atlasFrame } from "./site/atlas.js";
-import { $, el, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
+import { $, el, rich, segmented, watchFrenchSpacing, scrollHints } from "./lib/ui.js";
 import { getJSON, safely } from "./court/page.js";
 import { addSourceLines } from "./court/sources.js";
 import { catFacts, SEASONS, SEASON_FR } from "./cat/facts.js";
@@ -64,7 +64,10 @@ async function main() {
     const head = (id, years, f, strong) =>
       $(id).replaceChildren(
         el("b", { text: `${years[0]}-${years[1]}` }),
-        el("span", { class: strong ? "up" : "", text: `${T.fmt.hrs(f)} de ciel très agité par an` }),
+        el("span", { class: strong ? "up" : "" }, [
+          "Fortes turbulences possibles : ",
+          el("strong", { text: `${T.fmt.hrs(f).replace(" heures", " h")} par an` }),
+        ]),
       );
     head("#tc-h0", D.first, atl.first, false);
     head("#tc-h1", D.last, atl.last, true);
@@ -77,6 +80,17 @@ async function main() {
         label: `Carte des conditions les plus fortes de turbulence en air clair, ${years[0]}-${years[1]}, Atlantique Nord, Europe et Amérique du Nord.`,
       });
     decadeLegend($("#tc-legend"), max);
+    const h0 = Math.round(atl.first * 8766);
+    const h1 = Math.round(atl.last * 8766);
+    $("#tc-read").replaceChildren(
+      rich([
+        "En un point de l'Atlantique Nord, à 10 400 mètres, l'air réunit les conditions de fortes turbulences ",
+        { b: `${h0} heures par an` },
+        ` au total en ${D.first[0]}-${D.first[1]}, et `,
+        { b: `${h1} aujourd'hui` },
+        h1 >= 23 && h1 <= 25 ? " : l'équivalent d'une journée entière." : ".",
+      ]),
+    );
   });
   safely("map", () =>
     freqMap($("#chart-map"), C, "annual", {

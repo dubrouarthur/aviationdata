@@ -317,12 +317,16 @@ def card_cat(t, pg):
     strong = find(t, r"Les plus fortes, (\+\d+ %)", "turbulences")
     pg.wait_for_selector("#tc-map1 canvas")
     maps = pg.evaluate("['#tc-map0', '#tc-map1'].map(s => document.querySelector(s + ' canvas').toDataURL('image/png'))")
-    heads = pg.evaluate("['#tc-h0', '#tc-h1'].map(s => [...document.querySelector(s).children].map(e => e.textContent))")
-    h = [find(norm(x[1]), r"(\d+) heures de ciel très agité par an", "turbulences") for x in heads]
-    chart = f"""<div class="d"><div class="dh"><b>{norm(heads[0][0])}</b><span><i>{h[0]}</i> h de ciel très agité par an</span></div>
-        <img src="{maps[0]}"></div>
-      <div class="d"><div class="dh"><b>{norm(heads[1][0])}</b><span class="hi"><i>{h[1]}</i> h par an, {strong}</span></div>
-        <img src="{maps[1]}"></div>"""
+    heads = pg.evaluate(
+        "['#tc-h0', '#tc-h1'].map(s => [...document.querySelector(s).children].map(e => e.textContent))"
+    )
+    h = [find(norm(x[1]), r"(\d+) h par an", "turbulences") for x in heads]
+    day = "une journée entière" if 23 <= int(h[1]) <= 25 else f"{h[1]} heures"
+    y0, y1 = norm(heads[0][0]), norm(heads[1][0])
+    chart = f"""<div class="d"><div class="dh"><b>{y0}</b>
+        <span>fortes turbulences possibles <i>{h[0]} h</i> par an</span></div><img src="{maps[0]}"></div>
+      <div class="d"><div class="dh"><b>{y1}</b>
+        <span class="hi"><i>{h[1]} h</i> par an, {strong}</span></div><img src="{maps[1]}"></div>"""
     return {
         "file": "turbulences-micro",
         "tpl": "duo",
@@ -330,7 +334,8 @@ def card_cat(t, pg):
         "tag": "Turbulences",
         "headline": "Pas un nuage. <em>Et pourtant, ça secoue de plus en plus.</em>",
         "chart": chart,
-        "kick": "Heures où le vent réunit, en un point de l'Atlantique Nord, les conditions des plus fortes turbulences. <b>Invisibles aux radars.</b>",
+        "kick": f"Le temps cumulé sur un an où l'air, en un point de l'Atlantique Nord à 10 400 m, "
+        f"est propice aux fortes turbulences. <b>Aujourd'hui : {day}.</b>",
         "cta": "Lire l'enquête",
         "src": "ERA5 (Copernicus), indice d'Ellrod. Calculs aviationdata.",
     }

@@ -234,7 +234,14 @@ with sync_playwright() as pw:
     D = C["decades"]
     sv = C["regions"]["atlantique"]["decadesSev"]
     for name, yrs, f in [("first", D["first"], sv["first"]), ("last", D["last"], sv["last"])]:
-        has(f"opening: {name} decade", f"{yrs[0]}-{yrs[1]} {hrs(f)} de ciel très agité par an", ".tc-open")
+        h = hrs(f).replace(" heures", " h")
+        has(f"opening: {name} decade", f"{yrs[0]}-{yrs[1]} Fortes turbulences possibles : {h} par an", ".tc-open")
+    has(
+        "opening: the reading sentence",
+        f"l'air réunit les conditions de fortes turbulences {round(sv['first'] * 8766)} heures par an au total "
+        f"en {D['first'][0]}-{D['first'][1]}, et {round(sv['last'] * 8766)} aujourd'hui",
+        "#tc-read",
+    )
     has(
         "answer",
         f"{chg(atl['change'])} de la décennie {dec0} à la décennie {dec1}, {chg(atl['sev'])} pour les plus fortes",
