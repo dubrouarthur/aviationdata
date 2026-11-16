@@ -647,3 +647,153 @@ export function regionStripes(node, rows, years, { label, fmtChange }) {
     },
   });
 }
+
+/**
+ * The opening: one map per year (5-year running mean, 3° cells) drawn as the change against the reference
+ * decade, white where nothing moved, magenta where the conditions became more frequent; the land outlines
+ * once over it. Returns show(i), which redraws frame i without rebuilding the canvas.
+ */
+export async function yearsMap(node, C, { label }) {
+  const Y = C.yearly;
+  const land = await loadLand();
+  const base = bytes(Y.base);
+  // each frame as the change against the reference, smoothed over the 3 x 3 neighbouring cells (longitudes wrap)
+  const ok = Array.from(base, (b) => b / Y.scale >= 0.002);
+  const frames = Y.maps.map((m) => {
+    const f = bytes(m);
+    const r = new Float32Array(f.length).fill(NaN);
+    f.forEach((v, n) => {
+      if (ok[n]) r[n] = v / base[n] - 1;
+    });
+    const out = new Float32Array(f.length).fill(NaN);
+    for (let i = 0; i < Y.nlat; i++)
+      for (let j = 0; j < Y.nlon; j++) {
+        if (!ok[i * Y.nlon + j]) continue;
+        let sum = 0;
+        let w = 0;
+        for (let di = -1; di <= 1; di++)
+          for (let dj = -1; dj <= 1; dj++) {
+            const ii = i + di;
+            if (ii < 0 || ii >= Y.nlat) continue;
+            const v = r[ii * Y.nlon + ((j + dj + Y.nlon) % Y.nlon)];
+            if (Number.isNaN(v)) continue;
+            const k = di || dj ? 1 : 2;
+            sum += v * k;
+            w += k;
+          }
+        out[i * Y.nlon + j] = sum / w;
+      }
+    return out;
+  });
+  node.replaceChildren();
+  node.setAttribute("aria-label", label);
+  const canvas = el("canvas", { "aria-hidden": "true" });
+  const box = el("div", { class: "t-map" }, [canvas]);
+  node.append(box);
+  let current = frames.length - 1;
+  let W = 0;
+  let H = 0;
+  let ctx = null;
+  let landImg = null;
+  const resize = (width) => {
+    W = Math.max(280, width);
+    H = Math.round(W * (126 / 360)); // 63 S to 63 N: the cruise routes, not the poles
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.width = "100%";
+    canvas.style.aspectRatio = `${W} / ${H}`;
+    ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // the land, drawn once per size on its own canvas
+    const off = document.createElement("canvas");
+    off.width = canvas.width;
+    off.height = canvas.height;
+    const o = /** @type {CanvasRenderingContext2D} */ (off.getContext("2d"));
+    o.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const proj = d3
+      .geoEquirectangular()
+      .scale(W / (2 * Math.PI))
+      .translate([W / 2, H / 2]);
+    o.beginPath();
+    d3.geoPath(proj, o)(land);
+    o.strokeStyle = "rgba(20, 32, 46, 0.6)";
+    o.lineWidth = 0.8;
+    o.stroke();
+    landImg = off;
+    show(current);
+  };
+  const show = (k) => {
+    current = k;
+    if (!ctx) return;
+    ctx.fillStyle = "#f3f5f2";
+    ctx.fillRect(0, 0, W, H);
+    const f = frames[k];
+    const cw = W / (360 / Y.step);
+    for (let i = 0; i < Y.nlat; i++) {
+      const la = Y.lat0 + i * Y.step;
+      if (Math.abs(la) > 64) continue;
+      const y = H / 2 - ((la + Y.step / 2) / 126) * H;
+      for (let j = 0; j < Y.nlon; j++) {
+        const r = f[i * Y.nlon + j];
+        if (Number.isNaN(r)) continue;
+        ctx.fillStyle = DIV(Math.max(0, Math.min(1, (r / 0.8 + 1) / 2)));
+        const lo = Y.lon0 + j * Y.step;
+        ctx.fillRect(W / 2 + ((lo - Y.step / 2) / 360) * W, y, cw + 0.6, (Y.step / 126) * H + 0.6);
+      }
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(landImg, 0, 0);
+    const dpr = canvas.width / W;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  onResize(box, resize);
+  resize(box.clientWidth || 900);
+  return { show, count: frames.length };
+}
+
+/** The North Atlantic line under the opening: hours a year, a dot on the year shown. */
+export function yearsLine(node, years, values, { label }) {
+  const W = 320;
+  const H = 96;
+  const M = { l: 6, r: 6, t: 10, b: 18 };
+  const X = d3
+    .scaleLinear()
+    .domain([0, years.length - 1])
+    .range([M.l, W - M.r]);
+  const Y = d3
+    .scaleLinear()
+    .domain([Math.min(...values), Math.max(...values)])
+    .nice()
+    .range([H - M.b, M.t]);
+  node.replaceChildren();
+  const s = d3
+    .select(node)
+    .append("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("width", "100%")
+    .attr("role", "img")
+    .attr("aria-label", label);
+  const line = d3
+    .line()
+    .x((_, i) => X(i))
+    .y((d) => Y(/** @type {number} */ (/** @type {unknown} */ (d))));
+  s.append("path").attr("class", "tc-line-all").attr("d", line(values));
+  const done = s.append("path").attr("class", "tc-line-done");
+  const dot = s.append("circle").attr("class", "tc-line-dot").attr("r", 5);
+  s.append("text")
+    .attr("class", "tc-line-t")
+    .attr("x", M.l)
+    .attr("y", H - 3)
+    .text(String(years[0]));
+  s.append("text")
+    .attr("class", "tc-line-t")
+    .attr("x", W - M.r)
+    .attr("y", H - 3)
+    .attr("text-anchor", "end")
+    .text(String(years.at(-1)));
+  return (k) => {
+    done.attr("d", line(values.slice(0, k + 1)));
+    dot.attr("cx", X(k)).attr("cy", Y(values[k]));
+  };
+}
