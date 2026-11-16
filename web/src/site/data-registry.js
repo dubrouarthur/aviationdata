@@ -16,9 +16,22 @@ import { CSOURCES } from "../carbone/sources.js";
 import { ASOURCES } from "../avions/sources.js";
 import { JPSOURCES, FACTS as JETS_FACTS } from "../jets/sources.js";
 import { TSOURCES, FACTS as CAT_FACTS } from "../cat/sources.js";
+import { KSOURCES, FACTS as KERO_FACTS } from "../kero/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
-export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES, avions: ASOURCES, jets: JPSOURCES, cat: TSOURCES };
+export const TABLES = {
+  eu: ESOURCES,
+  jet: JSOURCES,
+  hf: HSOURCES,
+  ciel: DGAC,
+  sea: SSOURCES,
+  billet: BSOURCES,
+  carbone: CSOURCES,
+  avions: ASOURCES,
+  jets: JPSOURCES,
+  cat: TSOURCES,
+  kero: KSOURCES,
+};
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
 const PUBLIC = { text: "domaine public" };
@@ -129,7 +142,8 @@ export const DATASETS = [
     title: "Liaisons aériennes de la France (avia_par_fr)",
     refs: [["carbone", "routes"]],
     what: "Pour chaque paire d'aéroports reliée à la France, chaque trimestre : passagers transportés, sièges offerts et vols commerciaux, dans les deux sens.",
-    period: "Trimestriel ; les deux dernières années complètes sur le site. Une liaison qui révélerait les chiffres d'une seule compagnie est confidentielle.",
+    period:
+      "Trimestriel ; les deux dernières années complètes sur le site. Une liaison qui révélerait les chiffres d'une seule compagnie est confidentielle.",
     terms: NOTICE_EUROSTAT,
     files: ["data/co2/liaisons.json"],
     etl: ["etl/co2/routes.py", "etl/co2/build_routes.py"],
@@ -360,13 +374,32 @@ export const DATASETS = [
     id: "eia",
     producer: "U.S. Energy Information Administration",
     title: "Prix spot du kérosène (côte du golfe du Mexique)",
-    refs: [["jet", "eia"]],
-    what: "Le prix du kérosène en dollars par gallon, chaque mois : un prix américain, un ordre de grandeur pour l'Europe.",
-    period: "Mensuel.",
+    refs: [
+      ["jet", "eia"],
+      ["kero", "eia"],
+    ],
+    what: "Le prix du kérosène en dollars par gallon, et celui du Brent en dollars par baril : des prix américains, un ordre de grandeur pour l'Europe.",
+    period: "Mensuel pour le courant-jet ; quotidien depuis 2024 pour le kérosène européen.",
     terms: PRODUCER,
-    files: ["data/jet/cost.json"],
-    etl: ["etl/jet/prices.py", "etl/jet/build_cost.py"],
-    checks: ["web/scripts/check_site.py"],
+    files: ["data/jet/cost.json", "data/kero/kero.json"],
+    etl: ["etl/jet/prices.py", "etl/jet/build_cost.py", "etl/kero/fetch_kero.py", "etl/kero/build_kero.py"],
+    checks: ["web/scripts/check_site.py", "web/scripts/check_kero.py"],
+  },
+  {
+    id: "eurostat-petrole",
+    producer: "Eurostat",
+    title: "Kérosène : importations par origine, bilan mensuel et douanes",
+    refs: [
+      ["kero", "imports"],
+      ["kero", "balance"],
+      ["kero", "comext"],
+    ],
+    what: "Le kérosène importé par chaque pays de l'Union et de quel pays, chaque mois ; ce que produisent les raffineries et ce qui est livré ; le poids et la valeur des cargaisons à la frontière.",
+    period: "Mensuel depuis 2015 (douanes depuis 2019).",
+    terms: NOTICE_EUROSTAT,
+    files: ["data/kero/kero.json"],
+    etl: ["etl/kero/fetch_kero.py", "etl/kero/build_kero.py"],
+    checks: ["web/scripts/check_kero.py"],
   },
   {
     id: "bce",
@@ -434,6 +467,7 @@ export const DATASETS = [
       ["eu", "naturalearth"],
       ["sea", "naturalearth"],
       ["cat", "naturalearth"],
+      ["kero", "naturalearth"],
     ],
     extra: [
       {
@@ -543,6 +577,7 @@ export const FACTS = [
   { issue: "hf", facts: [...Object.values(HF_FACTS), ...caseFacts] },
   { issue: "jets", facts: Object.values(JETS_FACTS) },
   { issue: "cat", facts: Object.values(CAT_FACTS) },
+  { issue: "kero", facts: Object.values(KERO_FACTS) },
 ];
 
 /** A dataset's or a reference's own name and address, from the first story table it is in. */

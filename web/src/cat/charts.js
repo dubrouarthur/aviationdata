@@ -239,6 +239,7 @@ export function heatmap(
     right = null,
     tipName = "Conditions propices",
     colEvery = null,
+    colMark = null,
   },
 ) {
   const draw = (width) => {
@@ -272,6 +273,13 @@ export function heatmap(
           .on("pointerleave", hideTip);
       }),
     );
+    if (colMark !== null)
+      s.append("line")
+        .attr("class", "k-mark")
+        .attr("x1", M.l + colMark * cw)
+        .attr("x2", M.l + colMark * cw)
+        .attr("y1", M.t - 4)
+        .attr("y2", M.t + ch * rows.length + 2);
     if (hiRow !== null)
       s.append("rect")
         .attr("class", "t-hi")
