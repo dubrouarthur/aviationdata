@@ -1,0 +1,16 @@
+{
+  "name": "aviationdata, l'avion expliqué par ses chiffres",
+  "short_name": "aviationdata",
+  "description": "Enquêtes en données ouvertes sur le transport aérien.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e1b2c",
+  "theme_color": "#0e1b2c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

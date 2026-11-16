@@ -1,3 +1,4 @@
+// @ts-check
 // The magazine's table of contents. One entry per investigation, newest first: the pages Vite builds
 // (vite.config.js), the shared masthead menu, footer, bylines and "read also" (partials.js), the
 // home page's list, the Atom feed and the sitemap all come from here.
@@ -18,6 +19,24 @@ export const SITE = {
 };
 
 export const ISSUES = [
+  {
+    key: "jets",
+    slug: "jets-prives",
+    no: 9,
+    topic: "Aviation d'affaires",
+    title: "Le ciel des jets privés",
+    dek: "Combien de jets privés au-dessus de l'Europe, pour quels trajets, à quelles saisons, et qui les fait voler ? Quatre ans de vols suivis par le réseau OpenSky, de 2019 à 2022, avant, pendant et après le Covid.",
+    published: "2026-11-16",
+    updated: "2026-11-16",
+    minutes: 12,
+    chapters: 8,
+    image: "og-jets.jpg",
+    cover: "92% 50%",
+    hook: "Où vont les jets privés, et pour combien de kilomètres ?",
+    accent: "var(--magenta)",
+    sources: "OpenSky Network",
+    related: ["avions", "carbone"],
+  },
   {
     key: "avions",
     slug: "modeles-d-avions",

@@ -55,7 +55,7 @@ export function addSourceLines(root = document) {
       href: linkedInShare(shareUrl(chapter?.id)),
       target: "_blank",
       rel: "noopener",
-      "aria-label": `Partager ce graphique sur LinkedIn${chapter ? ` (chapitre ${chapter.querySelector("h2")?.textContent.trim() || ""})` : ""}`,
+      "aria-label": `Partager sur LinkedIn ce graphique${chapter ? ` (chapitre ${chapter.querySelector("h2")?.textContent.trim() || ""})` : ""}`,
     });
     share.innerHTML = `${SHARE_ICON}<span>Partager sur LinkedIn</span>`;
     node.append(el("div", { class: "source-line" }, [el("p", {}, parts), share]));

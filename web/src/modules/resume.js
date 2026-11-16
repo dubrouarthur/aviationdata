@@ -1,3 +1,4 @@
+// @ts-check
 import { $, el } from "../lib/ui.js";
 import { shareUrl, linkedInShare } from "../lib/datasets.js";
 import { asset } from "../lib/site.js";

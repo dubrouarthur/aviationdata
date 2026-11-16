@@ -273,7 +273,6 @@ export function initPrices(data) {
     20,
     d3.min(panels, (s) => d3.min([...s.pIdx, ...s.tIdx])),
   );
-  const i19 = span.indexOf(2019);
   let animated = false;
 
   sNode.replaceChildren(

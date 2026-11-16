@@ -1,3 +1,4 @@
+// @ts-check
 // « Comparez deux avions »: two models side by side, each figure with a bar against the other model.
 // The choice lives in the address (?a=A20N&b=B38M#comparer), so a comparison can be shared.
 import { el } from "../lib/ui.js";

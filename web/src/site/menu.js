@@ -1,8 +1,10 @@
 // The "Sommaire" panel opened from the masthead of every page: the chapters of the story being read
 // (copied from its chapter bar, the current one marked), every investigation and the magazine's pages.
 import "./site.css";
+import { initChrome } from "./chrome.js";
 
 export function initSiteMenu() {
+  initChrome();
   const dialog = document.getElementById("site-menu");
   if (!dialog || typeof dialog.showModal !== "function") return;
   const root = document.documentElement;

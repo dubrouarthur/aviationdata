@@ -1,3 +1,4 @@
+// @ts-check
 // Airliners seen from above, drawn to scale from their length and wingspan (avions/dims.json: FAA,
 // Aircraft Characteristics Database). An original, schematic drawing: the fuselage, swept or straight
 // wings, the tailplane, the engines where they hang (under the wings, on the rear fuselage, one in the
@@ -103,6 +104,8 @@ const NS = "http://www.w3.org/2000/svg";
 /**
  * One drawing as an <svg>, `scale` pixels a metre (to scale with every other drawing at the same scale).
  * nose: "right" (default) or "up". The drawing is decorative unless `title` is given.
+ * @param {any} dims
+ * @param {{ kind?: string, scale?: number, nose?: string, color?: string, title?: string, cls?: string }} [opts]
  */
 export function planeSvg(
   dims,
@@ -113,8 +116,8 @@ export function planeSvg(
   const svg = document.createElementNS(NS, "svg");
   const [vw, vh] = up ? [span, len] : [len, span];
   svg.setAttribute("viewBox", up ? `${-span / 2} 0 ${span} ${len}` : `0 ${-span / 2} ${len} ${span}`);
-  svg.setAttribute("width", f(vw * scale));
-  svg.setAttribute("height", f(vh * scale));
+  svg.setAttribute("width", String(f(vw * scale)));
+  svg.setAttribute("height", String(f(vh * scale)));
   svg.setAttribute("class", `av-plane ${cls}`.trim());
   svg.style.setProperty("--pc", color);
   if (title) {

@@ -15,8 +15,13 @@
    this file sets the values they read and the shared components on top of them.
    ================================================================================================== */
 
-:root:root {
+:root:root,
+/* in the dark theme every figure stays a sheet of chart paper: its charts keep the light inks they were
+   drawn and checked with (see « Nuit » at the end of this file) */
+:root:root[data-theme="dark"] .panel:not(.dark-panel) {
   /* --- paper and ink (light, the reading ground) */
+  --seg-on: #fff;
+  --ink-read: color-mix(in srgb, var(--ink) 94%, var(--paper));
   --paper: #f3f5f2;
   --paper-2: #e7ece9;
   --card: #fbfcfb;
@@ -269,7 +274,7 @@
 :root:root .seg button[aria-pressed="true"] {
   background: var(--ink);
   border-color: var(--ink);
-  color: #fff;
+  color: var(--seg-on, #fff);
 }
 
 /* ------------------------------------------------------------------ the kicker: number and theme */
@@ -315,6 +320,35 @@
     100% 88px,
     88px 100%;
   background-position: center top;
+}
+
+/* the opening of the seasons is a night ground: its text, its controls and its calendar read in the
+   night's inks (they were left with the paper's, dark on night), in both themes */
+:root:root .sea-open,
+:root:root[data-theme="dark"] .sea-open .panel:not(.dark-panel) {
+  --ink: var(--night-ink);
+  --ink-2: #cdd8e2;
+  --ink-read: var(--night-ink);
+  --muted: var(--night-muted);
+  --rule: rgba(166, 182, 198, 0.3);
+  --rule-strong: rgba(166, 182, 198, 0.5);
+  --issue-accent: var(--magenta-hi);
+  --seg-on: var(--night);
+  color: var(--ink);
+}
+
+:root:root .sea-open .seg {
+  background: transparent;
+}
+
+/* a figure on a night opening stays on the night in the dark theme (no sheet of paper) */
+:root:root[data-theme="dark"] .sea-open .panel:not(.dark-panel) {
+  margin-inline: 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--ink);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
 /* the part band paints past the column with border-image: the graticule goes on its own layer */
@@ -531,5 +565,98 @@
 @media (prefers-reduced-motion: reduce) {
   :root:root .read-progress .rp-wpt {
     transition: none;
+  }
+}
+
+/* ==================================================================================================
+   Nuit — the dark theme (button in the masthead, else the system's choice; site/chrome.js).
+
+   The reading ground turns to night and the text to its light inks; each figure stays a sheet of chart
+   paper (the light tokens are set again on .panel, top of this file), like a chart on a desk at night.
+   The tokens change on <body>, not on <html>: charts that read their colours from the root in
+   JavaScript (getComputedStyle(document.documentElement)) keep the light inks of the paper they sit on.
+   ================================================================================================== */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  background: #08111b;
+}
+
+:root:root[data-theme="dark"] body {
+  --paper: #08111b;
+  --paper-2: #101c29;
+  --card: #0d1825;
+  --ink: #e6edf4;
+  --ink-2: #c5d1dd;
+  --muted: #9cadbf; /* 8.4:1 on the dark paper */
+  --rule: #223245;
+  --rule-strong: #3a4c61;
+  --grid: #172537;
+  --axis: #3a4c61;
+  --sea: #0d1a29;
+  --blue: #7db3f0;
+  --blue-text: #8fc0f5;
+  --blue-soft: #16304d;
+  --magenta: #f59ac8;
+  --magenta-text: #f7a8d0;
+  --magenta-soft: #3b1a2d;
+  --ochre: #f2b55a;
+  --teal: #5cd0b0;
+  --violet: #b9a6f2;
+  --focus: #f59ac8;
+  --issue-accent: var(--magenta-text);
+  --eu-accent: var(--magenta-text);
+  --ink-read: color-mix(in srgb, var(--ink) 94%, var(--paper));
+  --seg-on: var(--paper);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 28px rgba(0, 0, 0, 0.35);
+  /* the night bands sit a step above the dark paper, with their graticule */
+  --band: #0e1b2c;
+}
+
+/* a figure: a sheet of paper, its content box as wide as before (the sheet grows into the margin, so
+   charts keep their measured width when the theme changes) */
+:root:root[data-theme="dark"] .panel:not(.dark-panel) {
+  color-scheme: light; /* the native controls of a figure (selects, sliders) are drawn on its paper */
+  --sheet: clamp(10px, 1.6vw, 20px);
+  background: var(--paper);
+  color: var(--ink);
+  border-top: 0;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 18px 44px rgba(0, 0, 0, 0.38);
+}
+
+:root:root[data-theme="dark"] .panel:not(.dark-panel, .sim, .apt-card, .hf-tool-panel) {
+  margin-inline: calc(-1 * var(--sheet));
+  padding: var(--sheet) var(--sheet) calc(var(--sheet) * 0.8);
+}
+
+:root:root[data-theme="dark"] .panel:is(.sim, .apt-card, .hf-tool-panel) {
+  background: #ebf0ee;
+}
+
+/* focus on the night */
+:root:root[data-theme="dark"] :focus-visible {
+  outline-color: var(--focus);
+}
+
+:root:root[data-theme="dark"] img:not([src$=".svg"]) {
+  filter: brightness(0.94);
+}
+
+/* ==================================================================================================
+   Page transitions: going from one page of the magazine to another cross-fades, the masthead stays.
+   ================================================================================================== */
+/* the opt-in itself (@view-transition) is inline in every page's head (partials.js, VIEW_TRANSITION):
+   a page must declare it before its first paint, and this sheet loads later */
+@media (prefers-reduced-motion: no-preference) {
+  :root:root :is(.site-head, .masthead) {
+    view-transition-name: masthead;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.26s;
   }
 }

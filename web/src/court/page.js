@@ -1,3 +1,4 @@
+// @ts-check
 // What every page of the short format ("En 5 minutes") does: the masthead, the reading route, the flight
 // plan of its steps under the question, the glossary, the source lines and the share box. The article
 // itself only computes its facts and writes its words and charts (run).

@@ -1,0 +1,20 @@
+{
+  // Type checking of the JavaScript sources (no build step: Vite still compiles plain JS).
+  // JSDoc comments carry the types; `npm run typecheck` runs in CI. Adoption is file by file: a file is
+  // checked once it starts with `// @ts-check` (every new module does).
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src/**/*.js"],
+  "exclude": ["src/**/*.test.js", "dist", "node_modules"]
+}

@@ -1,3 +1,4 @@
+// @ts-check
 // Every number of « Combien de CO2 pour un vol en avion ? », from co2.json (DGAC: CO2 of commercial air
 // traffic in France, tonnes and grams per passenger-equivalent-kilometre, by segment, written by
 // etl/build.py) and co2/trajets.json (great-circle distances, etl/co2/build_trips.py).

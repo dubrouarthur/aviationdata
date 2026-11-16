@@ -1,7 +1,9 @@
+// @ts-check
 // Build-time partials: the pieces every page of the magazine shares (masthead menu, footer, byline,
 // "read also", the home page's lists), written into the HTML from issues.js so that they exist without
 // JavaScript and stay identical everywhere. Also writes the Atom feed, the sitemap and robots.txt.
 // Node only: imported by vite.config.js, never by the browser.
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, sep } from "node:path";
 import {
@@ -15,6 +17,7 @@ import {
   issueByKey,
   numbered,
 } from "./issues.js";
+import { buildIndex } from "./search-index.js";
 import {
   dataFacts,
   dataFiles,
@@ -39,7 +42,21 @@ const ICON_MENU =
 const ICON_CLOSE =
   '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 
+const ICON_SEARCH =
+  '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.4 12.4L17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+// a half-lit disc: the moon side shows in light mode, the sun side in dark mode (site/chrome.css)
+const ICON_THEME =
+  '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 3.8a6.2 6.2 0 0 1 0 12.4z" fill="currentColor"/></svg>';
+
 const NOT_FOUND = "404.html";
+
+// Runs in the head before the first paint: the reader's theme (saved, else the system's), so that a
+// dark page never flashes white. The masthead button changes it (site/chrome.js).
+// Page transitions: the opt-in must be there before the first paint of the arriving page, so it is inline
+// (a stylesheet loaded later makes the browser abort the transition, with an error in the console).
+const VIEW_TRANSITION = "@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }";
+
+const THEME_BOOT = `(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark"})()`;
 
 /** Where a page sits: its path back to the site root ("./" or "../") and the investigation it is, if any. */
 export function pageInfo(file, webRoot) {
@@ -54,7 +71,11 @@ export function pageInfo(file, webRoot) {
 const href = (root, slug, hash = "") => `${root === "./" ? "" : root}${slug}${hash ? `#${hash}` : ""}`;
 
 function menuButton() {
-  return `<button class="menu-open" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">${ICON_MENU}<span>Sommaire</span><b class="menu-where" aria-hidden="true"></b></button>`;
+  return `<div class="head-tools">
+          <button class="head-btn" type="button" data-search-open aria-haspopup="dialog" aria-label="Rechercher (⌘K)" title="Rechercher (⌘K)">${ICON_SEARCH}</button>
+          <button class="head-btn theme-btn" type="button" data-theme-toggle aria-pressed="false" aria-label="Mode sombre" title="Mode sombre">${ICON_THEME}</button>
+          <button class="menu-open" type="button" data-menu-open aria-haspopup="dialog" aria-controls="site-menu">${ICON_MENU}<span>Sommaire</span><b class="menu-where" aria-hidden="true"></b></button>
+        </div>`;
 }
 
 function menu({ root, issue, page }) {
@@ -239,7 +260,6 @@ function topics() {
 function issuesList({ root }) {
   // the investigations on the home page, each with its cover; the archive holds them all
   return ISSUES.filter((i) => i.format !== "court")
-    .slice(0, 6)
     .map(
       // a cover, as on a magazine rack: the investigation's own figure, its number and its title
       (i) => `<li class="shelf-item" style="--c: ${i.accent}; --pos: ${i.cover ?? "center"}">
@@ -283,7 +303,8 @@ function questionsList({ root }) {
 function latestList({ root }) {
   return ISSUES.slice(0, 5)
     .map(
-      (i) => `<li><a href="${href(root, i.slug)}">
+      (i, k) => `<li><a href="${href(root, i.slug)}">
+    <span class="lt-no">N° ${i.no}${k === 0 ? '<b class="lt-new">Nouveau</b>' : ""}</span>
     <span class="lt-q">${nobr(i.hook ?? i.title)}</span>
     <span class="lt-meta">${i.format === "court" ? "En 5 minutes" : `Enquête, ${i.minutes} minutes`} · ${esc(i.topic)}</span>
   </a></li>`,
@@ -433,6 +454,15 @@ ${entries}
 `;
 }
 
+/** search.json: the index of src/site/search-index.js, chapters read in each page's chapter bar. */
+export function searchJson(webRoot) {
+  const read = (slug) => {
+    const file = join(webRoot, slug, "index.html");
+    return existsSync(file) ? readFileSync(file, "utf8") : null;
+  };
+  return JSON.stringify(buildIndex(read));
+}
+
 export function sitemap(base) {
   const last = ISSUES.map((i) => i.updated)
     .sort()
@@ -461,6 +491,14 @@ export function sitePartials(webRoot, base) {
         return {
           html: renderPartials(html, info),
           tags: [
+            { tag: "script", children: THEME_BOOT, injectTo: "head-prepend" },
+            { tag: "style", children: VIEW_TRANSITION, injectTo: "head-prepend" },
+            { tag: "link", attrs: { rel: "manifest", href: `${info.root}manifest.webmanifest` }, injectTo: "head" },
+            {
+              tag: "link",
+              attrs: { rel: "apple-touch-icon", href: `${info.root}icons/apple-touch-icon.png` },
+              injectTo: "head",
+            },
             {
               tag: "link",
               attrs: {
@@ -477,11 +515,29 @@ export function sitePartials(webRoot, base) {
     },
     // Vite writes the page's scripts, styles and images relative ("./assets/...", "./og-eu.jpg"): from
     // /courant-jet/xyz they would miss, so the missing-address page asks for them from the root
-    writeBundle(options) {
+    writeBundle(options, bundle) {
       const file = join(options.dir, NOT_FOUND);
       if (existsSync(file)) writeFileSync(file, readFileSync(file, "utf8").replace(/(["(])\.\//g, "$1/"));
+      // the service worker's VERSION: a digest of this deployment's asset names, so that a new deployment
+      // empties the caches of the previous one (public/sw.js)
+      const sw = join(options.dir, "sw.js");
+      if (existsSync(sw)) {
+        const version = createHash("sha1").update(Object.keys(bundle).sort().join("\n")).digest("hex").slice(0, 10);
+        const src = readFileSync(sw, "utf8");
+        if (!src.includes('const VERSION = "dev";')) throw new Error("sw.js: VERSION line not found");
+        writeFileSync(sw, src.replace('const VERSION = "dev";', `const VERSION = "${version}";`));
+      }
+    },
+    // the search index, served in development as the build writes it
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (!req.url?.split("?")[0].endsWith("/search.json")) return next();
+        res.setHeader("Content-Type", "application/json");
+        res.end(searchJson(webRoot));
+      });
     },
     generateBundle() {
+      this.emitFile({ type: "asset", fileName: "search.json", source: searchJson(webRoot) });
       this.emitFile({ type: "asset", fileName: "feed.xml", source: feed(abs) });
       this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemap(abs) });
       this.emitFile({

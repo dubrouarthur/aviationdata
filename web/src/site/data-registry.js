@@ -1,3 +1,4 @@
+// @ts-check
 // Every dataset the magazine reads, every reference value and every dated fact, in one place: the data
 // page (/donnees) is written from here at build time (partials.js). Names and addresses come from each
 // story's own source table, so that a link is written once; src/site/data-registry.test.js fails if a
@@ -13,9 +14,10 @@ import { SSOURCES } from "../saisons/sources.js";
 import { BSOURCES } from "../billet/sources.js";
 import { CSOURCES } from "../carbone/sources.js";
 import { ASOURCES } from "../avions/sources.js";
+import { JPSOURCES, FACTS as JETS_FACTS } from "../jets/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
-export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES, avions: ASOURCES };
+export const TABLES = { eu: ESOURCES, jet: JSOURCES, hf: HSOURCES, ciel: DGAC, sea: SSOURCES, billet: BSOURCES, carbone: CSOURCES, avions: ASOURCES, jets: JPSOURCES };
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
 const PUBLIC = { text: "domaine public" };
@@ -249,27 +251,39 @@ export const DATASETS = [
     refs: [
       ["jet", "opensky"],
       ["avions", "opensky"],
+      ["jets", "opensky"],
     ],
-    what: "Les vols captés par le réseau de récepteurs d'OpenSky, avec le type de l'avion, ses aéroports de départ et d'arrivée et ses heures de premier et de dernier signal : ceux entre la France et l'Amérique du Nord pour le courant-jet, tous les avions de ligne pour la comparaison des modèles.",
-    period: "2019-2022 ; 2019 et 2022 pour les modèles.",
+    what: "Les vols captés par le réseau de récepteurs d'OpenSky, avec le type de l'avion, ses aéroports de départ et d'arrivée et ses heures de premier et de dernier signal : ceux entre la France et l'Amérique du Nord pour le courant-jet, tous les avions de ligne pour la comparaison des modèles, les jets d'affaires et les avions de ligne au-dessus de l'Europe pour les jets privés.",
+    period: "2019-2022 ; 2019 et 2022 pour les modèles ; chaque mois de 2019 à 2022 pour les jets privés.",
     terms: {
       text: "recherche et enseignement à but non lucratif ; seuls des agrégats sont publiés ici, sans aucun identifiant d'avion",
     },
-    files: ["data/jet/flights.json", "data/avions/monde.json"],
-    etl: ["etl/jet/opensky.py", "etl/avions/fetch.py", "etl/avions/build_world.py", "etl/avions/types_table.py"],
-    checks: ["web/scripts/check_site.py", "web/scripts/check_avions.py"],
+    files: ["data/jet/flights.json", "data/avions/monde.json", "data/jets/jets.json"],
+    etl: [
+      "etl/jet/opensky.py",
+      "etl/avions/fetch.py",
+      "etl/avions/build_world.py",
+      "etl/avions/types_table.py",
+      "etl/jets/fetch.py",
+      "etl/jets/build_jets.py",
+      "etl/jets/jets_table.py",
+    ],
+    checks: ["web/scripts/check_site.py", "web/scripts/check_avions.py", "web/scripts/check_jets.py"],
   },
   {
     id: "opensky-avions",
     producer: "The OpenSky Network",
     title: "Base des avions (aircraft database)",
-    refs: [["avions", "aircraft"]],
-    what: "Pour chaque transpondeur, l'immatriculation et le type de l'avion : elle donne le modèle d'un vol américain par son immatriculation, et celui d'un vol d'OpenSky quand sa liste ne le dit pas.",
+    refs: [
+      ["avions", "aircraft"],
+      ["jets", "aircraft"],
+    ],
+    what: "Pour chaque transpondeur, l'immatriculation et le type de l'avion : elle donne le modèle d'un vol américain par son immatriculation, et celui d'un vol d'OpenSky quand sa liste ne le dit pas ; pour les jets privés, l'immatriculation est comparée en mémoire à l'indicatif du vol.",
     period: "Version d'avril 2024.",
     terms: { text: "usage non commercial ; aucune immatriculation ni aucun identifiant n'est publié ici" },
-    files: ["data/avions/us.json", "data/avions/monde.json"],
-    etl: ["etl/avions/fetch.py", "etl/avions/build_us.py"],
-    checks: ["web/scripts/check_avions.py"],
+    files: ["data/avions/us.json", "data/avions/monde.json", "data/jets/jets.json"],
+    etl: ["etl/avions/fetch.py", "etl/avions/build_us.py", "etl/jets/fetch.py", "etl/jets/build_jets.py"],
+    checks: ["web/scripts/check_avions.py", "web/scripts/check_jets.py"],
   },
   {
     id: "faa-acd",
@@ -282,6 +296,18 @@ export const DATASETS = [
     files: ["data/avions/dims.json"],
     etl: ["etl/avions/fetch.py", "etl/avions/build_dims.py"],
     checks: ["web/scripts/check_avions.py"],
+  },
+  {
+    id: "icao-8643",
+    producer: "Organisation de l'aviation civile internationale (OACI)",
+    title: "Doc 8643, indicatifs de types d'avions",
+    refs: [["jets", "icao"]],
+    what: "Le code de chaque type d'avion, celui que portent les listes de vols, et sa catégorie de turbulence de sillage (léger, moyen, lourd), qui classe les jets d'affaires par masse au décollage.",
+    period: "Fichier diffusé par OpenSky avec sa base des avions (avril 2024).",
+    terms: PRODUCER,
+    files: ["data/jets/jets.json"],
+    etl: ["etl/jets/fetch.py", "etl/jets/build_jets.py", "etl/jets/jets_table.py"],
+    checks: ["web/scripts/check_jets.py"],
   },
   {
     id: "bts-ontime",
@@ -368,11 +394,19 @@ export const DATASETS = [
       ["sea", "ourairports"],
       ["carbone", "ourairports"],
       ["avions", "ourairports"],
+      ["jets", "ourairports"],
     ],
     what: "La position de chaque aéroport, complétée à la main pour les aéroports fermés, comme Berlin-Tegel, et pour les noms français.",
     period: "Fichier courant.",
     terms: PUBLIC,
-    files: ["data/eu/eu.json", "data/aeroports.json", "data/routes.json", "data/co2/trajets.json", "data/avions/monde.json"],
+    files: [
+      "data/eu/eu.json",
+      "data/aeroports.json",
+      "data/routes.json",
+      "data/co2/trajets.json",
+      "data/avions/monde.json",
+      "data/jets/jets.json",
+    ],
     alsoIn: ["ciel"],
     etl: [
       "etl/eu/eurostat.py",
@@ -496,6 +530,7 @@ export const FACTS = [
   { issue: "ciel", facts: Object.values(CIEL_FACTS) },
   { issue: "jet", facts: Object.values(JET_FACTS) },
   { issue: "hf", facts: [...Object.values(HF_FACTS), ...caseFacts] },
+  { issue: "jets", facts: Object.values(JETS_FACTS) },
 ];
 
 /** A dataset's or a reference's own name and address, from the first story table it is in. */

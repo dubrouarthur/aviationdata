@@ -1,3 +1,4 @@
+// @ts-check
 // Every number of « Le billet d'avion est-il plus cher ? », from two files only: prix.json (DGAC, IPTAP,
 // base 100 in 2023, prices of the trips of each month departing France) and billet/hicp.json (Eurostat,
 // harmonised consumer prices in France, 2015 = 100). Recomputed in Python by web/scripts/check_billet.py.

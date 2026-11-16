@@ -1,3 +1,4 @@
+// @ts-check
 // Sources of « Le ciel, modèle par modèle »: the OpenSky Network's flight lists (the same record as the
 // jet story) and aircraft database, the US Bureau of Transportation Statistics' on-time flights, airports.
 import { JSOURCES } from "../jet/sources.js";

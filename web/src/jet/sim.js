@@ -1,3 +1,4 @@
+// @ts-check
 // Flight simulator: a jet at a given Mach number through winds that change with time and altitude.
 // Port of etl/jet/sim.py, line for line; sim.test.js compares both on a fixture written by
 // build_jet.py. A day holds 6-hourly fields at three cruise levels: u, v (m/s), t (K).

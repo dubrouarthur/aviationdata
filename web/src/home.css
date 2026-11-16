@@ -423,7 +423,7 @@
   border: 0;
   border-radius: 999px;
   background: var(--c);
-  color: #fff;
+  color: var(--seg-on, #fff); /* white on magenta, the dark paper on the light magenta of the night */
   font: 700 0.95rem/1 var(--f-ui);
   cursor: pointer;
 }
@@ -1213,4 +1213,217 @@
 
 .lead-feature .lead-caption {
   color: var(--night-muted);
+}
+
+/* ==================================================================================================
+   Carte 2 — the home page modernised (November 2026): the opening over Europe's business-jet routes,
+   the latest questions as a board of departures, the lead story with its own figure, the covers in a
+   grid. Prefixed body.home to win over the shared sheets loaded after this one.
+   ================================================================================================== */
+
+body.home .home-open {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: min(86vh, 760px);
+  display: grid;
+  align-items: center;
+  background-image:
+    radial-gradient(80% 60% at 78% 40%, rgba(125, 179, 240, 0.12), transparent 70%),
+    radial-gradient(50% 50% at 15% 85%, rgba(245, 154, 200, 0.09), transparent 70%),
+    linear-gradient(var(--night-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--night-line) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    100% 88px,
+    88px 100%;
+}
+
+body.home .home-routes {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+@media (max-width: 979px) {
+  body.home .home-routes {
+    opacity: 0.45;
+  }
+}
+
+body.home .home-title {
+  max-width: 9.5em;
+  font-size: clamp(3rem, 7.4vw, 6.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+body.home .home-lede {
+  max-width: 34em;
+  font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+}
+
+/* the latest questions: a board of departures */
+body.home .home-latest {
+  padding: 18px 20px 6px;
+  border: 1px solid rgba(166, 182, 198, 0.22);
+  border-radius: 12px;
+  background: rgba(8, 17, 27, 0.5);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+body.home .hl-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(166, 182, 198, 0.22);
+}
+
+body.home .hl-title span {
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+body.home .latest-route li {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(166, 182, 198, 0.14);
+}
+
+body.home .latest-route li:last-child {
+  border-bottom: 0;
+}
+
+body.home .latest-route li::before,
+body.home .latest-route li::after {
+  display: none;
+}
+
+body.home .latest-route a {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  column-gap: 14px;
+  text-decoration: none;
+}
+
+body.home .lt-no {
+  grid-row: span 2;
+  padding-top: 2px;
+  color: var(--magenta-hi);
+  font: 800 0.95rem/1.2 var(--f-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+body.home .lt-new {
+  display: block;
+  width: fit-content;
+  margin-top: 6px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--magenta-hi);
+  color: var(--night);
+  font: 800 0.78rem/1.2 var(--f-ui);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+body.home .latest-route a:hover .lt-q,
+body.home .latest-route a:focus-visible .lt-q {
+  color: var(--magenta-hi);
+}
+
+/* the lead story */
+body.home .lead-jets {
+  background-color: var(--night);
+  background-image:
+    radial-gradient(70% 90% at 90% 20%, rgba(245, 154, 200, 0.14), transparent 70%),
+    linear-gradient(var(--night-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--night-line) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 64px,
+    64px 100%;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+body.home .lead-dots {
+  margin: 0;
+  color: var(--night-ink);
+}
+
+body.home .lead-dots-h {
+  margin: 0 0 14px;
+  font: 650 var(--t-sm) / 1.3 var(--f-ui);
+  color: var(--night-muted);
+}
+
+body.home .lead-dots .lead-caption {
+  margin-top: 14px;
+  color: var(--night-muted);
+}
+
+/* the covers: every investigation, in a grid */
+body.home .shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 28px 22px;
+}
+
+body.home .shelf-cover {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+body.home .shelf-img {
+  transition: transform 0.6s ease;
+}
+
+body.home .shelf-link:hover .shelf-cover,
+body.home .shelf-link:focus-visible .shelf-cover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(14, 27, 44, 0.22);
+}
+
+body.home .shelf-link:hover .shelf-img,
+body.home .shelf-link:focus-visible .shelf-img {
+  transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.home .shelf-cover,
+  body.home .shelf-img {
+    transition: none;
+  }
+}
+
+/* sections: an eyebrow rule with the triangle, the sign of a step */
+body.home main > .wrap > .home-h2::before {
+  content: "";
+  display: block;
+  width: 14px;
+  height: 12px;
+  margin-bottom: 14px;
+  background: var(--magenta);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+body.home .q-link,
+body.home .tools-list a {
+  transition: transform 0.2s ease;
+}
+
+body.home .q-link:hover,
+body.home .tools-list a:hover {
+  transform: translateY(-2px);
 }

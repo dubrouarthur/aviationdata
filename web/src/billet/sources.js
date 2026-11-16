@@ -1,3 +1,4 @@
+// @ts-check
 // Sources of « Le billet d'avion est-il plus cher ? »: the DGAC's airfare index (the same dataset as the
 // first investigation), the DGAC's monthly bulletin for its method, Eurostat's consumer prices.
 import { DATASETS as DGAC } from "../lib/datasets.js";
