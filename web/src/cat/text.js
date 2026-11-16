@@ -338,7 +338,9 @@ export function writeTendance(F) {
 
   // ------------------------------------------------------------ chapter 8: the change map, and why
   $("#h-evolution").textContent =
-    F.atl.vwsChange > 0.03 ? "Plus de vent qui change avec l'altitude" : "Un vent qui change peu, des conditions qui bougent";
+    F.atl.vwsChange > 0.03
+      ? "Plus de vent qui change avec l'altitude"
+      : "Un vent qui change peu, des conditions qui bougent";
   $("#evolution-prose").replaceChildren(
     p([
       `L'indice multiplie deux mesures du vent : sa variation avec l'altitude, le cisaillement, et son étirement à l'horizontale. Au-dessus de l'Atlantique Nord, le cisaillement moyen au niveau 340 ${moved(F.atl.vwsChange)} de ${F.first} à ${F.last}.`,
@@ -353,17 +355,19 @@ export function writeTendance(F) {
   );
   $("#evolution-after").replaceChildren(
     p([
-      "À l'échelle d'une case de 3°, l'évolution est bruitée : des hausses et des baisses se côtoient d'une case à l'autre. La tendance tient aux moyennes des grandes régions, qui réunissent des centaines de cases.",
+      `Sur ${pc(F.changeUp, 0)} des cases où ces conditions ne sont pas rares, elles sont plus fréquentes en ${F.span[1][0]}-${F.span[1][1]} qu'en ${F.span[0][0]}-${F.span[0][1]}. ${F.nh.change > 0 && F.sh.change > 0 ? ` Les deux hémisphères gagnent, ${F.sh.change > F.nh.change ? "le sud plus encore que le nord" : "le nord plus encore que le sud"}.` : ""}`,
     ]),
     p([
       `La vitesse moyenne du vent au-dessus de l'Atlantique Nord, elle, ${moved(F.atl.wsChange)}${
-        F.atl.vwsChange > F.atl.wsChange + 0.02 ? " : c'est le profil du vent, plus que sa force, qui change" : ""
+        F.atl.vwsChange > F.atl.wsChange + 0.02
+          ? " : c'est le profil du vent, plus que sa force, qui change"
+          : ""
       }.`,
     ]),
   );
   $("#evolution-aside").replaceChildren(
     rich([
-      "La recherche relie ce cisaillement plus fort au réchauffement : en altitude, l'air se réchauffe plus vite sous les tropiques qu'aux pôles, ce qui renforce le contraste de températures autour du courant-jet (Lee et al., 2019). Cette enquête mesure le vent ; elle n'en établit pas la cause.",
+      `Lee et al. (2019) mesurent une hausse de 15 % du cisaillement au cœur du courant-jet de l'Atlantique Nord, de 1979 à 2017, et la relient au réchauffement, plus rapide en altitude sous les tropiques. La moyenne de cette enquête, prise sur toute la région et entre deux niveaux plus espacés, ${moved(F.atl.vwsChange)} : la hausse tient aux situations les plus fortes, ${chg(F.atl.sevChange)}, plus qu'à la moyenne. Cette enquête mesure le vent ; elle n'en établit pas la cause.`,
     ]),
   );
 }

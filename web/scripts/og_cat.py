@@ -21,16 +21,23 @@ with sync_playwright() as p:
     page = browser.new_page(viewport={"width": 1200, "height": 900}, reduced_motion="reduce")
     page.goto(f"{base}/turbulences", wait_until="networkidle")
     page.wait_for_selector("#tc-open-map canvas")
-    page.add_style_tag(
-        content=".masthead, .tc-open .issue-kicker, .tc-open .open-q, .tc-open-cap { display: none !important; }"
-        " .tc-open { height: 630px; box-sizing: border-box; padding-block: 0 !important; overflow: hidden; position: relative; }"
-        " .tc-open-fig { position: absolute; inset: 0; margin: 0 !important; padding: 0 !important; max-width: none !important; }"
-        " .tc-open-map { border-radius: 0 !important; height: 630px; }"
-        " .tc-open-map canvas { height: 630px !important; width: auto !important; margin-left: -250px; }"
-        " .tc-open > .wrap { position: relative; z-index: 2; padding-top: 52px; }"
-        " .tc-open .display { font-size: 92px; max-width: 9ch; color: #14202e; background: rgba(243,245,242,.9); padding: 14px 22px; display: inline-block; }"
+    page.evaluate("window.dispatchEvent(new Event('resize'))")
+    page.wait_for_timeout(800)
+    # the winter map of the opening, drawn by the page, then the title over it on a page of its own
+    url = page.evaluate("document.querySelector('#tc-open-map canvas').toDataURL('image/png')")
+    title = page.inner_text("h1")
+    page.goto(f"{base}/", wait_until="networkidle")  # the site's fonts
+    page.evaluate(
+        "h => { document.body.innerHTML = h; document.body.className = ''; document.body.style.margin = 0; }",
+        f"""<div style="position:relative;width:1200px;height:630px;overflow:hidden;background:#f3f5f2">
+        <img src="{url}" style="position:absolute;left:-200px;top:-60px;width:1620px">
+        <div style="position:absolute;left:44px;bottom:48px;background:rgba(14,27,44,.94);color:#e8eef4;padding:20px 30px 24px;
+             font:800 76px/1 'Archivo Variable', Archivo, system-ui, sans-serif;font-stretch:72%;max-width:760px;letter-spacing:-.005em">{title}
+          <div style="font:600 26px/1.3 'Archivo Variable', Archivo, system-ui, sans-serif;color:#f59ac8;margin-top:14px">Turbulences en air clair, 1979-2022</div></div>
+        </div>""",
     )
-    page.wait_for_timeout(1200)
+    page.evaluate("document.fonts.ready")
+    page.wait_for_timeout(500)
     page.screenshot(path=str(out), clip={"x": 0, "y": 0, "width": 1200, "height": 630}, type="jpeg", quality=88)
     browser.close()
 print(f"{out.name}: {out.stat().st_size // 1024} KB")

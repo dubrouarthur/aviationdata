@@ -50,7 +50,7 @@ function sample() {
       { key: "CDG-JFK", label: "Paris – New York", annual: 0.02, seasons: { DJF: 0.03, JJA: 0.01 } },
       { key: "CDG-NRT", label: "Paris – Tokyo", annual: 0.01, seasons: { DJF: 0.008, JJA: 0.015 } },
     ],
-    change: { first: [2000, 2005], last: [2006, 2011] },
+    change: { first: [2000, 2005], last: [2006, 2011], values: "AIGC/w==" },
   };
 }
 
@@ -69,5 +69,6 @@ describe("catFacts", () => {
     expect(F.topLevel.fl).toBe(340);
   });
   it("reads Paris – New York", () => expect(F.pnyWinterOverSummer).toBeCloseTo(3));
+  it("counts the cells that gained, the hidden ones aside", () => expect(F.changeUp).toBeCloseTo(2 / 3));
   it("decodes the base64 maps", () => expect([...bytes("AAEC/w==")]).toEqual([0, 1, 2, 255]));
 });

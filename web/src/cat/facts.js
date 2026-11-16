@@ -157,6 +157,11 @@ export function catFacts(C) {
     atlMaxYear: years[atlYears.indexOf(Math.max(...atlYears))],
     span: [C.change.first, C.change.last],
     northLat,
+    // the change map: share of the cells compared that gained
+    changeUp: (() => {
+      const v = [...bytes(C.change.values)].filter((x) => x !== 255);
+      return v.filter((x) => x > 128).length / v.length;
+    })(),
     atlWinterOverSummer: atl.seasonClim.DJF / atl.seasonClim.JJA,
     hours: (/** @type {number} */ f) => f * 8766,
   };
