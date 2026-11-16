@@ -332,7 +332,8 @@ def card_cat(t, pg):
         "big": strong.replace(" %", "&nbsp;%"),
         "bigsub": "de conditions propices aux fortes turbulences sur l'Atlantique Nord.",
         "chart": chart,
-        "kick": f"De {d0} à {d1}. Toutes intensités : <b>{all_}</b>. Sur Paris – New York l'hiver, {pny} du trajet, sans un nuage.",
+        "kick": f"De {d0} à {d1}. Toutes intensités : <b>{all_}</b>. "
+        f"Sur Paris – New York l'hiver, {pny} du trajet, sans un nuage.",
         "cta": "Lire l'enquête",
         "src": "Conditions propices, réanalyse ERA5 (Copernicus), indice d'Ellrod, niveau 340. Calculs aviationdata.",
     }
