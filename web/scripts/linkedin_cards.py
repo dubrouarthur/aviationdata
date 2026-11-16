@@ -317,7 +317,8 @@ def card_cat(t, pg):
 
     w = 936 / len(vals)
     stripes = "".join(
-        f'<rect x="{i * w:.2f}" y="0" width="{w + 0.6:.2f}" height="190" fill="{col(v)}"/>' for i, v in enumerate(vals)
+        f'<rect x="{i * w:.2f}" y="0" width="{w + 0.6:.2f}" height="190" fill="{col(v)}"/>'
+        for i, v in enumerate(vals)
     )
     chart = f"""<figure style="width:100%"><svg viewBox="0 0 936 190" width="936" height="190">{stripes}</svg>
       <figcaption style="display:flex;justify-content:space-between;width:100%"><span>{years[0]}</span>
