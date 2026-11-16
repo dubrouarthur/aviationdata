@@ -3,6 +3,7 @@
 // "read also", the home page's lists), written into the HTML from issues.js so that they exist without
 // JavaScript and stay identical everywhere. Also writes the Atom feed, the sitemap and robots.txt.
 // Node only: imported by vite.config.js, never by the browser.
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, sep } from "node:path";
 import {
@@ -514,9 +515,18 @@ export function sitePartials(webRoot, base) {
     },
     // Vite writes the page's scripts, styles and images relative ("./assets/...", "./og-eu.jpg"): from
     // /courant-jet/xyz they would miss, so the missing-address page asks for them from the root
-    writeBundle(options) {
+    writeBundle(options, bundle) {
       const file = join(options.dir, NOT_FOUND);
       if (existsSync(file)) writeFileSync(file, readFileSync(file, "utf8").replace(/(["(])\.\//g, "$1/"));
+      // the service worker's VERSION: a digest of this deployment's asset names, so that a new deployment
+      // empties the caches of the previous one (public/sw.js)
+      const sw = join(options.dir, "sw.js");
+      if (existsSync(sw)) {
+        const version = createHash("sha1").update(Object.keys(bundle).sort().join("\n")).digest("hex").slice(0, 10);
+        const src = readFileSync(sw, "utf8");
+        if (!src.includes('const VERSION = "dev";')) throw new Error("sw.js: VERSION line not found");
+        writeFileSync(sw, src.replace('const VERSION = "dev";', `const VERSION = "${version}";`));
+      }
     },
     // the search index, served in development as the build writes it
     configureServer(server) {
