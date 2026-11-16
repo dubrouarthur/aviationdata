@@ -32,7 +32,7 @@ for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
 # every investigation, newest first (web/src/site/issues.js), and every page of the magazine
-SLUGS = ["modeles-d-avions", "co2-par-passager", "prix-des-billets", "calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
+SLUGS = ["jets-prives", "modeles-d-avions", "co2-par-passager", "prix-des-billets", "calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
 # the short format (« En 5 minutes »): their numbers are checked by check_billet.py and check_carbone.py
 COURT = ["co2-par-passager", "prix-des-billets"]
 PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes", "/donnees", "/design"]

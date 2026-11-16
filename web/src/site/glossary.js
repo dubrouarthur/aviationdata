@@ -223,6 +223,48 @@ export const TERMS = {
       d: "Le plus court chemin entre deux aéroports à la surface de la Terre. Un avion fait un peu plus, à cause des routes aériennes et du vent.",
     },
   ],
+  jets: [
+    {
+      re: rx("OpenSky"),
+      t: "OpenSky",
+      d: "Un réseau de récepteurs tenus par des bénévoles et des universités, qui captent les signaux que les avions émettent pour signaler leur position. Il publie les vols qu'il a suivis, pour la recherche.",
+    },
+    {
+      re: rx("jets? d'affaires"),
+      t: "Jet d'affaires",
+      d: "Un avion à réaction de quatre à vingt places environ, conçu pour transporter quelques passagers à la demande, sans ligne ni horaire publiés. Il peut être privé, d'entreprise, loué à l'heure, partagé ou d'État.",
+    },
+    {
+      re: rx("panel"),
+      t: "Panel d'avions",
+      d: "Une liste d'avions fixée une fois pour toutes, sur laquelle on compare les mois entre eux : ce qui change d'un mois à l'autre ne vient alors pas d'avions nouveaux dans les données.",
+    },
+    {
+      re: rx("mouvements?"),
+      t: "Mouvement",
+      d: "Un décollage ou un atterrissage. Un vol entre deux aéroports compte un mouvement dans chacun.",
+    },
+    {
+      re: rx("indicatifs?"),
+      t: "Indicatif",
+      d: "Le nom sous lequel un vol parle au contrôle aérien : l'immatriculation de l'avion, ou le code à trois lettres de la compagnie qui l'exploite suivi d'un numéro.",
+    },
+    {
+      re: rx("taxi aérien"),
+      t: "Taxi aérien",
+      d: "Le transport à la demande, par une société autorisée, de passagers qui louent un avion et son équipage pour un trajet.",
+    },
+    {
+      re: rx("multipropriété"),
+      t: "Multipropriété",
+      d: "Une formule où plusieurs clients achètent chacun une part d'un avion, et donc un nombre d'heures de vol par an ; la société qui gère la flotte fait voler les avions sous son code.",
+    },
+    {
+      re: rx("catégorie de turbulence"),
+      t: "Catégorie de turbulence de sillage",
+      d: "Le classement des avions par masse maximale au décollage que tient l'Organisation de l'aviation civile internationale : léger (moins de 7 tonnes), moyen, lourd. Il fixe les distances entre deux avions qui se suivent.",
+    },
+  ],
   avions: [
     {
       re: rx("OpenSky"),
