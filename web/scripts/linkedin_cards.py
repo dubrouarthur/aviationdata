@@ -7,8 +7,12 @@ pattern that must match: the card says what the story says, and fails loudly whe
 
 Serve web/dist on 127.0.0.1:4173, then: python3 web/scripts/linkedin_cards.py [--base URL] [--out DIR] [--only SLUG]
 Output: promo/out/linkedin/<slug>.png (not versioned).
+
+Micro cards (`"tpl": "micro"`): one number, one sentence, a hundred dots, the address; nothing to read twice.
+PW_CHROMIUM=/path/to/chrome points Playwright at an installed browser when its own is missing.
 """
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -49,6 +53,18 @@ def waffle(share, color, legend):
     )
     return f"""<div class="waffle"><svg viewBox="0 0 394 394" width="360" height="360">{cells}</svg>
       <p class="wl">{legend}</p></div>"""
+
+
+def dots(k, color, size=34, gap=8):
+    """A 10 x 10 grid of round dots, the first `k` coloured."""
+    step = size + gap
+    cells = "".join(
+        f'<circle cx="{(i % 10) * step + size / 2}" cy="{(i // 10) * step + size / 2}" r="{size / 2}" '
+        f'fill="{color if i < k else GREY}"/>'
+        for i in range(100)
+    )
+    side = 10 * step - gap
+    return f'<svg viewBox="0 0 {side} {side}" width="{side}" height="{side}">{cells}</svg>'
 
 
 def bars(rows, unit_note=""):
@@ -134,6 +150,89 @@ CARD = """
   <div class="foot"><span>Données : {src}</span><b>aviationdata.vercel.app/{slug}</b></div>
 </div>
 """
+
+
+MICRO = """
+<style>
+  html, body {{ margin: 0; background: {night}; }}
+  .li {{ box-sizing: border-box; width: 1080px; height: 1350px; padding: 64px 76px 56px; overflow: hidden;
+         display: flex; flex-direction: column; background: {night}; color: {ink};
+         font-family: "Archivo Variable", Archivo, system-ui, sans-serif; position: relative;
+         background-image: linear-gradient(#ffffff08 1px, transparent 1px),
+                           linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+         background-size: 54px 54px; }}
+  .li::before {{ content: ""; position: absolute; inset: 0 0 auto; height: 12px; background: {accent}; }}
+  .top {{ display: flex; justify-content: space-between; align-items: baseline; font-size: 28px; color: {muted}; }}
+  .mark {{ color: {ink}; }} .mark b {{ font-weight: 800; }}
+  .big {{ margin: 56px 0 0; font-weight: 800; font-stretch: 68%; font-size: 230px; line-height: 0.82; color: {accent};
+          letter-spacing: -0.01em; }}
+  h1 {{ margin: 22px 0 0; font-weight: 800; font-stretch: 72%; font-size: 68px; line-height: 1.02;
+        text-wrap: balance; }}
+  .viz {{ flex: 1; min-height: 0; display: flex; align-items: center; gap: 56px; margin: 34px 0 34px; }}
+  .viz.pair {{ justify-content: space-between; }}
+  .viz figure {{ margin: 0; display: grid; gap: 18px; justify-items: start; }}
+  .viz figcaption {{ font-size: 32px; font-weight: 650; color: {ink}; }}
+  .viz figcaption b {{ color: {accent}; font-weight: 800; }}
+  .viz figcaption.off b {{ color: {muted}; }}
+  .viz .side {{ font: 400 36px/1.3 "Source Serif 4 Variable", Georgia, serif; color: {ink}; }}
+  .viz .side b {{ display: block; font: 800 110px/0.9 "Archivo Variable", sans-serif; font-stretch: 70%;
+                  color: {muted}; margin-bottom: 12px; }}
+  .kick {{ margin: 0; padding: 22px 26px; border-left: 6px solid {accent}; background: #132d47;
+           font: 600 34px/1.3 "Source Serif 4 Variable", Georgia, serif; }}
+  .foot {{ margin-top: 30px; padding-top: 20px; border-top: 2px solid {rule}; display: flex;
+           justify-content: space-between; gap: 24px; font-size: 24px; color: {muted}; }}
+  .foot b {{ color: {ink}; font-weight: 700; white-space: nowrap; font-size: 28px; }}
+</style>
+<div class="li">
+  <div class="top"><span class="mark">aviation<b>data</b></span><span>Enquête n° {no}</span></div>
+  <p class="big">{big}</p>
+  <h1>{headline}</h1>
+  <div class="viz{pair}">{chart}</div>
+  <p class="kick">{kick}</p>
+  <div class="foot"><span>{src}</span><b>aviationdata.vercel.app/{slug}</b></div>
+</div>
+"""
+
+JET_PINK = "#ff4fa8"  # magenta OACI on the night (--magenta-hi)
+
+
+def card_jets_court(t):
+    """Short hops: the share of business-jet flights under 500 km (chapter 3, figure 3)."""
+    p = find(t, r"Volent-ils loin \? (\d+) % de leurs vols font moins de 500 km", "jets")
+    air = find(t, r"Près de deux fois la part des avions de ligne, (\d+) %", "jets")
+    n = find(t, r"(\d+ \d{3}) vols en 2022 entre Paris-Le Bourget et Genève", "jets")
+    assert 35 <= num(p) < 40, p  # "près de 4 sur 10"
+    per_day = int(num(n) / 365)
+    return {
+        "file": "jets-prives-micro-court",
+        "tpl": "micro",
+        "accent": JET_PINK,
+        "big": f"{p} %",
+        "headline": "des vols en jet privé font moins de 500 km",
+        "chart": f"""<figure>{dots(round(num(p)), JET_PINK, 30, 8)}
+          <figcaption><b>{p}</b> vols de jet sur 100</figcaption></figure>
+          <p class="side"><b>{air} %</b>pour les avions de ligne.<br>Près de deux fois moins.</p>""",
+        "kick": f"Paris-Le Bourget – Genève : {n} vols de jet privé en 2022, plus de {per_day} par jour.",
+        "src": "Vols suivis par OpenSky au-dessus de l'Europe, 2022",
+    }
+
+
+def card_jets_covid(t):
+    """The investigation's opening: business jets per hundred flights, 2019 against June 2020."""
+    a = find(t, r"(\d+) sur 100 en 2019", "jets")
+    b = find(t, r"(\d+) sur 100 en juin 2020", "jets")
+    return {
+        "file": "jets-prives-micro-covid",
+        "tpl": "micro",
+        "pair": " pair",
+        "accent": JET_PINK,
+        "big": f"{a} → {b}",
+        "headline": "jets privés sur 100 vols au-dessus de l'Europe, de 2019 à juin 2020",
+        "chart": f"""<figure>{dots(int(a), JET_PINK, 30, 8)}<figcaption class="off"><b>2019</b></figcaption></figure>
+          <figure>{dots(int(b), JET_PINK, 30, 8)}<figcaption><b>Juin 2020</b>, en plein Covid</figcaption></figure>""",
+        "kick": "Les avions de ligne sont restés au sol. Les jets privés, beaucoup moins.",
+        "src": "Mêmes avions suivis par OpenSky en 2019 et 2020",
+    }
 
 
 def card_hf(t):
@@ -342,10 +441,12 @@ STORIES = [
     ("le-ciel-a-deux-vitesses", card_ciel),
     ("modeles-d-avions", card_avions),
     ("modeles-d-avions", card_avions_retard),
+    ("jets-prives", card_jets_court),
+    ("jets-prives", card_jets_covid),
 ]
 
 with sync_playwright() as pw:
-    browser = pw.chromium.launch()
+    browser = pw.chromium.launch(executable_path=os.environ.get("PW_CHROMIUM") or None)
     pg = browser.new_page(viewport={"width": 1440, "height": 900})
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     for slug, make in STORIES:
@@ -358,7 +459,9 @@ with sync_playwright() as pw:
         title = norm(pg.inner_text("h1"))
         no = find(norm(pg.inner_text(".issue-kicker")), r"Enquête n° (\d+)", slug)
         c = make(text, pg) if make.__code__.co_argcount == 2 else make(text)
-        html = CARD.format(night=NIGHT, ink=INK, muted=MUTED, rule=RULE, no=no, title=title, slug=slug, **c)
+        c.setdefault("pair", "")
+        tpl = MICRO if c.pop("tpl", None) == "micro" else CARD
+        html = tpl.format(night=NIGHT, ink=INK, muted=MUTED, rule=RULE, no=no, title=title, slug=slug, **c)
         card = browser.new_page(viewport={"width": 1080, "height": 1350}, device_scale_factor=1)
         card.goto(base + "/", wait_until="networkidle")  # the site's fonts
         card.evaluate("h => { document.body.innerHTML = h; document.body.className = ''; }", html)
