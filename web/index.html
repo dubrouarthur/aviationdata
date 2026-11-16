@@ -53,6 +53,8 @@
     <main>
       <!-- the opening: what the magazine is, and the latest questions as the points of a route -->
       <section class="home-open" aria-labelledby="home-title">
+        <!-- behind the title: the busiest business-jet routes of Europe, flown (src/home/routes.js) -->
+        <div class="home-routes" id="home-routes" aria-hidden="true"></div>
         <div class="wrap home-open-grid">
           <div class="home-open-text">
             <p class="home-kicker">Le magazine des données du transport aérien</p>
@@ -68,7 +70,7 @@
             </p>
           </div>
           <nav class="home-latest" aria-labelledby="h-latest">
-            <h2 class="hl-title" id="h-latest">Les dernières questions</h2>
+            <h2 class="hl-title" id="h-latest"><span>Départs</span> Les dernières questions</h2>
             <ol class="latest-route">
               <!--site:latest-->
             </ol>
@@ -94,30 +96,25 @@
           Des dossiers complets, en chapitres, avec leurs outils à manipuler soi-même.
         </p>
         <!-- the newest investigation, with its own opening figure -->
-        <div class="lead-feature">
+        <div class="lead-feature lead-jets">
           <div class="lf-text">
-            <p class="lf-kicker">À la une</p>
-            <h3 class="lf-title"><a href="calendrier-du-ciel">Le calendrier du ciel</a></h3>
+            <p class="lf-kicker">À la une · N° 9</p>
+            <h3 class="lf-title"><a href="jets-prives">Le ciel des jets privés</a></h3>
             <p class="lf-dek">
-              Quand l'Europe prend-elle l'avion ? Partout en été, mais pas au même rythme : en Croatie, un jour
-              d'août compte sept fois plus de passagers qu'un jour de janvier, en Finlande à peine plus. Quinze
-              ans de données mensuelles d'Eurostat, pays par pays.
+              Combien de jets privés au-dessus de l'Europe, pour quels trajets, à quelles saisons, et qui les fait
+              voler ? Quatre ans de vols suivis par le réseau OpenSky, avant, pendant et après le Covid.
             </p>
             <p class="lf-actions">
-              <a class="btn primary" href="calendrier-du-ciel">Lire l'enquête</a>
-              <a class="btn" href="calendrier-du-ciel#calendrier">Ouvrir le calendrier</a>
+              <a class="btn primary" href="jets-prives">Lire l'enquête</a>
+              <a class="btn" href="jets-prives#distances">Leurs distances</a>
             </p>
           </div>
-          <figure class="lead-cal">
-            <div
-              class="chart cal-chart"
-              id="lead-cal"
-              role="img"
-              aria-label="Le calendrier des passagers aériens de trente pays européens en 2025 : chaque mois, en bleu s'il est creux, en orangé s'il est chargé."
-            ></div>
+          <figure class="lead-dots">
+            <p class="lead-dots-h">Sur cent vols suivis au-dessus de l'Europe, combien de jets d'affaires ?</p>
+            <div class="jp-open-big" id="lead-jets" role="group" aria-label="Part des jets d'affaires dans les vols suivis au-dessus de l'Europe, en 2019 et au printemps 2020."></div>
             <figcaption class="lead-caption" id="lead-caption">
-              Passagers par jour de chaque mois de 2025, rapportés à la moyenne de l'année : en bleu les mois
-              creux, en orangé les mois chargés. Source : Eurostat.
+              Vols au-dessus de l'Europe des avions que le réseau OpenSky suivait en 2019. Source : OpenSky
+              Network.
             </figcaption>
           </figure>
         </div>

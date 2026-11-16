@@ -260,7 +260,6 @@ function topics() {
 function issuesList({ root }) {
   // the investigations on the home page, each with its cover; the archive holds them all
   return ISSUES.filter((i) => i.format !== "court")
-    .slice(0, 6)
     .map(
       // a cover, as on a magazine rack: the investigation's own figure, its number and its title
       (i) => `<li class="shelf-item" style="--c: ${i.accent}; --pos: ${i.cover ?? "center"}">
@@ -304,7 +303,8 @@ function questionsList({ root }) {
 function latestList({ root }) {
   return ISSUES.slice(0, 5)
     .map(
-      (i) => `<li><a href="${href(root, i.slug)}">
+      (i, k) => `<li><a href="${href(root, i.slug)}">
+    <span class="lt-no">N° ${i.no}${k === 0 ? '<b class="lt-new">Nouveau</b>' : ""}</span>
     <span class="lt-q">${nobr(i.hook ?? i.title)}</span>
     <span class="lt-meta">${i.format === "court" ? "En 5 minutes" : `Enquête, ${i.minutes} minutes`} · ${esc(i.topic)}</span>
   </a></li>`,
