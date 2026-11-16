@@ -39,7 +39,8 @@ def chg(r):
 
 
 def hrs(f):
-    return f"{fr(round(f * 8766 / 5) * 5)} heures"
+    h = f * 8766
+    return f"{fr(round(h) if h < 50 else round(h / 5) * 5)} heures"
 
 
 WORDS = ["zéro", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"]

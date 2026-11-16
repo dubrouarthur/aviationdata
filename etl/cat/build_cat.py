@@ -262,22 +262,16 @@ out["change"] = {
     "values": b64(np.where(np.isnan(chg), 255, np.clip(np.round(chg * 100), -100, 126) + 128)),
 }
 
-# year after year, for the opening: each year's frequency on 3-degree cells, a 5-year running mean (fewer at
-# the ends) so that the trend shows through the weather of single years; byte = frequency x 2500
-fy = np.stack([blocks(exc[y, iL, :, k_mod].sum(0)) / (4 * steps[y].sum()) for y in range(NY)])  # [y, lat, lon]
-run = np.stack([fy[max(0, y - 2) : y + 3].mean(0) for y in range(NY)])
-out["yearly"] = {
-    "lat0": float(LAT[0] + 0.75),
-    "lon0": float(LON[0] + 0.75),
-    "step": 3.0,
-    "nlat": run.shape[1],
-    "nlon": run.shape[2],
-    "window": 5,
-    "scale": 2500,
-    "maps": [b64(np.clip(np.round(m * 2500), 0, 255)) for m in run],
-    # the reference, 1979-1988 (raw yearly means), for the change shown year after year
-    "base": b64(np.clip(np.round(fy[:10].mean(0) * 2500), 0, 255)),
-    "baseYears": [years[0], years[min(9, NY - 1)]],
+# the opening compares two decades side by side: the strongest conditions, 1.5-degree cells, byte = frequency x 30000
+D0, D1 = slice(0, min(10, NY)), slice(max(0, NY - 10), NY)
+out["decades"] = {
+    "first": [years[D0][0], years[D0][-1]],
+    "last": [years[D1][0], years[D1][-1]],
+    "scale": 30000,
+    "sev": {
+        "first": b64(np.clip(np.round(exc[D0, iL, :, k_sev].sum((0, 1)) / steps[D0].sum() * 30000), 0, 255)),
+        "last": b64(np.clip(np.round(exc[D1, iL, :, k_sev].sum((0, 1)) / steps[D1].sum() * 30000), 0, 255)),
+    },
 }
 
 # month x latitude, zonal means at 250 hPa, the whole period; and the North Atlantic sector (70-10 W)

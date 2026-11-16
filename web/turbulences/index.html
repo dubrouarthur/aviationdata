@@ -71,17 +71,18 @@
             plus en plus souvent ? Quarante-quatre ans de vents en altitude, de 1979 à 2022.
           </p>
         </div>
-        <figure class="wrap tc-open-fig" aria-labelledby="tc-open-cap">
-          <div class="tc-open-map" id="tc-open-map" role="img"></div>
-          <div class="tc-play">
-            <button type="button" class="tc-play-btn" id="tc-play" aria-label="Lecture">❚❚</button>
-            <p class="tc-year" id="tc-year" aria-live="polite"></p>
-            <input type="range" class="tc-range" id="tc-range" min="0" max="0" step="1" aria-label="Année" />
-            <div class="tc-spark">
-              <p class="tc-spark-h" id="tc-spark-h"></p>
-              <div id="tc-spark"></div>
+        <figure class="wrap tc-open-fig" id="tc-open-fig" aria-labelledby="tc-open-cap">
+          <div class="tc-compare">
+            <div class="tc-dec">
+              <p class="tc-dec-h" id="tc-h0"></p>
+              <div class="tc-dec-map" id="tc-map0" role="img" aria-label="Carte en cours de chargement" data-loading="Chargement…"></div>
+            </div>
+            <div class="tc-dec">
+              <p class="tc-dec-h" id="tc-h1"></p>
+              <div class="tc-dec-map" id="tc-map1" role="img" aria-label="Carte en cours de chargement" data-loading="Chargement…"></div>
             </div>
           </div>
+          <div class="tc-compare-legend" id="tc-legend"></div>
           <figcaption class="tc-open-cap" id="tc-open-cap"></figcaption>
         </figure>
       </section>

@@ -10,8 +10,11 @@ import { $, el, watchFrenchSpacing, scrollHints } from "../lib/ui.js";
 import { asset } from "../lib/site.js";
 import { addSourceLines } from "./sources.js";
 
+const BUILD = import.meta.env?.VITE_BUILD_ID;
+
+/** A data file of this deployment (?v= the build id, so that no earlier copy in the HTTP cache is used). */
 export const getJSON = (u) =>
-  fetch(asset(u)).then((r) => {
+  fetch(asset(u) + (BUILD ? `${u.includes("?") ? "&" : "?"}v=${BUILD}` : "")).then((r) => {
     if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`);
     return r.json();
   });
