@@ -51,6 +51,10 @@ const NOT_FOUND = "404.html";
 
 // Runs in the head before the first paint: the reader's theme (saved, else the system's), so that a
 // dark page never flashes white. The masthead button changes it (site/chrome.js).
+// Page transitions: the opt-in must be there before the first paint of the arriving page, so it is inline
+// (a stylesheet loaded later makes the browser abort the transition, with an error in the console).
+const VIEW_TRANSITION = "@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }";
+
 const THEME_BOOT = `(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark"})()`;
 
 /** Where a page sits: its path back to the site root ("./" or "../") and the investigation it is, if any. */
@@ -487,6 +491,7 @@ export function sitePartials(webRoot, base) {
           html: renderPartials(html, info),
           tags: [
             { tag: "script", children: THEME_BOOT, injectTo: "head-prepend" },
+            { tag: "style", children: VIEW_TRANSITION, injectTo: "head-prepend" },
             { tag: "link", attrs: { rel: "manifest", href: `${info.root}manifest.webmanifest` }, injectTo: "head" },
             {
               tag: "link",

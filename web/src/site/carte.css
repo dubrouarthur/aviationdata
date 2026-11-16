@@ -647,11 +647,9 @@
 /* ==================================================================================================
    Page transitions: going from one page of the magazine to another cross-fades, the masthead stays.
    ================================================================================================== */
+/* the opt-in itself (@view-transition) is inline in every page's head (partials.js, VIEW_TRANSITION):
+   a page must declare it before its first paint, and this sheet loads later */
 @media (prefers-reduced-motion: no-preference) {
-  @view-transition {
-    navigation: auto;
-  }
-
   :root:root :is(.site-head, .masthead) {
     view-transition-name: masthead;
   }
