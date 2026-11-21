@@ -32,7 +32,7 @@ for k in ("sim_stats", "history", "forecast"):  # optional: the page hides their
     f = ROOT / "public" / "data" / "jet" / f"{k}.json"
     J[k] = json.loads(f.read_text()) if f.exists() else None
 # every investigation, newest first (web/src/site/issues.js), and every page of the magazine
-SLUGS = ["retards", "kerosene", "turbulences", "jets-prives", "modeles-d-avions", "co2-par-passager", "prix-des-billets", "calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
+SLUGS = ["oiseaux", "retards", "kerosene", "turbulences", "jets-prives", "modeles-d-avions", "co2-par-passager", "prix-des-billets", "calendrier-du-ciel", "ciel-europeen", "facteur-humain", "courant-jet", "le-ciel-a-deux-vitesses"]
 # the short format (« En 5 minutes »): their numbers are checked by check_billet.py and check_carbone.py
 COURT = ["co2-par-passager", "prix-des-billets"]
 PAGES = ["/", *(f"/{s}" for s in SLUGS), "/a-propos", "/enquetes", "/donnees", "/design"]
@@ -197,16 +197,16 @@ with sync_playwright() as pw:
     latest = pg.eval_on_selector_all(".latest-route a", "as => as.map(a => a.getAttribute('href'))")
     check("home opens on the five latest questions", latest == SLUGS[:5], str(latest))
     pg.wait_for_timeout(800)
-    # the lead story's own figure (n° 12): its three opening numbers over the calendar of every day since
-    # 2014, the same as its story opens on; and the business-jet routes drawn behind the opening
-    pg.wait_for_selector("#lead-cal svg rect", timeout=15000)
+    # the lead story's own figure (n° 13): its three opening numbers over the year as a clock, the same as its
+    # story opens on; and the business-jet routes drawn behind the opening
+    pg.wait_for_selector("#lead-clock svg path", timeout=15000)
     lead = [norm(t) for t in pg.eval_on_selector_all("#lead-stats .ck-stat b", "bs => bs.map(b => b.textContent)")]
-    check("home lead shows three numbers over its calendar", len(lead) == 3, str(lead))
+    check("home lead shows three numbers over its clock", len(lead) == 3, str(lead))
     check("home lead draws the routes", pg.locator("#home-routes canvas").count() == 1)
     pg_story = browser.new_page()
-    pg_story.goto(f"{base}/retards", wait_until="networkidle")
-    pg_story.wait_for_selector("#rt-open-cal svg rect", timeout=15000)
-    story = [norm(t) for t in pg_story.eval_on_selector_all("#rt-open-stats .ck-stat b", "bs => bs.map(b => b.textContent)")]
+    pg_story.goto(f"{base}/oiseaux", wait_until="networkidle")
+    pg_story.wait_for_selector("#bd-open-clock svg path", timeout=15000)
+    story = [norm(t) for t in pg_story.eval_on_selector_all("#bd-open-stats .ck-stat b", "bs => bs.map(b => b.textContent)")]
     pg_story.close()
     check("home lead shows the story's numbers", lead == story, f"{lead} vs {story}")
     # four questions before reading: each answered, then every number of the question, of the answer and

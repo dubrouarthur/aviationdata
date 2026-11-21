@@ -18,6 +18,7 @@ import { JPSOURCES, FACTS as JETS_FACTS } from "../jets/sources.js";
 import { TSOURCES, FACTS as CAT_FACTS } from "../cat/sources.js";
 import { KSOURCES, FACTS as KERO_FACTS } from "../kero/sources.js";
 import { RSOURCES, FACTS as ATFM_FACTS } from "../atfm/sources.js";
+import { WSOURCES, FACTS as BIRD_FACTS } from "../birds/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
 export const TABLES = {
@@ -33,6 +34,7 @@ export const TABLES = {
   cat: TSOURCES,
   kero: KSOURCES,
   atfm: RSOURCES,
+  birds: WSOURCES,
 };
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
@@ -388,6 +390,18 @@ export const DATASETS = [
     checks: ["web/scripts/check_site.py", "web/scripts/check_kero.py"],
   },
   {
+    id: "faa-wildlife",
+    producer: "FAA",
+    title: "Impacts d'animaux déclarés par l'aviation civile américaine",
+    refs: [["birds", "nwsd"]],
+    what: "Chaque choc entre un aéronef civil et un animal déclaré à la FAA : date, heure, aéroport, hauteur, phase du vol, espèce, pièces touchées et dégâts.",
+    period: "Chaque impact déclaré depuis le 1er janvier 1990, mise à jour mensuelle.",
+    terms: PUBLIC,
+    files: ["data/birds/birds.json"],
+    etl: ["etl/birds/fetch_birds.py", "etl/birds/build_birds.py"],
+    checks: ["web/scripts/check_birds.py"],
+  },
+  {
     id: "eurocontrol-atfm",
     producer: "EUROCONTROL",
     title: "Retards ATFM en route par prestataire de navigation aérienne",
@@ -593,6 +607,7 @@ export const FACTS = [
   { issue: "cat", facts: Object.values(CAT_FACTS) },
   { issue: "kero", facts: Object.values(KERO_FACTS) },
   { issue: "atfm", facts: Object.values(ATFM_FACTS) },
+  { issue: "birds", facts: Object.values(BIRD_FACTS) },
 ];
 
 /** A dataset's or a reference's own name and address, from the first story table it is in. */

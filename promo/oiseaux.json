@@ -1,0 +1,111 @@
+{
+  "name": "oiseaux",
+  "fps": 30,
+  "size": [
+    1080,
+    1350
+  ],
+  "url": "aviationdata.vercel.app/oiseaux",
+  "author": "Arthur Dubrou",
+  "clips": {
+    "fence": {
+      "page": "https://www.pexels.com/video/commercial-airliner-taking-off-over-fence-37157735/",
+      "author": "Joolsmagools",
+      "file": "https://videos.pexels.com/video-files/37157735/15741357_1440_2560_30fps.mp4"
+    },
+    "gulls": {
+      "page": "https://www.pexels.com/video/birds-flying-18217550/",
+      "author": "Manoo Media",
+      "file": "https://videos.pexels.com/video-files/18217550/18217550-uhd_3840_2160_60fps.mp4"
+    },
+    "birdsunset": {
+      "page": "https://www.pexels.com/video/birds-flying-in-slow-motion-4457089/",
+      "author": "Nitesh Kamboj",
+      "file": "https://videos.pexels.com/video-files/4457089/4457089-hd_1920_1080_30fps.mp4"
+    },
+    "flock": {
+      "page": "https://www.pexels.com/video/flock-of-birds-flying-in-the-sky-4044339/",
+      "author": "Zoltan Szomoru",
+      "file": "https://videos.pexels.com/video-files/4044339/4044339-uhd_3840_2160_30fps.mp4"
+    },
+    "geese": {
+      "page": "https://www.pexels.com/video/birds-flying-on-a-clear-sky-8824697/",
+      "author": "Kindel Media",
+      "file": "https://videos.pexels.com/video-files/8824697/8824697-uhd_3840_2160_30fps.mp4"
+    },
+    "flocksun": {
+      "page": "https://www.pexels.com/video/bird-flying-on-sky-19400743/",
+      "author": "Asif khan",
+      "file": "https://videos.pexels.com/video-files/19400743/19400743-hd_1080_1920_25fps.mp4"
+    }
+  },
+  "beats": [
+    {
+      "id": "hook",
+      "dur": 3.8,
+      "clip": "fence",
+      "from": 5.5,
+      "cy": 0.5
+    },
+    {
+      "id": "day",
+      "dur": 3.8,
+      "clip": "gulls",
+      "from": 1.0,
+      "speed": 0.7,
+      "pan": [
+        0.35,
+        0.55
+      ]
+    },
+    {
+      "id": "clock",
+      "dur": 5.4,
+      "clip": "birdsunset",
+      "from": 2.0,
+      "speed": 0.8,
+      "pan": [
+        0.3,
+        0.6
+      ]
+    },
+    {
+      "id": "height",
+      "dur": 4.8,
+      "clip": "flock",
+      "from": 2.0,
+      "pan": [
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "id": "size",
+      "dur": 4.8,
+      "clip": "geese",
+      "from": 0.5,
+      "pan": [
+        0.35,
+        0.55
+      ]
+    },
+    {
+      "id": "reports",
+      "dur": 4.6,
+      "clip": "flocksun",
+      "from": 2.0,
+      "cy": 0.5
+    },
+    {
+      "id": "cta",
+      "dur": 4.8,
+      "clip": "birdsunset",
+      "from": 12.0,
+      "speed": 0.8,
+      "pan": [
+        0.5,
+        0.4
+      ]
+    }
+  ]
+}
