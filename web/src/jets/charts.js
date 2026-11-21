@@ -62,8 +62,19 @@ export function monthLines(
         .attr("text-anchor", "end")
         .text(tick(t));
     }
-    // a year: its January as a tick, its name under its middle
+    // a single year: each month named; several: each January as a tick, the year under its middle
+    const single = months.length <= 14;
     months.forEach((m, i) => {
+      if (single) {
+        if (narrow && i % 2) return;
+        s.append("text")
+          .attr("class", "c-tick")
+          .attr("x", X(i))
+          .attr("y", H - M.b + 18)
+          .attr("text-anchor", i === 0 ? "start" : "middle")
+          .text(MONTHS_SHORT[+m.slice(5) - 1] + (i === 0 || m.endsWith("-01") ? ` ${m.slice(0, 4)}` : ""));
+        return;
+      }
       if (m.endsWith("-01")) {
         s.append("line")
           .attr("class", "jp-year")

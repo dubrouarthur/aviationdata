@@ -1,3 +1,5 @@
+@import "./figures.css";
+
 /* Atlas aéronautique: the magazine's frame, loaded last on every page.
    - Figures sit on the page, not on cards: a rule, "Figure n", a title that states a finding, the chart,
      how to read it, and where its data come from (.source-line).
