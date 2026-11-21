@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Qui retarde les avions en Europe ? Vidéo LinkedIn</title>
+    <style>
+      /* A 1080x1350 (4:5) LinkedIn video for « Qui retarde les avions en Europe ? » (web/retards/). Free Pexels footage
+         (promo/retards.json, cut by reel_footage.py --config promo/retards.json) under one animated idea per beat,
+         readable without sound. Every number is computed from the investigation's own data file with its own code
+         (web/src/atfm/facts.js). Rendered frame by frame by render.py (window.ready, window.render(t)). */
+      @font-face {
+        font-family: "Archivo Variable";
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        src: url(../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2)
+          format("woff2-variations");
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+2000-206F, U+2212, U+00D7;
+      }
+      @font-face {
+        font-family: "Archivo Variable";
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        src: url(../web/src/fonts/nnbsp.woff) format("woff");
+        unicode-range: U+202F;
+      }
+      @font-face {
+        font-family: "Source Serif 4 Variable";
+        font-weight: 200 900;
+        src: url(../web/node_modules/@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2)
+          format("woff2-variations");
+      }
+      :root {
+        --night: #0b1522;
+        --ink: #f3f6f9;
+        --soft: rgba(243, 246, 249, 0.8);
+        --magenta: #ff4fa8;
+        --blue: #5aa2ff;
+        --grey: rgba(243, 246, 249, 0.28);
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--night);
+      }
+      #stage {
+        position: relative;
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        background: var(--night);
+        color: var(--ink);
+        font-family: "Archivo Variable", "Arial Narrow", sans-serif;
+      }
+      #bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform-origin: 50% 45%;
+      }
+      #tint {
+        position: absolute;
+        inset: 0;
+        background: var(--night);
+      }
+      #shade {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            to bottom,
+            rgba(6, 12, 20, 0.7) 0%,
+            rgba(6, 12, 20, 0) 22%
+          ),
+          linear-gradient(
+            to top,
+            rgba(6, 12, 20, 0.92) 0%,
+            rgba(6, 12, 20, 0.55) 34%,
+            rgba(6, 12, 20, 0) 62%
+          );
+      }
+      /* the story's progress, as in a story: one segment a beat */
+      #bars {
+        position: absolute;
+        top: 34px;
+        left: 56px;
+        right: 56px;
+        display: flex;
+        gap: 8px;
+      }
+      #bars i {
+        flex: 1;
+        height: 5px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.28);
+        overflow: hidden;
+      }
+      #bars i b {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: #fff;
+      }
+      #top {
+        position: absolute;
+        top: 64px;
+        left: 56px;
+        right: 56px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 30px;
+      }
+      .mark {
+        color: var(--ink);
+      }
+      .mark b {
+        font-weight: 800;
+      }
+      .tag {
+        padding: 9px 18px;
+        border-radius: 999px;
+        background: var(--magenta);
+        color: #fff;
+        font-weight: 800;
+        font-size: 24px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      #layer {
+        position: absolute;
+        inset: 0;
+      }
+      .bottom {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        bottom: 96px;
+      }
+      .kicker {
+        margin: 0 0 14px;
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--soft);
+      }
+      .h {
+        margin: 0;
+        font-weight: 800;
+        font-stretch: 70%;
+        font-size: 112px;
+        line-height: 0.98;
+        letter-spacing: -0.01em;
+      }
+      .h .m {
+        color: var(--magenta);
+      }
+      .big {
+        margin: 0;
+        font-weight: 800;
+        font-stretch: 66%;
+        font-size: 250px;
+        line-height: 0.85;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .big.m {
+        color: var(--magenta);
+      }
+      .line {
+        margin: 18px 0 0;
+        font:
+          600 46px/1.18 "Source Serif 4 Variable",
+          Georgia,
+          serif;
+        color: var(--ink);
+        max-width: 18em;
+      }
+      .note {
+        margin: 22px 0 0;
+        font-size: 26px;
+        color: var(--soft);
+      }
+      .w {
+        display: inline-block;
+        will-change: transform, opacity;
+      }
+      /* planes */
+      .planes {
+        display: grid;
+        grid-template-columns: repeat(9, 1fr);
+        gap: 14px;
+        margin-bottom: 34px;
+      }
+      .planes svg {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+      /* the clock */
+      .clock {
+        position: absolute;
+        left: 50%;
+        top: 330px;
+        width: 520px;
+        height: 520px;
+        margin-left: -260px;
+      }
+      /* the chart panel */
+      .panel {
+        position: absolute;
+        left: 56px;
+        right: 56px;
+        top: 170px;
+        padding: 30px 34px 26px;
+        border-radius: 18px;
+        background: rgba(8, 16, 27, 0.78);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+      .panel h3 {
+        margin: 0 0 6px;
+        font-weight: 800;
+        font-stretch: 72%;
+        font-size: 46px;
+        line-height: 1.02;
+      }
+      .panel p {
+        margin: 0 0 14px;
+        font-size: 24px;
+        color: var(--soft);
+      }
+      .panel svg text {
+        font-family: "Archivo Variable", sans-serif;
+        fill: var(--soft);
+        font-size: 22px;
+      }
+      #credit {
+        position: absolute;
+        right: 22px;
+        bottom: 14px;
+        font-size: 17px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .pill {
+        display: inline-block;
+        margin-top: 34px;
+        padding: 22px 32px;
+        border-radius: 16px;
+        background: var(--ink);
+        color: var(--night);
+        font-weight: 800;
+        font-size: 40px;
+      }
+      .author {
+        margin-top: 24px;
+        font-size: 28px;
+        color: var(--soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <img id="bg" alt="" />
+      <div id="tint"></div>
+      <div id="shade"></div>
+      <div id="layer"></div>
+      <div id="bars"></div>
+      <div id="top">
+        <span class="mark">aviation<b>data</b></span
+        ><span class="tag">Contrôle aérien</span>
+      </div>
+      <div id="credit">Vidéos : Pexels</div>
+    </div>
+    <script type="module">
+      import { atfmFacts } from "../web/src/atfm/facts.js";
+
+      const CFG = await fetch("retards.json").then((r) => r.json());
+      const A = await fetch("../web/public/data/atfm/atfm.json").then((r) =>
+        r.json(),
+      );
+      const F = atfmFacts(A);
+      const FPS = CFG.fps;
+      const $ = (s) => document.querySelector(s);
+      const fr = (v, d = 0) =>
+        v
+          .toLocaleString("fr-FR", {
+            minimumFractionDigits: d,
+            maximumFractionDigits: d,
+          })
+          .replace(/ | /g, " ");
+      const pad = (n) => String(n).padStart(4, "0");
+      // timing helpers: lin maps [a, b] to [0, 1]; easings
+      const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+      const outCubic = (x) => 1 - (1 - x) ** 3;
+      const outBack = (x) => 1 + 2.2 * (x - 1) ** 3 + 1.2 * (x - 1) ** 2;
+      const inOut = (x) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2);
+      /** an element rising into place between a and a + 0.45 s */
+      const rise = (el, u, a, dy = 40) => {
+        const g = outCubic(lin(u, a, a + 0.45));
+        el.style.opacity = g;
+        el.style.transform = `translateY(${(1 - g) * dy}px)`;
+      };
+
+      // ---------------------------------------------------------------- the numbers, from the investigation's data
+      const y = F.year;
+      const oneIn = Math.round(1 / F.delayed);
+      const ys = F.years;
+      const perYear = ys.map((k) => A.years[k].perFlight);
+      const months = Array.from(
+        { length: 12 },
+        (_, k) =>
+          A.months[`${y}-${String(k + 1).padStart(2, "0")}`].delay /
+          A.years[String(y)].delay,
+      );
+      const PLANE =
+        "M0 -14 L3 -5 L14 2 L14 5 L3 2 L2 10 L6 13 L6 15 L0 13 L-6 15 L-6 13 L-2 10 L-3 2 L-14 5 L-14 2 L-3 -5 Z";
+      const TILES = {
+        IE: [0, 2],
+        UK: [1, 2],
+        NO: [3, 0],
+        SE: [4, 0],
+        FI: [5, 0],
+        EE: [6, 0],
+        DK: [3, 1],
+        LT: [5, 1],
+        LV: [6, 1],
+        NL: [2, 2],
+        MU: [3, 2],
+        DE: [4, 2],
+        PL: [5, 2],
+        UA: [7, 2],
+        BE: [2, 3],
+        LU: [3, 3],
+        CZ: [4, 3],
+        SK: [5, 3],
+        MD: [7, 3],
+        FR: [2, 4],
+        CH: [3, 4],
+        AT: [4, 4],
+        HU: [5, 4],
+        RO: [6, 4],
+        PT: [0, 5],
+        ES: [1, 5],
+        IT: [3, 5],
+        SI: [4, 5],
+        HR: [5, 5],
+        RS: [6, 5],
+        BG: [7, 5],
+        MT: [3, 6],
+        AL: [5, 6],
+        MK: [6, 6],
+        GR: [6, 7],
+        TR: [8, 6],
+        CY: [8, 7],
+      };
+      const share = Object.fromEntries(F.byDelay.map((p) => [p.code, p.share]));
+
+      // ---------------------------------------------------------------- the beats
+      let t0 = 0;
+      const BEATS = CFG.beats.map((b) => {
+        const o = { ...b, start: t0 };
+        t0 += b.dur;
+        return o;
+      });
+      const TOTAL = t0;
+      $("#bars").innerHTML = BEATS.map(() => "<i><b></b></i>").join("");
+
+      const B = {
+        hook: {
+          html: `<div class="bottom">
+              <p class="h"><span class="w" id="h1">Votre avion est prêt.</span><br><span class="w m" id="h2">Il ne décolle pas.</span></p>
+              <p class="line w" id="h3">Le contrôle aérien n'a pas de place pour lui sur sa route.</p></div>`,
+          frame(u) {
+            rise($("#h1"), u, 0.15);
+            rise($("#h2"), u, 1.0);
+            rise($("#h3"), u, 1.9, 26);
+          },
+          tint: 0.15,
+        },
+        one: {
+          html: `<div class="bottom">
+              <p class="kicker w" id="k">En Europe, en ${y}</p>
+              <div class="planes" id="pl">${Array.from({ length: oneIn }, (_, i) => `<svg viewBox="-16 -16 32 32"><path d="${PLANE}" fill="#f3f6f9" data-i="${i}"/></svg>`).join("")}</div>
+              <p class="h"><span class="w" id="n">1 vol sur ${oneIn}</span></p>
+              <p class="line w" id="l">a attendu au sol un créneau du contrôle aérien.</p></div>`,
+          frame(u) {
+            rise($("#k"), u, 0.05, 20);
+            document.querySelectorAll("#pl path").forEach((p, i) => {
+              const g = outBack(lin(u, 0.25 + i * 0.07, 0.6 + i * 0.07));
+              const last = i === oneIn - 1;
+              const stop = lin(u, 1.6, 1.9);
+              p.setAttribute(
+                "transform",
+                `translate(${last ? 0 : 0} ${(1 - g) * 26}) rotate(90)`,
+              );
+              p.style.opacity = Math.min(1, g) * (last ? 1 : 1 - 0.55 * stop);
+              p.setAttribute("fill", last && stop > 0 ? "#ff4fa8" : "#f3f6f9");
+            });
+            rise($("#n"), u, 1.7);
+            rise($("#l"), u, 2.2, 24);
+          },
+          tint: 0.3,
+        },
+        wait: {
+          html: `<svg class="clock" viewBox="-130 -130 260 260">
+              <circle r="112" fill="rgba(8,16,27,.72)" stroke="rgba(255,255,255,.22)" stroke-width="6"/>
+              <path id="arc" fill="none" stroke="#ff4fa8" stroke-width="14" stroke-linecap="round"/>
+              ${Array.from({ length: 12 }, (_, k) => `<line x1="0" y1="-98" x2="0" y2="-88" stroke="rgba(255,255,255,.5)" stroke-width="3" transform="rotate(${k * 30})"/>`).join("")}
+              <line id="hand" x1="0" y1="10" x2="0" y2="-80" stroke="#f3f6f9" stroke-width="6" stroke-linecap="round"/>
+              <circle r="8" fill="#f3f6f9"/></svg>
+            <div class="bottom">
+              <p class="big m w" id="n">0 min</p>
+              <p class="line w" id="l">d'attente en moyenne pour chacun de ces vols.</p></div>`,
+          frame(u) {
+            const g = inOut(lin(u, 0.2, 2.2));
+            const m = F.perDelayed * g;
+            $("#n").textContent = `${fr(Math.round(m))} min`;
+            $("#n").style.opacity = lin(u, 0.1, 0.4);
+            const a = (m / 60) * 2 * Math.PI;
+            const r = 112;
+            $("#arc").setAttribute(
+              "d",
+              a > 0.001
+                ? `M0 ${-r} A${r} ${r} 0 ${a > Math.PI ? 1 : 0} 1 ${r * Math.sin(a)} ${-r * Math.cos(a)}`
+                : "",
+            );
+            $("#hand").setAttribute("transform", `rotate(${(m / 60) * 360})`);
+            $(".clock").style.opacity = lin(u, 0, 0.3);
+            rise($("#l"), u, 2.0, 24);
+          },
+          tint: 0.45,
+        },
+        trend: {
+          html: `<div class="panel w" id="p"><h3>Le retard par vol a plus que doublé</h3>
+              <p>Minutes d'attente par vol en Europe, chaque année, tous vols confondus</p>
+              <svg viewBox="0 0 900 470" width="900" height="470" id="ch"></svg></div>
+            <div class="bottom"><p class="big m w" id="n">× ${fr(F.ratio, 1)}</p>
+              <p class="line w" id="l">de retard par vol en ${y}, comparé à 2014-2017.</p></div>`,
+          build() {
+            const W = 900,
+              H = 470,
+              L = 50,
+              R = 40,
+              T = 20,
+              Bm = 44;
+            const X = (i) => L + (i / (ys.length - 1)) * (W - L - R);
+            const max = Math.ceil(Math.max(...perYear) * 2) / 2;
+            const Y = (v) => H - Bm - (v / max) * (H - Bm - T);
+            let s = "";
+            for (let v = 0; v <= max; v += 0.5)
+              s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(255,255,255,${v ? 0.12 : 0.4})" stroke-dasharray="${v ? "3 6" : ""}"/><text x="${L - 10}" y="${Y(v) + 7}" text-anchor="end">${fr(v, 1)}</text>`;
+            ys.forEach(
+              (k, i) =>
+                (i % 2 === 0 || i === ys.length - 1) &&
+                (s += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle">${k}</text>`),
+            );
+            const d = perYear
+              .map((v, i) => `${i ? "L" : "M"}${X(i)},${Y(v)}`)
+              .join("");
+            s += `<path id="ln" d="${d}" fill="none" stroke="#ff4fa8" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>`;
+            s += `<circle id="dot" r="11" fill="#ff4fa8" stroke="#0b1522" stroke-width="4"/>`;
+            s += `<text id="covid" x="${X(ys.indexOf("2020"))}" y="${Y(perYear[ys.indexOf("2020")]) + 44}" text-anchor="middle" style="fill:#f3f6f9;font-weight:700">Covid</text>`;
+            $("#ch").innerHTML = s;
+            this.pts = perYear.map((v, i) => [X(i), Y(v)]);
+          },
+          frame(u) {
+            rise($("#p"), u, 0.05, 30);
+            const ln = $("#ln");
+            const len = ln.getTotalLength();
+            const g = inOut(lin(u, 0.4, 2.6));
+            ln.style.strokeDasharray = `${len}`;
+            ln.style.strokeDashoffset = `${len * (1 - g)}`;
+            const pt = ln.getPointAtLength(len * g);
+            $("#dot").setAttribute("cx", pt.x);
+            $("#dot").setAttribute("cy", pt.y);
+            $("#covid").style.opacity = lin(u, 1.6, 1.9);
+            rise($("#n"), u, 2.5);
+            rise($("#l"), u, 2.9, 24);
+          },
+          tint: 0.55,
+        },
+        summer: {
+          html: `<div class="panel w" id="p"><h3>Tout se joue l'été</h3><p>Part des minutes de retard de ${y}, mois par mois</p>
+              <svg viewBox="0 0 900 360" width="900" height="360" id="ch"></svg></div>
+            <div class="bottom"><p class="big m w" id="n">${fr(Math.round(F.summerDelay * 100))} %</p>
+              <p class="line w" id="l">du retard tombe en juin, juillet et août.</p></div>`,
+          build() {
+            const W = 900,
+              H = 360,
+              Bm = 44,
+              T = 16;
+            const max = Math.max(...months);
+            const bw = W / 12;
+            let s = "";
+            const MO = [
+              "janv",
+              "févr",
+              "mars",
+              "avr",
+              "mai",
+              "juin",
+              "juil",
+              "août",
+              "sept",
+              "oct",
+              "nov",
+              "déc",
+            ];
+            months.forEach((v, k) => {
+              const hi = k >= 5 && k <= 7;
+              s += `<rect class="mb" data-h="${(v / max) * (H - Bm - T)}" x="${k * bw + 8}" width="${bw - 16}" y="${H - Bm}" height="0" rx="6" fill="${hi ? "#ff4fa8" : "#5aa2ff"}" opacity="${hi ? 1 : 0.75}"/>`;
+              s += `<text x="${k * bw + bw / 2}" y="${H - 10}" text-anchor="middle" style="${hi ? "fill:#f3f6f9;font-weight:800" : ""}">${MO[k]}</text>`;
+            });
+            $("#ch").innerHTML = s;
+          },
+          frame(u) {
+            rise($("#p"), u, 0.05, 30);
+            document.querySelectorAll("#ch .mb").forEach((r, k) => {
+              const g = outCubic(lin(u, 0.4 + k * 0.08, 0.95 + k * 0.08));
+              const h = +r.dataset.h * g;
+              r.setAttribute("height", h);
+              r.setAttribute("y", 360 - 44 - h);
+            });
+            rise($("#n"), u, 2.0);
+            rise($("#l"), u, 2.4, 24);
+          },
+          tint: 0.55,
+        },
+        where: {
+          html: `<div class="panel w" id="p" style="top:160px"><h3>Un pays en porte plus du tiers</h3><p>Part des minutes de retard d'Europe attribuée à chaque contrôle national, ${y}</p>
+              <svg viewBox="0 0 900 640" width="900" height="560" id="ch"></svg></div>
+            <div class="bottom"><p class="big m w" id="n">${fr(Math.round(F.fr.share * 100))} %</p>
+              <p class="line w" id="l">du retard d'Europe est attribué au contrôle aérien français.</p></div>`,
+          build() {
+            const S = 92;
+            let s = "";
+            const max = F.byDelay[1].share;
+            for (const [c, [x, yy]] of Object.entries(TILES)) {
+              const v = share[c] ?? 0;
+              const fr_ = c === "FR";
+              const a = Math.min(1, v / max);
+              const col = fr_
+                ? "#ff4fa8"
+                : `rgba(90,162,255,${0.12 + 0.8 * a})`;
+              s += `<g class="tile" data-o="${(x + yy) * 0.04}" transform="translate(${70 + x * S},${yy * S + 4})"><rect width="${S - 8}" height="${S - 8}" rx="9" fill="${col}"/><text x="10" y="30" style="fill:#f3f6f9;font-weight:800;font-size:22px">${c === "MU" ? "MUAC" : c}</text>${v >= 0.04 ? `<text x="10" y="${S - 22}" style="fill:#f3f6f9;font-weight:800;font-size:26px">${fr(Math.round(v * 100))} %</text>` : ""}</g>`;
+            }
+            $("#ch").innerHTML = s;
+          },
+          frame(u) {
+            rise($("#p"), u, 0.05, 30);
+            document.querySelectorAll("#ch .tile").forEach((g) => {
+              const isFr = g.innerHTML.includes(">FR<");
+              const a = outBack(lin(u, 0.3 + +g.dataset.o, 0.7 + +g.dataset.o));
+              const pop = isFr
+                ? 1 + 0.18 * Math.sin(Math.PI * lin(u, 1.5, 2.1))
+                : 1;
+              g.style.opacity = Math.min(1, a);
+              g.style.transformBox = "fill-box";
+              g.style.transformOrigin = "center";
+              g.style.scale = `${Math.max(0, a) * pop}`;
+            });
+            rise($("#n"), u, 2.0);
+            rise($("#l"), u, 2.4, 24);
+          },
+          tint: 0.6,
+        },
+        cta: {
+          html: `<div class="bottom" style="bottom:110px">
+              <p class="kicker w" id="k">Pourquoi ? Quand ? Où ?</p>
+              <p class="h w" id="h">Qui retarde les avions en Europe ?</p>
+              <p class="line w" id="l">Toute l'enquête, jour par jour depuis 2014, d'après les données d'EUROCONTROL.</p>
+              <span class="pill w" id="u">${CFG.url} →</span>
+              <p class="author w" id="a">Une enquête en données de ${CFG.author}</p></div>`,
+          frame(u) {
+            rise($("#k"), u, 0.1, 20);
+            rise($("#h"), u, 0.45);
+            rise($("#l"), u, 1.1, 24);
+            rise($("#u"), u, 1.7, 24);
+            rise($("#a"), u, 2.1, 16);
+          },
+          tint: 0.42,
+        },
+      };
+
+      let built = null;
+      function build(b) {
+        built = b.id;
+        $("#layer").innerHTML = B[b.id].html;
+        B[b.id].build?.();
+      }
+      async function setImg(img, src) {
+        if (img.getAttribute("src") === src) return;
+        img.setAttribute("src", src);
+        await img.decode().catch(() => {});
+      }
+
+      async function render(t) {
+        let k = BEATS.findIndex((b) => t < b.start + b.dur);
+        if (k < 0) k = BEATS.length - 1;
+        const b = BEATS[k];
+        const u = t - b.start;
+        if (built !== b.id) build(b);
+        const f = Math.min(
+          Math.round(b.dur * FPS) - 1,
+          Math.floor(u * FPS + 1e-6),
+        );
+        const load = setImg(
+          $("#bg"),
+          `out/${CFG.name}/bg/${b.id}/${pad(f)}.jpg`,
+        );
+        // a slow push in on the footage, a dip to night at each cut
+        $("#bg").style.transform =
+          `scale(${1.08 - 0.08 * inOut(lin(u, 0, b.dur))})`;
+        const cut = 1 - outCubic(lin(u, 0, 0.3));
+        const out =
+          k < BEATS.length - 1
+            ? inOut(lin(u, b.dur - 0.25, b.dur))
+            : lin(u, b.dur - 0.5, b.dur);
+        $("#tint").style.opacity = Math.min(
+          1,
+          B[b.id].tint + 0.75 * Math.max(cut, out),
+        );
+        $("#layer").style.opacity = 1 - out;
+        B[b.id].frame(u);
+        document.querySelectorAll("#bars b").forEach((el, i) => {
+          el.style.width = `${i < k ? 100 : i > k ? 0 : lin(u, 0, b.dur) * 100}%`;
+        });
+        await load;
+        await document.fonts.ready;
+      }
+
+      window.render = render;
+      window.ready = (async () => {
+        await document.fonts.ready;
+        return { total: TOTAL, fps: FPS };
+      })();
+    </script>
+  </body>
+</html>

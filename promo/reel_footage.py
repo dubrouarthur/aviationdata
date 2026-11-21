@@ -4,7 +4,7 @@ The clips are free Pexels videos (licence: https://www.pexels.com/license/), lis
 authors in reel.json. They are downloaded to promo/out/footage/ (not versioned: the repository
 must not redistribute them) and cut to promo/out/reel/bg/<beat>/0000.jpg ...
 
-    python3 promo/reel_footage.py [--only hook,cta]
+    python3 promo/reel_footage.py [--only hook,cta] [--config promo/retards.json]
 """
 
 import json
@@ -15,11 +15,13 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-REEL = json.loads((ROOT / "reel.json").read_text(encoding="utf-8"))
+# --config promo/retards.json cuts another reel's footage, into promo/out/<its name>/bg/
+CONFIG = Path(sys.argv[sys.argv.index("--config") + 1]) if "--config" in sys.argv else ROOT / "reel.json"
+REEL = json.loads(CONFIG.read_text(encoding="utf-8"))
 FPS = REEL["fps"]
 W, H = REEL["size"]
 FOOTAGE = ROOT / "out" / "footage"
-BG = ROOT / "out" / "reel" / "bg"
+BG = ROOT / "out" / REEL.get("name", "reel") / "bg"
 only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
 
 

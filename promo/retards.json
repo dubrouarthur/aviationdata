@@ -1,0 +1,110 @@
+{
+  "name": "retards",
+  "fps": 30,
+  "size": [
+    1080,
+    1350
+  ],
+  "url": "aviationdata.vercel.app/retards",
+  "author": "Arthur Dubrou",
+  "clips": {
+    "sunsetland": {
+      "page": "https://www.pexels.com/video/airplane-landing-at-sunset-with-vibrant-sky-34508450/",
+      "author": "BAE JUN",
+      "file": "https://videos.pexels.com/video-files/34508450/14620831_1440_2560_30fps.mp4"
+    },
+    "emptygate": {
+      "page": "https://www.pexels.com/video/empty-airport-gate-under-cloudy-sky-35434987/",
+      "author": "Numan Gilgil",
+      "file": "https://videos.pexels.com/video-files/35434987/15012781_1440_2560_30fps.mp4"
+    },
+    "fids": {
+      "page": "https://www.pexels.com/video/flight-information-display-at-modern-airport-37130582/",
+      "author": "K",
+      "file": "https://videos.pexels.com/video-files/37130582/15730062_2560_1440_24fps.mp4"
+    },
+    "cdg": {
+      "page": "https://www.pexels.com/video/people-inside-charles-de-gaulle-airport-3723441/",
+      "author": "K",
+      "file": "https://videos.pexels.com/video-files/3723441/3723441-uhd_2732_1440_24fps.mp4"
+    },
+    "wing": {
+      "page": "https://www.pexels.com/video/aerial-view-of-airplane-wing-over-clouds-33299649/",
+      "author": "Jomin Thach",
+      "file": "https://videos.pexels.com/video-files/33299649/14183074_1440_2560_30fps.mp4"
+    },
+    "contrail": {
+      "page": "https://www.pexels.com/video/jet-plane-creating-contrails-in-blue-sky-34249051/",
+      "author": "Dave Planes",
+      "file": "https://videos.pexels.com/video-files/34249051/14512752_2560_1440_30fps.mp4"
+    },
+    "fence": {
+      "page": "https://www.pexels.com/video/commercial-airliner-taking-off-over-fence-37157735/",
+      "author": "Joolsmagools",
+      "file": "https://videos.pexels.com/video-files/37157735/15741357_1440_2560_30fps.mp4"
+    }
+  },
+  "beats": [
+    {
+      "id": "hook",
+      "dur": 3.6,
+      "clip": "sunsetland",
+      "from": 0.3,
+      "speed": 0.9,
+      "cx": 0.5
+    },
+    {
+      "id": "one",
+      "dur": 3.8,
+      "clip": "emptygate",
+      "from": 2.0,
+      "cy": 0.55
+    },
+    {
+      "id": "wait",
+      "dur": 3.6,
+      "clip": "fids",
+      "from": 0.6,
+      "speed": 0.8,
+      "pan": [
+        0.42,
+        0.58
+      ]
+    },
+    {
+      "id": "trend",
+      "dur": 4.6,
+      "clip": "wing",
+      "from": 3.0
+    },
+    {
+      "id": "summer",
+      "dur": 4.4,
+      "clip": "cdg",
+      "from": 1.0,
+      "speed": 0.9,
+      "pan": [
+        0.45,
+        0.6
+      ]
+    },
+    {
+      "id": "where",
+      "dur": 4.4,
+      "clip": "contrail",
+      "from": 1.0,
+      "pan": [
+        0.3,
+        0.55
+      ]
+    },
+    {
+      "id": "cta",
+      "dur": 4.8,
+      "clip": "fence",
+      "from": 5.5,
+      "speed": 1.0,
+      "cy": 0.5
+    }
+  ]
+}
