@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Le ciel clair est-il plus agité ? Vidéo LinkedIn</title>
+    <style>
+      /* A 1080x1350 (4:5) LinkedIn video for « Le ciel clair est-il plus agité ? » (web/turbulences/). Free Pexels footage
+         (promo/turbulences.json, cut by reel_footage.py --config promo/turbulences.json) under one animated idea per beat,
+         readable without sound. Every number is computed from the investigation's own data file with its own code
+         (web/src/cat/facts.js). Rendered frame by frame by render.py (window.ready, window.render(t)). */
+      @font-face {
+        font-family: "Archivo Variable";
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        src: url(../web/node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2)
+          format("woff2-variations");
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+          U+2000-206F, U+2212, U+00D7;
+      }
+      @font-face {
+        font-family: "Archivo Variable";
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        src: url(../web/src/fonts/nnbsp.woff) format("woff");
+        unicode-range: U+202F;
+      }
+      @font-face {
+        font-family: "Source Serif 4 Variable";
+        font-weight: 200 900;
+        src: url(../web/node_modules/@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2)
+          format("woff2-variations");
+      }
+      :root {
+        --night: #0b1522;
+        --ink: #f3f6f9;
+        --soft: rgba(243, 246, 249, 0.8);
+        --magenta: #ff4fa8;
+        --blue: #5aa2ff;
+        --grey: rgba(243, 246, 249, 0.28);
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--night);
+      }
+      #stage {
+        position: relative;
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        background: var(--night);
+        color: var(--ink);
+        font-family: "Archivo Variable", "Arial Narrow", sans-serif;
+      }
+      #bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform-origin: 50% 45%;
+      }
+      #tint {
+        position: absolute;
+        inset: 0;
+        background: var(--night);
+      }
+      #shade {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            to bottom,
+            rgba(6, 12, 20, 0.7) 0%,
+            rgba(6, 12, 20, 0) 22%
+          ),
+          linear-gradient(
+            to top,
+            rgba(6, 12, 20, 0.92) 0%,
+            rgba(6, 12, 20, 0.55) 34%,
+            rgba(6, 12, 20, 0) 62%
+          );
+      }
+      /* the story's progress, as in a story: one segment a beat */
+      #bars {
+        position: absolute;
+        top: 34px;
+        left: 56px;
+        right: 56px;
+        display: flex;
+        gap: 8px;
+      }
+      #bars i {
+        flex: 1;
+        height: 5px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.28);
+        overflow: hidden;
+      }
+      #bars i b {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: #fff;
+      }
+      #top {
+        position: absolute;
+        top: 64px;
+        left: 56px;
+        right: 56px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 30px;
+      }
+      .mark {
+        color: var(--ink);
+      }
+      .mark b {
+        font-weight: 800;
+      }
+      .tag {
+        padding: 9px 18px;
+        border-radius: 999px;
+        background: var(--magenta);
+        color: #fff;
+        font-weight: 800;
+        font-size: 24px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      #layer {
+        position: absolute;
+        inset: 0;
+      }
+      .bottom {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        bottom: 96px;
+      }
+      .kicker {
+        margin: 0 0 14px;
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--soft);
+      }
+      .h {
+        margin: 0;
+        font-weight: 800;
+        font-stretch: 70%;
+        font-size: 112px;
+        line-height: 0.98;
+        letter-spacing: -0.01em;
+      }
+      .h .m {
+        color: var(--magenta);
+      }
+      .big {
+        margin: 0;
+        font-weight: 800;
+        font-stretch: 66%;
+        font-size: 250px;
+        line-height: 0.85;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .big.m {
+        color: var(--magenta);
+      }
+      .line {
+        margin: 18px 0 0;
+        font:
+          600 46px/1.18 "Source Serif 4 Variable",
+          Georgia,
+          serif;
+        color: var(--ink);
+        max-width: 18em;
+      }
+      .note {
+        margin: 22px 0 0;
+        font-size: 26px;
+        color: var(--soft);
+      }
+      .w {
+        display: inline-block;
+        will-change: transform, opacity;
+      }
+      /* planes */
+      .planes {
+        display: grid;
+        grid-template-columns: repeat(9, 1fr);
+        gap: 14px;
+        margin-bottom: 34px;
+      }
+      .planes svg {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+      /* the clock */
+      .clock {
+        position: absolute;
+        left: 50%;
+        top: 330px;
+        width: 520px;
+        height: 520px;
+        margin-left: -260px;
+      }
+      /* the chart panel */
+      .panel {
+        position: absolute;
+        left: 56px;
+        right: 56px;
+        top: 170px;
+        padding: 30px 34px 26px;
+        border-radius: 18px;
+        background: rgba(8, 16, 27, 0.78);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+      .panel h3 {
+        margin: 0 0 6px;
+        font-weight: 800;
+        font-stretch: 72%;
+        font-size: 46px;
+        line-height: 1.02;
+      }
+      .panel p {
+        margin: 0 0 14px;
+        font-size: 24px;
+        color: var(--soft);
+      }
+      .panel svg text {
+        font-family: "Archivo Variable", sans-serif;
+        fill: var(--soft);
+        font-size: 22px;
+      }
+      #credit {
+        position: absolute;
+        right: 22px;
+        bottom: 14px;
+        font-size: 17px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .pill {
+        display: inline-block;
+        margin-top: 34px;
+        padding: 22px 32px;
+        border-radius: 16px;
+        background: var(--ink);
+        color: var(--night);
+        font-weight: 800;
+        font-size: 40px;
+      }
+      .map {
+        display: block;
+        width: 100%;
+        border-radius: 10px;
+      }
+      .maps {
+        display: grid;
+        gap: 14px;
+      }
+      .maps b {
+        display: block;
+        font-size: 34px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+      .maps b span {
+        float: right;
+        color: var(--soft);
+        font-weight: 800;
+        font-size: 40px;
+      }
+      .maps .last b span {
+        color: var(--magenta);
+      }
+      .ramp {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 14px;
+        font-size: 22px;
+        color: var(--soft);
+      }
+      .ramp i {
+        width: 220px;
+        height: 12px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #13263b, #1c4a82, #4f8fd6, #c85fb0, #ff6fb6);
+      }
+      .author {
+        margin-top: 24px;
+        font-size: 28px;
+        color: var(--soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <img id="bg" alt="" />
+      <div id="tint"></div>
+      <div id="shade"></div>
+      <div id="layer"></div>
+      <div id="bars"></div>
+      <div id="top">
+        <span class="mark">aviation<b>data</b></span
+        ><span class="tag">Météo</span>
+      </div>
+      <div id="credit">Vidéos : Pexels</div>
+    </div>
+    <script type="module">
+      import { catFacts, routeMinutes, flightMinutes, bytes } from "../web/src/cat/facts.js";
+
+      const CFG = await fetch("turbulences.json").then((r) => r.json());
+      const C = await fetch("../web/public/data/cat/cat.json").then((r) => r.json());
+      const TOPO = await fetch("../web/public/geo/world-110m.json").then((r) => r.json());
+      const F = catFacts(C);
+      const FPS = CFG.fps;
+      const $ = (s) => document.querySelector(s);
+      const fr = (v, d = 0) =>
+        v
+          .toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d })
+          .replace(/ | /g, " ");
+      const pad = (n) => String(n).padStart(4, "0");
+      const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+      const outCubic = (x) => 1 - (1 - x) ** 3;
+      const outBack = (x) => 1 + 2.2 * (x - 1) ** 3 + 1.2 * (x - 1) ** 2;
+      const inOut = (x) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2);
+      const rise = (el, u, a, dy = 40) => {
+        const g = outCubic(lin(u, a, a + 0.45));
+        el.style.opacity = g;
+        el.style.transform = `translateY(${(1 - g) * dy}px)`;
+      };
+
+      // ---------------------------------------------------------------- the numbers, as on the page (text.js)
+      const H = 8766;
+      const hrs = (f) => {
+        const h = f * H;
+        return h < 50 ? Math.round(h) : Math.round(h / 5) * 5;
+      };
+      const chg = (r) => `${r >= 0 ? "+" : "−"}${fr(Math.abs(r) * 100)} %`;
+      const atl = F.atl;
+      const sev = atl.decadesSev;
+      const h0 = Math.round(sev.first * H);
+      const h1 = Math.round(sev.last * H);
+      const winter = F.atlWinterOverSummer;
+      const pny = F.pny;
+      const pnyMin = Math.round(routeMinutes(pny, "DJF"));
+      const flight = Math.round(flightMinutes(pny) / 5) * 5;
+      const flightTxt = `${Math.floor(flight / 60)} h ${String(flight % 60).padStart(2, "0")}`;
+      const D = C.decades;
+      const M = C.meta;
+
+      // ---------------------------------------------------------------- the land, from world-110m (TopoJSON arcs)
+      const rings = (() => {
+        const [sx, sy] = TOPO.transform.scale;
+        const [tx, ty] = TOPO.transform.translate;
+        const arcs = TOPO.arcs.map((a) => {
+          let x = 0,
+            y = 0;
+          return a.map(([dx, dy]) => [(x += dx) * sx + tx, (y += dy) * sy + ty]);
+        });
+        const arc = (i) => (i < 0 ? [...arcs[~i]].reverse() : arcs[i]);
+        const out = [];
+        for (const g of TOPO.objects.land.geometries) {
+          const polys = g.type === "Polygon" ? [g.arcs] : g.arcs;
+          for (const poly of polys) for (const ring of poly) out.push(ring.flatMap(arc));
+        }
+        return out;
+      })();
+      // night ramp, as SEQ_NIGHT of the chart kit
+      const STOPS = ["#13263b", "#1c4a82", "#4f8fd6", "#c85fb0", "#ff6fb6"].map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
+      const ramp = (t) => {
+        t = Math.max(0, Math.min(1, t)) * (STOPS.length - 1);
+        const i = Math.min(STOPS.length - 2, Math.floor(t));
+        const f = t - i;
+        return `rgb(${STOPS[i].map((v, k) => Math.round(v + (STOPS[i + 1][k] - v) * f)).join(",")})`;
+      };
+      const BOX = [-92, 24, 22, 72];
+      /** a smoothed grid (3 x 3), as the page's opening map */
+      const smooth = (raw, scale) => {
+        const v = new Float32Array(raw.length);
+        for (let i = 0; i < M.nlat; i++)
+          for (let j = 0; j < M.nlon; j++) {
+            let s = 0,
+              w = 0;
+            for (let di = -1; di <= 1; di++)
+              for (let dj = -1; dj <= 1; dj++) {
+                const ii = i + di;
+                if (ii < 0 || ii >= M.nlat) continue;
+                const k = di || dj ? 1 : 2;
+                s += raw[ii * M.nlon + ((j + dj + M.nlon) % M.nlon)] * k;
+                w += k;
+              }
+            v[i * M.nlon + j] = s / w / scale;
+          }
+        return v;
+      };
+      function drawMap(canvas, grid, max, { reveal = 1, box = BOX } = {}) {
+        const [L0, L1, P0, P1] = box;
+        const W = canvas.width,
+          Hh = canvas.height;
+        const X = (lo) => ((lo - L0) / (L1 - L0)) * W;
+        const Y = (la) => ((P1 - la) / (P1 - P0)) * Hh;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#0e1b2c";
+        ctx.fillRect(0, 0, W, Hh);
+        const h = M.step / 2;
+        for (let i = 0; i < M.nlat; i++) {
+          const la = M.lat0 + i * M.step;
+          if (la < P0 - 2 || la > P1 + 2) continue;
+          for (let j = 0; j < M.nlon; j++) {
+            const lo = M.lon0 + j * M.step;
+            if (lo < L0 - 2 || lo > L1 + 2) continue;
+            if (X(lo) > W * reveal) continue;
+            ctx.fillStyle = ramp((grid[i * M.nlon + j] / max) ** 0.8);
+            ctx.fillRect(X(lo - h), Y(la + h), X(lo + h) - X(lo - h) + 0.8, Y(la - h) - Y(la + h) + 0.8);
+          }
+        }
+        ctx.strokeStyle = "rgba(243,246,249,0.45)";
+        ctx.lineWidth = 1.4;
+        for (const r of rings) {
+          ctx.beginPath();
+          r.forEach(([lo, la], k) => (k ? ctx.lineTo(X(lo), Y(la)) : ctx.moveTo(X(lo), Y(la))));
+          ctx.stroke();
+        }
+        return { X, Y, ctx };
+      }
+      const sev0 = smooth(bytes(D.sev.first), D.scale);
+      const sev1 = smooth(bytes(D.sev.last), D.scale);
+      const winterMap = bytes(C.maps.DJF);
+      const cellOf = (la, lo) => {
+        const i = Math.round((la - M.lat0) / M.step);
+        const j = (Math.round((lo - M.lon0) / M.step) + M.nlon) % M.nlon;
+        return winterMap[i * M.nlon + j] / M.mapScale;
+      };
+
+      // ---------------------------------------------------------------- the beats
+      let t0 = 0;
+      const BEATS = CFG.beats.map((b) => {
+        const o = { ...b, start: t0 };
+        t0 += b.dur;
+        return o;
+      });
+      const TOTAL = t0;
+      $("#bars").innerHTML = BEATS.map(() => "<i><b></b></i>").join("");
+      const PLANE =
+        "M0 -14 L3 -5 L14 2 L14 5 L3 2 L2 10 L6 13 L6 15 L0 13 L-6 15 L-6 13 L-2 10 L-3 2 L-14 5 L-14 2 L-3 -5 Z";
+
+      const B = {
+        hook: {
+          html: `<div class="bottom">
+              <p class="h"><span class="w" id="h1">Ciel bleu.</span><br><span class="w" id="h2">Pas un nuage.</span></p>
+              <p class="line w" id="h3">Vous êtes à 10 000 mètres, au-dessus de l'Atlantique.</p></div>`,
+          frame(u) {
+            rise($("#h1"), u, 0.15);
+            rise($("#h2"), u, 0.8);
+            rise($("#h3"), u, 1.6, 26);
+          },
+          tint: 0.1,
+        },
+        shake: {
+          html: `<div class="bottom">
+              <p class="h"><span class="w m" id="h1">Et ça secoue.</span></p>
+              <p class="line w" id="h2">La turbulence en air clair : aucun nuage pour l'annoncer, aucun radar de bord pour la voir.</p></div>`,
+          frame(u) {
+            rise($("#h1"), u, 0.2);
+            rise($("#h2"), u, 1.0, 26);
+          },
+          // the footage shakes, in bursts
+          shake(u) {
+            const a = 14 * (lin(u, 0.15, 0.3) - lin(u, 1.2, 1.6) + lin(u, 2.2, 2.3) - lin(u, 2.9, 3.3));
+            return [a * Math.sin(u * 47), a * 0.7 * Math.sin(u * 61 + 1), a * 0.04 * Math.sin(u * 33)];
+          },
+          tint: 0.3,
+        },
+        hours: {
+          html: `<div class="bottom">
+              <p class="kicker w" id="k">Au-dessus de l'Atlantique Nord, à l'altitude des avions de ligne</p>
+              <p class="big m w" id="n">0 h</p>
+              <p class="line w" id="l">par an où le vent réunit les conditions de cette turbulence.</p>
+              <p class="note w" id="no">${winter > 1.85 && winter < 2.15 ? "Deux fois plus l'hiver que l'été." : `${fr(winter, 1)} fois plus l'hiver que l'été.`}</p></div>`,
+          frame(u) {
+            rise($("#k"), u, 0.05, 20);
+            const g = inOut(lin(u, 0.3, 2.0));
+            $("#n").textContent = `${fr(Math.round((hrs(atl.clim) * g) / 5) * 5)} h`;
+            $("#n").style.opacity = lin(u, 0.2, 0.5);
+            rise($("#l"), u, 1.8, 24);
+            rise($("#no"), u, 2.5, 16);
+          },
+          tint: 0.45,
+        },
+        compare: {
+          html: `<div class="panel w" id="p" style="top:140px"><h3>Les conditions les plus fortes, il y a 40 ans et aujourd'hui</h3>
+              <p>À 10 400 m, même échelle ; heures par an en moyenne sur l'Atlantique Nord</p>
+              <div class="maps"><div><b>${D.first[0]}-${D.first[1]}<span id="n0">${h0} h par an</span></b><canvas class="map" id="m0" width="900" height="330"></canvas></div>
+              <div class="last"><b>${D.last[0]}-${D.last[1]}<span id="n1">${h1} h par an</span></b><canvas class="map" id="m1" width="900" height="330"></canvas></div></div>
+              <div class="ramp"><span>rare</span><i></i><span>plus fréquent</span></div></div>
+            <div class="bottom"><p class="line w" id="l">${h1 >= 23 && h1 <= 25 ? "Aujourd'hui, l'équivalent d'une journée entière par an." : `De ${h0} à ${h1} heures par an.`}</p></div>`,
+          build() {
+            drawMap($("#m0"), sev0, 0.006, { box: [-82, 8, 33, 66] });
+            this.drawn = -1;
+          },
+          frame(u) {
+            rise($("#p"), u, 0.05, 30);
+            const r = inOut(lin(u, 1.0, 2.2));
+            const k = Math.round(r * 40);
+            if (k !== this.drawn) {
+              drawMap($("#m1"), sev1, 0.006, { reveal: r, box: [-82, 8, 33, 66] });
+              this.drawn = k;
+            }
+            $("#n0").style.opacity = lin(u, 0.5, 0.8);
+            $("#n1").style.opacity = lin(u, 2.1, 2.4);
+            $("#n1").style.color = "#ff4fa8";
+            rise($("#l"), u, 2.7, 24);
+          },
+          tint: 0.6,
+        },
+        trend: {
+          html: `<div class="panel w" id="p"><h3>Hiver après hiver, plus agité</h3>
+              <p>Atlantique Nord, conditions propices chaque année de ${F.first} à ${F.last}, comparées à la moyenne</p>
+              <svg viewBox="0 0 900 250" width="900" height="250" id="ch"></svg></div>
+            <div class="bottom"><p class="big m w" id="n">${chg(atl.change)}</p>
+              <p class="line w" id="l">de conditions propices de ${F.first}-${F.first + 9} à ${F.last - 9}-${F.last}.</p>
+              <p class="note w" id="no">Pour les plus fortes : ${chg(atl.sevChange)}.</p></div>`,
+          build() {
+            const a = atl.annual;
+            const m = a.reduce((x, y) => x + y, 0) / a.length;
+            const dev = a.map((v) => v / m - 1);
+            const span = Math.max(...dev.map(Math.abs));
+            const w = 900 / a.length;
+            let s = "";
+            dev.forEach((d, i) => {
+              const t = d / span;
+              const col = t >= 0 ? `rgba(255,79,168,${0.15 + 0.85 * t})` : `rgba(90,162,255,${0.15 + 0.85 * -t})`;
+              s += `<rect class="st" x="${i * w}" y="0" width="${w - 2}" height="200" fill="${col}"/>`;
+            });
+            [F.first, 1990, 2000, 2010, F.last].forEach((y) => {
+              const i = F.years.indexOf(y);
+              const a = y === F.first ? "start" : y === F.last ? "end" : "middle";
+              s += `<text x="${a === "start" ? i * w : a === "end" ? (i + 1) * w - 2 : i * w + w / 2}" y="238" text-anchor="${a}">${y}</text>`;
+            });
+            $("#ch").innerHTML = s;
+          },
+          frame(u) {
+            rise($("#p"), u, 0.05, 30);
+            const n = document.querySelectorAll("#ch .st");
+            n.forEach((r, i) => (r.style.opacity = lin(u, 0.4 + i * 0.035, 0.6 + i * 0.035)));
+            rise($("#n"), u, 2.2);
+            rise($("#l"), u, 2.6, 24);
+            rise($("#no"), u, 3.1, 16);
+          },
+          tint: 0.55,
+        },
+        route: {
+          html: `<div class="panel w" id="p"><h3>Paris – New York, un vol d'hiver</h3>
+              <p>Du bleu au rose : de plus en plus souvent des conditions propices sur le tronçon, de décembre à février</p>
+              <canvas class="map" id="m" width="900" height="390"></canvas></div>
+            <div class="bottom"><p class="big m w" id="n">0 min</p>
+              <p class="line w" id="l">sur ${flightTxt} de vol traversent en moyenne des conditions propices.</p></div>`,
+          build() {
+            this.path = pny.path; // from Paris, westbound
+            const n = this.path.length;
+            this.f = this.path.map(([la, lo]) => cellOf(la, lo));
+            const fm = flightMinutes(pny);
+            // minutes accumulated point by point, scaled to the page's average
+            const raw = this.f.map((v) => (v * fm) / n);
+            let acc = 0;
+            this.cum = raw.map((v) => (acc += v));
+            this.k = pnyMin / acc;
+          },
+          frame(u) {
+            rise($("#p"), u, 0.05, 30);
+            const cv = $("#m");
+            const ctx = cv.getContext("2d");
+            const [L0, L1, P0, P1] = [-80, 8, 34, 60];
+            const W = cv.width,
+              Hh = cv.height;
+            const X = (lo) => ((lo - L0) / (L1 - L0)) * W;
+            const Y = (la) => ((P1 - la) / (P1 - P0)) * Hh;
+            ctx.fillStyle = "#0e1b2c";
+            ctx.fillRect(0, 0, W, Hh);
+            ctx.strokeStyle = "rgba(243,246,249,0.4)";
+            ctx.lineWidth = 1.4;
+            for (const r of rings) {
+              ctx.beginPath();
+              r.forEach(([lo, la], k) => (k ? ctx.lineTo(X(lo), Y(la)) : ctx.moveTo(X(lo), Y(la))));
+              ctx.stroke();
+            }
+            const g = inOut(lin(u, 0.5, 3.4));
+            const n = this.path.length;
+            const upto = Math.max(1, Math.round(g * (n - 1)));
+            ctx.setLineDash([6, 8]);
+            ctx.strokeStyle = "rgba(243,246,249,0.35)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            this.path.forEach(([la, lo], k) => (k ? ctx.lineTo(X(lo), Y(la)) : ctx.moveTo(X(lo), Y(la))));
+            ctx.stroke();
+            ctx.setLineDash([]);
+            const fmax = Math.max(...this.f);
+            ctx.lineCap = "round";
+            for (let k = 1; k <= upto; k++) {
+              const [a, b] = [this.path[k - 1], this.path[k]];
+              const t = this.f[k] / fmax;
+              ctx.strokeStyle = ramp(0.25 + 0.75 * t);
+              ctx.lineWidth = 6 + 8 * t;
+              ctx.beginPath();
+              ctx.moveTo(X(a[1]), Y(a[0]));
+              ctx.lineTo(X(b[1]), Y(b[0]));
+              ctx.stroke();
+            }
+            for (const [p, name, dx] of [
+              [C.airports.CDG, "Paris", -12],
+              [C.airports.JFK, "New York", 12],
+            ]) {
+              ctx.fillStyle = "#f3f6f9";
+              ctx.beginPath();
+              ctx.arc(X(p.lon), Y(p.lat), 7, 0, 7);
+              ctx.fill();
+              ctx.font = "800 26px 'Archivo Variable'";
+              ctx.textAlign = dx < 0 ? "right" : "left";
+              ctx.fillText(name, X(p.lon) + dx, Y(p.lat) + 34);
+            }
+            // the plane
+            const [la, lo] = this.path[upto];
+            const [pa, po] = this.path[Math.max(0, upto - 1)];
+            const ang = Math.atan2(Y(la) - Y(pa), X(lo) - X(po)) + Math.PI / 2;
+            ctx.save();
+            ctx.translate(X(lo), Y(la));
+            ctx.rotate(ang);
+            ctx.scale(1.6, 1.6);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill(new Path2D(PLANE));
+            ctx.restore();
+            $("#n").textContent = `${fr(Math.round(this.cum[upto] * this.k))} min`;
+            $("#n").style.opacity = lin(u, 0.4, 0.7);
+            rise($("#l"), u, 3.2, 24);
+          },
+          tint: 0.55,
+        },
+        cta: {
+          html: `<div class="bottom" style="bottom:110px">
+              <p class="kicker w" id="k">Où ? Quand ? À quelle altitude ?</p>
+              <p class="h w" id="h">Le ciel clair est-il plus agité ?</p>
+              <p class="line w" id="l">Toute l'enquête : 44 ans de vents en altitude, cartes, saisons et routes depuis Paris.</p>
+              <span class="pill w" id="u">${CFG.url} →</span>
+              <p class="author w" id="a">Une enquête en données de ${CFG.author}</p></div>`,
+          frame(u) {
+            rise($("#k"), u, 0.1, 20);
+            rise($("#h"), u, 0.45);
+            rise($("#l"), u, 1.1, 24);
+            rise($("#u"), u, 1.7, 24);
+            rise($("#a"), u, 2.1, 16);
+          },
+          tint: 0.42,
+        },
+      };
+
+      let built = null;
+      function build(b) {
+        built = b.id;
+        $("#layer").innerHTML = B[b.id].html;
+        B[b.id].build?.();
+      }
+      async function setImg(img, src) {
+        if (img.getAttribute("src") === src) return;
+        img.setAttribute("src", src);
+        await img.decode().catch(() => {});
+      }
+
+      async function render(t) {
+        let k = BEATS.findIndex((b) => t < b.start + b.dur);
+        if (k < 0) k = BEATS.length - 1;
+        const b = BEATS[k];
+        const u = t - b.start;
+        if (built !== b.id) build(b);
+        const f = Math.min(Math.round(b.dur * FPS) - 1, Math.floor(u * FPS + 1e-6));
+        const load = setImg($("#bg"), `out/${CFG.name}/bg/${b.id}/${pad(f)}.jpg`);
+        const [sx, sy, rot] = B[b.id].shake?.(u) ?? [0, 0, 0];
+        $("#bg").style.transform = `translate(${sx}px, ${sy}px) rotate(${rot}deg) scale(${1.08 - 0.08 * inOut(lin(u, 0, b.dur)) + (sx ? 0.04 : 0)})`;
+        const cut = 1 - outCubic(lin(u, 0, 0.3));
+        const out = k < BEATS.length - 1 ? inOut(lin(u, b.dur - 0.25, b.dur)) : lin(u, b.dur - 0.5, b.dur);
+        $("#tint").style.opacity = Math.min(1, B[b.id].tint + 0.75 * Math.max(cut, out));
+        $("#layer").style.opacity = 1 - out;
+        B[b.id].frame.call(B[b.id], u);
+        document.querySelectorAll("#bars b").forEach((el, i) => {
+          el.style.width = `${i < k ? 100 : i > k ? 0 : lin(u, 0, b.dur) * 100}%`;
+        });
+        await load;
+        await document.fonts.ready;
+      }
+
+      window.render = render;
+      window.ready = (async () => {
+        await document.fonts.ready;
+        return { total: TOTAL, fps: FPS };
+      })();
+    </script>
+  </body>
+</html>

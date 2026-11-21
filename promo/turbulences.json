@@ -1,0 +1,48 @@
+{
+  "name": "turbulences",
+  "fps": 30,
+  "size": [1080, 1350],
+  "url": "aviationdata.vercel.app/turbulences",
+  "author": "Arthur Dubrou",
+  "clips": {
+    "wingsun": {
+      "page": "https://www.pexels.com/video/scenic-view-from-airplane-window-clouds-and-sky-29458283/",
+      "author": "Engin Akyurt",
+      "file": "https://videos.pexels.com/video-files/29458283/12681092_2160_3840_30fps.mp4"
+    },
+    "cabin": {
+      "page": "https://www.pexels.com/video/passengers-sitting-inside-plane-27303636/",
+      "author": "Engin Akyurt",
+      "file": "https://videos.pexels.com/video-files/27303636/12116397_3840_2160_30fps.mp4"
+    },
+    "window": {
+      "page": "https://www.pexels.com/video/scenic-clouds-view-from-airplane-window-seat-36333027/",
+      "author": "Muhammed Hanefi",
+      "file": "https://videos.pexels.com/video-files/36333027/15409959_2160_3840_24fps.mp4"
+    },
+    "window2": {
+      "page": "https://www.pexels.com/video/a-view-of-clouds-from-an-airplane-window-27598665/",
+      "author": "Olga Simonova",
+      "file": "https://videos.pexels.com/video-files/27598665/12180972_1080_1920_30fps.mp4"
+    },
+    "contrail": {
+      "page": "https://www.pexels.com/video/jet-plane-creating-contrails-in-blue-sky-34249051/",
+      "author": "Dave Planes",
+      "file": "https://videos.pexels.com/video-files/34249051/14512752_2560_1440_30fps.mp4"
+    },
+    "wing": {
+      "page": "https://www.pexels.com/video/aerial-view-of-airplane-wing-over-clouds-33299649/",
+      "author": "Jomin Thach",
+      "file": "https://videos.pexels.com/video-files/33299649/14183074_1440_2560_30fps.mp4"
+    }
+  },
+  "beats": [
+    { "id": "hook", "dur": 3.6, "clip": "wingsun", "from": 2.0, "cy": 0.5 },
+    { "id": "shake", "dur": 3.8, "clip": "cabin", "from": 4.0, "pan": [0.4, 0.55] },
+    { "id": "hours", "dur": 4.2, "clip": "window", "from": 2.0, "cy": 0.5 },
+    { "id": "compare", "dur": 5.4, "clip": "window2", "from": 1.0, "cy": 0.5 },
+    { "id": "trend", "dur": 4.6, "clip": "contrail", "from": 1.0, "pan": [0.3, 0.55] },
+    { "id": "route", "dur": 4.8, "clip": "wing", "from": 6.0 },
+    { "id": "cta", "dur": 4.8, "clip": "wingsun", "from": 20.0, "cy": 0.5 }
+  ]
+}
