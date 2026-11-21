@@ -46,6 +46,7 @@ async function main() {
   const F = catFacts(C);
   safely("text", () => {
     T.writeOpening(F);
+    T.writeMeasure(F);
     T.writeEssentiel(F);
     T.writeOu(F);
     T.writeAltitude(F);
@@ -65,7 +66,7 @@ async function main() {
       $(id).replaceChildren(
         el("b", { text: `${years[0]}-${years[1]}` }),
         el("span", { class: strong ? "up" : "" }, [
-          "Fortes turbulences possibles : ",
+          "Conditions les plus fortes : ",
           el("strong", { text: `${T.fmt.hrs(f).replace(" heures", " h")} par an` }),
         ]),
       );
@@ -84,10 +85,10 @@ async function main() {
     const h1 = Math.round(atl.last * 8766);
     $("#tc-read").replaceChildren(
       rich([
-        "En un point de l'Atlantique Nord, à 10 400 mètres, l'air réunit les conditions de fortes turbulences ",
+        "En moyenne sur l'Atlantique Nord, à 10 400 mètres, l'air réunissait les conditions les plus fortes de turbulence en air clair ",
         { b: `${h0} heures par an` },
-        ` au total en ${D.first[0]}-${D.first[1]}, et `,
-        { b: `${h1} aujourd'hui` },
+        ` en ${D.first[0]}-${D.first[1]}. En ${D.last[0]}-${D.last[1]}, `,
+        { b: `${h1} heures` },
         h1 >= 23 && h1 <= 25 ? " : l'équivalent d'une journée entière." : ".",
       ]),
     );

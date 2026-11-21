@@ -9,7 +9,7 @@ import { feature } from "topojson-client";
 import { el, dataTable, onResize, showTip, hideTip } from "../lib/ui.js";
 import { fmtNum } from "../lib/format.js";
 import { asset } from "../lib/site.js";
-import { MONTHS_SHORT, MONTHS_FR, bytes } from "./facts.js";
+import { MONTHS_SHORT, MONTHS_FR, bytes, flightMinutes, routeMinutes } from "./facts.js";
 
 /** sequential: paper -> pale blue -> map blue -> night blue -> magenta */
 export const SEQ = d3.interpolateRgbBasis(["#f3f5f2", "#c9dbea", "#5e93c6", "#1f5fa8", "#3b2a74", "#b5246e"]);
@@ -601,7 +601,7 @@ export async function routeMap(node, C, key, { routes, airports, label, max }) {
       ctx.beginPath();
       ctx.arc(ex, ey, 4, 0, 2 * Math.PI);
       ctx.fill();
-      const txt = `${b.city} ${pc(r.seasons[key], 1)}`;
+      const txt = `${b.city} ${Math.round(routeMinutes(r, key))} min`;
       ctx.font = `700 ${narrow ? 11 : 13}px Archivo, system-ui, sans-serif`;
       const tw = ctx.measureText(txt).width;
       const lx = Math.min(W - tw - 6, Math.max(6, ex + (b.lon < a.lon ? -tw - 8 : 8)));
@@ -623,8 +623,13 @@ export async function routeMap(node, C, key, { routes, airports, label, max }) {
   onResize(box, draw);
   draw(box.clientWidth || 720);
   dataTable(node, {
-    head: ["Route", "Décembre à février", "Juin à août"],
-    rows: routes.map((r) => [r.label, pc(r.seasons.DJF), pc(r.seasons.JJA)]),
+    head: ["Route", "Durée à 900 km/h", "Décembre à février", "Juin à août"],
+    rows: routes.map((r) => [
+      r.label,
+      `${Math.round(flightMinutes(r))} min`,
+      `${Math.round(routeMinutes(r, "DJF"))} min (${pc(r.seasons.DJF)})`,
+      `${Math.round(routeMinutes(r, "JJA"))} min (${pc(r.seasons.JJA)})`,
+    ]),
   });
 }
 

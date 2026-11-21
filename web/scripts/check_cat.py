@@ -43,6 +43,37 @@ def hrs(f):
     return f"{fr(round(h) if h < 50 else round(h / 5) * 5)} heures"
 
 
+def rnd(v):
+    """Math.round, half up"""
+    import math
+
+    return math.floor(v + 0.5)
+
+
+def one_in(f):
+    return f"une heure sur {fr(rnd(1 / f))}"
+
+
+CRUISE = 900
+
+
+def fmin(r):
+    return r["km"] / CRUISE * 60
+
+
+def rmin(r, s):
+    return r["seasons"][s] * fmin(r)
+
+
+def mins(m):
+    return f"{fr(rnd(m))} minutes"
+
+
+def dur(m):
+    t = rnd(m / 5) * 5
+    return f"{t // 60} h {t % 60:02d}"
+
+
 WORDS = ["zéro", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"]
 
 
@@ -181,7 +212,8 @@ with sync_playwright() as pw:
         ("essentiel: top region", f"{hrs(R[byclim[0]]['clim'])} par an de conditions propices"),
         ("essentiel: season", f"{times(atl['sc']['DJF'] / atl['sc']['JJA'])} plus de conditions propices l'hiver"),
         ("essentiel: level", f"niveau {fl[top]}"),
-        ("essentiel: Paris – New York", f"{pc(pny['seasons']['DJF'])} du trajet"),
+        ("essentiel: Paris – New York", f"{mins(rmin(pny, 'DJF'))} sur les {dur(fmin(pny))} du trajet"),
+        ("essentiel: Paris – New York, summer", f"L'été, {mins(rmin(pny, 'JJA'))}"),
         ("essentiel: trend", f"{chg(atl['change'])} au-dessus de l'Atlantique Nord"),
         ("essentiel: strongest", f"Les plus fortes, {chg(R['atlantique']['sev'])}"),
         ("essentiel: north band", f"jusqu'à {lat(north[1])} en {MONTHS[north[2]]}"),
@@ -190,30 +222,46 @@ with sync_playwright() as pw:
     # chapters
     has("ch1: top three", f"{hrs(R[byclim[1]]['clim'])}, et", "#carte-after")
     has("ch1: Europe", f"en compte {hrs(R['europe']['clim'])}", "#carte-after")
-    has("ch1: threshold share", f"les {pc(C['meta']['pctMod'], 1)} des situations les plus fortes", "#carte-aside")
+    has(
+        "ch1: threshold share",
+        f"ne dépasse que dans {pc(C['meta']['pctMod'], 1)} des situations du globe",
+        "#carte-aside",
+    )
+    M = t("#tc-measure")
+    check(
+        "measure: one hour in",
+        norm(f"{pc(C['meta']['pctMod'], 1)} des situations du globe, {one_in(C['meta']['pctMod'])}") in M,
+        M[:200],
+    )
+    check("measure: the strongest", norm(f"{pc(C['meta']['pctSev'], 2)} des situations") in M, M[:300])
+    check("measure: 1 % = 88 hours", "1 % du temps, c'est 88 heures par an" in M and round(0.01 * 8766) == 88)
     has(
         "ch2: winter and summer",
-        f"{pc(atl['sc']['DJF'])} du temps de décembre à février, contre {pc(atl['sc']['JJA'])} de juin à août",
+        f"réunies {one_in(atl['sc']['DJF'])} de décembre à février, contre {one_in(atl['sc']['JJA'])} de juin à août",
         "#saisons-after",
     )
     us = R["amerique"]["sc"]
     has("ch2: the United States", f"{times(us['DJF'] / us['JJA'])} plus l'hiver que l'été", "#saisons-after")
     has(
         "ch3: the southern band",
-        f"à {lat(south[1])} en {MONTHS[south[2]]}, les conditions y sont réunies {pc(south[0])} du temps, "
-        f"contre {pc(north[0])}",
+        f"à {lat(south[1])} en {MONTHS[south[2]]}, les conditions y sont réunies {one_in(south[0])}"
+        + (
+            ", autant qu'au plus fort du nord"
+            if rnd(1 / south[0]) == rnd(1 / north[0])
+            else f", contre {one_in(north[0])}"
+        ),
         "#latitudes-after",
     )
     has(
         "ch4: levels",
-        f"réunies {pc(lv[250], 2)} du temps dans l'hémisphère nord ; au niveau 300, {pc(lv[300], 2)}",
+        f"réunies {one_in(lv[250])} dans l'hémisphère nord ; au niveau 300, {one_in(lv[300])}",
         "#altitude-after",
     )
-    has("ch4: FL390", f"{pc(lv[200], 2)} seulement", "#altitude-after")
+    has("ch4: FL390", f"{one_in(lv[200])} seulement", "#altitude-after")
     paris = sorted([r for r in C["routes"] if r["key"].startswith("CDG")], key=lambda r: -r["seasons"]["DJF"])
     has(
         "ch5: the most exposed route",
-        f"Sur {paris[0]['label']}, {pc(paris[0]['seasons']['DJF'])} du trajet",
+        f"Sur {paris[0]['label']}, {mins(rmin(paris[0], 'DJF'))} des {dur(fmin(paris[0]))} du trajet",
         "#routes-after",
     )
     has(
@@ -223,7 +271,9 @@ with sync_playwright() as pw:
     )
     has("ch6: strongest", f"la hausse est de {chg(atl['sev'])}", "#atlantique-after")
     hi = max(LOCAL, key=lambda k: R[k]["change"])
-    has("ch7: highest", f"{chg(R[hi]['change'])} d'une décennie à l'autre", "#tendance-prose")
+    lo = min(LOCAL, key=lambda k: R[k]["change"])
+    has("ch7: lowest and highest", f"de {chg(R[lo]['change'])} au-dessus", "#tendance-prose")
+    has("ch7: highest", f"à {chg(R[hi]['change'])} au-dessus", "#tendance-prose")
     vws = C["regions"]["atlantique"]["trendVws"]["change"]
     moved = (
         "n'a presque pas changé"
@@ -235,11 +285,11 @@ with sync_playwright() as pw:
     sv = C["regions"]["atlantique"]["decadesSev"]
     for name, yrs, f in [("first", D["first"], sv["first"]), ("last", D["last"], sv["last"])]:
         h = hrs(f).replace(" heures", " h")
-        has(f"opening: {name} decade", f"{yrs[0]}-{yrs[1]} Fortes turbulences possibles : {h} par an", ".tc-open")
+        has(f"opening: {name} decade", f"{yrs[0]}-{yrs[1]} Conditions les plus fortes : {h} par an", ".tc-open")
     has(
         "opening: the reading sentence",
-        f"l'air réunit les conditions de fortes turbulences {round(sv['first'] * 8766)} heures par an au total "
-        f"en {D['first'][0]}-{D['first'][1]}, et {round(sv['last'] * 8766)} aujourd'hui",
+        f"les conditions les plus fortes de turbulence en air clair {round(sv['first'] * 8766)} heures par an "
+        f"en {D['first'][0]}-{D['first'][1]}. En {D['last'][0]}-{D['last'][1]}, {round(sv['last'] * 8766)} heures",
         "#tc-read",
     )
     has(
@@ -267,6 +317,12 @@ with sync_playwright() as pw:
     check(
         "every chapter lists its data",
         pg.locator(".story-chapter:not(#en-bref) .chapter-sources").count() == 8,
+    )
+    has("answer: Paris – New York minutes", f"environ {mins(rmin(pny, 'DJF'))} du trajet", "#reponse-prose")
+    check(
+        "routes: the data table gives minutes",
+        f"{rnd(rmin(pny, 'DJF'))} min"
+        in norm(pg.locator("#chart-routes + details.data").evaluate("n => n.textContent")),
     )
     # controls
     pg.click("#levels-seg button[data-v=DJF]")
