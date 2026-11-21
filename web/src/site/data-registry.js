@@ -17,6 +17,7 @@ import { ASOURCES } from "../avions/sources.js";
 import { JPSOURCES, FACTS as JETS_FACTS } from "../jets/sources.js";
 import { TSOURCES, FACTS as CAT_FACTS } from "../cat/sources.js";
 import { KSOURCES, FACTS as KERO_FACTS } from "../kero/sources.js";
+import { RSOURCES, FACTS as ATFM_FACTS } from "../atfm/sources.js";
 
 /** The source tables of the stories, by investigation key (issues.js). */
 export const TABLES = {
@@ -31,6 +32,7 @@ export const TABLES = {
   jets: JPSOURCES,
   cat: TSOURCES,
   kero: KSOURCES,
+  atfm: RSOURCES,
 };
 
 const NOTICE_EUROSTAT = { text: "réutilisation autorisée, source citée", url: ESOURCES.copyright.url };
@@ -386,6 +388,18 @@ export const DATASETS = [
     checks: ["web/scripts/check_site.py", "web/scripts/check_kero.py"],
   },
   {
+    id: "eurocontrol-atfm",
+    producer: "EUROCONTROL",
+    title: "Retards ATFM en route par prestataire de navigation aérienne",
+    refs: [["atfm", "atfm"]],
+    what: "Pour chaque jour et chaque organisme de contrôle aérien d'Europe : les vols contrôlés, les minutes d'attente au sol qu'il a imposées aux avions, et le motif déclaré de chaque régulation.",
+    period: "Quotidien depuis le 1er janvier 2014.",
+    terms: { text: "réutilisation libre, source citée" },
+    files: ["data/atfm/atfm.json"],
+    etl: ["etl/atfm/fetch_atfm.py", "etl/atfm/build_atfm.py"],
+    checks: ["web/scripts/check_atfm.py"],
+  },
+  {
     id: "eurostat-petrole",
     producer: "Eurostat",
     title: "Kérosène : importations par origine, bilan mensuel et douanes",
@@ -578,6 +592,7 @@ export const FACTS = [
   { issue: "jets", facts: Object.values(JETS_FACTS) },
   { issue: "cat", facts: Object.values(CAT_FACTS) },
   { issue: "kero", facts: Object.values(KERO_FACTS) },
+  { issue: "atfm", facts: Object.values(ATFM_FACTS) },
 ];
 
 /** A dataset's or a reference's own name and address, from the first story table it is in. */

@@ -223,6 +223,33 @@ export const TERMS = {
       d: "Le plus court chemin entre deux aéroports à la surface de la Terre. Un avion fait un peu plus, à cause des routes aériennes et du vent.",
     },
   ],
+  atfm: [
+    {
+      re: rx("centres? de contrôle"),
+      t: "Centre de contrôle en route",
+      d: "La salle d'où des contrôleurs guident les avions en croisière au-dessus d'une région. Chaque contrôleur surveille un secteur du ciel, et ne peut y suivre qu'un nombre limité d'avions à la fois.",
+    },
+    {
+      re: rx("créneaux?"),
+      t: "Créneau",
+      d: "L'heure de décollage imposée à un avion pour qu'il n'arrive pas dans un secteur du ciel déjà plein. L'avion attend au sol plutôt que de tourner en l'air.",
+    },
+    {
+      re: rx("régulations?"),
+      t: "Régulation",
+      d: "La limite qu'un centre de contrôle pose sur le nombre d'avions qu'il accepte par heure dans une partie de son ciel. Elle retarde au sol les vols qui devaient y passer.",
+    },
+    {
+      re: rx("EUROCONTROL"),
+      t: "EUROCONTROL",
+      d: "L'organisation qui coordonne le trafic aérien de quarante et un pays d'Europe. Son gestionnaire de réseau répartit les créneaux de décollage quand le ciel sature.",
+    },
+    {
+      re: rx("secteurs?"),
+      t: "Secteur",
+      d: "Un volume de ciel confié à une équipe de contrôleurs. Quand le trafic baisse, on regroupe des secteurs ; quand il monte, il faut des contrôleurs pour les rouvrir.",
+    },
+  ],
   kero: [
     {
       re: rx("kérosène"),

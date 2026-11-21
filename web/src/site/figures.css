@@ -1,0 +1,393 @@
+/* « Graphique »: one visual grammar for every figure of the magazine, loaded with atlas.css on every page.
+   A figure reads top to bottom: number, finding (title), measure (note), the chart, how to read it (Lecture),
+   its numbers (table), its source. The chart itself speaks with few inks: map blue for the data, ICAO magenta for
+   the series the story is about, greys for context; one type family, tabular figures, hairline grids.
+   Charts drawn with lib/chartkit.js take their classes here (.ck-*); older charts are brought to the same
+   grammar by the generic rules below. Selectors are prefixed :root:root to win over the page styles. */
+
+:root {
+  --ck-grid: color-mix(in srgb, var(--ink) 11%, transparent);
+  --ck-axis: color-mix(in srgb, var(--ink) 55%, transparent);
+  --ck-tick: 12.5px;
+  --ck-label: 13px;
+  --ck-tip-bg: #0e1b2c;
+  --ck-tip-ink: #eef3f8;
+  --ck-tip-muted: #a9bccd;
+}
+
+/* ------------------------------------------------------------------ the figure's head */
+:root:root .fig-no {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 2px 0 8px;
+  font: 750 0.9rem/1 var(--f-ui);
+  letter-spacing: 0.09em;
+  /* small capitals, not text-transform: the check scripts read the text as written */
+  font-variant-caps: all-small-caps;
+  color: var(--magenta-text, var(--magenta));
+}
+
+:root:root .fig-no::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border: 4.5px solid transparent;
+  border-bottom: 8px solid currentColor;
+  border-top: 0;
+}
+
+:root:root .panel:not(.dark-panel) > h3,
+:root:root .panel:not(.dark-panel) .panel-head h3 {
+  font-size: clamp(1.4rem, 2.1vw, 1.8rem);
+  line-height: 1.06;
+  max-width: 34ch;
+  margin-bottom: 6px;
+}
+
+:root:root .panel:not(.dark-panel, .explorer) > .note:not(.lecture) {
+  max-width: 62ch;
+  margin-bottom: 14px;
+  font: 400 0.92rem/1.4 var(--f-ui);
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ inside every chart */
+:root:root .chart svg text {
+  font-family: var(--f-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+:root:root .chart svg .c-tick,
+:root:root .chart svg .ck-tick {
+  font-size: var(--ck-tick);
+  font-weight: 500;
+  fill: var(--muted);
+}
+
+:root:root .chart svg .grid line,
+:root:root .chart svg .k-grid,
+:root:root .chart svg .ck-grid {
+  stroke: var(--ck-grid);
+  stroke-opacity: 1;
+  stroke-dasharray: 2 4;
+}
+
+:root:root .chart svg .c-line {
+  stroke-width: 2.8;
+}
+
+.ck-axis {
+  stroke: var(--ck-axis);
+  stroke-width: 1;
+}
+
+.ck-line {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.ck-line.thin {
+  stroke-width: 1.4;
+}
+
+.ck-area {
+  opacity: 0.16;
+}
+
+.ck-label {
+  font-size: var(--ck-label);
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.ck-label.muted {
+  font-weight: 500;
+  fill: var(--muted);
+}
+
+.ck-value {
+  font-size: 17px;
+  font-weight: 780;
+}
+
+/* an annotation: a short sentence tied to a mark by a hairline */
+.ck-note-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.ck-note-dot {
+  fill: var(--paper, #f3f5f2);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.ck-note-text {
+  font-size: 12.5px;
+  font-weight: 650;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--paper, #f3f5f2);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+/* a reference line with its word (a date, a threshold) */
+.ck-ref {
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+
+.ck-ref-text {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.ck-hover {
+  stroke: var(--ink);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ legends */
+.ck-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font: 600 0.84rem/1.3 var(--f-ui);
+  color: var(--ink);
+}
+
+.ck-legend li,
+.ck-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ck-legend i {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--c, var(--blue));
+}
+
+.ck-legend i.line {
+  height: 3px;
+  width: 18px;
+  border-radius: 2px;
+}
+
+.ck-ramp {
+  display: grid;
+  gap: 4px;
+  width: min(100%, 320px);
+  margin: 10px 0 0;
+  font: 500 0.78rem/1.2 var(--f-ui);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ck-ramp i {
+  display: block;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.ck-ramp span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ck-ramp b {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ the tooltip: one night card everywhere */
+:root:root .tooltip {
+  background: var(--ck-tip-bg);
+  color: var(--ck-tip-ink);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(8, 17, 27, 0.28);
+  padding: 10px 13px 11px;
+  font: 500 0.84rem/1.35 var(--f-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+:root:root .tooltip .t-title {
+  color: var(--ck-tip-ink);
+  font-weight: 750;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+:root:root .tooltip .t-lab {
+  color: var(--ck-tip-muted);
+}
+
+:root:root .tooltip .t-val {
+  color: var(--ck-tip-ink);
+  text-align: right;
+}
+
+:root:root .tooltip .t-key {
+  width: 10px;
+  height: 10px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--c, transparent);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+/* ------------------------------------------------------------------ « Lecture » and the numbers */
+:root:root .panel:not(.dark-panel, .explorer) .note.lecture {
+  position: relative;
+  max-width: 68ch;
+  margin-top: 14px;
+  padding: 9px 12px 10px 14px;
+  border-left: 3px solid var(--magenta);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  font: 400 0.88rem/1.45 var(--f-ui);
+  color: var(--ink);
+}
+
+:root:root .panel:not(.dark-panel, .explorer) .note.lecture b {
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  font-variant-caps: all-small-caps;
+  font-size: 0.95rem;
+  color: var(--magenta-text, var(--magenta));
+}
+
+:root:root details.data {
+  margin-top: 12px;
+}
+
+:root:root details.data summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  border-radius: 999px;
+  font: 650 0.8rem/1 var(--f-ui);
+  color: var(--ink);
+  list-style: none;
+  cursor: pointer;
+}
+
+:root:root details.data summary::-webkit-details-marker {
+  display: none;
+}
+
+:root:root details.data summary::before {
+  content: "";
+  width: 12px;
+  height: 10px;
+  background:
+    linear-gradient(currentColor 0 0) 0 0 / 100% 2px no-repeat,
+    linear-gradient(currentColor 0 0) 0 4px / 100% 2px no-repeat,
+    linear-gradient(currentColor 0 0) 0 8px / 100% 2px no-repeat;
+  opacity: 0.7;
+}
+
+:root:root details.data summary:hover,
+:root:root details.data[open] summary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+:root:root details.data table {
+  margin-top: 10px;
+  font: 500 0.82rem/1.3 var(--f-ui);
+}
+
+:root:root details.data thead th {
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  border-bottom: 1.5px solid var(--ink);
+  font-weight: 750;
+  color: var(--ink);
+}
+
+:root:root details.data tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--ink) 3.5%, transparent);
+}
+
+:root:root details.data th,
+:root:root details.data td {
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--ck-grid);
+}
+
+:root:root .source-line {
+  margin-top: 14px;
+  font-size: 0.78rem;
+}
+
+/* ------------------------------------------------------------------ big numbers beside a figure */
+.ck-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px 28px;
+  margin: 0 0 18px;
+}
+
+.ck-stat b {
+  display: block;
+  font: 800 clamp(1.9rem, 3.4vw, 2.7rem) / 1 var(--f-display);
+  font-stretch: 72%;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.ck-stat.hi b {
+  color: var(--magenta-text, var(--magenta));
+}
+
+.ck-stat span {
+  display: block;
+  margin-top: 4px;
+  font: 500 0.84rem/1.3 var(--f-ui);
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ small multiples */
+.ck-multiples {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px 16px;
+}
+
+.ck-multiple h4 {
+  margin: 0 0 2px;
+  font: 750 0.9rem/1.2 var(--f-ui);
+  color: var(--ink);
+}
+
+.ck-multiple p {
+  margin: 0 0 4px;
+  font: 500 0.78rem/1.2 var(--f-ui);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ck-multiple.hi h4 {
+  color: var(--magenta-text, var(--magenta));
+}

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Qui retarde les avions en Europe ? Les retards du contrôle aérien, jour par jour depuis 2014</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <meta
+      name="description"
+      content="Combien de minutes les avions attendent au sol un créneau du contrôle aérien, quels jours, pour quels motifs et dans quels pays : chaque jour depuis 2014, d'après les données d'EUROCONTROL."
+    />
+    <meta name="author" content="Arthur Dubrou" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Qui retarde les avions en Europe ?",
+        "description": "Les retards imposés par le contrôle aérien en route en Europe, chaque jour depuis 2014, par motif déclaré et par pays.",
+        "inLanguage": "fr",
+        "datePublished": "2026-11-16",
+        "dateModified": "2026-11-16",
+        "author": {
+          "@type": "Person",
+          "name": "Arthur Dubrou",
+          "url": "https://www.linkedin.com/in/arthur-dubrou/"
+        },
+        "isBasedOn": ["https://ansperformance.eu/reference/dataset/en-route-atfm-delay-aua/"]
+      }
+    </script>
+    <meta name="theme-color" content="#0e1b2c" />
+    <meta name="site-root" content="../" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Qui retarde les avions en Europe ?" />
+    <meta
+      property="og:description"
+      content="Deux fois plus de retard par vol qu'il y a dix ans, plus de la moitié en trois mois d'été, et un pays qui en porte plus du tiers."
+    />
+    <meta property="og:image" content="%VITE_SITE_URL%og-atfm.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="%VITE_SITE_URL%retards" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="rt">
+    <a class="skip-link" href="#ouverture">Aller au contenu</a>
+    <header class="masthead">
+      <div class="read-progress" aria-hidden="true"><i id="read-progress"></i></div>
+      <div class="wrap">
+        <a class="site-mark" href="../" aria-label="aviationdata, toutes les enquêtes">aviation<b>data</b></a>
+        <a class="brand" href="#ouverture">Retards</a>
+        <nav class="topnav" aria-label="Parties">
+          <a href="#partie-1">Combien</a>
+          <a href="#partie-2">Pourquoi</a>
+          <a href="#partie-3">Où et quand</a>
+          <a href="#en-bref">La réponse</a>
+        </nav>
+        <!--site:menu-button-->
+      </div>
+    </header>
+
+    <main>
+      <!-- opening: every day since 2014, a row a year, on the night -->
+      <section class="tc-open rt-open" id="ouverture" aria-labelledby="title">
+        <div class="wrap">
+          <!--site:kicker-->
+          <h1 class="display" id="title">Qui retarde les avions en Europe ?</h1>
+          <p class="open-q">
+            Un avion prêt à partir, cloué à sa porte : le contrôle aérien n'a pas de place pour lui sur sa route.
+            Treize ans de ces attentes, jour par jour, pays par pays.
+          </p>
+        </div>
+        <figure class="wrap tc-open-fig" id="rt-open-fig" aria-labelledby="rt-open-cap" data-rsource="atfm">
+          <div class="rt-open-stats" id="rt-open-stats"></div>
+          <div class="rt-cal" id="rt-open-cal" role="img" aria-label="Calendrier en cours de chargement"></div>
+          <figcaption class="tc-open-cap" id="rt-open-cap"></figcaption>
+        </figure>
+      </section>
+      <div class="wrap standfirst">
+        <p class="open-dek" id="open-dek"></p>
+        <!--site:byline-->
+      </div>
+
+      <section class="wrap essentiel" id="essentiel" aria-labelledby="h-essentiel">
+        <h2 class="essentiel-title" id="h-essentiel">L'essentiel, étape par étape</h2>
+        <p class="essentiel-dek">
+          Deux minutes pour l'enquête entière : ses réponses dans l'ordre où elle les construit. Chaque étape mène
+          au chapitre qui l'explique.
+        </p>
+        <ol class="essentiel-list" id="essentiel-list"></ol>
+      </section>
+
+      <div class="part wrap" id="partie-1">
+        <p class="part-label"><span class="part-no">Partie 1</span> Combien</p>
+        <p class="part-dek">Les minutes d'attente imposées par le contrôle aérien en route, année après année, puis jour après jour.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="niveau" aria-labelledby="h-niveau">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-niveau"></h2>
+          <div class="prose" id="niveau-prose"></div>
+        </div>
+        <figure class="panel" data-rsource="atfm">
+          <h3 id="h-year-fig"></h3>
+          <p class="note" id="year-note"></p>
+          <div role="group" class="chart" id="chart-year" aria-labelledby="h-year-fig"></div>
+          <p class="note lecture" id="year-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="niveau-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="niveau-aside"></p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="calendrier" aria-labelledby="h-calendrier">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-calendrier"></h2>
+          <div class="prose" id="calendrier-prose"></div>
+        </div>
+        <figure class="panel" data-rsource="atfm">
+          <h3 id="h-cal-fig"></h3>
+          <p class="note" id="cal-note"></p>
+          <div role="group" class="chart" id="chart-cal" aria-labelledby="h-cal-fig"></div>
+          <p class="note lecture" id="cal-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="calendrier-after"></div>
+      </section>
+
+      <div class="part wrap" id="partie-2">
+        <p class="part-label"><span class="part-no">Partie 2</span> Pourquoi</p>
+        <p class="part-dek">Les motifs que déclarent les centres de contrôle, mois par mois, et les pires journées depuis 2014.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="motifs" aria-labelledby="h-motifs">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-motifs"></h2>
+          <div class="prose" id="motifs-prose"></div>
+        </div>
+        <figure class="panel" data-rsource="atfm">
+          <h3 id="h-reasons-fig"></h3>
+          <p class="note" id="reasons-note"></p>
+          <div role="group" class="chart" id="chart-reasons" aria-labelledby="h-reasons-fig"></div>
+          <p class="note lecture" id="reasons-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="motifs-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="motifs-aside"></p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="pires" aria-labelledby="h-pires">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-pires"></h2>
+          <div class="prose" id="pires-prose"></div>
+        </div>
+        <figure class="panel" data-rsource="atfm">
+          <h3 id="h-dots-fig"></h3>
+          <p class="note" id="dots-note"></p>
+          <div role="group" class="chart" id="chart-dots" aria-labelledby="h-dots-fig"></div>
+          <p class="note lecture" id="dots-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="pires-after"></div>
+      </section>
+
+      <div class="part wrap" id="partie-3">
+        <p class="part-label"><span class="part-no">Partie 3</span> Où et quand</p>
+        <p class="part-dek">Les pays auxquels le retard est attribué, leur trajectoire depuis 2014, et les jours de la semaine.</p>
+      </div>
+
+      <section class="chapter wrap story-chapter" id="pays" aria-labelledby="h-pays">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-pays"></h2>
+          <div class="prose" id="pays-prose"></div>
+        </div>
+        <figure class="panel" data-rsource="atfm">
+          <h3 id="h-tiles-fig"></h3>
+          <p class="note" id="tiles-note"></p>
+          <div role="group" class="chart" id="chart-tiles" aria-labelledby="h-tiles-fig"></div>
+          <p class="note lecture" id="tiles-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="pays-after"></div>
+        <div class="story-aside" role="note" aria-label="À savoir">
+          <p><b>À savoir</b></p>
+          <p id="pays-aside"></p>
+        </div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="trajectoires" aria-labelledby="h-trajectoires">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-trajectoires"></h2>
+          <div class="prose" id="trajectoires-prose"></div>
+        </div>
+        <figure class="panel" data-rsource="atfm">
+          <h3 id="h-multi-fig"></h3>
+          <p class="note" id="multi-note"></p>
+          <div role="group" class="chart" id="chart-multi" aria-labelledby="h-multi-fig"></div>
+          <p class="note lecture" id="multi-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="trajectoires-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="semaine" aria-labelledby="h-semaine">
+        <div class="chapter-lede">
+          <h2 class="section-title" id="h-semaine"></h2>
+          <div class="prose" id="semaine-prose"></div>
+        </div>
+        <figure class="panel" data-rsource="atfm">
+          <h3 id="h-week-fig"></h3>
+          <p class="note" id="week-note"></p>
+          <div role="group" class="chart" id="chart-week" aria-labelledby="h-week-fig"></div>
+          <p class="note lecture" id="week-lecture"></p>
+        </figure>
+        <div class="prose after-figure" id="semaine-after"></div>
+      </section>
+
+      <section class="chapter wrap story-chapter" id="en-bref" aria-labelledby="h-bref">
+        <h2 class="section-title" id="h-bref">La réponse</h2>
+        <div class="prose reponse-prose" id="reponse-prose"></div>
+        <div class="share" id="share"></div>
+      </section>
+
+      <section class="wrap how" id="comment" aria-labelledby="h-comment" data-gloss="atfm">
+        <h2 class="how-title" id="h-comment">Comment nous avons fait</h2>
+        <p class="how-dek">
+          La méthode en 5 étapes, pour lire chaque chiffre en confiance. Le détail complet, sources et calculs, est en
+          bas de page.
+        </p>
+        <ol class="how-steps">
+          <li>
+            <h3>Partir du registre du réseau</h3>
+            <p>
+              EUROCONTROL, qui coordonne le ciel européen, publie pour chaque jour et chaque organisme de contrôle les
+              minutes d'attente qu'il a imposées aux avions, et le motif qu'il a déclaré.
+            </p>
+          </li>
+          <li>
+            <h3>Rapporter les minutes aux vols</h3>
+            <p>
+              Un jour d'été compte deux fois plus de vols qu'un jour d'hiver. L'enquête divise toujours les minutes de
+              retard par le nombre de vols, retardés ou non.
+            </p>
+          </li>
+          <li>
+            <h3>Regrouper les motifs</h3>
+            <p>
+              Les seize motifs du registre sont réunis en cinq familles : capacité du contrôle, effectifs, météo,
+              grèves, et le reste. Ce sont des motifs déclarés, repris tels quels.
+            </p>
+          </li>
+          <li>
+            <h3>Ranger les organismes par pays</h3>
+            <p>
+              Chaque organisme de contrôle est rattaché à son pays, même quand il a changé de nom. Le centre de
+              Maastricht, commun à quatre pays, est compté à part.
+            </p>
+          </li>
+          <li>
+            <h3>Dire ce que la mesure ne voit pas</h3>
+            <p>
+              Ce retard n'est qu'une partie de celui d'un vol. Il ne dit rien des retards des compagnies ou des
+              aéroports, et un pays très cité n'est pas pour autant fautif.
+            </p>
+          </li>
+        </ol>
+        <details class="how-words">
+          <summary>Les mots de l'enquête</summary>
+          <div id="how-words"></div>
+        </details>
+      </section>
+      <!--site:next-->
+    </main>
+
+    <section class="footer" id="sources" aria-labelledby="h-sources">
+      <div class="wrap">
+        <h2 id="h-sources">Méthode et sources</h2>
+        <div id="sources-body"></div>
+      </div>
+    </section>
+    <!--site:foot-->
+    <!--site:menu-->
+    <div class="tooltip" id="tooltip" role="status"></div>
+    <script type="module" src="/src/atfm.js"></script>
+  </body>
+</html>

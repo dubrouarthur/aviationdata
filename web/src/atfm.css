@@ -1,0 +1,50 @@
+/* « Qui retarde les avions en Europe ? »: the opening calendar on the night, the tile map. The figures take their
+   grammar from site/figures.css (.ck-*); the opening reuses the night of cat.css (.tc-open). */
+
+.rt-open-stats .ck-stat b {
+  color: var(--night-ink);
+}
+
+.rt-open-stats .ck-stat.hi b {
+  color: var(--magenta-hi);
+}
+
+.rt-open-stats .ck-stat span {
+  color: var(--night-muted);
+}
+
+.rt-open-stats .ck-stats {
+  max-width: 54rem;
+  margin-bottom: 22px;
+}
+
+.rt-cal {
+  min-height: 120px;
+}
+
+:root:root .chart svg .ck-on-night,
+.ck-on-night {
+  fill: var(--night-muted);
+}
+
+.rt-cal svg text {
+  font: 500 12px var(--f-ui);
+  fill: var(--night-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tk-code {
+  font: 750 13px var(--f-ui);
+}
+
+.tk-val {
+  font: 800 18px var(--f-display, var(--f-ui));
+  font-stretch: 72%;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 560px) {
+  .tk-code {
+    font-size: 10px;
+  }
+}

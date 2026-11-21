@@ -20,6 +20,24 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "atfm",
+    slug: "retards",
+    no: 12,
+    topic: "Contrôle aérien",
+    title: "Qui retarde les avions en Europe ?",
+    dek: "Un avion prêt à partir, cloué à sa porte : le contrôle aérien n'a pas de place pour lui sur sa route. Combien de minutes, quels jours, pour quels motifs et dans quels pays : chaque jour depuis 2014, d'après les données d'EUROCONTROL.",
+    published: "2026-11-21",
+    updated: "2026-11-21",
+    minutes: 11,
+    chapters: 7,
+    image: "og-atfm.jpg",
+    cover: "50% 80%",
+    hook: "Pourquoi votre avion attend-il au sol, et où le ciel d'Europe sature-t-il ?",
+    accent: "var(--magenta)",
+    sources: "EUROCONTROL",
+    related: ["jet", "avions"],
+  },
+  {
     key: "kero",
     slug: "kerosene",
     no: 11,
