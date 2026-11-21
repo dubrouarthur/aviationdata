@@ -266,11 +266,10 @@ function issuesList({ root }) {
   <a class="shelf-link" href="${href(root, i.slug)}">
     <span class="shelf-cover">
       <img class="shelf-img" src="${root === "./" ? "" : root}${i.image}" alt="" width="1200" height="630" loading="lazy" />
-      <span class="shelf-no">N° ${i.no}</span>
-      <span class="shelf-head">
-        <span class="shelf-topic">${esc(i.topic)}</span>
-        <span class="shelf-title">${nobr(i.title)}</span>
-      </span>
+    </span>
+    <span class="shelf-head">
+      <span class="shelf-topic"><b class="shelf-no">N° ${i.no}</b> ${esc(i.topic)}</span>
+      <span class="shelf-title">${nobr(i.title)}</span>
     </span>
     <span class="shelf-dek">${esc(i.hook ?? i.dek)}</span>
     <span class="shelf-meta">${i.minutes} minutes de lecture. Données : ${esc(i.sources)}.</span>
@@ -367,6 +366,7 @@ function toolsList({ root }) {
     <span class="tool-title">${esc(t.title)}</span>
     <span class="tool-dek">${esc(t.dek)}</span>
     <span class="tool-from">Dans « ${esc(i.title)} »</span>
+    <span class="tool-go" aria-hidden="true">Ouvrir l'outil</span>
   </a>
 </li>`;
   }).join("\n");

@@ -236,8 +236,21 @@ export const ISSUES = [
   },
 ];
 
-// interactive tools inside the investigations, offered on their own from the home page and the menu
+// interactive tools inside the investigations, offered on their own from the home page and the menu;
+// the order is the home page's: the simulator first (the author's ask: the tools show the craft)
 export const TOOLS = [
+  {
+    issue: "jet",
+    hash: "placer",
+    title: "Le simulateur de vol",
+    dek: "Tracez votre route au-dessus de l'Atlantique, choisissez l'altitude et l'heure de départ, puis faites voler trois avions dans les vents d'une journée réelle.",
+  },
+  {
+    issue: "carbone",
+    hash: "calculer",
+    title: "Le CO2 de votre vol",
+    dek: "Choisissez votre départ et votre arrivée : le CO2 par passager, et ce qu'Eurostat dit de la liaison, passagers par vol, sièges occupés et vols par semaine.",
+  },
   {
     issue: "avions",
     hash: "comparer",
@@ -245,10 +258,16 @@ export const TOOLS = [
     dek: "Deux avions côte à côte : leurs vols dans le monde, la longueur de leurs trajets, leur usage quotidien, leur ponctualité et leurs annulations aux États-Unis.",
   },
   {
-    issue: "carbone",
-    hash: "calculer",
-    title: "Le CO2 de votre vol",
-    dek: "Choisissez votre départ et votre arrivée : le CO2 par passager, et ce qu'Eurostat dit de la liaison, passagers par vol, sièges occupés et vols par semaine.",
+    issue: "ciel",
+    hash: "aeroport",
+    title: "Votre aéroport",
+    dek: "Passagers, destinations, saisons et compagnies de chaque aéroport français, mois par mois depuis 1990.",
+  },
+  {
+    issue: "jet",
+    hash: "route",
+    title: "Le vent, jour par jour",
+    dek: "Chaque journée de 2019 à 2022 : le vent sur l'Atlantique, la route la plus rapide et la durée réelle des vols.",
   },
   {
     issue: "eu",
@@ -267,24 +286,6 @@ export const TOOLS = [
     hash: "explorer",
     title: "Les causes d'accidents, segment par segment",
     dek: "Aviation générale, taxi aérien, compagnies ou travail aérien, accidents mortels ou non : ce que citent les enquêteurs, qui ils nomment et ce qui s'est passé.",
-  },
-  {
-    issue: "jet",
-    hash: "placer",
-    title: "Le simulateur de vol",
-    dek: "Tracez votre route au-dessus de l'Atlantique, choisissez l'altitude et l'heure de départ, puis faites voler trois avions dans les vents d'une journée réelle.",
-  },
-  {
-    issue: "ciel",
-    hash: "aeroport",
-    title: "Votre aéroport",
-    dek: "Passagers, destinations, saisons et compagnies de chaque aéroport français, mois par mois depuis 1990.",
-  },
-  {
-    issue: "jet",
-    hash: "route",
-    title: "Le vent, jour par jour",
-    dek: "Chaque journée de 2019 à 2022 : le vent sur l'Atlantique, la route la plus rapide et la durée réelle des vols.",
   },
   {
     issue: "jet",

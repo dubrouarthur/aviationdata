@@ -1427,3 +1427,186 @@ body.home .q-link:hover,
 body.home .tools-list a:hover {
   transform: translateY(-2px);
 }
+
+/* ------------------------------------------------------------------ Carte 3: covers shown whole, tools as cards
+   A cover is the investigation's own share image at its own ratio (1200 x 630): nothing cropped, nothing written
+   over it; number, theme and title sit under it on the paper. */
+body.home .shelf {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 36px 24px;
+}
+
+body.home .shelf-link {
+  gap: 8px;
+}
+
+body.home .shelf-cover {
+  aspect-ratio: 1200 / 630;
+  border-radius: 10px;
+  background: var(--night);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+body.home .shelf-cover::after {
+  content: none;
+}
+
+body.home .shelf-img {
+  object-position: center;
+}
+
+body.home .shelf-head {
+  position: static;
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+body.home .shelf-topic {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font: 650 0.8rem/1.2 var(--f-ui);
+  color: var(--muted);
+}
+
+body.home .shelf-no {
+  position: static;
+  padding: 0;
+  background: none;
+  font: 800 0.8rem/1.2 var(--f-ui);
+  letter-spacing: 0.04em;
+  color: var(--magenta-text, var(--magenta));
+}
+
+body.home .shelf-title {
+  font-size: clamp(1.45rem, 1.2vw + 0.9rem, 1.8rem);
+  line-height: 1.02;
+  color: var(--ink);
+}
+
+body.home .shelf-dek {
+  font-size: 0.98rem;
+  color: var(--ink-2, var(--ink));
+}
+
+body.home .shelf-link:hover .shelf-title,
+body.home .shelf-link:focus-visible .shelf-title {
+  color: var(--magenta-text, var(--magenta));
+}
+
+body.home .shelf-link:hover .shelf-dek,
+body.home .shelf-link:focus-visible .shelf-dek {
+  text-decoration: none;
+}
+
+/* the lead: text, then the three numbers over the calendar */
+body.home .lead-night {
+  align-items: center;
+}
+
+@media (min-width: 980px) {
+  body.home .lead-night {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 8fr);
+  }
+}
+
+body.home .lead-cal-fig .ck-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 20px;
+  margin-bottom: 16px;
+}
+
+body.home .lead-cal-fig .ck-stat b {
+  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+}
+
+/* the tools: cards you want to open, each with its figure drawn large on a tinted ground */
+body.home .tools-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+  gap: 20px;
+}
+
+body.home .tool a {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 0 0 18px;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--paper) 97%, var(--ink));
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+body.home .tool a > :not(.tool-glyph) {
+  margin-inline: 18px;
+}
+
+body.home .tool-glyph {
+  width: 100%;
+  height: 132px;
+  margin: 0 0 8px;
+  padding: 26px 30%;
+  box-sizing: border-box;
+  background-color: color-mix(in srgb, var(--ink) 5%, var(--paper));
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ink) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ink) 6%, transparent) 1px, transparent 1px);
+  background-size:
+    100% 22px,
+    22px 100%;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+body.home .tool-title {
+  font-size: 1.4rem;
+}
+
+body.home .tool-dek {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  flex: 1;
+}
+
+body.home .tool-go {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 0.84rem/1 var(--f-ui);
+}
+
+body.home .tool-go::after {
+  content: " →";
+}
+
+body.home .tool a:hover,
+body.home .tool a:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--magenta);
+  box-shadow: 0 14px 30px rgba(14, 27, 44, 0.14);
+}
+
+body.home .tool a:hover .tool-go,
+body.home .tool a:focus-visible .tool-go {
+  background: var(--magenta);
+  color: #fff;
+}
+
+body.home .tool a:hover .tool-title,
+body.home .tool a:focus-visible .tool-title {
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.home .tool a {
+    transition: none;
+  }
+}

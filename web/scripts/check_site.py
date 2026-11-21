@@ -197,16 +197,16 @@ with sync_playwright() as pw:
     latest = pg.eval_on_selector_all(".latest-route a", "as => as.map(a => a.getAttribute('href'))")
     check("home opens on the five latest questions", latest == SLUGS[:5], str(latest))
     pg.wait_for_timeout(800)
-    # the lead story's own figure (n° 9): a hundred flights before, during and after the Covid, whose
-    # numbers are the ones its story opens on; and the business-jet routes drawn behind the opening
-    pg.wait_for_selector("#lead-jets .jp-dots", timeout=15000)
-    lead = [norm(t) for t in pg.eval_on_selector_all("#lead-jets .jp-dots-h b", "bs => bs.map(b => b.textContent)")]
-    check("home lead draws a hundred flights twice, before and during the Covid", len(lead) == 2, str(lead))
+    # the lead story's own figure (n° 12): its three opening numbers over the calendar of every day since
+    # 2014, the same as its story opens on; and the business-jet routes drawn behind the opening
+    pg.wait_for_selector("#lead-cal svg rect", timeout=15000)
+    lead = [norm(t) for t in pg.eval_on_selector_all("#lead-stats .ck-stat b", "bs => bs.map(b => b.textContent)")]
+    check("home lead shows three numbers over its calendar", len(lead) == 3, str(lead))
     check("home lead draws the routes", pg.locator("#home-routes canvas").count() == 1)
     pg_story = browser.new_page()
-    pg_story.goto(f"{base}/jets-prives", wait_until="networkidle")
-    pg_story.wait_for_selector("#jp-open-big .jp-dots", timeout=15000)
-    story = [norm(t) for t in pg_story.eval_on_selector_all("#jp-open-big .jp-dots-h b", "bs => bs.map(b => b.textContent)")]
+    pg_story.goto(f"{base}/retards", wait_until="networkidle")
+    pg_story.wait_for_selector("#rt-open-cal svg rect", timeout=15000)
+    story = [norm(t) for t in pg_story.eval_on_selector_all("#rt-open-stats .ck-stat b", "bs => bs.map(b => b.textContent)")]
     pg_story.close()
     check("home lead shows the story's numbers", lead == story, f"{lead} vs {story}")
     # four questions before reading: each answered, then every number of the question, of the answer and
