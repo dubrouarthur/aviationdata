@@ -1,0 +1,50 @@
+/* « Quand les avions heurtent-ils des oiseaux ? »: the clock on the night, the night frame of the hour grid, the
+   species multiples. The figures take their grammar from site/figures.css (.ck-*); the opening reuses the night of
+   cat.css (.tc-open) and the stats of atfm.css. */
+
+.bd-clock {
+  max-width: 640px;
+  margin-inline: auto;
+  min-height: 300px;
+}
+
+.bd-clock svg text.bc-center {
+  font: 600 13px var(--f-ui);
+  fill: var(--night-muted);
+}
+
+.bd-clock svg text.bc-month {
+  font-size: 11px;
+}
+
+.bc-night {
+  fill: none;
+  stroke: var(--magenta);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+
+.bc-multiples {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px 22px;
+}
+
+.bc-multiples .ck-label b {
+  display: block;
+}
+
+.bc-multiples .ck-label span {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .bc-multiples {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.bc-rate {
+  font-variant-numeric: tabular-nums;
+}

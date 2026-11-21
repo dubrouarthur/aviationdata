@@ -223,6 +223,33 @@ export const TERMS = {
       d: "Le plus court chemin entre deux aéroports à la surface de la Terre. Un avion fait un peu plus, à cause des routes aériennes et du vent.",
     },
   ],
+  birds: [
+    {
+      re: rx("FAA"),
+      t: "FAA",
+      d: "La Federal Aviation Administration, l'autorité de l'aviation civile des États-Unis. Elle certifie les avions, contrôle le trafic et tient la base publique des impacts d'animaux.",
+    },
+    {
+      re: rx("approche"),
+      t: "Approche",
+      d: "La dernière partie d'un vol avant l'atterrissage : l'avion descend vers la piste, aligné, à vitesse réduite, pendant plusieurs minutes.",
+    },
+    {
+      re: rx("radôme"),
+      t: "Radôme",
+      d: "Le capot arrondi du nez de l'avion, qui abrite l'antenne du radar météo. Il est fait d'un matériau que les ondes traversent.",
+    },
+    {
+      re: rx("migrations?"),
+      t: "Migration",
+      d: "Le voyage saisonnier des oiseaux entre leurs lieux de nidification et d'hivernage, au printemps et à l'automne. Beaucoup volent de nuit, parfois à plusieurs milliers de mètres.",
+    },
+    {
+      re: rx("pieds"),
+      t: "Pied",
+      d: "L'unité de hauteur de l'aviation : un pied vaut 30,48 centimètres. 1 000 pieds font environ 300 mètres.",
+    },
+  ],
   atfm: [
     {
       re: rx("centres? de contrôle"),

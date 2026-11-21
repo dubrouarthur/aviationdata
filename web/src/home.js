@@ -8,15 +8,15 @@ import "./saisons.css";
 import "./jets.css";
 import "./cat.css";
 import "./atfm.css";
+import "./birds.css";
 import "./site/atlas.css";
 import "./site/carte.css";
 import { initSiteMenu } from "./site/menu.js";
 import { watchFrenchSpacing } from "./lib/ui.js";
-import { fmtNum } from "./lib/format.js";
 import { getJSON } from "./court/page.js";
 import { stats } from "./lib/chartkit.js";
-import { atfmFacts } from "./atfm/facts.js";
-import { calendar } from "./atfm/charts.js";
+import { birdFacts, openingNumbers } from "./birds/facts.js";
+import { yearClock } from "./birds/charts.js";
 import { homeRoutes } from "./home/routes.js";
 import { quiz } from "./home/quiz.js";
 
@@ -30,20 +30,14 @@ async function openingRoutes() {
   homeRoutes(routes, await getJSON("data/jets/jets.json"));
 }
 
-/** The lead story's figure (n° 12): its three opening numbers and the calendar of every day since 2014. */
+/** The lead story's figure (n° 13): its three opening numbers and the year as a clock. */
 async function lead() {
-  const node = document.getElementById("lead-cal");
+  const node = document.getElementById("lead-clock");
   if (!node) return;
-  const A = await getJSON("data/atfm/atfm.json");
-  const F = atfmFacts(A);
-  document.getElementById("lead-stats")?.replaceChildren(
-    stats([
-      { value: `1 sur ${fmtNum(Math.round(1 / F.delayed), 0)}`, label: `vols retardés par le contrôle en route en ${F.year}` },
-      { value: `${fmtNum(F.perDelayed, 0)} min`, label: "d'attente en moyenne pour ces vols" },
-      { value: `× ${fmtNum(F.ratio, 1)}`, label: "de retard par vol depuis 2014-2017", hi: true },
-    ]),
-  );
-  calendar(node, A, { max: 6, night: true, label: node.getAttribute("aria-label") ?? "" });
+  const F0 = await getJSON("data/birds/birds.json");
+  const F = birdFacts(F0);
+  document.getElementById("lead-stats")?.replaceChildren(stats(openingNumbers(F)));
+  yearClock(node, F0, { label: node.getAttribute("aria-label") ?? "" });
 }
 
 openingRoutes().catch((err) => console.error("routes:", err));

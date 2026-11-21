@@ -20,6 +20,24 @@ export const SITE = {
 
 export const ISSUES = [
   {
+    key: "birds",
+    slug: "oiseaux",
+    no: 13,
+    topic: "Sécurité",
+    title: "Quand les avions heurtent-ils des oiseaux ?",
+    dek: "À quelle heure, à quelle saison, à quelle hauteur et avec quels animaux : trente-six ans d'impacts déclarés à l'aviation civile américaine, la nuit des migrations, l'approche, les moteurs, et les grands oiseaux qui font les dégâts.",
+    published: "2026-11-21",
+    updated: "2026-11-21",
+    minutes: 10,
+    chapters: 7,
+    image: "og-birds.jpg",
+    cover: "50% 50%",
+    hook: "À quelle heure, à quelle hauteur et avec quels oiseaux les avions entrent-ils en collision ?",
+    accent: "var(--magenta)",
+    sources: "FAA",
+    related: ["hf", "cat"],
+  },
+  {
     key: "atfm",
     slug: "retards",
     no: 12,
