@@ -202,3 +202,39 @@
 .tc-read strong {
   color: var(--magenta-hi);
 }
+
+/* what is counted: three definitions in plain words, between the standfirst and the essentials */
+:root:root .tc-measure {
+  margin-block: 0.5rem 2.5rem;
+}
+:root:root .tc-measure .tc-measure-h {
+  font: 700 0.82rem/1.2 var(--f-ui);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.06em;
+  color: var(--magenta-text);
+  margin: 0 0 0.75rem;
+}
+:root:root .tc-measure dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+:root:root .tc-measure dl > div {
+  border-top: 2px solid var(--ink);
+  padding-top: 0.6rem;
+}
+:root:root .tc-measure dt {
+  font: 700 1.02rem/1.25 var(--f-ui);
+  margin-bottom: 0.35rem;
+}
+:root:root .tc-measure dd {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+@media (max-width: 760px) {
+  :root:root .tc-measure dl {
+    grid-template-columns: 1fr;
+  }
+}

@@ -8,7 +8,7 @@ import { fmtNum } from "../lib/format.js";
 import { link } from "../court/sources.js";
 import { essentialSteps } from "../site/story.js";
 import { TSOURCES, FACTS } from "./sources.js";
-import { MONTHS_FR, SEASON_FR, SEASON_NAME } from "./facts.js";
+import { MONTHS_FR, SEASON_FR, SEASON_NAME, CRUISE_KMH, flightMinutes, routeMinutes } from "./facts.js";
 
 const p = (parts) => el("p", {}, rich(parts));
 const n0 = (v) => fmtNum(v, 0);
@@ -19,6 +19,15 @@ const chg = (r) => (Math.abs(r) < 0.005 ? "0 %" : `${r >= 0 ? "+" : "−"}${fmtN
 const hrs = (f) => {
   const h = f * 8766;
   return `${n0(h < 50 ? Math.round(h) : Math.round(h / 5) * 5)} heures`;
+};
+/** a frequency as « une heure sur 37 » */
+const oneIn = (f) => `une heure sur ${n0(Math.round(1 / f))}`;
+/** minutes, whole */
+const mins = (m) => `${n0(Math.round(m))} minutes`;
+/** a flight time to the nearest five minutes: « 6 h 30 » */
+const dur = (m) => {
+  const t = Math.round(m / 5) * 5;
+  return `${Math.floor(t / 60)} h ${String(t % 60).padStart(2, "0")}`;
 };
 const WORDS = ["zéro", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
@@ -33,7 +42,7 @@ const times = (r) => {
 };
 const lat = (la) => `${n0(Math.abs(la))}° ${la >= 0 ? "N" : "S"}`;
 const decade = (F, end) => (end ? `${F.last - 9}-${F.last}` : `${F.first}-${F.first + 9}`);
-export const fmt = { n0, pc, chg, hrs, times, lat };
+export const fmt = { n0, pc, chg, hrs, times, lat, oneIn, mins, dur };
 /** the article each region's name takes */
 const NAMES = {
   atlantique: { le: "l'Atlantique Nord", de: "de l'Atlantique Nord" },
@@ -71,6 +80,37 @@ export function writeOpening(F) {
   );
 }
 
+/** what is counted: the two thresholds and the hours, in plain words, before the essentials */
+export function writeMeasure(F) {
+  $("#tc-measure").replaceChildren(
+    el("p", { class: "tc-measure-h", text: "Ce que l'on compte" }),
+    el("dl", {}, [
+      el("div", {}, [
+        el("dt", { text: "Conditions propices" }),
+        el("dd", {}, rich([
+          `Le vent réunit les ingrédients de la turbulence en air clair à un niveau qu'il n'atteint que dans ${pc(F.pctMod, 1)} des situations du globe, `,
+          { b: oneIn(F.pctMod) },
+          ". C'est la mesure de toute l'enquête.",
+        ])),
+      ]),
+      el("div", {}, [
+        el("dt", { text: "Conditions les plus fortes" }),
+        el("dd", {}, rich([
+          `Un niveau ${F.pctMod / F.pctSev >= 10 ? "plus de dix fois" : times(F.pctMod / F.pctSev)} plus rare, ${pc(F.pctSev, 2)} des situations. C'est la mesure des deux cartes d'ouverture.`,
+        ])),
+      ]),
+      el("div", {}, [
+        el("dt", { text: "Des heures par an" }),
+        el("dd", {}, rich([
+          "Chaque fréquence devient un temps cumulé sur une année : ",
+          { b: "1 % du temps, c'est 88 heures par an" },
+          ". Ce sont des heures où l'air s'y prête, pas des heures de secousses.",
+        ])),
+      ]),
+    ]),
+  );
+}
+
 export function writeEssentiel(F) {
   const [top, second] = F.byClim;
   essentialSteps([
@@ -94,15 +134,15 @@ export function writeEssentiel(F) {
       id: "altitude",
       q: "À quelle altitude ?",
       n: `niveau ${n0(F.topLevel.fl)}`,
-      lead: `le niveau de vol où ces conditions sont les plus fréquentes, dans l'hémisphère nord.`,
+      lead: `(environ ${n0(Math.round((F.topLevel.fl * 30.48) / 100) * 100)} mètres) : c'est là que ces conditions sont les plus fréquentes, dans l'hémisphère nord.`,
       more: [`Au niveau 390, ${times(F.topLevel.freq / F.levels[0].freq)} moins.`],
     },
     {
       id: "routes",
-      q: "Et sur Paris – New York ?",
-      n: pc(F.pny.seasons.DJF, 1),
-      lead: "du trajet traverse en moyenne des conditions propices, de décembre à février.",
-      more: ["L'été, ", { b: pc(F.pny.seasons.JJA, 1) }, "."],
+      q: "Et sur un Paris – New York ?",
+      n: mins(routeMinutes(F.pny, "DJF")),
+      lead: `sur les ${dur(flightMinutes(F.pny))} du trajet traversent en moyenne des conditions propices, de décembre à février.`,
+      more: ["L'été, ", { b: mins(routeMinutes(F.pny, "JJA")) }, "."],
     },
     {
       id: "tendance",
@@ -130,7 +170,7 @@ export function writeOu(F) {
   );
   $("#h-map-fig").textContent = "Trois couloirs au nord, un au sud";
   $("#map-note").textContent =
-    `Part des analyses où l'indice d'Ellrod dépasse le seuil des situations les plus fortes du globe, au niveau de vol 340 (250 hPa, environ 10 400 m), toutes saisons, ${F.first}-${F.last}, en %.`;
+    `Part des analyses où l'indice d'Ellrod dépasse le seuil des conditions propices (${pc(F.pctMod, 1)} des situations du globe), au niveau de vol 340 (250 hPa, environ 10 400 m), toutes saisons, ${F.first}-${F.last}, en %.`;
   lecture(
     "#chart-map",
     `chaque case fait 1,5° de côté. À 2 %, les conditions sont réunies 2 % du temps, environ 175 heures par an. Au-delà de 78° de latitude, la grille est trop serrée pour l'indice.`,
@@ -147,7 +187,7 @@ export function writeOu(F) {
   );
   $("#carte-aside").replaceChildren(
     rich([
-      `L'indice mesure des conditions, pas les secousses vécues à bord. Il est calculé sur une grille d'un degré et demi, environ 165 km, qui adoucit le vent : les tourbillons qui secouent un avion font quelques centaines de mètres. C'est pourquoi l'enquête ne retient pas de valeur absolue, mais le niveau que dépassent les ${pc(F.pctMod, 1)} des situations les plus fortes du globe, comme le fait la recherche sur le sujet.`,
+      `L'indice mesure des conditions, pas les secousses vécues à bord. Il est calculé sur une grille d'un degré et demi, environ 165 km, qui adoucit le vent : les tourbillons qui secouent un avion font quelques centaines de mètres. C'est pourquoi l'enquête ne retient pas de valeur absolue, mais un niveau rare : celui que le vent ne dépasse que dans ${pc(F.pctMod, 1)} des situations du globe, comme le fait la recherche sur le sujet.`,
     ]),
   );
 
@@ -171,8 +211,8 @@ export function writeOu(F) {
   $("#saisons-after").replaceChildren(
     p([
       `Au-dessus de l'Atlantique Nord, ces conditions sont réunies `,
-      { b: pc(atl.seasonClim.DJF, 1) },
-      ` du temps ${SEASON_FR.DJF}, contre ${pc(atl.seasonClim.JJA, 1)} ${SEASON_FR.JJA}.`,
+      { b: oneIn(atl.seasonClim.DJF) },
+      ` ${SEASON_FR.DJF}, contre ${oneIn(atl.seasonClim.JJA)} ${SEASON_FR.JJA}.`,
     ]),
     p([
       nWinter === F.local.length
@@ -201,8 +241,10 @@ export function writeOu(F) {
   $("#latitudes-after").replaceChildren(
     p([
       `L'hémisphère sud a sa propre bande : à ${lat(F.south.lat)} en ${MONTHS_FR[F.south.month]}, les conditions y sont réunies `,
-      { b: pc(F.south.freq, 1) },
-      ` du temps, contre ${pc(F.north.freq, 1)} au plus fort du nord.`,
+      { b: oneIn(F.south.freq) },
+      Math.round(1 / F.south.freq) === Math.round(1 / F.north.freq)
+        ? ", autant qu'au plus fort du nord."
+        : `, contre ${oneIn(F.north.freq)} au plus fort du nord.`,
     ]),
     p(["Beaucoup moins d'avions y passent : les grandes routes sont au nord."]),
   );
@@ -229,11 +271,11 @@ export function writeAltitude(F) {
   $("#altitude-after").replaceChildren(
     p([
       `Au niveau 340, ces conditions sont réunies `,
-      { b: pc(l250.freq, 2) },
-      ` du temps dans l'hémisphère nord ; au niveau 300, ${pc(l300.freq, 2)}.`,
+      { b: oneIn(l250.freq) },
+      ` dans l'hémisphère nord ; au niveau 300, ${oneIn(l300.freq)}.`,
     ]),
     p([
-      `Au niveau 390, au-dessus du cœur du courant-jet, ${pc(l200.freq, 2)} seulement. Le seuil est le même aux trois niveaux.`,
+      `Au niveau 390, au-dessus du cœur du courant-jet, ${oneIn(l200.freq)} seulement. Le seuil est le même aux trois niveaux.`,
     ]),
   );
 }
@@ -247,29 +289,29 @@ export function writeRoutes(F) {
   $("#h-routes").textContent = `Vers l'Amérique du Nord, les routes les plus agitées depuis Paris`;
   $("#routes-prose").replaceChildren(
     p([
-      "Le long d'une route, la part du trajet qui traverse des conditions propices dit l'exposition d'un vol, si l'avion suivait le plus court chemin à 10 400 mètres.",
+      `Combien de minutes d'un vol passent dans des conditions propices ? On suit chaque route par le plus court chemin, à 10 400 mètres et ${n0(CRUISE_KMH)} km/h, et l'on compte, point par point, le temps passé là où l'air s'y prête, en moyenne sur ${F.nYears} ans.`,
     ]),
   );
   $("#h-routes-fig").textContent = "Les routes qui traversent les courants-jets";
   $("#routes-note").textContent =
-    `Les routes depuis Paris en grand cercle, colorées point par point par la part des analyses aux conditions propices, au niveau de vol 340, ${F.first}-${F.last}. Au bout de chaque route, la part moyenne du trajet.`;
+    `Les routes depuis Paris en grand cercle, colorées point par point par la part des analyses aux conditions propices, au niveau de vol 340, ${F.first}-${F.last}. Au bout de chaque route, les minutes du trajet passées dans ces conditions, en moyenne, à ${n0(CRUISE_KMH)} km/h.`;
   lecture(
     "#chart-routes",
-    "plus la route fonce, plus elle traverse des conditions fréquentes à cet endroit ; en fond, la carte de la saison. Le choix de la saison change la carte et les chiffres.",
+    "plus la route fonce, plus l'air s'y prête souvent à cet endroit ; en fond, la carte de la saison. Une route plus longue cumule plus de minutes : comparez aussi la couleur.",
   );
   $("#routes-after").replaceChildren(
     p([
       `Sur ${r1.label}, `,
-      { b: pc(r1.seasons.DJF, 1) },
-      ` du trajet traverse en moyenne des conditions propices, de décembre à février. Sur ${r2.label}, ${pc(r2.seasons.DJF, 1)}.`,
+      { b: mins(routeMinutes(r1, "DJF")) },
+      ` des ${dur(flightMinutes(r1))} du trajet passent en moyenne dans des conditions propices, de décembre à février. Sur ${r2.label}, ${Math.round(routeMinutes(r2, "DJF")) === Math.round(routeMinutes(r1, "DJF")) ? "autant" : mins(routeMinutes(r2, "DJF"))}.`,
     ]),
     tokyo.seasons.JJA > tokyo.seasons.DJF
       ? p([
-          `${tokyo.label} fait exception : sa route, très au nord, au-dessus de la Sibérie, traverse plus de conditions propices l'été, ${pc(tokyo.seasons.JJA, 1)} du trajet de juin à août, que l'hiver, ${pc(tokyo.seasons.DJF, 1)}.`,
+          `${tokyo.label} fait exception : sa route, très au nord, au-dessus de la Sibérie, en traverse davantage l'été, ${mins(routeMinutes(tokyo, "JJA"))} de juin à août, que l'hiver, ${mins(routeMinutes(tokyo, "DJF"))}.`,
         ])
       : null,
     p([
-      `Vers le sud, ${low.label} reste sous ${pc(Math.ceil(Math.max(low.seasons.DJF, low.seasons.JJA) * 100) / 100, 0)} en toute saison. Sur le Pacifique Nord, ${other.label} atteint ${pc(other.seasons.DJF, 1)} l'hiver.`,
+      `Vers le sud, ${low.label} n'en traverse pas plus de ${mins(Math.ceil(Math.max(routeMinutes(low, "DJF"), routeMinutes(low, "JJA"))))}, en toute saison, sur ${dur(flightMinutes(low))} de vol. Sur le Pacifique Nord, ${other.label} atteint ${mins(routeMinutes(other, "DJF"))} l'hiver.`,
     ]),
   );
 }
@@ -314,11 +356,17 @@ export function writeTendance(F) {
       ? "Partout sur les grandes routes, plus de conditions propices"
       : `${cap(WORDS[F.up.length])} grandes régions de vol sur cinq plus agitées`;
   $("#tendance-prose").replaceChildren(
-    p([
-      `La hausse la plus forte est celle ${de(hi)} : `,
-      { b: chg(hi.change) },
-      ` d'une décennie à l'autre.`,
-    ]),
+    p(
+      F.up.length === F.local.length
+        ? [
+            "Les cinq grandes régions de vol du nord gagnent toutes d'une décennie à l'autre, de ",
+            { b: chg(lo.change) },
+            ` ${above(lo)} à `,
+            { b: chg(hi.change) },
+            ` ${above(hi)}.`,
+          ]
+        : [`La hausse la plus forte est celle ${de(hi)} : `, { b: chg(hi.change) }, " d'une décennie à l'autre."],
+    ),
   );
   $("#h-trend-fig").textContent = "D'une décennie à l'autre";
   $("#trend-note").textContent =
@@ -328,7 +376,6 @@ export function writeTendance(F) {
     "chaque ligne est une région, chaque bande une année : bleue, plus calme que la moyenne de la région ; magenta, plus agitée.",
   );
   $("#tendance-after").replaceChildren(
-    p([`La plus faible est celle ${de(lo)} : ${chg(lo.change)}.`]),
     p([
       `Sur tout l'hémisphère nord, la fréquence ${moved(F.nh.change)} ; sur l'hémisphère sud, elle ${moved(F.sh.change)}.`,
     ]),
@@ -343,10 +390,10 @@ export function writeTendance(F) {
   $("#h-evolution").textContent =
     F.atl.vwsChange > 0.03
       ? "Plus de vent qui change avec l'altitude"
-      : "Un vent qui change peu, des conditions qui bougent";
+      : "Le vent moyen bouge peu, ses extrêmes gagnent";
   $("#evolution-prose").replaceChildren(
     p([
-      `L'indice multiplie deux mesures du vent : sa variation avec l'altitude, le cisaillement, et son étirement à l'horizontale. Au-dessus de l'Atlantique Nord, le cisaillement moyen au niveau 340 ${moved(F.atl.vwsChange)} de ${F.first} à ${F.last}.`,
+      `L'indice multiplie deux mesures du vent : sa variation avec l'altitude, le cisaillement, et son étirement à l'horizontale. Au-dessus de l'Atlantique Nord, le cisaillement moyen au niveau 340 ${moved(F.atl.vwsChange)} de ${F.first} à ${F.last}. ${Math.abs(F.atl.vwsChange) < 0.03 ? "Ce sont les situations rares, celles que compte l'indice, qui deviennent plus fréquentes." : ""}`,
     ]),
   );
   $("#h-change-fig").textContent = "Où les conditions propices ont gagné";
@@ -370,7 +417,7 @@ export function writeTendance(F) {
   );
   $("#evolution-aside").replaceChildren(
     rich([
-      `Lee et al. (2019) mesurent une hausse de 15 % du cisaillement au cœur du courant-jet de l'Atlantique Nord, de 1979 à 2017, et la relient au réchauffement, plus rapide en altitude sous les tropiques. La moyenne de cette enquête, prise sur toute la région et entre deux niveaux plus espacés, ${moved(F.atl.vwsChange)} : la hausse tient aux situations les plus fortes, ${chg(F.atl.sevChange)}, plus qu'à la moyenne. Cette enquête mesure le vent ; elle n'en établit pas la cause.`,
+      `Lee et al. (2019) mesurent une hausse de 15 % du cisaillement au cœur du courant-jet de l'Atlantique Nord, de 1979 à 2017, et la relient au réchauffement, plus rapide en altitude sous les tropiques. Notre moyenne porte sur toute la région, entre deux niveaux plus espacés : elle ${moved(F.atl.vwsChange)}. La hausse se lit dans les situations les plus fortes, ${chg(F.atl.sevChange)}. Cette enquête mesure le vent ; elle n'en établit pas la cause.`,
     ]),
   );
 }
@@ -384,7 +431,7 @@ export function writeReponse(F) {
       ` de la décennie ${decade(F, false)} à la décennie ${decade(F, true)}, ${chg(atl.sevChange)} pour les plus fortes.`,
     ]),
     p([
-      `Elles se concentrent le long des courants-jets, l'hiver, autour du niveau ${n0(F.topLevel.fl)}. Sur Paris – New York, ${pc(F.pny.seasons.DJF, 1)} du trajet les traverse en moyenne de décembre à février.`,
+      `Elles se concentrent le long des courants-jets, l'hiver, autour du niveau ${n0(F.topLevel.fl)}. Sur un Paris – New York, environ ${mins(routeMinutes(F.pny, "DJF"))} du trajet les traversent en moyenne de décembre à février.`,
     ]),
     p([
       "Ce sont des conditions, pas des secousses. Les avions s'en écartent quand elles sont annoncées, et la plupart des turbulences ne blessent personne : l'enquête dit où et quand le ciel clair est le plus souvent agité, pas combien de vols l'ont été.",
@@ -432,7 +479,7 @@ export function writeSources(C, F) {
         `Décennies : moyenne des fréquences annuelles de ${decade(F, false)} contre celle de ${decade(F, true)}. Saisons : décembre de l'année précédente, janvier et février ; la première année n'a pas d'hiver complet. Carte d'évolution : ${F.span[0][0]}-${F.span[0][1]} contre ${F.span[1][0]}-${F.span[1][1]}, sur des cases de 3°.`,
       ]),
       li([
-        "Routes : 200 points le long du grand cercle entre les deux aéroports, la fréquence de la case la plus proche de chacun, moyennée.",
+        `Routes : 200 points le long du grand cercle entre les deux aéroports, la fréquence de la case la plus proche de chacun, moyennée ; minutes = cette moyenne × la durée du trajet à ${n0(CRUISE_KMH)} km/h, une vitesse de croisière ronde (ni vent, ni montée, ni descente).`,
       ]),
     ]),
     el("h3", { text: "Ce que cette enquête ne dit pas" }),

@@ -8,26 +8,26 @@ export const TSOURCES = {
   wb2: {
     producer: "WeatherBench 2",
     label: "WeatherBench 2, ERA5 sur une grille de 1,5° toutes les 6 heures (Rasp et al., 2024)",
-    short: "ERA5 à 1,5° (WeatherBench 2)",
+    short: "ERA5 à 1,5° toutes les 6 heures",
     url: "https://weatherbench2.readthedocs.io/en/latest/data-guide.html",
   },
   ellrod: {
     producer: "Ellrod et Knapp",
     label:
       "Ellrod, G. P. et Knapp, D. I. (1992), « An objective clear-air turbulence forecasting technique », Weather and Forecasting, 7, 150-165",
-    short: "indice d'Ellrod (1992)",
+    short: "l'indice de turbulence (1992)",
     url: "https://doi.org/10.1175/1520-0434(1992)007<0150:AOCATF>2.0.CO;2",
   },
   naturalearth: {
     producer: "Natural Earth",
     label: "Natural Earth, contours des terres au 1:110 000 000 (via world-atlas)",
-    short: "Natural Earth (contours)",
+    short: "contours des terres",
     url: "https://www.naturalearthdata.com/",
   },
   ourairports: {
     producer: "OurAirports",
     label: "OurAirports, coordonnées des aéroports",
-    short: "OurAirports (aéroports)",
+    short: "position des aéroports",
     url: "https://ourairports.com/data/",
   },
 };

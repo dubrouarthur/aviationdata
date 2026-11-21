@@ -44,6 +44,14 @@ export const MONTHS_SHORT = [
 /** the five regions of the cruise routes, the two hemispheres apart */
 export const LOCAL = ["atlantique", "pacifique", "europe", "amerique", "asie"];
 
+/** the cruise speed that turns a share of a route into minutes of flight (a round figure, said in the text) */
+export const CRUISE_KMH = 900;
+/** minutes of a great-circle route flown at CRUISE_KMH */
+export const flightMinutes = (/** @type {{km: number}} */ r) => (r.km / CRUISE_KMH) * 60;
+/** minutes of that flight spent in favourable conditions, on average, in a season */
+export const routeMinutes = (/** @type {any} */ r, /** @type {string} */ season) =>
+  r.seasons[season] * flightMinutes(r);
+
 /** @param {string} s base64 of bytes */
 export function bytes(s) {
   const bin = atob(s);
